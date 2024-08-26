@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import AdminHome from './Adminpages/AdminHome';
 import HrHome from './HrRound/HrHome';
@@ -30,6 +30,9 @@ function App() {
 
 function AppComponent() {
   const token = localStorage.getItem('token');
+  const [applicant_uuidProps,setApplicant_uuid]=useState("");
+  console.log(applicant_uuidProps,"applicantid")
+
   let role = null;
 
   if (token) {
@@ -82,8 +85,8 @@ function AppComponent() {
             )}
             {role === 'interviewer' && (
               <>
-                <Route path="/interviewhome" element={<InterviewHome />} />
-                <Route path="/interview" element={<ApplicantForm />} />
+                <Route path="/interviewhome" element={<InterviewHome setApplicant_uuid={setApplicant_uuid} />} />
+                <Route path="/interview" element={<ApplicantForm applicant_uuidProps={applicant_uuidProps} />} />
                 <Route path="/new" element={<New />} />
               </>
             )}

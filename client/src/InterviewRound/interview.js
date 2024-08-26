@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button, Container } from 'react-bootstrap';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-const ApplicantForm = () => {
-  const [showToast, setShowToast] = useState(false);
+const ApplicantForm = ({ applicant_uuidProps }) => {
+  const naviagte=useNavigate();
   const [formData, setFormData] = useState({
-    applicant_uuid: '',
+    applicant_uuid: applicant_uuidProps,
     applicants_age: '',
     applicants_gender: '',
     email_on_file: '',
@@ -106,14 +104,15 @@ const ApplicantForm = () => {
     setFormData(prevState => ({
       ...prevState,
       [name]: type === 'radio' ? value : (type === 'checkbox' ? checked : value)
-    }));
-  };
+  }));
+};
 
-
-
+  
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+   
+
     const validationErrors = validateForm();
     setErrors(validationErrors);
   
@@ -122,32 +121,34 @@ const ApplicantForm = () => {
     }
   
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API}/add-evaluation`, formData, {
-        headers: getAuthHeaders(),
-      });
-  
-     
-      if (response.status === 201) {
-        console.log("Data submitted successfully");
-        toast.success("Data submitted successfully!");
-      } else {
-        console.log("Unexpected response status:", response.status);
-        toast.error("Unexpected response from the server.");
-      }
+        const response = await axios.post(`${process.env.REACT_APP_API}/add-evaluation`, formData, {
+            headers: getAuthHeaders(),
+        });
+
+        if (response.status !== 200) {
+            throw new Error('Network response was not ok');
+        }
+    
+        {showToast && <Toast message="Form submitted successfully!" />}
+
+
     } catch (error) {
-      console.log('Failed to submit data. Please try again later.');
-      toast.error("Failed to submit data. Please try again later.");
+        console.error('Error submitting form:', error);
+        // Optionally handle error here, e.g., show an error message
     } finally {
-      // Set a timeout to reload the page after the toast has been displayed for a while
-      setTimeout(() => {
-       ;
-        window.location.reload();
-      }, 1800); // Display toast for 1800ms before reloading
+      
+      window.location.reload();
+
+        setShowToast(true);
+        setTimeout(() => {
+            setShowToast(false);
+        }, 1800);
+        console.log(formData); // Consider logging formData before clearing it
     }
-  };
-  
-  const resetForm = () => {
-    setFormData({
+};
+
+const resetForm = () => {
+  setFormData({
       applicant_uuid: '',
       applicants_age: '',
       applicants_gender: '',
@@ -197,129 +198,129 @@ const ApplicantForm = () => {
       current_residence: '',
       current_city: '',
       current_country: '',
-    });
-  };
+  });
+};
 
 
 
   return (
     <Container className="  d-flex justify-content-center align-items-center ">
-
-      <Col lg={8} className='border px-5 mt-5' style={{ fontFamily: 'Roboto, sans-serif' }}>
+       
+      <Col lg={8} className='border px-5 mt-5'  style={{ fontFamily: 'Roboto, sans-serif' }}>
         <h1 className="m-4">Applicant Information Form</h1>
         <Form>
           <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              1. Enter Applicant uuid
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                name="applicant_uuid"
-                value={formData.applicant_uuid}
-                onChange={handleChange}
-                isInvalid={!!errors.applicant_uuid}
-              >
-              </Form.Control>
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              2. WHAT IS THE APPLICANT'S AGE
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="number"
-                name="applicants_age" // Add name attribute for the state
-                value={formData.applicants_age} // Bind value to state
-                placeholder="Enter age"
-                onChange={handleChange}
-                isInvalid={!!errors.applicants_age}  // Handle changes with a change handler
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              3. APPLICANT'S GENDER
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="select"
-                name="applicants_gender" // Add name attribute for the state
-                value={formData.applicants_gender} // Bind value to state
-                onChange={handleChange}
-                isInvalid={!!errors.applicants_gender} // Handle changes with a change handler
-              >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </Form.Control>
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              4. PLEASE ENTER THE APPLICANT'S EMAIL ON FILE.
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="email"
-                name="email_on_file" // Add name attribute for the state
-                value={formData.email_on_file} // Bind value to state
-                placeholder="Applicant's email" // Placeholder text
-                onChange={handleChange}
-                isInvalid={!!errors.email_on_file} // Handle changes with a change handler
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              5. Please Select Your Country
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="select"
-                name="country" // Add name attribute for the state
-                value={formData.country} // Bind selected value to formData
-                onChange={handleChange}
-                isInvalid={!!errors.country} // Handle changes with a change handler
-              >
-                <option value="">Select Country</option>
-                <option value="USA">USA</option>
-                <option value="Canada">Canada</option>
-                <option value="UK">UK</option>
-                {/* Add more options as needed */}
-              </Form.Control>
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              6. PLEASE ENTER THE CITY
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                name="city" // Add name attribute
-                placeholder="Enter city"
-                value={formData.city} // Bind value to formData
-                onChange={handleChange}
-                isInvalid={!!errors.city}  // Handle changes with a change handler
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              7. HAS THE APPLICANT INTERVIEWED WITH US BEFORE?
-            </Form.Label>
-            <Col sm={6} className="text-start">
-              <Form.Check
-                type="checkbox"
-                name="interviewed_before"
-                checked={formData.interviewed_before} // Bind the checked attribute to formData
-                onChange={handleChange}
-                isInvalid={!!errors.interviewed_before}  // Handle changes with a change handler
-              />
-            </Col>
-          </Form.Group>
+        <Form.Label column sm={6} className="text-start">
+          1. Enter Applicant uuid
+        </Form.Label>
+        <Col sm={6}>
+          <Form.Control
+            type="text"
+            name="applicant_uuid"
+            value={formData.applicant_uuid}
+            onChange={handleChange}
+            isInvalid={!!errors.applicant_uuid} 
+          >
+          </Form.Control>
+        </Col>
+      </Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    2. WHAT IS THE APPLICANT'S AGE
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control
+      type="number"
+      name="applicants_age" // Add name attribute for the state
+      value={formData.applicants_age} // Bind value to state
+      placeholder="Enter age"
+      onChange={handleChange}
+      isInvalid={!!errors.applicants_age}  // Handle changes with a change handler
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    3. APPLICANT'S GENDER
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control
+      as="select"
+      name="applicants_gender" // Add name attribute for the state
+      value={formData.applicants_gender} // Bind value to state
+      onChange={handleChange} 
+      isInvalid={!!errors.applicants_gender} // Handle changes with a change handler
+    >
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+      <option value="Other">Other</option>
+    </Form.Control>
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    4. PLEASE ENTER THE APPLICANT'S EMAIL ON FILE.
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control
+      type="email"
+      name="email_on_file" // Add name attribute for the state
+      value={formData.email_on_file} // Bind value to state
+      placeholder="Applicant's email" // Placeholder text
+      onChange={handleChange} 
+      isInvalid={!!errors.email_on_file} // Handle changes with a change handler
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    5. Please Select Your Country
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="select"
+      name="country" // Add name attribute for the state
+      value={formData.country} // Bind selected value to formData
+      onChange={handleChange} 
+      isInvalid={!!errors.country} // Handle changes with a change handler
+    >
+      <option value="">Select Country</option>
+      <option value="USA">USA</option>
+      <option value="Canada">Canada</option>
+      <option value="UK">UK</option>
+      {/* Add more options as needed */}
+    </Form.Control>
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    6. PLEASE ENTER THE CITY
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      type="text" 
+      name="city" // Add name attribute
+      placeholder="Enter city" 
+      value={formData.city} // Bind value to formData
+      onChange={handleChange}
+      isInvalid={!!errors.city}  // Handle changes with a change handler
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    7. HAS THE APPLICANT INTERVIEWED WITH US BEFORE?
+  </Form.Label>
+  <Col sm={6} className="text-start">
+    <Form.Check 
+      type="checkbox" 
+      name="interviewed_before" 
+      checked={formData.interviewed_before} // Bind the checked attribute to formData
+      onChange={handleChange}
+      isInvalid={!!errors.interviewed_before}  // Handle changes with a change handler
+    />
+  </Col>
+</Form.Group>
 
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
@@ -742,373 +743,373 @@ const ApplicantForm = () => {
           </Form.Group>
 
 
-          {/* Duration of Telecom Work */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              28. HOW LONG DID HE/SHE WORK THERE?
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                placeholder="Enter duration"
-                name="experience_of_tele"
-                value={formData.experience_of_tele || ''}
-                onChange={handleChange}
-                isInvalid={!!errors.experience_of_tele}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              29. WHAT IS THE KIND OF WORK HE IS DOING RIGHT NOW
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                placeholder="Enter current work"
-                name="type_of_work_doing"
-                value={formData.type_of_work_doing || ''}
-                onChange={handleChange}
-                isInvalid={!!errors.type_of_work_doing}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              30. MENTION ANY OTHER EMPLOYMENT EXPERIENCE SEPARATE BY EACH LINE.
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                placeholder="Enter other employment experience"
-                name="other_employment_exp"
-                value={formData.other_employment_exp || ''}
-                onChange={handleChange}
-                isInvalid={!!errors.other_employment_exp}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              31. DOES THE EMPLOYEE HAVE FOREIGN WORK EXPERIENCE?
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Check
-                type="radio"
-                label="Yes"
-                name="foreign_work_exp"
-                value={formData.foreign_work_exp === 'Yes'}
-                onChange={handleChange}
-                isInvalid={!!errors.foreign_work_exp}
-              />
-              <Form.Check
-                type="radio"
-                label="No"
-                name="foreign_work_exp"
-                value={formData.foreign_work_exp === 'No'}
-                onChange={handleChange}
-                isInvalid={!!errors.foreign_work_exp}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              32. PLEASE MENTION THE FOREIGN EXPERIENCE (SEPARATE BY EACH LINE)
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                placeholder="Enter foreign work experience"
-                name="mention_line_exp"
-                value={formData.mention_line_exp}
-                onChange={handleChange}
-                isInvalid={!!errors.applicant_uuid}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              33. APPEARANCE & DEMEANOR
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="appearance"
-                value={formData.appearance}
-                onChange={handleChange}
-                isInvalid={!!errors.appearance}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              34. PERSONALITY
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="personality"
-                value={formData.personality}
-                onChange={handleChange}
-                isInvalid={!!errors.personality}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              35. CONFIDENCE
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="confidence"
-                value={formData.confidence}
-                onChange={handleChange}
-                isInvalid={!!errors.confidence}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              36. COMMUNICATION SKILLS
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="communication_skills"
-                value={formData.communication_skills}
-                onChange={handleChange}
-                isInvalid={!!errors.communication_skills}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              37. PITCH
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="pitch"
-                value={formData.pitch}
-                onChange={handleChange}
-                isInvalid={!!errors.pitch}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              38. OVERCOMING OBJECTIONS
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="overcoming_objections"
-                value={formData.overcoming_objections}
-                onChange={handleChange}
-                isInvalid={!!errors.overcoming_objections}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              39. NEGOTIATION
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="negotiations"
-                value={formData.negotiations}
-                onChange={handleChange}
-                isInvalid={!!errors.negotiations}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              40. WHAT ARE THE STRENGTHS OF THE APPLICANT
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter strengths"
-                name="applicant_strength"
-                value={formData.applicant_strength}
-                onChange={handleChange}
-                isInvalid={!!errors.applicant_strength}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              41. WHAT ARE THE WEAKNESSES OF THE APPLICANT
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter weaknesses"
-                name="applicants_weakness"
-                value={formData.applicants_weakness}
-                onChange={handleChange}
-                isInvalid={!!errors.applicants_weakness}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              42. ADDITIONAL NOTES & COMMENTS
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                placeholder="Enter additional notes"
-                name="comments"
-                value={formData.comments}
-                onChange={handleChange}
-                isInvalid={!!errors.comments}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              43. HOW LONG OF A CONTRACT CAN THE APPLICANT SIGN IF GIVEN JOB
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                placeholder="Enter contract duration"
-                name="contract_sign"
-                value={formData.contract_sign}
-                onChange={handleChange}
-                isInvalid={!!errors.contract_sign}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              44. PLEASE WRITE A SUMMARY RECOMMENDATION/EVALUATION
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                placeholder="Enter recommendation/evaluation"
-                name="evaluation"
-                value={formData.evaluation}
-                onChange={handleChange}
-                isInvalid={!!errors.evaluation}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              45. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Check
-                type="radio"
-                label="Yes"
-                name="recommend_hiring"
-                value={formData.recommend_hiring
-                  == 'YES'}
-                onChange={handleChange}
-                isInvalid={!!errors.recommend_hiring}
-              />
-              <Form.Check
-                type="radio"
-                label="No"
-                name="recommend_hiring"
-                value={formData.recommend_hiring
-                  == 'NO'}
-                onChange={handleChange}
-                isInvalid={!!errors.applicant_uuid}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              46. PLEASE SELECT THE COURSE TYPE
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control as="select" name="course_type_selection"
-                value={formData.course_type_selection}
-                isInvalid={!!errors.course_type_selection}
-                onChange={handleChange}>
-                <option value="">Select a course type</option>
-                <option value="Online">Online</option>
-                <option value="In-Person">In-Person</option>
-                <option value="Hybrid">Hybrid</option>
-              </Form.Control>
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              47. ROSHAN'S INTERVIEW RESCHEDULER
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control type="text" placeholder="Enter rescheduler"
-                name="current_residence" value={formData.current_residence}
-                onChange={handleChange}
-                isInvalid={!!errors.current_residence}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              48. WHAT CITY IS HE IN?
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                placeholder="Enter city"
-                name="current_city"
-                value={formData.current_city}
-                onChange={handleChange}
-                isInvalid={!!errors.current_city}
-              />
-
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              49. PLEASE SELECT THE COUNTRY
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="select"
-                name="current_country"
-                value={formData.current_country}
-                onChange={handleChange}
-                isInvalid={!!errors.current_country}
-              >
-                <option value={formData.current_country}>{!formData.current_country ? 'Select a country' : formData.current_country}</option>
-                <option value="USA">USA</option>
-                <option value="Canada">Canada</option>
-                <option value="UK">UK</option>
-                <option value="India">India</option>
-              </Form.Control>
-
-            </Col>
-          </Form.Group>
+         {/* Duration of Telecom Work */}
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    28. HOW LONG DID HE/SHE WORK THERE?
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      type="text" 
+      placeholder="Enter duration" 
+      name="experience_of_tele" 
+      value={formData.experience_of_tele || ''} 
+      onChange={handleChange} 
+      isInvalid={!!errors.experience_of_tele} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    29. WHAT IS THE KIND OF WORK HE IS DOING RIGHT NOW
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      type="text" 
+      placeholder="Enter current work" 
+      name="type_of_work_doing" 
+      value={formData.type_of_work_doing || ''} 
+      onChange={handleChange} 
+      isInvalid={!!errors.type_of_work_doing} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    30. MENTION ANY OTHER EMPLOYMENT EXPERIENCE SEPARATE BY EACH LINE.
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={5} 
+      placeholder="Enter other employment experience" 
+      name="other_employment_exp" 
+      value={formData.other_employment_exp || ''} 
+      onChange={handleChange} 
+      isInvalid={!!errors.other_employment_exp} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    31. DOES THE EMPLOYEE HAVE FOREIGN WORK EXPERIENCE?
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Check 
+      type="radio" 
+      label="Yes" 
+      name="foreign_work_exp" 
+      value={formData.foreign_work_exp==='Yes'}
+      onChange={handleChange} 
+      isInvalid={!!errors.foreign_work_exp} 
+    />
+    <Form.Check 
+      type="radio" 
+      label="No" 
+      name="foreign_work_exp" 
+      value={formData.foreign_work_exp==='No'}
+      onChange={handleChange} 
+      isInvalid={!!errors.foreign_work_exp} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    32. PLEASE MENTION THE FOREIGN EXPERIENCE (SEPARATE BY EACH LINE)
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={5} 
+      placeholder="Enter foreign work experience" 
+      name="mention_line_exp" 
+      value={formData.mention_line_exp}
+      onChange={handleChange} 
+      isInvalid={!!errors.applicant_uuid} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    33. APPEARANCE & DEMEANOR
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={3} 
+      placeholder="Enter comments" 
+      name="appearance" 
+      value={formData.appearance}
+      onChange={handleChange} 
+      isInvalid={!!errors.appearance} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    34. PERSONALITY
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={3} 
+      placeholder="Enter comments" 
+      name="personality" 
+      value={formData.personality}
+      onChange={handleChange} 
+      isInvalid={!!errors.personality} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    35. CONFIDENCE
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={3} 
+      placeholder="Enter comments" 
+      name="confidence" 
+      value={formData.confidence}
+      onChange={handleChange} 
+      isInvalid={!!errors.confidence} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    36. COMMUNICATION SKILLS
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={3} 
+      placeholder="Enter comments" 
+      name="communication_skills" 
+      value={formData.communication_skills}
+      onChange={handleChange} 
+      isInvalid={!!errors.communication_skills} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    37. PITCH
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={3} 
+      placeholder="Enter comments" 
+      name="pitch" 
+      value={formData.pitch}
+      onChange={handleChange} 
+      isInvalid={!!errors.pitch} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    38. OVERCOMING OBJECTIONS
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={3} 
+      placeholder="Enter comments" 
+      name="overcoming_objections" 
+       value={formData.overcoming_objections}
+      onChange={handleChange} 
+      isInvalid={!!errors.overcoming_objections} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    39. NEGOTIATION
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={3} 
+      placeholder="Enter comments" 
+      name="negotiations" 
+      value={formData.negotiations}
+      onChange={handleChange} 
+      isInvalid={!!errors.negotiations} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    40. WHAT ARE THE STRENGTHS OF THE APPLICANT
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={3} 
+      placeholder="Enter strengths" 
+      name="applicant_strength" 
+      value={formData.applicant_strength}
+      onChange={handleChange} 
+      isInvalid={!!errors.applicant_strength} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    41. WHAT ARE THE WEAKNESSES OF THE APPLICANT
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={3} 
+      placeholder="Enter weaknesses" 
+      name="applicants_weakness" 
+      value={formData.applicants_weakness}
+      onChange={handleChange} 
+      isInvalid={!!errors.applicants_weakness} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    42. ADDITIONAL NOTES & COMMENTS
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={5} 
+      placeholder="Enter additional notes" 
+      name="comments" 
+      value={formData.comments}
+      onChange={handleChange} 
+      isInvalid={!!errors.comments} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    43. HOW LONG OF A CONTRACT CAN THE APPLICANT SIGN IF GIVEN JOB
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      type="text" 
+      placeholder="Enter contract duration" 
+      name="contract_sign" 
+      value={formData.contract_sign}
+      onChange={handleChange} 
+      isInvalid={!!errors.contract_sign} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    44. PLEASE WRITE A SUMMARY RECOMMENDATION/EVALUATION
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control 
+      as="textarea" 
+      rows={5} 
+      placeholder="Enter recommendation/evaluation" 
+      name="evaluation" 
+      value={formData.evaluation}
+      onChange={handleChange} 
+      isInvalid={!!errors.evaluation} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    45. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Check 
+      type="radio" 
+      label="Yes" 
+      name="recommend_hiring" 
+      value={formData.recommend_hiring
+=='YES'      } 
+      onChange={handleChange} 
+      isInvalid={!!errors.recommend_hiring} 
+    />
+    <Form.Check 
+      type="radio" 
+      label="No" 
+      name="recommend_hiring" 
+      value={formData.recommend_hiring
+        =='NO'      } 
+      onChange={handleChange} 
+      isInvalid={!!errors.applicant_uuid} 
+    />
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    46. PLEASE SELECT THE COURSE TYPE
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control as="select" name="course_type_selection"
+     value={formData.course_type_selection}
+      isInvalid={!!errors.course_type_selection}
+       onChange={handleChange}>
+      <option value="">Select a course type</option>
+      <option value="Online">Online</option>
+      <option value="In-Person">In-Person</option>
+      <option value="Hybrid">Hybrid</option>
+    </Form.Control>
+  </Col>
+</Form.Group>
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    47. ROSHAN'S INTERVIEW RESCHEDULER
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Control type="text" placeholder="Enter rescheduler" 
+    name="current_residence" value={formData.current_residence}
+     onChange={handleChange} 
+     isInvalid={!!errors.current_residence} 
+     />
+  </Col>
+</Form.Group>
+    <Form.Group as={Row} className="mb-3">
+      <Form.Label column sm={6} className="text-start">
+        48. WHAT CITY IS HE IN?
+      </Form.Label>
+      <Col sm={6}>
+        <Form.Control
+          type="text"
+          placeholder="Enter city"
+          name="current_city"
+          value={formData.current_city}
+          onChange={handleChange}
+          isInvalid={!!errors.current_city}
+        />
+       
+      </Col>
+    </Form.Group>
+    <Form.Group as={Row} className="mb-3">
+      <Form.Label column sm={6} className="text-start">
+        49. PLEASE SELECT THE COUNTRY
+      </Form.Label>
+      <Col sm={6}>
+        <Form.Control
+          as="select"
+          name="current_country"
+          value={formData. current_country}
+          onChange={handleChange}
+          isInvalid={!!errors. current_country}
+        >
+          <option value={formData. current_country}>{!formData. current_country?'Select a country':formData. current_country}</option>
+          <option value="USA">USA</option>
+          <option value="Canada">Canada</option>
+          <option value="UK">UK</option>
+          <option value="India">India</option>
+        </Form.Control>
+        
+      </Col>
+    </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Col sm={{ span: 6, offset: 6 }}>
               <Button type="submit" onClick={handleSubmit}>Submit Details</Button>
