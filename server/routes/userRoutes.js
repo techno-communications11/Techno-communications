@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getApplicantsForScreening } = require('./controllers/screening');
+const { getApplicantsForScreening ,getApplicationforinterviewr,getApplicationforhr} = require('./controllers/screening');
 const { login } = require('./controllers/Login');
 const { getAllHRs, getAllinterviewers} = require('./controllers/getroles'); // Adjust the path if necessary
 const {getAllUsersStatus} =  require("./controllers/admin")
@@ -13,6 +13,8 @@ router.get('/interviewer', getAllinterviewers);
 const {getmarkets }= require('./controllers/Markets')  
 // Define the route
 router.get('/users/:userId/applicants', getApplicantsForScreening);
+router.get('/users/:userId/interviewapplicants', getApplicationforinterviewr);
+router.get('/users/:userId/hrinterviewapplicants', getApplicationforinterviewr);
 router.post('/login', login);
 router.get('/markets', getmarkets);
 //getting users status

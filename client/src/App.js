@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'r
 import AdminHome from './Adminpages/AdminHome';
 import HrHome from './HrRound/HrHome';
 import TrainerHome from './TrainerPages/TrainerHome';
-import Home from './Screnningpages/Home';
+import Home from './Screnningpages/screeningAplicantSubmission';
 import InterviewHome from './InterviewRound/InterviewHome';
 import Login from './pages/Login';
 import Public from './pages/Public';
@@ -18,6 +18,7 @@ import Hrinterview from './HrRound/Hrinterview';
 import ApplicantForm from './InterviewRound/interview';
 import HrNew from './HrRound/HrNew';
 import './App.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -71,12 +72,12 @@ function AppComponent() {
                 <Route path="/hrnew" element={<HrNew />} />
               </>
             )}
-            {role === 'Trainer' && <Route path="/trainerhome" element={<TrainerHome />} />}
+            {/* {role === 'Trainer' && <Route path="/trainerhome" element={<TrainerHome />} />} */}
             {role === 'screening_manager' && (
               <>
                 {/* <Route path="/home" element={<Home />} /> */}
                 <Route path="/screening" element={<Listprofile />} />
-                <Route path="/home" element={<New />} />
+                <Route path="/screeinghome" element={<New />} />
               </>
             )}
             {role === 'interviewer' && (

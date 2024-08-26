@@ -84,7 +84,7 @@ function Screening() {
 
   return (
     <div className='container-fluid d-flex justify-content-center align-items-center mt-4'>
-      <div className='row  shadow-lg card-style mx-5 rounded-3'>
+      <div className='row   mx-5 rounded-3'>
         {/* Image Section */}
         <div className='col-md-6 d-flex justify-content-center align-items-center'>
           <img src="./registerUser.png" alt="Register User" className="img-fluid" style={{ height: '80%' }} />

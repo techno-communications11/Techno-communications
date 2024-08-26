@@ -67,7 +67,7 @@ function Login() {
             navigate('/trainerhome');
             break;
           case 'screening_manager':
-            navigate('/home');
+            navigate('/screeinghome');
             break;
           case 'interviewer':
             navigate('/interviewhome');

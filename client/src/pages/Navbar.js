@@ -82,7 +82,7 @@ function AppNavbar() {
             )}
             {role === 'hr' && (
               <Nav.Link as={Link} to="/hrnew" className='fw-bolder text-primary'>
-                hrcandidtaes
+                HR Interview candidtaes
               </Nav.Link>
             )}
 

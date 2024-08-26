@@ -14,7 +14,7 @@ const getApplicantsForScreening = async (req, res) => {
         );
 
 
-        
+
         console.log('Locations Result:', locationsResult); // Debugging statement
 
         if (locationsResult.length === 0) {
@@ -23,7 +23,7 @@ const getApplicantsForScreening = async (req, res) => {
 
         // Extract location IDs
         const locationIds = locationsResult.map(location => location.work_location_id);
-console.log(locationIds)
+        console.log(locationIds)
         // Step 2: Get Applicants for These Locations
         const [applicantsResult] = await db.query(
             `SELECT ar.id AS applicant_id, ar.applicant_uuid, ar.name AS applicant_name, ar.email AS applicant_email, ar.phone AS applicant_phone, ar.referred_by, ar.reference_id, ar.created_at
@@ -39,4 +39,40 @@ console.log(locationIds)
     }
 };
 
-module.exports = { getApplicantsForScreening };
+const getApplicationforinterviewr = async (req, res) => {
+
+    const { userId } = req.params;
+    console.log("trying get applicants for interviewer......")
+    try {
+        // Step 1: Get Work Locations for the User
+        const [applicantsResult] = await db.query(
+            `SELECT applicant_uuid, time_of_interview FROM interviews WHERE interviewer_id = ?`,
+            [userId]
+        );
+
+        res.status(200).json(applicantsResult);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+
+};
+const getApplicationforhr = async (req, res) => {
+
+    const { userId } = req.params;
+    console.log("trying get applicants for hr......")
+    try {
+        // Step 1: Get Work Locations for the User
+        const [applicantsResult] = await db.query(
+            `SELECT applicant_uuid, time_of_hrinterview FROM hrinterview WHERE hr_id = ?`,
+            [userId]
+        );
+
+        res.status(200).json(applicantsResult);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+
+};
+module.exports = { getApplicantsForScreening, getApplicationforinterviewr ,getApplicationforhr};
