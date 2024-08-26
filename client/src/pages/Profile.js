@@ -16,9 +16,9 @@ function Profile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // const response = await axios.get('http://localhost:3001/api/auth/profile', {
-        //   headers: getAuthHeaders(), 
-        // });
+        const response = await axios.get(`${process.env.REACT_APP_API}/profile`, {
+          headers: getAuthHeaders(), 
+        });
         setUserData("tharun");
       
         
