@@ -80,15 +80,15 @@ function AppNavbar() {
                 interview form
               </Nav.Link>
             )}
-            {/* {role === 'hr' && (
+            {role === 'hr' && (
               <Nav.Link as={Link} to="/hrnew" className='fw-bolder text-primary'>
-                New
+                hrcandidtaes
               </Nav.Link>
-            )} */}
+            )}
 
 
             
-            {/* {role === 'screening_manager' && ( */}
+            {role === 'screening_manager' && (
               <Nav.Link
                 as={Link}
                 to="/home"
@@ -109,8 +109,8 @@ function AppNavbar() {
                     {counts.totalProfiles}
                   </sup>
                 )}
-              </Nav.Link>
-            
+              </Nav.Link>)
+}
             <Nav.Link as={Link} to="/profile">
               <FaUser className='me-4' />
             </Nav.Link>

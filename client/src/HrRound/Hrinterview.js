@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // import axios from 'axios';
-import { Table,Form, Row, Col, Button, Container, Toast, ToastContainer } from 'react-bootstrap';
+import { Table, Form, Row, Col, Button, Container, Toast, ToastContainer } from 'react-bootstrap';
 
 const Hrinterview = () => {
   // State for showing toast and form data
@@ -41,7 +41,7 @@ const Hrinterview = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
   };
- console.log(formData)
+  console.log(formData)
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -92,215 +92,12 @@ const Hrinterview = () => {
   };
 
   return (
-    <Container className="d-flex gap-5 justify-content-center align-items-center">
-      <Col className='col-md-5'>
-      <h2>Interviewer Results</h2>
-      <div>
-        <thead>
-          <tr>
-            <th>Question</th>
-            <th>Answer</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Applicant's Age</td>
-            <td></td> {/* Answer will be populated from backend data */}
-          </tr>
-          <tr>
-            <td>Applicant's Gender</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Email on File</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Country</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>City</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Interviewed Before</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Visa Category</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Education Level</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Major In</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Currently Studying</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>University Name</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Course Type</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Semester</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Had Car</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Family Operate TI</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Cellphone Carrier</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Worked Before</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Currently Employed</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Current Company</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Current Job in TI</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Hours of Daily Work</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Daily Wage</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Compensation Type</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Reason to Leave</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Cellular Experience</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Name Tele Company Name</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Experience of Tele</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Type of Work Doing</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Other Employment Exp</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Foreign Work Exp</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Mention Line Exp</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Appearance</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Personality</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Confidence</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Communication Skills</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Pitch</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Overcoming Objections</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Negotiations</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Applicant Strength</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Applicant's Weakness</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Comments</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Contract Sign</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Evaluation</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Recommend Hiring</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Course Type Selection</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Current Residence</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Current City</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Current Country</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </div>
-      </Col >
-      <Col className='col-md-5'>
-        <h1 className="m-4">HR Interview</h1>
-        <Form onSubmit={handleSubmit}>
+    <Container className="d-flex  justify-content-center">
+      <Col md lg={5}  className="m-4">
+        <h1>hi</h1></Col>
+      <Col md lg={7}   className="m-4">
+        <h1>HR Interview</h1>
+        <Form onSubmit={handleSubmit} >
           {/* Submission Date */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">

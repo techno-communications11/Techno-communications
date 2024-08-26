@@ -16,7 +16,7 @@ import Profile from './pages/Profile';
 import { jwtDecode } from 'jwt-decode'; 
 import Hrinterview from './HrRound/Hrinterview';
 import ApplicantForm from './InterviewRound/interview';
-// import HrNew from './HrRound/HrNew';
+import HrNew from './HrRound/HrNew';
 import './App.css';
 
 function App() {
@@ -68,7 +68,7 @@ function AppComponent() {
                 <Route path="/hrhome" element={<HrHome />} />
                 <Route path="/hrinterview" element={<Hrinterview />} />
                 {/* <Route path="/hrnew" element={<HrNew/>} /> */}
-                <Route path="/new" element={<New />} />
+                <Route path="/hrnew" element={<HrNew />} />
               </>
             )}
             {role === 'Trainer' && <Route path="/trainerhome" element={<TrainerHome />} />}
