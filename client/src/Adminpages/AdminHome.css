@@ -1,0 +1,21 @@
+/* AdminHome.css */
+
+.card-style {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+  }
+  
+  .card-style:hover {
+    transform: scale(1.05);
+  }
+  
+  .card-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+  }
+  
+  .card-text {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+  }
+  

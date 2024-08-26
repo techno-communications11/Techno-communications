@@ -1,0 +1,21 @@
+Basic JavaScript Concepts (Data Types, Value Types and Reference Types)
+Variables and Scopes (Hoisting, var, let, const, Scopes)
+Operators and Expressions (Operators, == vs === vs typeof)
+Control Flow and Loops (Loops, Array Methods)
+Objects and Prototypes (Objects, Prototypal Inheritance, this)
+Advanced Functions (IIFEs, Closures, Asynchronous JavaScript)
+DOM Manipulation and Events (DOM, Event Loop, Timers)
+OOP in JavaScript (OOP Principles, Classes)
+Type Systems and Typing (Various Typing Methods)
+Data Structures (Common Data Structures)
+
+React Fundamentals: Introduction, JSX, Components, Props, State.
+React Core Concepts: Event Handling, Conditional Rendering, Lists and Keys, Forms.
+React Hooks: useState, useEffect, useContext, useReducer, useRef.
+Advanced React Concepts: Context API, Refs, Error Boundaries.
+React Router: Basics, Route Parameters, Nested Routes.
+State Management: Redux, React Query, SWR.
+Performance Optimization: Code Splitting, Lazy Loading, Memoization.
+Testing in React: Unit Testing, Integration Testing.
+React Developer Tools: DevTools, Debugging.
+Deployment and Build Tools: Build Tools, Deployment.
