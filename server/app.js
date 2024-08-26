@@ -28,7 +28,7 @@ app.use(express.json()); // For parsing JSON bodies
 
 // Routes
 app.get('/', (req, res) => {
-    res.send('Hello World! how are you');
+    res.send(' Techno-communication server running ');
 });
 app.use('/api', userRoutes);
 app.use('/api', authMiddleware, userRoutes);
