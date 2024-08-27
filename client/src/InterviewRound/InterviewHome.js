@@ -65,7 +65,7 @@ function InterViewHome({setApplicant_uuid}) {
                     className="btn btn-primary"
                     onClick={() => handleInterviewClick(profile)}
                   >
-                     Next
+                      Start Interview
                   </button>
                 </td>
               </tr>

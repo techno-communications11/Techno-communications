@@ -1,56 +1,56 @@
 const db = require('../config/db');
 
-exports.addFirstRoundEvaluation = async (req, res) => {
+const addFirstRoundEvaluation = async (req, res) => {
     const {
-       applicant_uuid,
-    applicants_age,
-    applicants_gender,
-    email_on_file,
-    country,
-    city,
-    interviewed_before,
-    visa_category,
-    education_level,
-    major_in,
-    currently_studying,
-    university_name,
-    course_type,
-    semester,
-    had_car,
-    family_operate_ti,
-    cellphone_carrier,
-    worked_before,
-    currently_employed,
-    current_company,
-    current_job_in_ti,
-    hours_of_daily_work,
-    daily_wage,
-    compensation_type,
-    reason_to_leave,
-    cellular_experience,
-    name_tele_company_name,
-    experience_of_tele,
-    type_of_work_doing,
-    other_employment_exp,
-    foreign_work_exp,
-    mention_line_exp,
-    appearance,
-    personality,
-    confidence,
-    communication_skills,
-    pitch,
-    overcoming_objections,
-    negotiations,
-    applicant_strength,
-    applicants_weakness,
-    comments,
-    contract_sign,
-    evaluation,
-    recommend_hiring,
-    course_type_selection,
-    current_residence,
-    current_city,
-    current_country,
+        applicant_uuid,
+        applicants_age,
+        applicants_gender,
+        email_on_file,
+        country,
+        city,
+        interviewed_before,
+        visa_category,
+        education_level,
+        major_in,
+        currently_studying,
+        university_name,
+        course_type,
+        semester,
+        had_car,
+        family_operate_ti,
+        cellphone_carrier,
+        worked_before,
+        currently_employed,
+        current_company,
+        current_job_in_ti,
+        hours_of_daily_work,
+        daily_wage,
+        compensation_type,
+        reason_to_leave,
+        cellular_experience,
+        name_tele_company_name,
+        experience_of_tele,
+        type_of_work_doing,
+        other_employment_exp,
+        foreign_work_exp,
+        mention_line_exp,
+        appearance,
+        personality,
+        confidence,
+        communication_skills,
+        pitch,
+        overcoming_objections,
+        negotiations,
+        applicant_strength,
+        applicants_weakness,
+        comments,
+        contract_sign,
+        evaluation,
+        recommend_hiring,
+        course_type_selection,
+        current_residence,
+        current_city,
+        current_country,
     } = req.body;
     // console.log("incoming valuessssssssssssssssss..")
 
@@ -109,59 +109,59 @@ exports.addFirstRoundEvaluation = async (req, res) => {
     `;
 
     const values = [
-       applicant_uuid,
-    applicants_age,
-    applicants_gender,
-    email_on_file,
-    country,
-    city,
-    interviewed_before,
-    visa_category,
-    education_level,
-    major_in,
-    currently_studying,
-    university_name,
-    course_type,
-    semester,
-    had_car,
-    family_operate_ti,
-    cellphone_carrier,
-    worked_before,
-    currently_employed,
-    current_company,
-    current_job_in_ti,
-    hours_of_daily_work,
-    daily_wage,
-    compensation_type,
-    reason_to_leave,
-    cellular_experience,
-    name_tele_company_name,
-    experience_of_tele,
-    type_of_work_doing,
-    other_employment_exp,
-    foreign_work_exp,
-    mention_line_exp,
-    appearance,
-    personality,
-    confidence,
-    communication_skills,
-    pitch,
-    overcoming_objections,
-    negotiations,
-    applicant_strength,
-    applicants_weakness,
-    comments,
-    contract_sign,
-    evaluation,
-    recommend_hiring,
-    course_type_selection,
-    current_residence,
-    current_city,
-    current_country,
+        applicant_uuid,
+        applicants_age,
+        applicants_gender,
+        email_on_file,
+        country,
+        city,
+        interviewed_before,
+        visa_category,
+        education_level,
+        major_in,
+        currently_studying,
+        university_name,
+        course_type,
+        semester,
+        had_car,
+        family_operate_ti,
+        cellphone_carrier,
+        worked_before,
+        currently_employed,
+        current_company,
+        current_job_in_ti,
+        hours_of_daily_work,
+        daily_wage,
+        compensation_type,
+        reason_to_leave,
+        cellular_experience,
+        name_tele_company_name,
+        experience_of_tele,
+        type_of_work_doing,
+        other_employment_exp,
+        foreign_work_exp,
+        mention_line_exp,
+        appearance,
+        personality,
+        confidence,
+        communication_skills,
+        pitch,
+        overcoming_objections,
+        negotiations,
+        applicant_strength,
+        applicants_weakness,
+        comments,
+        contract_sign,
+        evaluation,
+        recommend_hiring,
+        course_type_selection,
+        current_residence,
+        current_city,
+        current_country,
     ];
 
     try {
-       
+
         console.log('Values:', values);
 
         const [result] = await db.query(query, values);
@@ -174,10 +174,9 @@ exports.addFirstRoundEvaluation = async (req, res) => {
 };
 
 
-
-exports.getHREvaluationById = async (req, res) => {
+const getHREvaluationById = async (req, res) => {
     const { applicantId } = req.params;
-
+    console.log(`trying to get firstround response of ${applicantId} `)
     try {
         const [rows] = await db.query(
             `SELECT * FROM  first_round_evaluation WHERE applicant_uuid = ?`,
@@ -193,3 +192,21 @@ exports.getHREvaluationById = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const addnewstatus = async (req, res) => {
+
+    const { name_applicant } = req.body
+
+    try {
+        const [results] = await db.query(`SELECT work_location user_id FROM work_locations WHERE column_id = ?`, [name_applicant])
+        res.status(200).json({ message: 'rettrived succesfully ', results })
+    } catch (err) {
+        console.log(err)
+    }
+
+}
+
+module.exports = {
+    getHREvaluationById,
+    addFirstRoundEvaluation,
+    addnewstatus
+}

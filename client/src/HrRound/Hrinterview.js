@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
-import { Table, Form, Row, Col, Button, Container, Toast, ToastContainer } from 'react-bootstrap';
-
-const Hrinterview = () => {
+import { useNavigate } from 'react-router';
+import { Table, Form, Row, Col, Button, Container, Toast,Tabs, Tab,} from 'react-bootstrap';
+import { toast, ToastContainer } from 'react-toastify';
+import Accordion from 'react-bootstrap/Accordion';
+import 'react-toastify/dist/ReactToastify.css';
+const Hrinterview = ({ applicant_uuidProps }) => {
   // State for showing toast and form data
+  const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
+  const [firstRound, setFirstRound] = useState([])
+  const [activeKey, setActiveKey] = useState(null); // State to manage active tab
   const [formData, setFormData] = useState({
     submissionDate: '',
     name: '',
@@ -47,7 +54,7 @@ const Hrinterview = () => {
     event.preventDefault();
     try {
       // Send POST request to the backend
-      // await axios.post('http://localhost:3001/api/auth/hrinterview', formData);
+      const response = await axios.post(`${process.env.REACT_APP_API}/add-hrevaluation`, formData);
 
       // Show toast
       setShowToast(true);
@@ -80,23 +87,66 @@ const Hrinterview = () => {
         verificationJoining: ''
       });
 
-      // Optionally, you can hide the toast after a certain duration
-      setTimeout(() => {
-        setShowToast(false);
-        window.location.reload(); // Refresh the page
-      }, 1800); // Adjust the timeout duration if needed 
+      // Check if the response is successful
+      if (response.status === 200) {
+        toast.success("Response submitted successfully!");
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
-      // Handle error if needed
+      toast.error("Failed to submit response.");
+    } finally {
+      // Optionally reset or update state here
+      setTimeout(() => {
+        navigate('/hrhome'); // Correct spelling of navigate
+      }, 1800); // Adjust the timeout duration if needed
     }
   };
 
+  useEffect(() => {
+
+    const fetchingresponse = async () => {
+
+      try {
+        console.log("applicant_uuidProps...........................", applicant_uuidProps)
+        const response = await axios.get(`http://localhost:5000/api/first_round_res/${applicant_uuidProps}`)
+        if (response.data && response.data.length > 0) {
+          setFirstRound(response.data[0]);
+          console.log("setFirstRound", setFirstRound)
+        } else {
+          console.log("No data found");
+        }
+
+        console.log("First round response:", response);
+      } catch (err) {
+
+        console.log(err)
+      }
+
+    }
+
+    fetchingresponse();
+  }, [applicant_uuidProps])
+
   return (
     <Container className="d-flex  justify-content-center">
-      <Col md lg={5}  className="m-4">
-        <h1>hi</h1></Col>
-      <Col md lg={7}   className="m-4">
-        <h1>HR Interview</h1>
+     <Col md={8} lg={5} className="m-4">
+        <h2 className='m-2'>{applicant_uuidProps} First Round Details</h2>
+        {/* Accordion to display first round details */}
+        <Accordion defaultActiveKey="0" className="mt-4">
+          {Object.entries(firstRound).map(([key, value], index) => (
+            <Accordion.Item eventKey={index.toString()} key={index}>
+              <Accordion.Header>{key}</Accordion.Header>
+              <Accordion.Body>
+                {value ? value.toString() : 'No data available'}
+              </Accordion.Body>
+            </Accordion.Item>
+          ))}
+        </Accordion>
+      </Col>
+      <Col md lg={7} className="m-4">
+        <h2 className='m-2'>HR Interview Questions</h2>
+
+
         <Form onSubmit={handleSubmit} >
           {/* Submission Date */}
           <Form.Group as={Row} className="mb-3">
@@ -577,7 +627,7 @@ const Hrinterview = () => {
           </Toast.Body>
         </Toast>
       </ToastContainer>
-    </Container>
+    </Container >
   );
 }
 

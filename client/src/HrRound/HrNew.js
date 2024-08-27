@@ -1,52 +1,75 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import decodeToken from '../decodedDetails';
+import axios from 'axios';
+import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 
-function HrNew() {
+function HrNew({setApplicant_uuid}) {
+  const apiurl=process.env.REACT_APP_API;
   
   const navigate = useNavigate();
+  const userData = decodeToken();
+  const [profiles,setProfiles]=useState([]);
 
-  // Sample profile data
-  const profiles = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', phone: '1234567890', status: 'Pending' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '0987654321', status: 'Approved' },
-    // Add more profiles as needed
-  ];
+   useEffect(()=>{
+    const assignedToInterviewer= async()=>{
+      try {
+        const response=await axios.get(`${apiurl}/users/${userData.id}/hrinterviewapplicants`,{
+          headers:getAuthHeaders()
+        })
+        
+        console.log(response.data)
+        if(response.status===200){
+          setProfiles(response.data);
+        }
+      }catch(err){
+        console.log(err);
+      }
 
-  const handleInterviewClick = () => {
-    navigate(`/hrinterview`);
+    }
+    assignedToInterviewer();
+
+   },[])
+
+  const handleInterviewClick = (profile) => {
+    setApplicant_uuid(profile.applicant_uuid);
+    
+   
+      navigate("/hrinterview")
+    
+  
   };
 
   return (
     <div>
       <div className="col-12 container w-80">
+      <div className='d-flex my-4'>
+          <h2 className="text-start fw-bolder">{`Interviewer Dashboard`}</h2>
+          <h2 className='ms-auto fw-bolder'>{userData.name}</h2>
+        </div>
     
 
         <table className="table table-striped" >
           <thead>
             <tr>
               <th>SI.No</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>applicant_uuid</th>
+              <th>time_of_interview</th>
             </tr>
           </thead>
           <tbody>
             {profiles.map((profile, index) => (
               <tr key={profile.id}>
                 <td>{index + 1}</td>
-                <td>{profile.name}</td>
-                <td>{profile.email}</td>
-                <td>{profile.phone}</td>
-                <td>{profile.status}</td>
+                <td>{profile.applicant_uuid}</td>
+                <td>{profile.time_of_hrinterview}</td>
+                
                 <td>
                   <button
                     className="btn btn-primary"
-                    onClick={() => handleInterviewClick()}
+                    onClick={() => handleInterviewClick(profile)}
                   >
-                     Next
+                     Start Interview
                   </button>
                 </td>
               </tr>

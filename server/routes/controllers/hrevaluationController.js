@@ -1,7 +1,8 @@
 // controllers/hrevaluationController.js
 const db = require('../config/db');
 
-exports.addHREvaluation = async (req, res) => {
+const addHREvaluation = async (req, res) => {
+    console.log("trying to add hr evalution response ")
     const {
         applicantId,
         candidateEmail,
@@ -72,3 +73,7 @@ exports.addHREvaluation = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+module.exports={
+    addHREvaluation
+}

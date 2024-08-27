@@ -1,27 +1,66 @@
 const express = require('express');
 const router = express.Router();
-const { getApplicantsForScreening ,getApplicationforinterviewr,getApplicationforhr} = require('./controllers/screening');
+const { getApplicantsForScreening, getApplicationforinterviewr, getApplicationforhr } = require('./controllers/screening');
 const { login } = require('./controllers/Login');
-const { getAllHRs, getAllinterviewers} = require('./controllers/getroles'); // Adjust the path if necessary
-const {getAllUsersStatus} =  require("./controllers/admin")
+const { getAllHRs, getAllinterviewers } = require('./controllers/getroles'); // Adjust the path if necessary
+const { getAllUsersStatus } = require('./controllers/admin');
 const applicantController = require('./controllers/applicantController');
+const { getmarkets } = require('./controllers/Markets');
+const { addFirstRoundEvaluation, getHREvaluationById } = require('./controllers/interviewevaluation');
+const { addHREvaluation } = require('./controllers/hrevaluationController');
+const assigningapplications = require('./controllers/assignapplicants');
 
 // Route to get all HR users
 router.get('/hrs', getAllHRs);
+
+// Route to get all interviewers
 router.get('/interviewer', getAllinterviewers);
 
-const {getmarkets }= require('./controllers/Markets')  
-// Define the route
+// Define the route to get applicants for screening manager
 router.get('/users/:userId/applicants', getApplicantsForScreening);
+
+// Define the route to get applicants for interviewer
 router.get('/users/:userId/interviewapplicants', getApplicationforinterviewr);
-router.get('/users/:userId/hrinterviewapplicants', getApplicationforinterviewr);
+
+// Define the route to get applicants for HR
+router.get('/users/:userId/hrinterviewapplicants', getApplicationforhr);
+
+// Route for login
 router.post('/login', login);
+
+// Route to get markets
 router.get('/markets', getmarkets);
-//getting users status
-router.get('/user-status', getAllUsersStatus)
+
+// Route to get all users' status
+router.get('/user-status', getAllUsersStatus);
+
+// Test route to verify the setup
 router.get('/testing', (req, res) => {
     res.send('Test route is working!');
 });
+
+// Route to handle form submission
 router.post('/submit', applicantController.createApplicantReferral);
 
+// Route to assign applicant to HR
+router.post('/assigntohr', assigningapplications.assignApplicanttohr);
+
+// Route to assign applicant to interviewer
+router.post('/assign-interviewer', assigningapplications.assignApplicanttointerviewer);
+
+// POST: Add first-round evaluation
+router.post('/add-evaluation', addFirstRoundEvaluation);
+
+// POST: Add HR evaluation
+router.post('/add-hrevaluation', addHREvaluation);
+
+// GET: Retrieve HR evaluation by applicant ID
+router.get('/first_round_res/:applicantId', getHREvaluationById);
+
+// Another test route (if needed)
+router.get('/test', (req, res) => {
+    res.send('Test route is working!');
+});
+
+// Export the router
 module.exports = router;

@@ -69,10 +69,10 @@ function AppComponent() {
             )}
             {role === 'hr' && (
               <>
-                <Route path="/hrhome" element={<HrHome />} />
-                <Route path="/hrinterview" element={<Hrinterview />} />
+                <Route path="/hrhome" element={<HrHome  />} />
+                <Route path="/hrinterview" element={<Hrinterview  applicant_uuidProps={applicant_uuidProps} />} />
                 {/* <Route path="/hrnew" element={<HrNew/>} /> */}
-                <Route path="/hrnew" element={<HrNew />} />
+                <Route path="/hrnew" element={<HrNew  setApplicant_uuid={setApplicant_uuid} />}></Route>
               </>
             )}
             {/* {role === 'Trainer' && <Route path="/trainerhome" element={<TrainerHome />} />} */}
