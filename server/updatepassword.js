@@ -15,13 +15,8 @@ require('dotenv').config();
 
         // Example new passwords for users
         const usersWithNewPasswords = [
-            { id: 1, password: 'screening' },
-            { id: 2, password: 'screening' },
-            { id: 3, password: 'screening' },
-            { id: 4, password: 'screening' },
-            { id: 5, password: 'interviewer' },
-            { id: 6, password: 'hr' },
-            { id: 7, password: 'admin' },
+            { id: 66, password: 'trainer' },
+           
         ];
 
         for (const user of usersWithNewPasswords) {

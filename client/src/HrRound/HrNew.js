@@ -52,9 +52,9 @@ function HrNew({setApplicant_uuid}) {
         <table className="table table-striped" >
           <thead>
             <tr>
-              <th>SI.No</th>
-              <th>applicant_uuid</th>
-              <th>time_of_interview</th>
+              <th>S.No</th>
+              <th>  Applicant uuid</th>
+              <th>Time Of Interview</th>
             </tr>
           </thead>
           <tbody>

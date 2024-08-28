@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
-import { Form, Row, Col, Button, Container } from 'react-bootstrap';
+import { Form, Row, Col, Button, Container, Modal } from 'react-bootstrap';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import { useNavigate } from 'react-router';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 const ApplicantForm = ({ applicant_uuidProps }) => {
-  const naviagte=useNavigate();
+  const navigate = useNavigate();
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const handleShow = () => setShowConfirmation(true);
+  const handleClose = () => setShowConfirmation(false);
+
+  const handleConfirm = () => {
+    // Show the toast message upon confirmation
+    toast.success('Action confirmed!');
+    setShowConfirmation(false);
+    setTimeout(() => {
+      navigate("/interviewhome")
+    }, 1800)
+  };
+
+  const naviagte = useNavigate();
   const [formData, setFormData] = useState({
     applicant_uuid: applicant_uuidProps,
     applicants_age: '',
@@ -129,6 +144,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
       if (response.status === 200) {
         toast.success("resonse submitted successfully!");
       }
+      console.log(formData)
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error("Failed submit response.");
@@ -139,18 +155,29 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
         naviagte('/interviewhome')
         // Reload the page after the toast disappears
       }, 1800);
-    
+
     }
   };
 
-  
+
 
 
 
   return (
-    <Container className="  d-flex justify-content-center align-items-center ">
+    <Container className="d-flex justify-content-center align-items-center">
+    <Col lg={8} className='border px-5 mt-5' style={{ fontFamily: 'Roboto, sans-serif' }}>
+      {/* Flex container to align button to the right */}
+      <div className="d-flex justify-content-end">
+        <Button
+          variant="warning"
+          onClick={handleShow}
+          className="mt-2"
+        >
+          No Show
+        </Button>
+      </div>
 
-      <Col lg={8} className='border px-5 mt-5' style={{ fontFamily: 'Roboto, sans-serif' }}>
+
         <h1 className="m-4">{applicant_uuidProps} Applicant Information Form</h1>
         <Form>
           <Form.Group as={Row} className="mb-3">
@@ -968,13 +995,13 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
             <Form.Label column sm={6} className="text-start">
               45. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
             </Form.Label>
-            <Col sm={6}>
+            <Col sm={6} className="text-start">
               <Form.Check
                 type="radio"
                 label="Yes"
                 name="recommend_hiring"
-                value={formData.recommend_hiring
-                  == 'YES'}
+                value="selected at interview"  // Updated to send 'selected at interview' as the value
+                checked={formData.recommend_hiring === 'selected at interview'}
                 onChange={handleChange}
                 isInvalid={!!errors.recommend_hiring}
               />
@@ -982,13 +1009,32 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
                 type="radio"
                 label="No"
                 name="recommend_hiring"
-                value={formData.recommend_hiring
-                  == 'NO'}
+                value="rejected at interview"  // Updated to send 'rejected at interview' as the value
+                checked={formData.recommend_hiring === 'rejected at interview'}
+                onChange={handleChange}
+                isInvalid={!!errors.recommend_hiring}
+              />
+              <Form.Check
+                type="radio"
+                label="Put on Hold at Interview"
+                name="recommend_hiring"
+                value="put on hold at interview"
+                checked={formData.recommend_hiring === 'put on hold at interview'}
+                onChange={handleChange}
+                isInvalid={!!errors.recommend_hiring}
+              />
+              <Form.Check
+                type="radio"
+                label="Need Second Opinion at Interview"
+                name="recommend_hiring"
+                value="need second opinion at interview"
+                checked={formData.recommend_hiring === 'need second opinion at interview'}
                 onChange={handleChange}
                 isInvalid={!!errors.recommend_hiring}
               />
             </Col>
           </Form.Group>
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               46. PLEASE SELECT THE COURSE TYPE
@@ -1061,6 +1107,21 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
           </Form.Group>
         </Form>
       </Col>
+      {/* Confirmation Modal */}
+      <Modal show={showConfirmation} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>This Applicant Did Not Show Up</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleConfirm}>
+            Yes
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <ToastContainer />
     </Container>
   );

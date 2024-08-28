@@ -8,7 +8,10 @@ const applicantController = require('./controllers/applicantController');
 const { getmarkets } = require('./controllers/Markets');
 const { addFirstRoundEvaluation, getHREvaluationById } = require('./controllers/interviewevaluation');
 const { addHREvaluation } = require('./controllers/hrevaluationController');
+const { getStatusCounts } = require('./controllers/status')
 const assigningapplications = require('./controllers/assignapplicants');
+const { getApplicantDetailsByMobile } = require('./controllers/statusbypfone')
+const {downloadApplicantsData}  = require('./controllers/downloadApplicantsData')
 
 // Route to get all HR users
 router.get('/hrs', getAllHRs);
@@ -27,6 +30,8 @@ router.get('/users/:userId/hrinterviewapplicants', getApplicationforhr);
 
 // Route for login
 router.post('/login', login);
+//route for status
+router.get('/status', getStatusCounts)
 
 // Route to get markets
 router.get('/markets', getmarkets);
@@ -56,6 +61,12 @@ router.post('/add-hrevaluation', addHREvaluation);
 
 // GET: Retrieve HR evaluation by applicant ID
 router.get('/first_round_res/:applicantId', getHREvaluationById);
+
+//get aplicant details by phone number
+router.get("/getstatusnyphone/:mobileNumber", getApplicantDetailsByMobile)
+
+//dowload applicants data in Excel
+router.get("/datadowload",downloadApplicantsData)
 
 // Another test route (if needed)
 router.get('/test', (req, res) => {

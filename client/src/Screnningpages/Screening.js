@@ -13,6 +13,7 @@ function Screening() {
   const phoneRef = useRef();
   const referredByRef = useRef();
   const referenceNtidRef = useRef();
+  const sourcedByRef=useRef();
   const apiUrl = process.env.REACT_APP_API;
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const regexPhone = /^[0-9]{10}$/;
@@ -20,21 +21,22 @@ function Screening() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     event.stopPropagation();
-
+  
     const nameValid = nameRef.current?.value.trim() !== '';
     const emailValid = regexEmail.test(emailRef.current?.value);
     const phoneValid = regexPhone.test(phoneRef.current?.value);
     const marketValid = selectedMarket !== '';
     const referredByValid = referredByRef.current?.value.trim() !== '';
     const referenceNtidValid = referenceNtidRef.current?.value.trim() !== '';
-
-    if (!nameValid || !emailValid || !phoneValid || !marketValid || !referredByValid || !referenceNtidValid) {
+    const sourcedByValid = sourcedByRef.current?.value.trim() !== '';
+  
+    if (!nameValid || !emailValid || !phoneValid || !marketValid || !referredByValid || !referenceNtidValid || !sourcedByValid) {
       setError('Please fill out all fields correctly.');
       return;
     }
-
+  
     setError('');
-
+  
     try {
       const formData = {
         name: nameRef.current.value,
@@ -43,10 +45,12 @@ function Screening() {
         work_location: selectedMarket,
         referred_by: referredByRef.current.value,
         reference_id: referenceNtidRef.current.value,
+        sourcedBy: sourcedByRef.current.value,
       };
-
+      console.log(formData)
+  
       const response = await axios.post(`${apiUrl}/submit`, formData);
-
+  
       if (response.status === 201) {
         console.log("Data submitted successfully");
         // Reset the form fields on successful submission
@@ -55,14 +59,17 @@ function Screening() {
         phoneRef.current.value = "";
         referredByRef.current.value = "";
         referenceNtidRef.current.value = "";
+        sourcedByRef.current.value = "";
         setSelectedMarket("");
       } else {
         setError("Unexpected response status: " + response.status);
       }
     } catch (error) {
+      console.error("Submission error:", error);
       setError('Failed to submit data. Please try again later.');
     }
   };
+  
 
   const handleSelectMarket = (eventKey) => {
     setSelectedMarket(eventKey);
@@ -84,7 +91,7 @@ function Screening() {
 
   return (
     <div className='container-fluid d-flex justify-content-center align-items-center mt-4'>
-      <div className='row   mx-5 rounded-3'>
+      <div className='row  mx-5 rounded-3'>
         {/* Image Section */}
         <div className='col-md-6 d-flex justify-content-center align-items-center'>
           <img src="./registerUser.png" alt="Register User" className="img-fluid" style={{ height: '80%' }} />
@@ -92,7 +99,7 @@ function Screening() {
 
         <div className='col-md-6'>
           <Form className='bg-white p-4 rounded-3' onSubmit={handleSubmit}>
-            <h3 className='text-center mb-4 fw-bold' style={{color:'#E10174',fontFamily:"Kanit"}} >Register Candidate</h3>
+            <h3 className='text-center mb-4 fw-bold'  >Register Candidate</h3>
 
             <Form.Group className="mb-3" controlId="formBasicName">
               <Form.Control
@@ -139,6 +146,14 @@ function Screening() {
                 className="shadow-none border"
                 type="text"
                 placeholder="Reference NTID"
+              />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicSourcedBy">
+              <Form.Control
+                ref={sourcedByRef}
+                className="shadow-none border"
+                type="text"
+                placeholder="sourcedBy"
               />
             </Form.Group>
 

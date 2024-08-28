@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import axios from 'axios';
+import { Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Register() {
@@ -15,7 +16,7 @@ function Register() {
   const [selectedMarket, setSelectedMarket] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
   const [calendlyUsername, setCalendlyUsername] = useState('');
-  
+
   const emailRef = useRef();
   const passwordRef = useRef();
   const marketRef = useRef();
@@ -23,20 +24,23 @@ function Register() {
 
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const apiurl = process.env.REACT_APP_API;
 
   useEffect(() => {
     const fetchMarkets = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/auth/getmarkets');
+        const response = await axios.get(`${apiurl}/markets`);
         setMarkets(response.data);
+        console.log("response.data", response.data)
+        // console.log(response.data);
       } catch (error) {
-        console.error("Error fetching markets:", error);
         setError('Failed to fetch markets. Please try again later.');
+
       }
     };
 
     fetchMarkets();
-  }, []);
+  }, [apiurl]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -105,7 +109,7 @@ function Register() {
       });
       if (response.status === 201) {
         alert('Market registered successfully');
-       
+
         const marketsResponse = await axios.get('http://localhost:3001/api/auth/getmarkets');
         setMarkets(marketsResponse.data);
       }
@@ -117,140 +121,170 @@ function Register() {
   };
 
   return (
-    <div className='d-flex align-items-center vh-100 justify-content-center m-auto'>
-      <div className='vh-100 col-12 col-md-6 d-flex justify-content-center align-items-center'>
-  <img src="register.png" alt="register image" className="img-fluid"
-   style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
-</div>
+    <Container fluid className='vh-90'>
+      <Row >
+        {/* Image Column */}
+        {/* <Col  md={2}></Col> */}
+        <Col xs={12} md={6} className='d-flex justify-content-center align-items-center'>
+          <img
+            src="register.png"
+            alt="register image"
+            className="img-fluid"
+            style={{ maxHeight: '90%', maxWidth: '90%', objectFit: 'contain' }}
+          />
+        </Col>
 
-      <div className='vh-100 col-12 col-md-6 d-flex flex-column justify-content-center align-items-center'>
-        <div className='d-flex mb-3 justify-content-center'>
-          <Button
-            variant={activeForm === 'register' ? 'primary' : 'outline-primary'}
-            onClick={() => setActiveForm('register')}
-            className='me-2'
-          >
-            Register User
-          </Button>
-          <Button
-            variant={activeForm === 'market' ? 'primary' : 'outline-primary'}
-            onClick={() => setActiveForm('market')}
-          >
-            Add Market
-          </Button>
-        </div>
+        {/* Form Column */}
+        <Col xs={12} md={6} className='d-flex flex-column justify-content-center align-items-center'>
+          {/* Button Group for Form Switching */}
+          <div className='d-flex mb-3 justify-content-center'>
+            <Button
+              variant={activeForm === 'register' ? 'primary' : 'outline-primary'}
+              onClick={() => setActiveForm('register')}
+              className='me-2'
+            >
+              Register User
+            </Button>
+            <Button
+              variant={activeForm === 'market' ? 'primary' : 'outline-primary'}
+              onClick={() => setActiveForm('market')}
+            >
+              Add Market
+            </Button>
+          </div>
 
-        {activeForm === 'register' && (
-          <Form className='shadow-lg p-3 rounded-3' onSubmit={handleSubmit} style={{ maxWidth: '400px', width: '100%' }}>
-            <h3 className="text-center">Register</h3>
+          {/* Register Form */}
+          {activeForm === 'register' && (
+            <Form className='shadow-lg p-3 rounded-3' onSubmit={handleSubmit} style={{ maxWidth: '400px', width: '100%' }}>
+              <h3 className="text-center">Register</h3>
 
-            <Form.Group className="mb-3" controlId="formBasicName">
-              <Form.Control
-                ref={nameRef}
-                className="shadow-none border"
-                type="text"
-                placeholder="Enter name"
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Control
-                ref={emailRef}
-                className="shadow-none border"
-                type="email"
-                placeholder="Enter email"
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formBasicPassword">
-              <div className='d-flex border rounded'>
+              <Form.Group className="mb-3" controlId="formBasicName">
                 <Form.Control
-                  ref={passwordRef}
-                  className="shadow-none border-0"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  ref={nameRef}
+                  className="shadow-none border"
+                  type="text"
+                  placeholder="Enter name"
                   required
                 />
-                <span onClick={handlePasswordShow} role='button' className='mt-1 me-1'>
-                  {showPassword ? <FaEye /> : <FaEyeSlash />}
-                </span>
-              </div>
-              <span className='text-danger' aria-live="polite">{error}</span>
-            </Form.Group>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Control
+                  ref={emailRef}
+                  className="shadow-none border"
+                  type="email"
+                  placeholder="Enter email"
+                  required
+                />
+              </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formBasicRole">
-              <Dropdown onSelect={(e) => setSelectedRole(e)}>
-                <Dropdown.Toggle className='w-100 bg-transparent text-dark border-secondary' id="dropdown-basic">
-                  {selectedRole || "Select Role"}
-                </Dropdown.Toggle>
-                <Dropdown.Menu className='w-100 overflow-auto'>
-                  {roles.map((role, index) => (
-                    <Dropdown.Item key={index} eventKey={role}>
-                      {role}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-            </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicPassword">
+                <div className='d-flex border rounded'>
+                  <Form.Control
+                    ref={passwordRef}
+                    className="shadow-none border-0"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    required
+                  />
+                  <span onClick={handlePasswordShow} role='button' className='mt-1 me-1'>
+                    {showPassword ? <FaEye /> : <FaEyeSlash />}
+                  </span>
+                </div>
+                <span className='text-danger' aria-live="polite">{error}</span>
+              </Form.Group>
 
-            <Form.Group controlId="formCalendlyUsername" className='my-3'>
-              <Form.Control
-                type="text"
-                placeholder="Enter Calendly username (optional)"
-                value={calendlyUsername}
-                onChange={(e) => setCalendlyUsername(e.target.value)}
-              />
-            </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicRole">
+                <Dropdown onSelect={(e) => setSelectedRole(e)}>
+                  <Dropdown.Toggle className='w-100 bg-transparent text-dark border-secondary' id="dropdown-basic">
+                    {selectedRole || "Select Role"}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className='w-100 overflow-auto'>
+                    {roles.map((role, index) => (
+                      <Dropdown.Item key={index} eventKey={role}>
+                        {role}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown>
+              </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formBasicMarket">
-              <Dropdown onSelect={(e) => setSelectedMarket(e)}>
-                <Dropdown.Toggle className='w-100 bg-transparent text-dark border-secondary' id="dropdown-basic">
-                  {selectedMarket || "Select Market"}
-                </Dropdown.Toggle>
-                <Dropdown.Menu className='w-100 h-50'  style={{ 
-                        padding: '10px', 
-                        backgroundColor: '#f8f9fa', 
-                        color: '#333', 
-                        fontWeight: '500',
-                        borderBottom: '1px solid #ddd',
-                        overflow:'auto'
-                      }}
-                     >
-                  {markets.sort((a, b) => a.market.localeCompare(b.market)).map((market) => (
+              <Form.Group controlId="formCalendlyUsername" className='my-3'>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Calendly username (optional)"
+                  value={calendlyUsername}
+                  onChange={(e) => setCalendlyUsername(e.target.value)}
+                />
+              </Form.Group>
 
-                    
-                    <Dropdown.Item key={market.id} eventKey={market.market}>
-                      {market.market}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-            </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicMarket">
+                <Dropdown onSelect={(e) => setSelectedMarket(e)}>
+                  <Dropdown.Toggle
+                    className='w-100 bg-transparent text-dark border-secondary'
+                    id="dropdown-basic"
+                  >
+                    {selectedMarket || "Select Market"}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu
+                    className='w-100 h-50'
+                    style={{
+                      maxHeight: '200px', // Added maxHeight for better handling of many items
+                      padding: '10px',
+                      backgroundColor: '#f8f9fa',
+                      color: '#333',
+                      fontWeight: '500',
+                      borderBottom: '1px solid #ddd',
+                      overflowY: 'auto', // Changed to overflowY for vertical scrolling
+                    }}
+                  >
+                    {markets
+                      .sort((a, b) => (a.location_name || '').localeCompare(b.location_name || ''))
+                      .map((market) => (
+                        <Dropdown.Item
+                          key={market.id} // Use market.id assuming it's unique
+                          eventKey={market.location_name}
+                          style={{
 
-            <Button variant="primary" type="submit" className='w-100'>
-              Register
-            </Button>
-          </Form>
-        )}
+                            backgroundColor: '#f8f9fa',
+                            color: '#333',
+                            fontWeight: '500',
+                            borderBottom: '1px solid #ddd',
+                          }}
+                          className="dropdown-item-hover"
+                        >
+                          {market.location_name ? market.location_name.toUpperCase() : ''}
+                        </Dropdown.Item>
+                      ))}
+                  </Dropdown.Menu>
+                </Dropdown>
+              </Form.Group>
 
-        {activeForm === 'market' && (
-          <Form className='shadow-lg p-3 rounded-3' style={{ maxWidth: '400px', width: '100%' }}>
-            <h3 className="text-center">Add Market</h3>
-            <Form.Group className="mb-3" controlId="formBasicMarket">
-              <Form.Control
-                ref={marketRef}
-                className="shadow-none border"
-                type="text"
-                placeholder="Enter market"
-                required
-              />
-            </Form.Group>
-            <Button className='w-100' onClick={handleMarket}>Add</Button>
-          </Form>
-        )}
-      </div>
-    </div>
+
+              <Button variant="primary" type="submit" className='w-100'>
+                Register
+              </Button>
+            </Form>
+          )}
+
+          {/* Add Market Form */}
+          {activeForm === 'market' && (
+            <Form className='shadow-lg p-3 rounded-3' style={{ maxWidth: '400px', width: '100%' }}>
+              <h3 className="text-center">Add Market</h3>
+              <Form.Group className="mb-3" controlId="formBasicMarket">
+                <Form.Control
+                  ref={marketRef}
+                  className="shadow-none border"
+                  type="text"
+                  placeholder="Enter market"
+                  required
+                />
+              </Form.Group>
+              <Button className='w-100' onClick={handleMarket}>Add</Button>
+            </Form>
+          )}
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

@@ -63,7 +63,7 @@ function Login() {
           case 'hr':
             navigate('/hrhome');
             break;
-          case 'Trainer':
+          case 'trainer':
             navigate('/trainerhome');
             break;
           case 'screening_manager':

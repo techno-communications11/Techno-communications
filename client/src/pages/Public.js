@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
+import { Container, Row, Col } from 'react-bootstrap';
 import Login from './Login';
 import job from './images/4882404.jpg';
 import { ToastContainer, toast } from 'react-toastify';
@@ -139,17 +140,25 @@ function Public() {
   const handleLoginModalClose = () => setShowLoginModal(false);
 
   return (
-    <div className='container-fluid'>
-      <div className='row vh-100'>
-        <div className="col-md-6 d-flex justify-content-center align-items-center ">
-          <img src={job} alt="jobs" className="img-fluid d-none d-md-block" style={{ height: "100vh" }} />
-        </div>
+    <Container fluid>
+      <Row className="vh-100">
+        {/* Left Column with Image */}
+        <Col md={6} lg={6} className="d-flex justify-content-center align-items-center">
+          <img
+            src={job}
+            alt="jobs"
+            className="img-fluid d-none d-md-block"
+            style={{ height: "100vh" }}
+          />
+        </Col>
 
-        <div className='col-md-6 d-flex flex-column'>
-          <h2>TECHNO-HIRING</h2>
-          <Form className='shadow-lg p-4 rounded-3 mt-4' onSubmit={handleSubmit} noValidate>
-            <h3 className='text-center mb-4 fw-bolder'>Candidate Details Form</h3>
+        {/* Right Column with Form */}
+        <Col md={6} lg={6} className="d-flex flex-column mt-4">
+          <h2 className='mt-4'>TECHNO-HIRING</h2>
+          <Form className="shadow-lg p-4 rounded-3 mt-4" onSubmit={handleSubmit} noValidate>
+            <h3 className="text-center mb-4 fw-bolder">Candidate Details Form</h3>
 
+            {/* Form Fields */}
             <Form.Group className="mb-3" controlId="formBasicName">
               <Form.Control
                 ref={nameRef}
@@ -158,7 +167,6 @@ function Public() {
                 required
                 isInvalid={invalidFields.name}
               />
-             
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -169,7 +177,6 @@ function Public() {
                 required
                 isInvalid={invalidFields.email}
               />
-              
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPhone">
@@ -180,7 +187,6 @@ function Public() {
                 required
                 isInvalid={invalidFields.phone}
               />
-             
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicReferredBy">
@@ -191,7 +197,6 @@ function Public() {
                 required
                 isInvalid={invalidFields.referredBy}
               />
-             
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicReferenceNtid">
@@ -202,9 +207,9 @@ function Public() {
                 required
                 isInvalid={invalidFields.referenceNtid}
               />
-             
             </Form.Group>
 
+            {/* Market Selection Dropdown */}
             <Form.Group className="mb-3" controlId="formBasicMarket">
               <div className={`border ${invalidFields.market ? 'border-danger' : 'border-secondary'} rounded`}>
                 <Dropdown onSelect={handleSelectMarket}>
@@ -216,7 +221,7 @@ function Public() {
                     {selectedMarket || "Select Market"}
                   </Dropdown.Toggle>
                   <Dropdown.Menu
-                    className='w-100 overflow-auto'
+                    className="w-100 overflow-auto"
                     style={{
                       height: '15rem',
                       borderRadius: '5px',
@@ -240,8 +245,7 @@ function Public() {
                         >
                           {market.location_name.toUpperCase()}
                         </Dropdown.Item>
-                      ))
-                    }
+                      ))}
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
@@ -252,14 +256,16 @@ function Public() {
               )}
             </Form.Group>
 
-            <Button className='w-100' variant="secondary" type="submit" disabled={loading}>
+            {/* Submit Button */}
+            <Button className="w-100" variant="secondary" type="submit" disabled={loading}>
               {loading ? 'Submitting...' : 'Submit'}
             </Button>
 
-            {error && <div className='text-danger mt-3'>{error}</div>}
+            {error && <div className="text-danger mt-3">{error}</div>}
           </Form>
 
-          <div className='text-center mt-4'>
+          {/* Login Button */}
+          <div className="text-center mt-4">
             <Button
               style={{ width: "100%", backgroundColor: "#ffc55a", color: "black", outline: "none" }}
               onClick={handleLoginModalShow}
@@ -267,17 +273,19 @@ function Public() {
               Login to Application
             </Button>
           </div>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
+      {/* Modal for Login */}
       <Modal show={showLoginModal} onHide={handleLoginModalClose} centered style={{ height: "70vh", marginTop: "30px" }}>
         <Modal.Body>
           <Login />
         </Modal.Body>
       </Modal>
 
+      {/* Toast Container */}
       <ToastContainer />
-    </div>
+    </Container>
   );
 }
 

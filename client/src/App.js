@@ -4,7 +4,7 @@ import AdminHome from './Adminpages/AdminHome';
 import HrHome from './HrRound/HrHome';
 import TrainerHome from './TrainerPages/TrainerHome';
 import Home from './Screnningpages/screeningAplicantSubmission';
-import InterviewHome from './InterviewRound/InterviewHome';
+import InterviewHome from './InterviewRound/Interviewnew';
 import Login from './pages/Login';
 import Public from './pages/Public';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -15,11 +15,13 @@ import Listprofile from './Screnningpages/Screening';
 import Profile from './pages/Profile';
 import { jwtDecode } from 'jwt-decode'; 
 import Hrinterview from './HrRound/Hrinterview';
-import ApplicantForm from './InterviewRound/interview';
+import ApplicantForm from './InterviewRound/interviewForm';
 import HrNew from './HrRound/HrNew';
 import './App.css';
+import ScreeningHome from './Screnningpages/Shome';
 import 'react-toastify/dist/ReactToastify.css';
-
+import CenteredTabs from './Screnningpages/Tabs';
+import Interviewedprofiles from './Screnningpages/InterviewedProfiles';
 function App() {
   return (
     <Router>
@@ -75,12 +77,14 @@ function AppComponent() {
                 <Route path="/hrnew" element={<HrNew  setApplicant_uuid={setApplicant_uuid} />}></Route>
               </>
             )}
-            {/* {role === 'Trainer' && <Route path="/trainerhome" element={<TrainerHome />} />} */}
+            {role === 'trainer' && <Route path="/trainerhome" element={<TrainerHome />} />}
             {role === 'screening_manager' && (
               <>
-                {/* <Route path="/home" element={<Home />} /> */}
+                <Route path="/screeinghome" element={<ScreeningHome />} />
                 <Route path="/screening" element={<Listprofile />} />
-                <Route path="/screeinghome" element={<New />} />
+                <Route path="/screeningnew" element={<New />} />
+                <Route path="/Interviewedprofiles" element={<Interviewedprofiles />} />
+                <Route path="/tabs" element={<CenteredTabs />} />
               </>
             )}
             {role === 'interviewer' && (
@@ -90,10 +94,10 @@ function AppComponent() {
                 <Route path="/new" element={<New />} />
               </>
             )}
-            <Route path="/profile" element={<Profile />} />
+             <Route path="/" element={<Public />} />
           </>
         )}
-        <Route path="*" element={<Navigate to={token ? '/profile' : '/'} />} />
+        <Route path="*" element={<Navigate to={ '/'} />} />
       </Routes>
     </div>
   );

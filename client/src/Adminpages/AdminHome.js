@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, Row, Col, Modal, Button, Table } from 'react-bootstrap';
+import { Card, Row, Col, Modal, Table } from 'react-bootstrap';
 import CanvasJSReact from '@canvasjs/react-charts';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import './AdminHome.css'; // Import custom CSS file
+import Button from '@mui/material/Button';
+import DeleteIcon from '@mui/icons-material/Delete';
+// import SendIcon from '@mui/icons-material/Send';
+import Stack from '@mui/material/Stack';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { toast, ToastContainer } from 'react-toastify';
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
@@ -12,9 +18,10 @@ function AdminHome() {
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [profiles, setProfiles] = useState([]);
+  const [excel, setExcel] = useState()
   const token = localStorage.getItem('token');
   let name = null;
-
+  const apiurl = process.env.REACT_APP_API;
   if (token) {
     try {
       const decodedToken = jwtDecode(token);
@@ -26,7 +33,7 @@ function AdminHome() {
 
   const fetchProfileStats = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API}/user-status`);
+      const response = await axios.get('http://localhost:5000/api/status');
       const data = response.data;
 
       const stats = {};
@@ -54,7 +61,7 @@ function AdminHome() {
     setModalTitle(type);
 
     try {
-      const response = await axios.get(`http://localhost:3001/api/auth/getprofilesbytype/${type}`, {
+      const response = await axios.get(`http://localhost:5000/api/getprofilesbytype/${type}`, {
         withCredentials: true,
       });
       setProfiles(response.data);
@@ -69,10 +76,38 @@ function AdminHome() {
     setShowModal(false);
   };
 
+  const DownloadApplicantData = async () => {
+    try {
+      const res = await axios.get(`${apiurl}/datadowload`, {
+        responseType: 'blob',  // Important: This tells Axios to handle the response as a Blob
+      });
+  
+      // Create a new Blob object using the response data
+      const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  
+      // Create a link element, set its href to a URL created from the Blob, and set the download attribute
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'applicant_data.xlsx';  // Set the desired file name
+      document.body.appendChild(a);
+      a.click();
+  
+      // Clean up and remove the link
+      a.remove();
+      window.URL.revokeObjectURL(url);
+  
+      toast.success("Data downloaded successfully.");
+    } catch (err) {
+      console.error("Error downloading data:", err);
+      toast.error("Failed to download data.");
+    }
+  }
+  
   const chartOptions = {
     animationEnabled: true,
     exportEnabled: true,
-    theme: "light1", // Use a light theme for the background
+    theme: "light1",
     title: {
       text: "Profile Status Distribution",
       fontFamily: 'Roboto, sans-serif'
@@ -80,10 +115,10 @@ function AdminHome() {
     backgroundColor: "white",
     data: [{
       type: "pie",
-      indexLabel: "{label}: {y}", // Display actual numbers
+      indexLabel: "{label}: {y}",
       startAngle: -90,
-      endAngle: 90, // To create a semi-circle effect
-      innerRadius: 0.5, // Adjust to make it look more like a semi-circle
+      endAngle: 90,
+      innerRadius: 0.5,
       dataPoints: Object.keys(profileStats).filter(status => status !== 'Total').map(status => ({
         y: profileStats[status],
         label: status.charAt(0).toUpperCase() + status.slice(1)
@@ -94,32 +129,47 @@ function AdminHome() {
   return (
     <div className="container mt-5">
       <div className='d-flex'>
-      <h2 className="text-start mb-4" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>{`Admin Dashboard`}</h2>
-      <h2 className='ms-auto'>{name}</h2>
+        <h2 className="text-start mb-4" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>{`Admin Dashboard`}</h2>
+        <h2 className='ms-auto'>{name}</h2>
       </div>
-      <Row className="text-center mb-4">
-        {Object.entries(profileStats).filter(([status]) => status !== 'Total').map(([status, count]) => (
-          <Col key={status} md={4} className="mb-3">
-            <Card className="shadow-lg card-style" style={{ height: '8rem', cursor: 'pointer' }} onClick={() => handleCardClick(status)}>
-              <Card.Body>
-                <Card.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>{status.charAt(0).toUpperCase() + status.slice(1)}</Card.Title>
-                <Card.Text style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400 }}>{count}</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-        {/* <Col md={4} className="mb-3">
-          <Card className="shadow-lg card-style" style={{ height: '8rem', cursor: 'pointer' }} onClick={() => handleCardClick('Total')}>
-            <Card.Body>
-              <Card.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>Total</Card.Title>
-              <Card.Text style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400 }}>{profileStats.total}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col> */}
-      </Row>
-
       <Row className="mb-4">
-        <Col>
+        <Col md={8}>
+          <Row>
+            {Object.entries(profileStats).map(([status, count]) => (
+              <Col key={status} md={4} className="mb-3">
+                {status === "total" ? "" :
+                  <Card className="shadow-lg card-style" style={{ height: '8rem', cursor: 'pointer' }} onClick={() => handleCardClick(status)}>
+                    <Card.Body className="text-center">
+                      <Card.Text style={{ fontSize: '2rem', fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>
+                        {count}
+                      </Card.Text>
+                      <Card.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400 }}>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </Card.Title>
+                    </Card.Body>
+                  </Card>
+                }
+              </Col>
+            ))}
+            <Col md={4} className="mb-3">
+              <Card className="shadow-lg card-style" style={{ height: '8rem', cursor: 'pointer' }}>
+                <Card.Body className="text-center">
+                  <Card.Text style={{ fontSize: '2rem', fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>
+                    {profileStats.total || 10}
+                  </Card.Text>
+                  <Card.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400 }}>
+                    Total
+                  </Card.Title>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Col>
+        <Col md={4}>
+
+          <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={DownloadApplicantData} style={{ color: "green", margin: "10px", alignSelf: "end", outlineStyle: "none !immportant" }}>
+            Download  Applicants Data
+          </Button>
           <div style={{ width: '100%', height: '400px' }}>
             <CanvasJSChart options={chartOptions} />
           </div>
@@ -139,11 +189,11 @@ function AdminHome() {
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Market</th>
-                <th>referBy</th>
-                <th>referedNtid</th>
-                <th>comments</th>
-                <th>status</th>
-                <th>createdAt</th>
+                <th>Refer By</th>
+                <th>Referred ID</th>
+                <th>Comments</th>
+                <th>Status</th>
+                <th>Created At</th>
               </tr>
             </thead>
             <tbody>
@@ -155,7 +205,7 @@ function AdminHome() {
                   <td>{profile.phone}</td>
                   <td>{profile.market}</td>
                   <td>{profile.referBy}</td>
-                  <td>{profile.referedNtid}</td>
+                  <td>{profile.referedId}</td>
                   <td>{profile.comments}</td>
                   <td>{profile.status}</td>
                   <td>{profile.createdAt}</td>
@@ -170,6 +220,7 @@ function AdminHome() {
           </Button>
         </Modal.Footer>
       </Modal>
+      <ToastContainer />
     </div>
   );
 }

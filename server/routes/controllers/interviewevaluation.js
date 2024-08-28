@@ -54,6 +54,8 @@ const addFirstRoundEvaluation = async (req, res) => {
     } = req.body;
     // console.log("incoming valuessssssssssssssssss..")
 
+
+
     const query = `
         INSERT INTO first_round_evaluation (
             applicant_uuid,
@@ -161,16 +163,31 @@ const addFirstRoundEvaluation = async (req, res) => {
     ];
 
     try {
-
         console.log('Values:', values);
-
+    
+        // Execute the initial query
         const [result] = await db.query(query, values);
-
-        res.status(200).json({ message: 'Evaluation added successfully', result });
+    
+        // Define the values for the update query
+        const valuesForUpdate = [recommend_hiring, applicant_uuid];
+        
+        // Execute the update query
+        const [updateResult] = await db.query(`
+          UPDATE applicant_referrals
+          SET status = ?
+          WHERE applicant_uuid = ?
+        `, valuesForUpdate);
+    
+        console.log("Database update successful");
+    
+        // Send a success response
+        res.status(200).json({ message: 'Evaluation added successfully', result, updateResult });
     } catch (error) {
+        // Handle any errors
         console.error('SQL Error:', error.message);
         res.status(500).json({ error: error.message });
     }
+    
 };
 
 

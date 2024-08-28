@@ -2,11 +2,26 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
 import { useNavigate } from 'react-router';
-import { Table, Form, Row, Col, Button, Container, Toast,Tabs, Tab,} from 'react-bootstrap';
+import { Table, Form, Row, Col, Button, Container, Toast, Tabs, Tab, Modal } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import Accordion from 'react-bootstrap/Accordion';
 import 'react-toastify/dist/ReactToastify.css';
+
 const Hrinterview = ({ applicant_uuidProps }) => {
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const handleShow = () => setShowConfirmation(true);
+  const handleClose = () => setShowConfirmation(false);
+
+  const handleConfirm = () => {
+    // Show the toast message upon confirmation
+    toast.success('Action confirmed!');
+    setShowConfirmation(false);
+    setTimeout(() => {
+      navigate("/hrnew")
+    }, 1800)
+  };
+
   // State for showing toast and form data
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
@@ -14,10 +29,10 @@ const Hrinterview = ({ applicant_uuidProps }) => {
   const [activeKey, setActiveKey] = useState(null); // State to manage active tab
   const [formData, setFormData] = useState({
     submissionDate: '',
-    name: '',
+    // name: '',
     email: '',
-    firstName: '',
-    lastName: '',
+    // firstName: '',
+    // lastName: '',
     applicantId: '',
     candidateEmail: '',
     market: '',
@@ -52,19 +67,20 @@ const Hrinterview = ({ applicant_uuidProps }) => {
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
+    toast.success("Response submitted successfully!");
     try {
       // Send POST request to the backend
-      const response = await axios.post(`${process.env.REACT_APP_API}/add-hrevaluation`, formData);
+      // const response = await axios.post(`${process.env.REACT_APP_API}/add-hrevaluation`, formData);
 
       // Show toast
       setShowToast(true);
 
       setFormData({
         submissionDate: '',
-        name: '',
+        // name: '',
         email: '',
-        firstName: '',
-        lastName: '',
+        // firstName: '',
+        // lastName: '',
         applicantId: '',
         candidateEmail: '',
         market: '',
@@ -86,14 +102,14 @@ const Hrinterview = ({ applicant_uuidProps }) => {
         reasonBackOut: '',
         verificationJoining: ''
       });
-
-      // Check if the response is successful
-      if (response.status === 200) {
-        toast.success("Response submitted successfully!");
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      toast.error("Failed to submit response.");
+    
+    //   // Check if the response is successful
+    //   if (response.status === 200) {
+    //     toast.success("Response submitted successfully!");
+    //   }
+    // } catch (error) {
+    //   console.error('Error submitting form:', error);
+    //   toast.error("Failed to submit response.");
     } finally {
       // Optionally reset or update state here
       setTimeout(() => {
@@ -128,8 +144,11 @@ const Hrinterview = ({ applicant_uuidProps }) => {
   }, [applicant_uuidProps])
 
   return (
-    <Container className="d-flex  justify-content-center">
-     <Col md={8} lg={5} className="m-4">
+    <Container className="d-flex justify-content-center ">
+
+
+
+      <Col md={8} lg={5} className="m-4">
         <h2 className='m-2'>{applicant_uuidProps} First Round Details</h2>
         {/* Accordion to display first round details */}
         <Accordion defaultActiveKey="0" className="mt-4">
@@ -144,6 +163,16 @@ const Hrinterview = ({ applicant_uuidProps }) => {
         </Accordion>
       </Col>
       <Col md lg={7} className="m-4">
+      <div className="d-flex justify-content-end">
+          <Button
+            variant="warning"
+            onClick={handleShow}
+            className="mt-2"
+          >
+            No Show
+          </Button>
+        </div>
+
         <h2 className='m-2'>HR Interview Questions</h2>
 
 
@@ -164,7 +193,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           </Form.Group>
 
           {/* PLEASE SELECT YOUR NAME */}
-          <Form.Group as={Row} className="mb-3">
+          {/* <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               2. PLEASE SELECT YOUR NAME
             </Form.Label>
@@ -181,12 +210,12 @@ const Hrinterview = ({ applicant_uuidProps }) => {
                 <option>Sultan</option>
               </Form.Control>
             </Col>
-          </Form.Group>
+          </Form.Group> */}
 
           {/* PLEASE ENTER YOUR EMAIL */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              3. PLEASE ENTER YOUR EMAIL
+              2. PLEASE ENTER YOUR EMAIL
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -200,7 +229,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           </Form.Group>
 
           {/* First Name */}
-          <Form.Group as={Row} className="mb-3">
+          {/* <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               4. First Name
             </Form.Label>
@@ -213,9 +242,9 @@ const Hrinterview = ({ applicant_uuidProps }) => {
                 onChange={handleChange}
               />
             </Col>
-          </Form.Group>
+          </Form.Group> */}
 
-          {/* Last Name */}
+          {/* Last Name
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               5. Last Name
@@ -229,12 +258,12 @@ const Hrinterview = ({ applicant_uuidProps }) => {
                 onChange={handleChange}
               />
             </Col>
-          </Form.Group>
+          </Form.Group> */}
 
           {/* PLEASE ENTER THE APPLICANT ID */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              6. PLEASE ENTER THE APPLICANT ID
+              3. PLEASE ENTER THE APPLICANT ID
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -250,7 +279,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* PLEASE ENTER THE CANDIDATE'S EMAIL */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              7. PLEASE ENTER THE CANDIDATE'S EMAIL
+              4. PLEASE ENTER THE CANDIDATE'S EMAIL
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -266,19 +295,16 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* PLEASE SELECT THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              8. PLEASE SELECT THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR
+              5. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR
             </Form.Label>
             <Col sm={6}>
               <Form.Control
-                as="select"
+                type="name"
                 name="market"
                 value={formData.market}
                 onChange={handleChange}
               >
-                <option value="">Select...</option>
-                <option>Market 1</option>
-                <option>Market 2</option>
-                <option>Market 3</option>
+
               </Form.Control>
             </Col>
           </Form.Group>
@@ -286,7 +312,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              9. WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING
+              6. WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -305,19 +331,16 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* PLEASE SELECT WHERE WILL THE APPLICANT GO FOR TRAINING */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              10. PLEASE SELECT WHERE WILL THE APPLICANT GO FOR TRAINING
+              7. PLEASE ENTER WHERE WILL THE APPLICANT GO FOR TRAINING
             </Form.Label>
             <Col sm={6}>
               <Form.Control
-                as="select"
+                type="name"
                 name="trainingLocation"
                 value={formData.trainingLocation}
                 onChange={handleChange}
               >
-                <option value="">Select...</option>
-                <option>Location 1</option>
-                <option>Location 2</option>
-                <option>Location 3</option>
+
               </Form.Control>
             </Col>
           </Form.Group>
@@ -325,19 +348,16 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* COMPENSATION TYPE */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              11. COMPENSATION TYPE
+              8. COMPENSATION TYPE
             </Form.Label>
             <Col sm={6}>
               <Form.Control
-                as="select"
+                type="name"
                 name="compensationType"
                 value={formData.compensationType}
                 onChange={handleChange}
               >
-                <option value="">Select...</option>
-                <option>Type 1</option>
-                <option>Type 2</option>
-                <option>Type 3</option>
+
               </Form.Control>
             </Col>
           </Form.Group>
@@ -345,7 +365,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* PLEASE ENTER THE OFFERED SALARY */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              12. PLEASE ENTER THE OFFERED SALARY
+              9. PLEASE ENTER THE OFFERED SALARY
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -361,7 +381,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* IS THE APPLICANT ON CURRENT OR BACK PAYROLL */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              13. IS THE APPLICANT ON CURRENT OR BACK PAYROLL
+              10. IS THE APPLICANT ON CURRENT OR BACK PAYROLL
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -380,7 +400,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* DID THE APPLICANT ACCEPT THE OFFER? */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              14. DID THE APPLICANT ACCEPT THE OFFER?
+              11. DID THE APPLICANT ACCEPT THE OFFER?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -405,7 +425,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* IF THE APPLICANT HAS DECIDED TO THINK ABOUT IT PLEASE SELECT WHEN WILL HE RETURN BACK TO YOU */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              15. IF THE APPLICANT HAS DECIDED TO THINK ABOUT IT PLEASE SELECT WHEN WILL HE RETURN BACK TO YOU
+              12. IF THE APPLICANT HAS DECIDED TO THINK ABOUT IT PLEASE SELECT WHEN WILL HE RETURN BACK TO YOU
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -420,7 +440,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* PLEASE ENTER THE APPLICANT'S DATE OF JOINING */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              16. PLEASE ENTER THE APPLICANT'S DATE OF JOINING
+              13. PLEASE ENTER THE APPLICANT'S DATE OF JOINING
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -435,7 +455,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* OTHER NOTES/POINTERS */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              17. OTHER NOTES/POINTERS
+              14. OTHER NOTES/POINTERS
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -452,7 +472,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* IS THE APPLICANT A NO SHOW? */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              18. IS THE APPLICANT A NO SHOW?
+              15. IS THE APPLICANT A NO SHOW?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -467,7 +487,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              19. PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK
+              16. PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -483,7 +503,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* WOULD YOU LIKE TO PROCEED WITH THE CANDIDATE? */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              20. WOULD YOU LIKE TO PROCEED WITH THE CANDIDATE?
+              17. WOULD YOU LIKE TO PROCEED WITH THE CANDIDATE?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -508,7 +528,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* Applicant's Phone # */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              21. Applicant's Phone #
+              18. Applicant's Phone #
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -524,7 +544,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* Submission ID */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              22. Submission ID
+              19. Submission ID
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -540,7 +560,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* DID THE EMPLOYEE BACK OUT? */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              23. DID THE EMPLOYEE BACK OUT?
+              20. DID THE EMPLOYEE BACK OUT?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -565,7 +585,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* IF SO WHY DID HE BACK OUT */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              24. IF SO WHY DID HE BACK OUT
+              21. IF SO WHY DID HE BACK OUT
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -581,7 +601,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           {/* VERIFICATION OF JOINING */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              25. VERIFICATION OF JOINING
+              22. VERIFICATION OF JOINING
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -611,22 +631,25 @@ const Hrinterview = ({ applicant_uuidProps }) => {
           </Form.Group>
         </Form>
       </Col>
+      {/* Confirmation Modal */}
+      <Modal show={showConfirmation} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to proceed?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleConfirm}>
+            Yes
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Toast Notification */}
-      <ToastContainer position="middle-center" className="p-3" style={{ height: '50vh' }}>
-        <Toast
-          show={showToast}
-          onClose={() => setShowToast(false)}
-          delay={3000}
-          autohide
-          className="border border-success rounded"
-        >
-          <Toast.Body className="d-flex align-items-center text-success" style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
-            <i className="fas fa-check-circle me-2" style={{ fontSize: '1.5rem' }}></i>
-            Details submitted successfully!
-          </Toast.Body>
-        </Toast>
-      </ToastContainer>
+
+      <ToastContainer />
     </Container >
   );
 }

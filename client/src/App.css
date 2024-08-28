@@ -14,6 +14,11 @@
   pointer-events: none;
 }
 
+/* In your CSS file (e.g., App.css) */
+.custom-placeholder::placeholder {
+  color: #d3d3d3; /* Light gray color */
+  opacity: 1; /* Ensures that the color specified is used */
+}
 
 
 @media (prefers-reduced-motion: no-preference) {
