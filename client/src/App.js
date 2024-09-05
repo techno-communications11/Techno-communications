@@ -21,11 +21,21 @@ import './App.css';
 import ScreeningHome from './Screnningpages/Shome';
 import 'react-toastify/dist/ReactToastify.css';
 import CenteredTabs from './Screnningpages/Tabs';
+import HrTabs from './HrRound/HrTabs';
 import Interviewedprofiles from './Screnningpages/InterviewedProfiles';
+import TrainerRes from './HrRound/TrainerRes';
+import AdminDetailedView from "./Adminpages/AdminDetailedView"
+import { MyProvider } from './pages/MyContext';
+import InterviewerDashboard from "./InterviewRound/interviewerDashboard"
+import { ToastContainer } from 'react-toastify';
+import MarketJobOpenings from './Markets/markets';
+import Markethome from './Markets/markethome';
 function App() {
   return (
     <Router>
+        <MyProvider>
       <AppComponent />
+      </MyProvider>
     </Router>
   );
 }
@@ -33,7 +43,7 @@ function App() {
 function AppComponent() {
   const token = localStorage.getItem('token');
   const [applicant_uuidProps,setApplicant_uuid]=useState("");
-  console.log(applicant_uuidProps,"applicantid")
+  console.log(applicant_uuidProps,"applicantid--->")
 
   let role = null;
 
@@ -66,15 +76,19 @@ function AppComponent() {
             {role === 'admin' && (
               <>
                 <Route path="/adminhome" element={<AdminHome />} />
+                <Route path="/admindetailedview" element={<AdminDetailedView />} />
                 <Route path="/register" element={<Register />} />
               </>
             )}
             {role === 'hr' && (
               <>
                 <Route path="/hrhome" element={<HrHome  />} />
-                <Route path="/hrinterview" element={<Hrinterview  applicant_uuidProps={applicant_uuidProps} />} />
+                <Route path="/hrinterview" element={<Hrinterview  />} />
                 {/* <Route path="/hrnew" element={<HrNew/>} /> */}
-                <Route path="/hrnew" element={<HrNew  setApplicant_uuid={setApplicant_uuid} />}></Route>
+                <Route path="/hrnew" element={<HrNew  />}></Route>
+                <Route path="/hrtabs" element={<HrTabs  />} />
+                <Route path="/TrainerRes" element={<TrainerRes/>}></Route>
+
               </>
             )}
             {role === 'trainer' && <Route path="/trainerhome" element={<TrainerHome />} />}
@@ -85,6 +99,7 @@ function AppComponent() {
                 <Route path="/screeningnew" element={<New />} />
                 <Route path="/Interviewedprofiles" element={<Interviewedprofiles />} />
                 <Route path="/tabs" element={<CenteredTabs />} />
+                <Route path="/marketjobopenings" element={<MarketJobOpenings />} />
               </>
             )}
             {role === 'interviewer' && (
@@ -92,6 +107,14 @@ function AppComponent() {
                 <Route path="/interviewhome" element={<InterviewHome setApplicant_uuid={setApplicant_uuid} />} />
                 <Route path="/interview" element={<ApplicantForm applicant_uuidProps={applicant_uuidProps} />} />
                 <Route path="/new" element={<New />} />
+                <Route path="/interviewerdashboard" element={<InterviewerDashboard />} />
+              </>
+            )}
+             {role === 'market_manager' && (
+              <>
+             
+                <Route path="/markethome" element={<Markethome />} />
+             
               </>
             )}
              <Route path="/" element={<Public />} />
@@ -99,6 +122,7 @@ function AppComponent() {
         )}
         <Route path="*" element={<Navigate to={ '/'} />} />
       </Routes>
+      <ToastContainer />
     </div>
   );
 }

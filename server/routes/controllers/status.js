@@ -1,6 +1,33 @@
 const db = require("../config/db")
 
 
+const statusupdate = async (req, res) => {
+    const { applicant_uuid, action } = req.body;
+  
+    console.log("Status update request received for applicant:", applicant_uuid, "with action:", action);
+  
+    try {
+      // Assuming you're using a MySQL database connection (mysql2/promise)
+      const [result] = await db.query(
+        'UPDATE applicant_referrals SET status = ? WHERE applicant_uuid = ?',
+        [action, applicant_uuid]
+      );
+  
+      // Check if any rows were updated
+      if (result.affectedRows > 0) {
+        res.status(200).json({ message: 'Status updated successfully.' });
+        console.log("Status updated successfully")
+      } else {
+        res.status(404).json({ error: 'Applicant not found.' });
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+      res.status(500).json({ error: 'An error occurred while updating the status.' });
+    }
+  };
+  
+
+
 const getStatusCounts = async (req, res) => {
     try {
         // Get a connection from the pool
@@ -14,7 +41,7 @@ const getStatusCounts = async (req, res) => {
             GROUP BY status, total_count
         `;
 
-        // Execute the query
+        // Execute the query3
         const [rows] = await db.query(query);
 
         // Release the connection
@@ -29,5 +56,6 @@ const getStatusCounts = async (req, res) => {
     }
 };
 module.exports = {
-    getStatusCounts
+    getStatusCounts,
+    statusupdate
 }

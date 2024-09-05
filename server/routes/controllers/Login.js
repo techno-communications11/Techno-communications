@@ -31,7 +31,7 @@ const login = async (req, res) => {
             message: "Login successful",
             token // Send the token directly to the client
         });
-
+      
     } catch (error) {
         console.error('Login error:', error); // Log the error for debugging
         res.status(500).json({ message: "Failed to login" });

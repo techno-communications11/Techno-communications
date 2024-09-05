@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Table, Button, Modal, Form, Alert, InputGroup, FormControl } from 'react-bootstrap';
+import { Table, Button, Modal, Form, Alert, InputGroup, FormControl, Col } from 'react-bootstrap';
 import decodeToken from '../decodedDetails';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import { toast, ToastContainer } from 'react-toastify';
-import '../pages/loader.css'
+import '../pages/loader.css';
 
 function TrainerHome() {
   const apiurl = process.env.REACT_APP_API;
@@ -12,15 +12,16 @@ function TrainerHome() {
   const [showModal, setShowModal] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [comment, setComment] = useState('');
+  const [recommendHiring, setRecommendHiring] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  let userData = decodeToken();
+  const userData = decodeToken();
 
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await axios.get(`${apiurl}/users/${1}/applicants`, {
+        const response = await axios.get(`${apiurl}/users/${userData.id}/trainerapplicants`, {
           headers: getAuthHeaders(),
         });
         const sortedProfiles = response.data.sort(
@@ -36,11 +37,12 @@ function TrainerHome() {
     };
 
     fetchProfiles();
-  }, [apiurl]);
+  }, [apiurl, userData.id]);
 
   const handleOpenModal = (profile) => {
     setSelectedProfile(profile);
     setComment(profile.comments || '');
+    setRecommendHiring('');
     setShowModal(true);
   };
 
@@ -48,34 +50,37 @@ function TrainerHome() {
     setShowModal(false);
   };
 
-  const handleSubmitComment = async () => {
-    setShowModal(false)
-    toast.success(" Comment Added Successfully!")
-    // try {
-    //   await axios.put(`${apiurl}/auth/updatecomment/${selectedProfile.id}`, {
-    //     comments: comment,
-    //   });
-    //   setShowModal(false);
-    //   setProfiles((prevProfiles) =>
-    //     prevProfiles.map((profile) =>
-    //       profile.id === selectedProfile.id ? { ...profile, comments: comment } : profile
-    //     )
-    //   );
-    // } catch (error) {
-    //   setError('Error submitting comment.');
-    //   console.error('Error submitting comment:', error);
-    // }
-  };
+  const handleSubmitComment = async (applicant_uuid) => {
+    if (!comment || !recommendHiring) {
+      toast.error('Comment and recommendation status are required.');
+      return;
+    }
 
-  // Filter profiles based on the search query
-  const filteredProfiles = profiles.filter((profile) =>
-    profile.applicant_id.toString().includes(searchQuery) ||
-    profile.applicant_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    profile.applicant_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    profile.referred_by.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    profile.reference_id.toString().includes(searchQuery) ||
-    profile.applicant_phone.includes(searchQuery)
-  );
+    const payload = {
+      applicant_uuid,
+      action: recommendHiring,
+      comment,
+    };
+
+    try {
+      const res = await axios.post(`${apiurl}/updatestatus`, payload, {
+        headers: getAuthHeaders(),
+      });
+
+      if (res.status === 200) {
+        toast.success(res.data.message);
+        setShowModal(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        toast.error('Failed to submit comment.');
+      }
+    } catch (error) {
+      setError('Error submitting comment.');
+      console.error('Error submitting comment:', error);
+    }
+  };
 
   return (
     <div className="container mt-5">
@@ -86,50 +91,38 @@ function TrainerHome() {
 
       {error && <Alert variant="danger">{error}</Alert>}
 
-      <InputGroup className=" m-auto border-black fw-bolder w-50 my-5">
+      <InputGroup className="m-auto border-black fw-bolder w-50 my-5">
         <FormControl
-          placeholder="filter Profiles..."
-          className='text-center'
+          placeholder="Filter Profiles..."
+          className="text-center"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </InputGroup>
 
       {loading ? (
-        <div className="loader m-auto">
-
-        </div>
+        <div className="loader m-auto"></div>
       ) : (
         <Table striped hover responsive>
           <thead style={{ backgroundColor: "#E10174" }}>
             <tr>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>ID</th>
+              <th style={{ backgroundColor: "#E10174", color: "white" }}>S.NO</th>
               <th style={{ backgroundColor: "#E10174", color: "white" }}>Name</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Email</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Phone</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Referred By</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Referred ID</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Evolution stats</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Evolution Ends</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Evolution Days</th>
+              <th style={{ backgroundColor: "#E10174", color: "white" }}>Applicant UUID</th>
               <th style={{ backgroundColor: "#E10174", color: "white" }}>Action</th>
             </tr>
           </thead>
           <tbody>
-            {filteredProfiles.map((profile, index) => (
-              <tr key={index}>
+            {profiles.filter(profile =>
+              profile.applicant_name.toLowerCase().includes(searchQuery.toLowerCase())
+            ).map((profile, index) => (
+              <tr key={profile.applicant_uuid}>
                 <td>{index + 1}</td>
                 <td>{profile.applicant_name || ""}</td>
-                <td>{profile.applicant_email}</td>
-                <td>{profile.applicant_phone}</td>
-                <td>{profile.referred_by}</td>
-                <td>{profile.reference_id}</td>
-                <td>09/22/2024</td>
-                <td>09/25/2024</td>
-                <td>3</td>
+                <td>{profile.applicant_uuid}</td>
                 <td>
                   <Button variant="primary" onClick={() => handleOpenModal(profile)}>
-                    Add Comment
+                    Enter Feedback
                   </Button>
                 </td>
               </tr>
@@ -154,13 +147,31 @@ function TrainerHome() {
                 placeholder="Enter your comment here"
               />
             </Form.Group>
+            <Col sm={6} className="text-start">
+              <Form.Check
+                type="radio"
+                label="Recommended For Hiring"
+                name="recommend_hiring"
+                value="Recommended For Hiring"
+                checked={recommendHiring === 'Recommended For Hiring'}
+                onChange={(e) => setRecommendHiring(e.target.value)}
+              />
+              <Form.Check
+                type="radio"
+                label="Not Recommended For Hiring"
+                name="recommend_hiring"
+                value="Not Recommended For Hiring"
+                checked={recommendHiring === 'Not Recommended For Hiring'}
+                onChange={(e) => setRecommendHiring(e.target.value)}
+              />
+            </Col>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleSubmitComment}>
+          <Button variant="primary" onClick={() => handleSubmitComment(selectedProfile?.applicant_uuid)}>
             Submit
           </Button>
         </Modal.Footer>

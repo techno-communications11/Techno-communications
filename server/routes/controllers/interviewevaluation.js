@@ -164,22 +164,22 @@ const addFirstRoundEvaluation = async (req, res) => {
 
     try {
         console.log('Values:', values);
-    
+
         // Execute the initial query
         const [result] = await db.query(query, values);
-    
+
         // Define the values for the update query
         const valuesForUpdate = [recommend_hiring, applicant_uuid];
-        
+
         // Execute the update query
         const [updateResult] = await db.query(`
           UPDATE applicant_referrals
           SET status = ?
           WHERE applicant_uuid = ?
         `, valuesForUpdate);
-    
+
         console.log("Database update successful");
-    
+
         // Send a success response
         res.status(200).json({ message: 'Evaluation added successfully', result, updateResult });
     } catch (error) {
@@ -187,7 +187,7 @@ const addFirstRoundEvaluation = async (req, res) => {
         console.error('SQL Error:', error.message);
         res.status(500).json({ error: error.message });
     }
-    
+
 };
 
 

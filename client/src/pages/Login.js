@@ -4,7 +4,8 @@ import Form from 'react-bootstrap/Form';
 import { FaEyeSlash, FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode';
+import { toast, ToastContainer } from 'react-toastify';
 
 
 function Login() {
@@ -38,20 +39,20 @@ function Login() {
     // }
 
     setError('');
-    console.log(" api ===>",process.env.REACT_APP_API);
+    console.log(" api ===>", process.env.REACT_APP_API);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API}/login`, 
-        { email, password }, 
-        { withCredentials: true } 
+      const response = await axios.post(`${process.env.REACT_APP_API}/login`,
+        { email, password },
+        { withCredentials: true }
       );
-      
+
 
       if (response.status === 200) {
         const { token } = response.data;
-        
+
         localStorage.setItem('token', token);
-       
+
 
         const decodedToken = jwtDecode(token);
         const userRole = decodedToken.role;
@@ -70,15 +71,23 @@ function Login() {
             navigate('/screeinghome');
             break;
           case 'interviewer':
-            navigate('/interviewhome');
+            navigate('/interviewerdashboard');
+            break;
+          case 'market_manager':
+            navigate('/markethome');
             break;
           default:
-            navigate('/'); 
+            navigate('/');
             break;
         }
+        // Show success toast
+        toast.success('Login successful!', {
+          position: toast.POSITION.TOP_CENTER,
+          autoClose: 3000,  // Auto close after 3 seconds
+        });
       }
     } catch (error) {
-      setError('Login failed. Please check your email and password.');
+      setError('Login failed. Please check your email and password.', error);
     }
   };
 
@@ -87,38 +96,41 @@ function Login() {
   };
 
   return (
-    <Form className='p-4 rounded' onSubmit={handleSubmit}>
-      <h3 className='text-center mb-4'>Login</h3>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Control
-          ref={emailRef}
-          type="email"
-          placeholder="Enter email"
-          required
-          className="shadow-none border"
-        />
-      </Form.Group>
-
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <div className='d-flex border rounded'>
+    <>
+      <Form className='p-4 rounded' onSubmit={handleSubmit}>
+        <h3 className='text-center mb-4'>Login</h3>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Control
-            ref={passwordRef}
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
+            ref={emailRef}
+            type="email"
+            placeholder="Enter email"
             required
-            className="shadow-none border-0"
+            className="shadow-none border"
           />
-          <span onClick={handlePasswordShow} role='button' className='mt-2 me-2'>
-            {showPassword ? <FaEye /> : <FaEyeSlash />}
-          </span>
-        </div>
-        {error && <span className='text-danger d-block mt-2 text-center'>{error}</span>}
-      </Form.Group>
+        </Form.Group>
 
-      <Button variant="primary" type="submit" className='w-100'>
-        Login
-      </Button>
-    </Form>
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <div className='d-flex border rounded'>
+            <Form.Control
+              ref={passwordRef}
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              required
+              className="shadow-none border-0"
+            />
+            <span onClick={handlePasswordShow} role='button' className='mt-2 me-2'>
+              {showPassword ? <FaEye /> : <FaEyeSlash />}
+            </span>
+          </div>
+          {error && <span className='text-danger d-block mt-2 text-center'>{error}</span>}
+        </Form.Group>
+
+        <Button variant="primary" type="submit" className='w-100'>
+          Login
+        </Button>
+      </Form>
+      <ToastContainer />
+    </>
   );
 }
 

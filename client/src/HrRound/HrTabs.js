@@ -4,13 +4,14 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Container, Row, Form, Col } from 'react-bootstrap'; // Imported Form, Button, and Col for Bootstrap styling
-import New from './New';
-import Interviewedprofiles from './InterviewedProfiles';
-import Button from '@mui/material/Button';
+import HrNew from './HrNew';
+import TrainerRes from './TrainerRes';
 
 function TabPanel(props) {
 
     const { children, value, index, ...other } = props;
+    const [applicant_uuidProps,setApplicant_uuid]=useState("");
+    console.log(applicant_uuidProps,"applicantid--->")
 
     return (
         <div
@@ -36,7 +37,8 @@ function a11yProps(index) {
     };
 }
 
-export default function CenteredTabs() {
+export default function HrTabs() {
+    const [getapplicant_uuid,set_uuid]=useState("");
     const apiurl = process.env.REACT_APP_API;
     const [value, setValue] = useState(0);
     const [mobileNumber, setMobileNumber] = useState(''); // State to hold mobile number
@@ -62,13 +64,13 @@ export default function CenteredTabs() {
     return (
         <Container className='mt-4'>
             {/* Search Bar */}
-            <Form className='mb-3'>
+            {/* <Form className='mb-3'>
 
                 <Row className='align-items-center'>
                     <Row className='text-start'>    <p>Want To Check Applicant Status ?   </p></Row>
                     <Col xs="auto">
                         <Form.Label htmlFor="mobileNumber" visuallyHidden>
-                            Mobile Number to check Applicant status
+                            Mobile Number to check Applicant status 
                         </Form.Label>
                         <Form.Control
                             type="text"
@@ -84,7 +86,7 @@ export default function CenteredTabs() {
                         </Button>
                     </Col>
                 </Row>
-            </Form>
+            </Form> */}
 
             {/* Display applicant details if available */}
             {applicantDetails && (
@@ -93,37 +95,20 @@ export default function CenteredTabs() {
                     <Typography>Name: {applicantDetails.name}</Typography>
                     <Typography>Email: {applicantDetails.email}</Typography>
                     <Typography>Status: {applicantDetails.status}</Typography>
-
-                    {/* Close and Refresh Button */}
-                    <Button
-                        variant="text" // Inline text button
-                        color="primary" // You can choose the color
-                        onClick={() => {
-                            // Clear the applicantDetails state
-                            setApplicantDetails(null);
-                            setMobileNumber("")
-                           
-
-                            // Reload the page or perform other necessary actions
-                           
-                        }}
-                        sx={{ marginTop: 2 }} // Adds spacing from the content above
-                    >
-                        Close 
-                    </Button>
                 </Box>
             )}
+
             {/* Tabs and Tab Panels */}
             <Row>
                 <Tabs value={value} onChange={handleChange} aria-label="centered tabs">
-                    <Tab label="Screening Profiles" {...a11yProps(0)} />
-                    <Tab label="Interviewed profiles" {...a11yProps(1)} />
+                    <Tab label="Interview Profiles" {...a11yProps(0)} />
+                    <Tab label="Trainers Update" {...a11yProps(1)} />
                 </Tabs>
                 <TabPanel value={value} index={0}>
-                    <New />
+                    <HrNew     />
                 </TabPanel>
                 <TabPanel value={value} index={1}>
-                    <Interviewedprofiles />
+                    <TrainerRes />
                 </TabPanel>
             </Row>
         </Container>

@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Button from 'react-bootstrap/Button';
+import { Button } from '@mui/material';
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import axios from 'axios';
+import Swal from 'sweetalert2';
+
 
 function Screening() {
   const [error, setError] = useState('');
@@ -13,30 +15,30 @@ function Screening() {
   const phoneRef = useRef();
   const referredByRef = useRef();
   const referenceNtidRef = useRef();
-  const sourcedByRef=useRef();
+  const sourcedByRef = useRef();
   const apiUrl = process.env.REACT_APP_API;
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const regexPhone = /^[0-9]{10}$/;
+  // const regexPhone = /^[0-9]{10}$/;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     event.stopPropagation();
-  
+
     const nameValid = nameRef.current?.value.trim() !== '';
     const emailValid = regexEmail.test(emailRef.current?.value);
-    const phoneValid = regexPhone.test(phoneRef.current?.value);
+    // const phoneValid = regexPhone.test(phoneRef.current?.value);
     const marketValid = selectedMarket !== '';
     const referredByValid = referredByRef.current?.value.trim() !== '';
     const referenceNtidValid = referenceNtidRef.current?.value.trim() !== '';
     const sourcedByValid = sourcedByRef.current?.value.trim() !== '';
-  
-    if (!nameValid || !emailValid || !phoneValid || !marketValid || !referredByValid || !referenceNtidValid || !sourcedByValid) {
+
+    if (!nameValid || !emailValid  || !marketValid || !referredByValid || !referenceNtidValid || !sourcedByValid) {
       setError('Please fill out all fields correctly.');
       return;
     }
-  
+
     setError('');
-  
+
     try {
       const formData = {
         name: nameRef.current.value,
@@ -48,9 +50,9 @@ function Screening() {
         sourcedBy: sourcedByRef.current.value,
       };
       console.log(formData)
-  
+
       const response = await axios.post(`${apiUrl}/submit`, formData);
-  
+
       if (response.status === 201) {
         console.log("Data submitted successfully");
         // Reset the form fields on successful submission
@@ -61,15 +63,30 @@ function Screening() {
         referenceNtidRef.current.value = "";
         sourcedByRef.current.value = "";
         setSelectedMarket("");
+        if (response.status === 201) {
+          Swal.fire({
+            title: "Thank You!",
+            text: "Data submitted successfully!",
+            icon: "success"
+          });
+        } else {
+          Swal.fire({
+            title: "Unexpected response",
+            text: `${response.data.message}`,
+            icon: "error"
+          });
+        }
+        
       } else {
         setError("Unexpected response status: " + response.status);
       }
     } catch (error) {
       console.error("Submission error:", error);
       setError('Failed to submit data. Please try again later.');
+      
     }
   };
-  
+
 
   const handleSelectMarket = (eventKey) => {
     setSelectedMarket(eventKey);
@@ -157,23 +174,23 @@ function Screening() {
               />
             </Form.Group>
 
-                    <Form.Group className="mb-3 border-secondary" controlId="formBasicMarket">
-          <Dropdown onSelect={handleSelectMarket}>
-            <Dropdown.Toggle className='w-100 bg-transparent text-dark border-secondary' id="dropdown-basic">
-              {selectedMarket || "Select Market"}
-            </Dropdown.Toggle>
-            <Dropdown.Menu className='w-100 overflow-auto' style={{ height: '15rem' }}>
-              {markets.sort((a, b) => (a.markets || "").localeCompare(b.markets || "")).map((market, index) => (
-                <Dropdown.Item key={market.location_name || index} eventKey={market.location_name}>
-                  {market.location_name.toUpperCase()}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-        </Form.Group>
+            <Form.Group className="mb-3 border-secondary" controlId="formBasicMarket">
+              <Dropdown onSelect={handleSelectMarket}>
+                <Dropdown.Toggle className='w-100 bg-transparent text-dark border-secondary' id="dropdown-basic">
+                  {selectedMarket || "Select Market"}
+                </Dropdown.Toggle>
+                <Dropdown.Menu className='w-100 overflow-auto' style={{ height: '15rem' }}>
+                  {markets.sort((a, b) => (a.markets || "").localeCompare(b.markets || "")).map((market, index) => (
+                    <Dropdown.Item key={market.location_name || index} eventKey={market.location_name}>
+                      {market.location_name.toUpperCase()}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </Form.Group>
 
 
-            <Button className='w-100' variant="secondary" type="submit">
+            <Button className='w-100' variant="contained" type="submit" >
               Submit
             </Button>
 

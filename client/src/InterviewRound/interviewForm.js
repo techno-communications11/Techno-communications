@@ -92,7 +92,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
       'recommend_hiring', 'course_type_selection', 'current_residence',
       'current_city', 'current_country'
     ];
-
+   
     fields.forEach(field => {
       const value = formData[field];
 
@@ -158,24 +158,52 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
 
     }
   };
+  const noshowatinterview = async (applicant_uuid) => {
+    console.log("status....", applicant_uuid);
 
+    // Create the payload object to be sent in the request
+    const payload = {
+      applicant_uuid: applicant_uuid,
+      action: "no show at Interview",
+      // Include other data if needed, such as a comment
+
+    };
+    console.log("status....", applicant_uuid, payload.action);
+    try {
+      const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
+
+      if (res.status === 200) {
+        // Show success message
+        toast.success(res.data.message);
+
+        // Reload the page after a short delay
+        setTimeout(() => {
+          naviagte("/interviewhome")
+        }, 1800);
+      }
+    } catch (error) {
+      console.error("Error updating no-show to interview:", error);
+      // Show error message
+      toast.error("Failed to update no-show status.");
+    }
+  };
 
 
 
 
   return (
     <Container className="d-flex justify-content-center align-items-center">
-    <Col lg={8} className='border px-5 mt-5' style={{ fontFamily: 'Roboto, sans-serif' }}>
-      {/* Flex container to align button to the right */}
-      <div className="d-flex justify-content-end">
-        <Button
-          variant="warning"
-          onClick={handleShow}
-          className="mt-2"
-        >
-          No Show
-        </Button>
-      </div>
+      <Col lg={8} className='border px-5 mt-5' style={{ fontFamily: 'Roboto, sans-serif' }}>
+        {/* Flex container to align button to the right */}
+        <div className="d-flex justify-content-end">
+          <Button
+            variant="warning"
+            onClick={() => noshowatinterview(applicant_uuidProps)}
+            className="mt-2"
+          >
+            No Show
+          </Button>
+        </div>
 
 
         <h1 className="m-4">{applicant_uuidProps} Applicant Information Form</h1>

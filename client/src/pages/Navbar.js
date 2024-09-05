@@ -5,20 +5,24 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import Avatar from '@mui/material/Avatar';
 import { deepPurple } from '@mui/material/colors';
+import Badge from '@mui/material/Badge';
 
 function AppNavbar() {
-  const navigate = useNavigate(); 
-  const [error, setError] = useState('');
-  const [counts, setCounts] = useState({});
+  const apiurl = process.env.REACT_APP_API;
+  const navigate = useNavigate();
+  // const [error, setError] = useState('');
+  const [counts, setCounts] = useState(0);
   const token = localStorage.getItem('token');
   let role = '';
   let name = '';
+  let id = '';
 
   if (token) {
     try {
       const decodedToken = jwtDecode(token);
       role = decodedToken.role || '';
       name = decodedToken.name || '';
+      id = decodedToken.id || '';
     } catch (error) {
       console.error('Token decoding failed', error);
     }
@@ -32,26 +36,42 @@ function AppNavbar() {
       navigate('/');
     } catch (error) {
       console.error("Error logging out:", error);
-      setError('Logout failed. Please try again later.');
+      // setError('Logout failed. Please try again later.');
     }
   };
 
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        // Uncomment and configure the URL based on your API
-        // const response = await axios.get('http://localhost:3001/api/auth/newCounts', {
-        //   headers: getAuthHeaders(),
-        // });
-        // Simulate counts for example
-        setCounts({ totalProfiles: 5 });
+        let endpoint = '';
+
+        if (role === 'interviewer') {
+          endpoint = `/users/${id}/interviewapplicants`;
+        } else if (role === 'hr') {
+          endpoint = `/users/${id}/hrinterviewapplicants`;
+        } else if (role === 'screening_manager') {
+          endpoint = `/users/${id}/applicants`;
+        }
+
+        if (endpoint) {
+          const response = await axios.get(`${apiurl}${endpoint}`);
+          if (response.status === 200) {
+            setCounts(response.data.length);
+          }
+        }
       } catch (error) {
-        setError('Failed to fetch counts. Please try again later.');
+        console.log(error)
+        // setError('Failed to fetch counts. Please try again later.');
       }
     };
 
-    fetchCounts(); 
-  }, []); 
+
+    fetchCounts();
+    // fetch every 2 seconds
+
+    // Cleanup interval on component unmount
+  }, [role, id, apiurl]);
+
 
   function stringToColor(string) {
     let hash = 0;
@@ -65,7 +85,7 @@ function AppNavbar() {
     }
     return color;
   }
-  
+
   function stringAvatar(name) {
     return {
       sx: {
@@ -87,53 +107,36 @@ function AppNavbar() {
           <Nav className="ms-auto d-flex align-items-center">
             <div className='d-flex gap-3 align-items-center'>
               {role === 'screening_manager' && (
-                <Nav.Link as={Link} to="/screening" className='fw-bolder'>
+                <Nav.Link as={Link} to="/screening" className='fw-bolder nav-link-custom'>
                   List Profile
                 </Nav.Link>
               )}
               {role === 'admin' && (
-                <Nav.Link as={Link} to="/register" className='fw-bolder'>
+                <Nav.Link as={Link} to="/register" className='fw-bolder nav-link-custom'>
                   Register
                 </Nav.Link>
               )}
-              <Nav.Link
-                as={Link}
-                to={
-                  role === "interviewer" ? "/InterviewerDashboard" :
-                  role === "screening_manager" ? "/home" :
-                  role === "admin" ? "/adminhome" :
-                  role === "trainer" ? "/trainerhome" :
-                  role === "hr" ? "/hrhome" : "/"
-                }
-                className='fw-bolder text-dark'
-              >
-                Dashboard
-              </Nav.Link>
-              {role === 'interviewer' && (
-                <Nav.Link as={Link} to="/interviewhome" className='fw-bolder'>
-                  New
-                </Nav.Link>
-              )}
-              {role === 'hr' && (
-                <Nav.Link as={Link} to="/hrnew" className='fw-bolder'
-                  style={{
-                    position: 'relative',
-                    display: 'inline-block',
-                    background: 'linear-gradient(90deg, rgba(63,94,251,1) 0%, rgba(180,27,148,1) 81%)',
-                    WebkitBackgroundClip: 'text',
-                    backgroundClip: 'text',
-                    color: 'transparent',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  New
-                </Nav.Link>
-              )}
-              {role === 'screening_manager' && (
+              {role !== "trainer" &&
                 <Nav.Link
                   as={Link}
-                  to="/tabs"
-                  className='fw-bolder'
+                  to={
+                    role === "interviewer" ? "/InterviewerDashboard" :
+                      role === "screening_manager" ? "screeinghome" :
+                        role === "admin" ? "/adminhome" :
+                          // role === "trainer" ? "/trainerhome" :
+                          role === "hr" ? "/hrhome" : "/"
+                  }
+                  className='fw-bolder nav-link-custom'
+                >
+                  Dashboard
+                </Nav.Link>
+              }
+
+              {(role !== 'admin' && role !== 'trainer') && (
+                <Nav.Link
+                  as={Link}
+                  to={role === "interviewer" ? "/interviewhome" : role === "hr" ? "/hrtabs" : role === "screening_manager" ? "/tabs" : ''}
+                  className='fw-bolder nav-link-custom'
                   style={{
                     position: 'relative',
                     display: 'inline-block',
@@ -144,25 +147,26 @@ function AppNavbar() {
                     fontWeight: 'bold',
                   }}
                 >
-                  New 
-                  {counts.totalProfiles > 0 && (
-                    <sup className='text-white bg-danger px-1 rounded-circle' style={{ fontSize: '10px' }}>
-                      {counts.totalProfiles}
-                    </sup>
+                  New
+                  {counts > 0 && (
+                    <Badge badgeContent={counts} className='mb-4 ms-2' color="error">
+                                 
+                    </Badge>
                   )}
                 </Nav.Link>
               )}
-              <Nav.Link className='d-flex align-items-center'>
-  <Avatar 
-    sx={{ bgcolor: deepPurple[600], width: 10, height: 10 }} 
-    {...stringAvatar(name)} 
-  />
-  <div className='ms-2 fw-bolder'>
-    <span className='d-block text-start' style={{ fontSize: '0.9rem' }}>{name}</span>
-    <span className='d-block text-start' style={{ fontSize: '0.9rem' }}>{role.split('_').join(' ')}</span>
-  </div>
-</Nav.Link>
 
+
+              <Nav.Link className='d-flex align-items-center'>
+                <Avatar
+                  sx={{ bgcolor: deepPurple[600], width: 30, height: 30 }}
+                  {...stringAvatar(name)}
+                />
+                <div className='ms-2 fw-bolder'>
+                  <span className='d-block text-start' style={{ fontSize: '0.9rem', textTransform: 'capitalize' }}>{name}</span>
+                  <span className='d-block text-start' style={{ fontSize: '0.9rem', textTransform: 'capitalize' }}>{role.split('_').join(' ')}</span>
+                </div>
+              </Nav.Link>
               <Button variant="danger" onClick={handleLogout} size="md" className='ms-2'>
                 Logout
               </Button>

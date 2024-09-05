@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Button from 'react-bootstrap/Button';
+// import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
@@ -9,6 +9,8 @@ import Login from './Login';
 import job from './images/4882404.jpg';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Button } from '@mui/material';
+import Swal from 'sweetalert2';
 
 function Public() {
   const apiUrl = process.env.REACT_APP_API;
@@ -21,21 +23,21 @@ function Public() {
   // State to track invalid fields
   const [invalidFields, setInvalidFields] = useState({
     name: false,
-    email: false,
-    phone: false,
+    // email: false,
+    // phone: true,
     referredBy: false,
     referenceNtid: false,
     market: false
   });
 
   const nameRef = useRef();
-  const emailRef = useRef();
+  // const emailRef = useRef();
   const phoneRef = useRef();
   const referredByRef = useRef();
   const referenceNtidRef = useRef();
 
-  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const regexPhone = /^[0-9]{10}$/;
+  // const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // const regexPhone = /^[0-9]{10}$/;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -43,20 +45,20 @@ function Public() {
 
     // Validate each field
     const nameValid = nameRef.current?.value.trim() !== '';
-    const emailValid = regexEmail.test(emailRef.current?.value);
-    const phoneValid = regexPhone.test(phoneRef.current?.value);
+    // const emailValid = regexEmail.test(emailRef.current?.value);
+    // const phoneValid = regexPhone.test(phoneRef.current?.value);
     const marketValid = selectedMarket !== '';
     const referredByValid = referredByRef.current?.value.trim() !== '';
     const referenceNtidValid = referenceNtidRef.current?.value.trim() !== '';
 
     // Update invalidFields state
     const newInvalidFields = {
-      name: !nameValid,
-      email: !emailValid,
-      phone: !phoneValid,
-      referredBy: !referredByValid,
-      referenceNtid: !referenceNtidValid,
-      market: !marketValid
+        name: !nameValid,
+        // email: !emailValid,
+        // phone: !phoneValid,
+        referredBy: !referredByValid,
+        referenceNtid: !referenceNtidValid,
+        market: !marketValid
     };
 
     setInvalidFields(newInvalidFields);
@@ -65,55 +67,68 @@ function Public() {
     const isFormValid = Object.values(newInvalidFields).every(field => !field);
 
     if (!isFormValid) {
-      setError('Please fill out all fields correctly.');
-      setLoading(false);
-      return;
+        setError('Please fill out all fields correctly.');
+        setLoading(false);
+        return;
     } else {
-      setError('');
+        setError('');
     }
 
     try {
-      const formData = {
-        name: nameRef.current.value,
-        email: emailRef.current.value,
-        phone: phoneRef.current.value,
-        work_location: selectedMarket,
-        referred_by: referredByRef.current.value,
-        reference_id: referenceNtidRef.current.value,
-      };
-      console.log(formData);
+        const formData = {
+            name: nameRef.current.value,
+            // email: emailRef.current.value,
+            phone: phoneRef.current.value,
+            work_location: selectedMarket,
+            referred_by: referredByRef.current.value,
+            reference_id: referenceNtidRef.current.value,
+        };
+        console.log(formData);
 
-      const response = await axios.post(`${apiUrl}/submit`, formData);
+        const response = await axios.post(`${apiUrl}/submit`, formData);
 
-      if (response.status === 201) {
-        console.log("Data submitted successfully");
-        toast.success("Data submitted successfully!");
-      } else {
-        console.log("Unexpected response status:", response.status);
-        toast.error("Unexpected response from the server.");
-      }
+        if (response.status === 201) {
+            Swal.fire({
+                title: "Thank You!",
+                text: "Data submitted successfully!",
+                icon: "success"
+            });
+        }
     } catch (error) {
-      setError('Failed to submit data. Please try again later.');
-      toast.error("Failed to submit data. Please try again later.");
+        // Handle errors
+        if (error.response && error.response.data && error.response.data.error) {
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            });
+        } else {
+            Swal.fire({
+                title: "Failed",
+                text: 'Failed to submit data. Please try again later.',
+                icon: "error"
+            });
+        }
     } finally {
-      // Reset form fields
-      nameRef.current.value = "";
-      emailRef.current.value = "";
-      phoneRef.current.value = "";
-      referredByRef.current.value = "";
-      referenceNtidRef.current.value = "";
-      setSelectedMarket("");
-      setInvalidFields({
-        name: false,
-        email: false,
-        phone: false,
-        referredBy: false,
-        referenceNtid: false,
-        market: false
-      });
-      setLoading(false);
+        // Reset form fields
+        nameRef.current.value = "";
+        // emailRef.current.value = "";
+        phoneRef.current.value = "";
+        referredByRef.current.value = "";
+        referenceNtidRef.current.value = "";
+        setSelectedMarket("");
+        setInvalidFields({
+            name: false,
+            // email: false,
+            // phone: false,
+            referredBy: false,
+            referenceNtid: false,
+            market: false
+        });
+        setLoading(false);
     }
-  };
+};
+
 
   const handleSelectMarket = (eventKey) => {
     setSelectedMarket(eventKey);
@@ -169,7 +184,7 @@ function Public() {
               />
             </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formBasicEmail">
+            {/* <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Control
                 ref={emailRef}
                 type="email"
@@ -177,7 +192,7 @@ function Public() {
                 required
                 isInvalid={invalidFields.email}
               />
-            </Form.Group>
+            </Form.Group> */}
 
             <Form.Group className="mb-3" controlId="formBasicPhone">
               <Form.Control
@@ -185,7 +200,7 @@ function Public() {
                 type="tel"
                 placeholder="Phone Number"
                 required
-                isInvalid={invalidFields.phone}
+              // isInvalid={invalidFields.phone}
               />
             </Form.Group>
 
@@ -257,7 +272,7 @@ function Public() {
             </Form.Group>
 
             {/* Submit Button */}
-            <Button className="w-100" variant="secondary" type="submit" disabled={loading}>
+            <Button className="w-100" variant="contained" type="submit" disabled={loading}>
               {loading ? 'Submitting...' : 'Submit'}
             </Button>
 
@@ -267,6 +282,7 @@ function Public() {
           {/* Login Button */}
           <div className="text-center mt-4">
             <Button
+
               style={{ width: "100%", backgroundColor: "#ffc55a", color: "black", outline: "none" }}
               onClick={handleLoginModalShow}
             >

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Button, Modal, Dropdown, Form } from 'react-bootstrap';
+import { Table, Modal, Dropdown, Form } from 'react-bootstrap';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, parseISO } from 'date-fns';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
@@ -11,7 +11,9 @@ import '../pages/loader.css'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import { Container, Row, Col } from 'react-bootstrap'
-
+import { Button } from '@mui/material';
+import ConfirmationModal from "../pages/Confirm"
+// import { setTime } from 'react-datepicker/dist/date_utils';
 
 function New() {
   let userData = decodeToken();
@@ -32,73 +34,68 @@ function New() {
   const [selectedDateTime, setSelectedDateTime] = useState(null);
   const [showdateModel, setShowDateModel] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [actionToPerform, setActionToPerform] = useState('');
+  // const [selectedProfile, setSelectedProfile] = useState(null);
 
+  const newcount = profiles.length
+  console.log("newcount", newcount)
+
+  localStorage.setItem("newcount", newcount)
 
   const apiurl = process.env.REACT_APP_API;
   const HrData = decodeToken();
-  useEffect(() => {
-    const fetchProfiles = async () => {
-      try {
-        const response = await axios.get(`${apiurl}/users/${userData.id}/applicants`, {
-          headers: getAuthHeaders(),
-        });
-        setProfiles(response.data);
-        setLoading(true);
-      } catch (error) {
-        setError('Failed to fetch profiles. Please try again later.');
-      } finally {
-        setLoading(false)
-      }
-    };
 
-    fetchProfiles();
-  }, []);
+  const fetchData = async (url, setData, errorMessage) => {
+    try {
+      const response = await axios.get(url, {
+        headers: getAuthHeaders(),
+      });
+      setData(response.data);
+    } catch (error) {
+      setError(errorMessage);
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
+
+    fetchData(
+      `${apiurl}/users/${userData.id}/applicants`,
+      setProfiles,
+      'Failed to fetch profiles. Please try again later.'
+    );
+
+    fetchData(
+      `${apiurl}/interviewer`,
+      setHosts,
+      'Failed to fetch hosts. Please try again later.'
+    );
+
+    fetchData(
+      `${apiurl}/hrs`,
+      setHrs,
+      'Failed to fetch HRs. Please try again later.'
+    );
+
+    setLoading(false);
+  }, [5000]); // Add dependencies to avoid unnecessary re-renders
 
   const formData = {
     applicant_uuid: selectedProfile ? selectedProfile.applicant_uuid : null,
     interviewer_id: selectedHost ? selectedHost.id : null,
     time_of_interview: selectedDateTime ? selectedDateTime.toISOString() : null,
+
   };
-
-
-  useEffect(() => {
-    const fetchHosts = async () => {
-      try {
-        const response = await axios.get(`${apiurl}/interviewer`, {
-          headers: getAuthHeaders(),
-        });
-
-        setHosts(response.data);
-      } catch (error) {
-        setError('Failed to fetch hosts. Please try again later.');
-      }
-    };
-
-    fetchHosts();
-  }, []);
-
-  useEffect(() => {
-    const fetchHrs = async () => {
-      try {
-        const response = await axios.get(`${apiurl}/hrs`, {
-          headers: getAuthHeaders(),
-        });
-
-        setHrs(response.data);
-      } catch (error) {
-        setError('Failed to fetch hosts. Please try again later.');
-      }
-    };
-
-    fetchHrs();
-  }, []);
 
   const handleShowModal = (profile) => {
     setSelectedProfile(profile);
+
     setShowModal(true);
   };
   const handleShowNext = () => {
     setShowDateModel(true);
+    setShowCalendlyModal(false);
   }
 
   const handleCloseModal = () => {
@@ -107,27 +104,50 @@ function New() {
     setCalendlyUrl('');
     setShowCalendlyModal(false);
     setShowDateModel(false)
+    setSelectedHost(false);
   };
-  const handleActionClick = async (applicant_uuid, action) => {
-    const status = {
-      applicant_uuid: applicant_uuid,
-      action: action,
-      comment: comment,
-    };
-    try {
 
-      const response = await axios.put('http://localhost:3001/api/auth/updatestatus', status, {
+  ///<---------------------------------------------- actions for reject, not intrest,no response------------------------------------------------------------------------>
+  const handleAction = async (applicant_uuid, action) => {
+    setActionToPerform(action);
+    setSelectedProfile(applicant_uuid);
+    setShowConfirm(true);
+  };
+
+  const handleConfirm = async () => {
+    setShowConfirm(false);
+
+    if (!selectedProfile) return;
+
+    const payload = {
+      applicant_uuid: selectedProfile,
+      action: actionToPerform,
+      comment: comment
+    };
+
+    try {
+      const response = await axios.post(`${apiurl}/updatestatus`, payload, {
         headers: getAuthHeaders(),
       });
-      if (response.status === 200) {
 
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }
     } catch (error) {
       console.error('Error updating status:', error);
+      toast.error('Failed to update status');
     } finally {
       handleCloseModal();
     }
   };
+
+
+
+
+
   const handleMoveForwardMenuToggle = () => {
     setMoveForwardMenu(!moveForwardMenu);
   };
@@ -137,23 +157,38 @@ function New() {
   const handleSelect = () => {
   }
   const handleDateTimeSave = async (applicant_uuid) => {
+    
 
     try {
       const response = await axios.post(`${apiurl}/assign-interviewer`, formData, {
         headers: getAuthHeaders(),
-      })
+      });
+
       if (response.status === 200) {
-        console.log(formData)
-        toast.success(`interview Shceduled succusfully! `);
+        console.log(formData);
+        console.log("Message from server:", response.data.message); // Access message from response.data
+        toast.success(response.data.message); // Display the message from server
+        setTimeout(() => {
+          window.location.reload();
+        }, 1800)
+
       }
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error();
+      // Check if the error response exists to display error message
+      if (error.response && error.response.data && error.response.data.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("An error occurred while updating status."); // Default error message
+      }
     } finally {
-      handleCloseModal();
+      // handleCloseModal();
     }
+
   };
+
   const handleSelectHost = async (eventKey) => {
+    // setShowModal(false);
     const selected = hosts.find(host => host.name === eventKey);
     setSelectedHost(selected);
     if (selected) {
@@ -162,9 +197,13 @@ function New() {
       setShowCalendlyModal(true);
     }
   };
-  const formatTime = (date) => {
-    return format(parseISO(date), 'EEE dd MMM yyyy HH:mm');
-  };
+  // const formatTime = (date) => {
+  //   return format(parseISO(date), 'EEE dd MMM yyyy HH:mm');
+  // };
+
+
+
+
   const filteredProfiles = profiles.filter(profile => {
     const lowercasedTerm = searchTerm.toLowerCase();
     return profile.applicant_name.toLowerCase().includes(lowercasedTerm) ||
@@ -172,13 +211,13 @@ function New() {
       profile.applicant_phone.toString().includes(lowercasedTerm) ||
       profile.created_at.toLowerCase().includes(lowercasedTerm);
   });
-  const sortedProfiles = [...filteredProfiles].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const sortedProfiles = [...filteredProfiles].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   return (
 
     <Container>
       <Row className="justify-content-center">
         <Col xs={12} md={8} lg={6}>
-       
+
           <Form className="mb-4">
             <Form.Control
               className="m-auto border-black fw-bolder w-100 custom-placeholder"
@@ -196,7 +235,7 @@ function New() {
           <table className="table table-striped" >
             <thead>
               <tr>
-                {['SC.NO', 'Name', 'Email', 'Phone', 'Referred By', 'Reference NTID', 'Created At', 'Action'].map((header, index) => (
+                {['SC.NO', 'Name', 'Phone', 'Referred By', 'Reference NTID', 'Created At', 'Action'].map((header, index) => (
                   <th key={index} style={{ backgroundColor: '#E10174', color: 'white' }}>{header}</th>
                 ))}
               </tr>
@@ -207,13 +246,14 @@ function New() {
                   <tr key={index}>
                     <td>{index + 1}</td>
                     <td>{profile.applicant_name}</td>
-                    <td>{profile.applicant_email}</td>
+                    {/* <td>{profile.applicant_email}</td> */}
                     <td>{profile.applicant_phone}</td>
                     <td>{profile.referred_by}</td>
                     <td>{profile.reference_id}</td>
-                    <td>{formatTime(profile.created_at)}</td>
+                    <td>{new Date(profile.created_at).toLocaleString('en-US', { hour12: true })}</td>
+
                     <td>
-                      <Button className="btn btn-primary shadow-none fw-bold" onClick={() => handleShowModal(profile)}>Proceed</Button>
+                      <Button variant='contained' onClick={() => handleShowModal(profile)}>Proceed</Button>
                     </td>
                   </tr>
                 ))
@@ -227,13 +267,28 @@ function New() {
         </Col>
       </Row>
 
-      {/* Modal for Actions */}
-      <Modal show={showModal} onHide={handleCloseModal} size="lg">
+      <Modal show={showModal} onHide={handleCloseModal} size="md">
         <Modal.Header closeButton>
           <Modal.Title>Action for {selectedProfile?.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+        {
+  selectedHost ? (
+    showCalendlyModal && (
+      <div className="text-center mt-5">
+        <div>{selectedHost?.name}</div>
+        <iframe
+          src={calendlyUrl}
+          width="100%"
+          height="500"
+          frameBorder="0"
+          title="Calendly Scheduling"
+          style={{ maxWidth: '100%' }}
+        />
+      </div>
+    )
+  ) : (
+    <Form>
             <Form.Group controlId="comment" className="mx-5">
               <Form.Label className="fw-bolder">Comment<sup className="fs-6 text-danger">*</sup></Form.Label>
               <Form.Control
@@ -245,70 +300,57 @@ function New() {
               />
             </Form.Group>
             <div className="d-flex mx-5 flex-column flex-md-row justify-content-around mt-3">
-              <Button variant="danger" className="mb-2 mb-md-0 bg-transparent text-dark" onClick={() => handleActionClick(selectedProfile.id, 'Reject')}>Reject</Button>
-              <Button variant="warning" className="mb-2 mb-md-0 bg-transparent text-dark" onClick={() => handleActionClick(selectedProfile.id, 'No Response')}>No Response</Button>
-              <Dropdown onSelect={handleSelectHost} show={moveForwardMenu} onToggle={handleMoveForwardMenuToggle}>
-                <Dropdown.Toggle className="w-100 bg-transparent text-dark border-secondary" id="dropdown-basic">
-                  Move Forward
-                </Dropdown.Toggle>
-                {HrData.role === 'screening_manager' &&
-                  <Dropdown.Menu className="w-100 overflow-auto" style={{ maxHeight: '200px' }}>
-                    {hosts.sort((a, b) => a.name.localeCompare(b.name)).map((host, index) => (
-                      <Dropdown.Item key={index} eventKey={host.name}>
-                        {host.name}
-                      </Dropdown.Item>
-                    ))}
-                  </Dropdown.Menu>
-                }
-                {HrData.role === 'interviewer' &&
-                  <Dropdown.Menu className="w-100 overflow-auto" style={{ maxHeight: '200px' }}>
-                    {hrs.sort((a, b) => a.name.localeCompare(b.name)).map((host, index) => (
-                      <Dropdown.Item key={index} eventKey={host.name}>
-                        {host.name}
-                      </Dropdown.Item>
-                    ))}
-                  </Dropdown.Menu>
-                }
-              </Dropdown>
-              <Button variant="warning" className="mb-2 mb-md-0 bg-transparent text-dark" onClick={() => handleActionClick(selectedProfile.id, 'Not Interested')}>Not Interested</Button>
-              <Dropdown onSelect={handleSelect} show={ChangeScrenningMenu} onToggle={handleChangeScrenningToggle}>
-                <Dropdown.Toggle className="w-100 bg-transparent text-dark border-secondary" id="dropdown-basic">
-                  Change assignTo
-                </Dropdown.Toggle>
-                <Dropdown.Menu className="w-100 overflow-auto" style={{ maxHeight: '200px' }}>
-                  {screeners.sort((a, b) => a.name.localeCompare(b.name)).map((host, index) => (
-                    <Dropdown.Item key={index} eventKey={host.name}>
-                      {host.name}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
+              <Container>
+                <Row className='gap-2'>
+                  <Button variant="contained" color='error' onClick={() => handleAction(selectedProfile.applicant_uuid, 'rejected at Screening')}>
+                    Reject
+                  </Button>
+                  <Button variant="contained" color='warning' onClick={() => handleAction(selectedProfile.applicant_uuid, 'no show at Screening')}>
+                    No Response
+                  </Button>
+                  <Button variant="contained" color='secondary' onClick={() => handleAction(selectedProfile.applicant_uuid, 'Not Interested at screening')}>
+                    Not Interested
+                  </Button>
+                </Row>
+                <ConfirmationModal
+                  show={showConfirm}
+                  handleClose={() => setShowConfirm(false)}
+                  handleConfirm={handleConfirm}
+                  message={`Are you sure you want to mark this applicant as ${actionToPerform}?`}
+                />
+              </Container>
+              <Container>
+                <Row className="gap-2">
+                  <Dropdown onSelect={handleSelectHost} show={moveForwardMenu} onToggle={handleMoveForwardMenuToggle}>
+                    <Dropdown.Toggle className="w-100 bg-primary text-white border-secondary" id="dropdown-basic">
+                      Move Forward
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu className="w-auto">
+                      {hosts.sort((a, b) => a.name.localeCompare(b.name)).map((host, index) => (
+                        <Dropdown.Item key={index} eventKey={host.name} className="bg-light text-dark">
+                          {host.name}
+                        </Dropdown.Item>
+                      ))}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </Row>
+              </Container>
             </div>
           </Form>
-        </Modal.Body>
-        <Modal.Footer></Modal.Footer>
-      </Modal>
+  )
+}
 
-      {/* Modal for Scheduling */}
-      <Modal show={showCalendlyModal} onHide={() => setShowCalendlyModal(false)} size="lg">
-        <Modal.Header></Modal.Header>
-        <Modal.Body>
-          <Modal.Title>Schedule Meeting</Modal.Title>
-          <div className="text-center">
-            <iframe
-              src={calendlyUrl}
-              width="100%"
-              height="600"
-              frameBorder="0"
-              title="Calendly Scheduling"
-              style={{ maxWidth: '100%' }}
-            />
-          </div>
+          
+         
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" className="mb-2 mb-md-0 bg-transparent text-dark" onClick={handleShowNext}>Next</Button>
+          {selectedHost ? <Button variant="contained" onClick={handleShowNext}>Next</Button> : ''}
         </Modal.Footer>
       </Modal>
+      
+
+
 
       {/* Modal for Date Selection */}
       <Modal show={showdateModel} onHide={handleCloseModal}>
@@ -318,7 +360,6 @@ function New() {
         <Modal.Body>
           <Form>
             <Form.Group controlId="dateTime">
-              <Form.Label>Date and Time</Form.Label>
               <DatePicker
                 selected={selectedDateTime}
                 onChange={(date) => setSelectedDateTime(date)}
@@ -330,9 +371,10 @@ function New() {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={() => handleDateTimeSave(selectedProfile.id, 'Moved')}>Save</Button>
+          <Button variant="contained" color="success" onClick={() => handleDateTimeSave(selectedProfile.id, 'Moved')}>Save</Button>
         </Modal.Footer>
       </Modal>
+
 
       <ToastContainer />
     </Container>

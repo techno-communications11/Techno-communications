@@ -82,6 +82,7 @@ const handleInterviewClick=(profile)=>{
         <thead className="table-dark">
           <tr>
             <th style={{backgroundColor:'#E10174', color:'white'}}>SI.No</th>
+            <th style={{backgroundColor:'#E10174', color:'white'}}>Applicant Name</th>
             <th style={{backgroundColor:'#E10174', color:'white'}}>Applicant UUID</th>
             <th style={{backgroundColor:'#E10174', color:'white'}}>Interview Time</th>
             <th style={{backgroundColor:'#E10174', color:'white'}}>Action</th>
@@ -91,6 +92,7 @@ const handleInterviewClick=(profile)=>{
           {filteredProfiles.map((profile, index) => (
             <tr key={index}>
               <td>{index + 1}</td>
+              <td>{profile.applicant_name}</td>
               <td>{profile.applicant_uuid}</td>
               <td>
                 {format(new Date(profile.time_of_interview), 'MM/dd/yyyy hh:mm a')}

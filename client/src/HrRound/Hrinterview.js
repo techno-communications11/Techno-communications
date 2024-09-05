@@ -2,15 +2,22 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
 import { useNavigate } from 'react-router';
-import { Table, Form, Row, Col, Button, Container, Toast, Tabs, Tab, Modal } from 'react-bootstrap';
+// import { useNavigate } from 'react-router';
+import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
+import { Table, Form, Row, Col, Button, Container, Toast, Tabs, Tab, Modal, Dropdown } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import Accordion from 'react-bootstrap/Accordion';
 import 'react-toastify/dist/ReactToastify.css';
+import { MyContext } from '../pages/MyContext';
+import { useContext } from 'react';
 
-const Hrinterview = ({ applicant_uuidProps }) => {
+const Hrinterview = () => {
+  // const navigate = useNavigate();
+  const { applicant_uuid } = useContext(MyContext);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleShow = () => setShowConfirmation(true);
+
   const handleClose = () => setShowConfirmation(false);
 
   const handleConfirm = () => {
@@ -52,7 +59,8 @@ const Hrinterview = ({ applicant_uuidProps }) => {
     submissionId: '',
     backOut: '',
     reasonBackOut: '',
-    verificationJoining: ''
+    verificationJoining: '',
+    recommend_hiring: '',
   });
 
   // Handle input changes
@@ -67,13 +75,11 @@ const Hrinterview = ({ applicant_uuidProps }) => {
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
-    toast.success("Response submitted successfully!");
+
     try {
       // Send POST request to the backend
-      // const response = await axios.post(`${process.env.REACT_APP_API}/add-hrevaluation`, formData);
+      const response = await axios.post(`${process.env.REACT_APP_API}/add-hrevaluation`, formData);
 
-      // Show toast
-      setShowToast(true);
 
       setFormData({
         submissionDate: '',
@@ -100,21 +106,23 @@ const Hrinterview = ({ applicant_uuidProps }) => {
         submissionId: '',
         backOut: '',
         reasonBackOut: '',
-        verificationJoining: ''
+        verificationJoining: '',
+        recommend_hiring: '',
       });
-    
-    //   // Check if the response is successful
-    //   if (response.status === 200) {
-    //     toast.success("Response submitted successfully!");
-    //   }
-    // } catch (error) {
-    //   console.error('Error submitting form:', error);
-    //   toast.error("Failed to submit response.");
+
+      // Check if the response is successful
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        setTimeout(() => {
+          navigate('/hrtabs'); // Correct spelling of navigate
+        }, 1800);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error("Failed to submit response.");
     } finally {
-      // Optionally reset or update state here
-      setTimeout(() => {
-        navigate('/hrhome'); // Correct spelling of navigate
-      }, 1800); // Adjust the timeout duration if needed
+
+      // Adjust the timeout duration if needed
     }
   };
 
@@ -123,8 +131,8 @@ const Hrinterview = ({ applicant_uuidProps }) => {
     const fetchingresponse = async () => {
 
       try {
-        console.log("applicant_uuidProps...........................", applicant_uuidProps)
-        const response = await axios.get(`http://localhost:5000/api/first_round_res/${applicant_uuidProps}`)
+        console.log("applicant_uuidProps...........................", applicant_uuid)
+        const response = await axios.get(`http://localhost:5000/api/first_round_res/${applicant_uuid}`)
         if (response.data && response.data.length > 0) {
           setFirstRound(response.data[0]);
           console.log("setFirstRound", setFirstRound)
@@ -141,7 +149,100 @@ const Hrinterview = ({ applicant_uuidProps }) => {
     }
 
     fetchingresponse();
-  }, [applicant_uuidProps])
+  }, [applicant_uuid])
+
+
+  const noshowatinterview = async (applicant_uuid, action) => {
+    console.log("status....", applicant_uuid);
+
+    // Create the payload object to be sent in the request
+    const payload = {
+      applicant_uuid: applicant_uuid,
+      action,
+      // Include other data if needed, such as a comment
+
+    };
+    console.log("status....", applicant_uuid, payload.action);
+    try {
+      const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
+
+      if (res.status === 200) {
+        // Show success message
+        toast.success(res.data.message);
+
+        // Reload the page after a short delay
+        setTimeout(() => {
+          navigate("/hrtabs")
+        }, 1800);
+      }
+    } catch (error) {
+      console.error("Error updating no-show to interview:", error);
+      // Show error message
+      toast.error("Failed to update no-show status.");
+    }
+  };
+  const [trainers, setTrainers] = useState([]);
+  const [trainerId, setTrainerId] = useState('');
+  const [selectedTrainerName, setSelectedTrainerName] = useState(null);
+  const [applicantUuid, setApplicantUuid] = useState(''); // This should be set based on your use case
+  const apiurl = process.env.REACT_APP_API; // Ensure this is set correctly
+  const [showDropdown, setShowDropdown] = useState(true); // New state for controlling dropdown visibility
+  const handleTrainerSelect = (eventKey) => {
+    const selectedTrainer = trainers.find(trainer => trainer.name === eventKey);
+    setSelectedTrainerName(selectedTrainer);
+    setTrainerId(selectedTrainer.id)
+    // if (selectedTrainer) {
+    //   setTrainerId(id);
+    //   setSelectedTrainerName(selectedTrainer.name);
+    // }
+  };
+  useEffect(() => {
+    // Fetch trainers list when component mounts
+    const fetchTrainers = async () => {
+      // console.log("trainers.................")
+      try {
+        const response = await axios.get(`${apiurl}/trainers`, {
+          headers: getAuthHeaders(),
+        });
+        setTrainers(response.data);
+        console.log("traines........", trainers)
+      } catch (error) {
+        console.error('Error fetching trainers:', error);
+      }
+    };
+
+    fetchTrainers();
+  }, [apiurl]);
+
+  const sentForEvaluation = async () => {
+    if (!trainerId) {
+      alert('Please select a trainer.');
+      return;
+    }
+    console.log(`${applicant_uuid} assing to ${trainerId}`)
+    const payload = {
+      applicant_uuid: applicant_uuid,
+      trainer_id: trainerId,
+    };
+    console.log('Payload of trainer details', payload);
+
+    try {
+      const res = await axios.post(`${apiurl}/assign-trainer`, payload, {
+        headers: getAuthHeaders(),
+      });
+
+      if (res.status === 200) {
+        toast.success(res.data.message)
+        setShowDropdown(false); // Hide the dropdown after successful assignment
+        //  formData.recommend_hiring = ""; // Reset recommendation status if needed
+      } else {
+        alert('Failed to assign trainer.');
+      }
+    } catch (error) {
+      console.error('Error assigning trainer:', error);
+    }
+  };
+
 
   return (
     <Container className="d-flex justify-content-center ">
@@ -149,7 +250,7 @@ const Hrinterview = ({ applicant_uuidProps }) => {
 
 
       <Col md={8} lg={5} className="m-4">
-        <h2 className='m-2'>{applicant_uuidProps} First Round Details</h2>
+        <h2 className='m-2'>{applicant_uuid} First Round Details</h2>
         {/* Accordion to display first round details */}
         <Accordion defaultActiveKey="0" className="mt-4">
           {Object.entries(firstRound).map(([key, value], index) => (
@@ -163,13 +264,20 @@ const Hrinterview = ({ applicant_uuidProps }) => {
         </Accordion>
       </Col>
       <Col md lg={7} className="m-4">
-      <div className="d-flex justify-content-end">
+        <div className="d-flex justify-content-end gap-2">
           <Button
             variant="warning"
-            onClick={handleShow}
+            onClick={() => noshowatinterview(applicant_uuid, 'no show at Interview')}
             className="mt-2"
           >
             No Show
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => noshowatinterview(applicant_uuid, 'rejected at Hr')}
+            className="mt-2"
+          >
+            Rejected
           </Button>
         </div>
 
@@ -619,6 +727,67 @@ const Hrinterview = ({ applicant_uuidProps }) => {
                 value="No"
                 checked={formData.verificationJoining === 'No'}
                 onChange={handleChange}
+              />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              23. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
+            </Form.Label>
+            <Col sm={6} className="text-start">
+              <Form.Check
+                type="radio"
+                label="Yes"
+                name="recommend_hiring"
+                value="selected at Hr"  // Updated to send 'selected at Hr' as the value
+                checked={formData.recommend_hiring === 'selected at Hr'}
+                onChange={handleChange}
+              // isInvalid={!!errors.recommend_hiring}
+              />
+              <Form.Check
+                type="radio"
+                label="No"
+                name="recommend_hiring"
+                value="rejected at Hr"  // Updated to send 'rejected at Hr' as the value
+                checked={formData.recommend_hiring === 'rejected at Hr'}
+                onChange={handleChange}
+              // isInvalid={!!errors.recommend_hiring}
+              />
+              <Form.Check
+                type="radio"
+                label="Sent for Evaluation"
+                name="recommend_hiring"
+                value="Sent for Evaluation"
+                checked={formData.recommend_hiring === 'Sent for Evaluation'}
+                onChange={handleChange}
+              // isInvalid={!!errors.recommend_hiring}
+              />
+              {formData.recommend_hiring === 'Sent for Evaluation' && showDropdown && <div className='p-2'>
+                {/** Dropdown for selecting a trainer */}
+                <Dropdown onSelect={handleTrainerSelect}>
+                  <Dropdown.Toggle variant="success" id="dropdown-basic">
+                    {selectedTrainerName ? selectedTrainerName.name : "Select Trainer"}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    {trainers.map((trainer) => (
+                      <Dropdown.Item key={trainer.id} eventKey={trainer.name}>
+                        {trainer.name}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown>
+
+                {/** Button to trigger assignment */}
+                <Button className='p-2 m-1' onClick={() => sentForEvaluation(applicantUuid)}>Assign Trainer</Button>
+              </div>}
+              <Form.Check
+                type="radio"
+                label="Applicant will think about It"
+                name="recommend_hiring"
+                value="Applicant will think about It"
+                checked={formData.recommend_hiring === 'Applicant will think about It'}
+                onChange={handleChange}
+              // isInvalid={!!errors.recommend_hiring}
               />
             </Col>
           </Form.Group>
