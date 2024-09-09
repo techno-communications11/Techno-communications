@@ -1,41 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Modal, Button, Card, Row, Col, Table } from 'react-bootstrap';
 import decodeToken from '../decodedDetails';
-import getStatusCounts from '../pages/getStatusCounts';
+
 function HrHome() {
   const userData = decodeToken();
   const [show, setShow] = useState(false);
   const [selectedStat, setSelectedStat] = useState(null);
-  const [stats, setStats] = useState([]);
+
   const handleClose = () => setShow(false);
   const handleShow = (stat) => {
     setSelectedStat(stat);
     setShow(true);
   };
-  useEffect(() => {
-    // Function to fetch and set the status counts
-    const fetchStatusCounts = async () => {
-      try {
-        const data = await getStatusCounts();
-        setStats(data);
-        console.log(data) // Set the data to state
-      } catch (error) {
-        console.error("Error fetching status counts:", error);
-      }
-    };
-    fetchStatusCounts(); // Call the async function
-  }, []);
-  const filteredStatuses = [
-    "selected at Hr",
 
-    "Sent for Evaluation",
-    "Applicant will think about It",
-    "no show at Hr"
+  // Static fake numbers for each card
+  const stats = [
+    { status: 'no show at Hr', count: 3, bgColor: '#f8d7da' },
+    { status: 'Rejected at Hr', count: 5, bgColor: '#f5c6cb' },
+    { status: 'selected at Hr', count: 12, bgColor: '#d4edda' },
+    { status: 'Sent for Evaluation', count: 7, bgColor: '#ffeeba' },
+    { status: 'Applicant will think about It', count: 2, bgColor: '#cce5ff' }
   ];
+
+  // Total count calculation
   let TotalCount = 0;
-  stats.filter((stat) => filteredStatuses.includes(stat.status))
-    .map((stat) => (TotalCount += stat.count))
-  console.log(TotalCount)
+  stats.map((stat) => (TotalCount += stat.count));
 
   const sampleTableData = [
     { id: 1, name: 'John Doe', status: 'Approved', date: '2024-08-23' },
@@ -43,6 +32,7 @@ function HrHome() {
     { id: 3, name: 'Bob Johnson', status: 'Rejected', date: '2024-08-21' },
     { id: 4, name: 'Alice Williams', status: 'Approved', date: '2024-08-20' },
   ];
+
   return (
     <div>
       <div className="container w-80 my-4">
@@ -50,49 +40,47 @@ function HrHome() {
           <h2 className="text-start fw-bolder">HR Dashboard</h2>
           <h2 className='ms-auto fw-bolder'>{userData.name}</h2>
         </div>
+
         <Row>
-  <Col xs={12} sm={6} md={4} lg={2} className="mb-4">
-    <Card className="shadow-sm card-style h-100" onClick={() => handleShow('total')} style={{ cursor: "pointer" }}>
-      <Card.Body className="d-flex flex-column justify-content-center">
-        <Card.Title className="fw-bold" style={{
-          textTransform: 'capitalize',
-          fontFamily: 'Roboto, sans-serif',
-        }}>
-          {TotalCount}
-        </Card.Title>
-        <Card.Text className='fs-6 fw-bold' >Total</Card.Text>
-      </Card.Body>
-    </Card>
-  </Col>
+          <Col xs={12} sm={6} md={4} lg={2} className="mb-4">
+            <Card className="shadow-sm card-style h-100" style={{ cursor: "pointer" }}>
+              <Card.Body className="d-flex flex-column justify-content-center">
+                <Card.Title className="fw-bold" style={{
+                  textTransform: 'capitalize',
+                  fontFamily: 'Roboto, sans-serif',
+                }}>
+                  {TotalCount}
+                </Card.Title>
+                <Card.Text className='fs-6 fw-bold' >Total</Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
 
-  {stats
-    .filter((stat) => filteredStatuses.includes(stat.status))
-    .map((stat) => (
-      <Col key={stat.id} xs={12} sm={6} md={4} lg={2} className="mb-4">
-        <Card
-          onClick={() => handleShow(stat.status)}
-          className="shadow-sm card-style h-100"
-          style={{ cursor: "pointer" }}
-        >
-          <Card.Body className="d-flex flex-column justify-content-center">
-            <Card.Title className="fw-bold" style={{
-              textTransform: 'capitalize',
-              fontFamily: 'Roboto, sans-serif',
-            }}>
-              {stat.count}
-            </Card.Title>
-            <Card.Text className='fs-6 fw-bold'>{stat.status}</Card.Text>
-          </Card.Body>
-        </Card>
-      </Col>
-    ))}
-</Row>
-
-
+          {stats.map((stat, index) => (
+            <Col key={index} xs={12} sm={6} md={4} lg={2} className="mb-4">
+              <Card
+                onClick={() => handleShow(stat.status)}
+                className="shadow-sm card-style h-100"
+                style={{ cursor: "pointer", backgroundColor: stat.bgColor }}
+              >
+                <Card.Body className="d-flex flex-column justify-content-center">
+                  <Card.Title className="fw-bold" style={{
+                    textTransform: 'capitalize',
+                    fontFamily: 'Roboto, sans-serif',
+                  }}>
+                    {stat.count}
+                  </Card.Title>
+                  <Card.Text className='fs-6 fw-bold'  style={{textTransform: 'capitalize'}}>{stat.status}</Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
       </div>
+
       <Modal show={show} onHide={handleClose} size="lg" className="custom-modal-width">
         <Modal.Header closeButton>
-          <Modal.Title>{selectedStat?.title}</Modal.Title>
+          <Modal.Title>{selectedStat}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Table striped bordered hover>
@@ -125,4 +113,5 @@ function HrHome() {
     </div>
   );
 }
+
 export default HrHome;

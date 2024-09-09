@@ -52,4 +52,32 @@ const createApplicantReferral = async (req, res) => {
 };
 
 
-module.exports = { createApplicantReferral };
+const updatemail = async (req, res) => {
+    const { applicant_uuid, email } = req.body; // Ensure you receive the unique identifier (like applicant_uuid)
+
+    console.log(email, applicant_uuid);
+
+    try {
+        // Perform the SQL query to update the email in the applicant_referrals table
+        const result = await db.query(
+            `UPDATE applicant_referrals
+         SET email = ? 
+         WHERE applicant_uuid = ?`,
+            [email, applicant_uuid] // Using parameterized queries to prevent SQL injection
+        );
+        const affectedRows = result[0]?.affectedRows; // Access the 'affectedRows' inside the first object of the array
+
+        // Check if the query successfully affected any rows
+        if (affectedRows > 0) {
+            res.status(200).json({ message: 'Email updated successfully.' });
+        } else {
+            res.status(404).json({ message: 'Applicant not found or no changes made.' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating email.' });
+    }
+};
+
+
+module.exports = { createApplicantReferral, updatemail };

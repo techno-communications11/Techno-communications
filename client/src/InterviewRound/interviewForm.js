@@ -142,7 +142,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
       });
 
       if (response.status === 200) {
-        toast.success("resonse submitted successfully!");
+        toast.success("response submitted successfully!");
       }
       console.log(formData)
     } catch (error) {

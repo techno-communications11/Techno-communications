@@ -12,11 +12,16 @@ import { MyContext } from '../pages/MyContext';
 import { useContext } from 'react';
 
 const Hrinterview = () => {
-  // const navigate = useNavigate();
   const { applicant_uuid } = useContext(MyContext);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleShow = () => setShowConfirmation(true);
+  useEffect(() => {
+    if (applicant_uuid && applicant_uuid.length > 0) {
+      sessionStorage.setItem("uuid", applicant_uuid);
+    }
+  }, [applicant_uuid]);
+  let applicant_uuidprops = applicant_uuid || sessionStorage.getItem('uuid');
 
   const handleClose = () => setShowConfirmation(false);
 
@@ -28,6 +33,7 @@ const Hrinterview = () => {
       navigate("/hrnew")
     }, 1800)
   };
+  console.log("applicant_uuid1111111111111111111111111", applicant_uuid)
 
   // State for showing toast and form data
   const navigate = useNavigate();
@@ -35,13 +41,9 @@ const Hrinterview = () => {
   const [firstRound, setFirstRound] = useState([])
   const [activeKey, setActiveKey] = useState(null); // State to manage active tab
   const [formData, setFormData] = useState({
-    submissionDate: '',
-    // name: '',
-    email: '',
-    // firstName: '',
-    // lastName: '',
-    applicantId: '',
-    candidateEmail: '',
+
+    applicantId: applicant_uuidprops,
+
     market: '',
     marketTraining: '',
     trainingLocation: '',
@@ -52,14 +54,12 @@ const Hrinterview = () => {
     returnDate: '',
     joiningDate: '',
     notes: '',
-    noShow: false,
+
     workHoursDays: '',
-    proceedCandidate: '',
-    phoneNumber: '',
-    submissionId: '',
+
     backOut: '',
     reasonBackOut: '',
-    verificationJoining: '',
+
     recommend_hiring: '',
   });
 
@@ -82,13 +82,9 @@ const Hrinterview = () => {
 
 
       setFormData({
-        submissionDate: '',
-        // name: '',
-        email: '',
-        // firstName: '',
-        // lastName: '',
+
         applicantId: '',
-        candidateEmail: '',
+
         market: '',
         marketTraining: '',
         trainingLocation: '',
@@ -99,14 +95,12 @@ const Hrinterview = () => {
         returnDate: '',
         joiningDate: '',
         notes: '',
-        noShow: false,
+
         workHoursDays: '',
-        proceedCandidate: '',
-        phoneNumber: '',
-        submissionId: '',
+
         backOut: '',
         reasonBackOut: '',
-        verificationJoining: '',
+
         recommend_hiring: '',
       });
 
@@ -116,6 +110,7 @@ const Hrinterview = () => {
         setTimeout(() => {
           navigate('/hrtabs'); // Correct spelling of navigate
         }, 1800);
+        applicant_uuidprops='';
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -126,49 +121,63 @@ const Hrinterview = () => {
     }
   };
 
+
+
+
+
   useEffect(() => {
+    let isMounted = true;
 
     const fetchingresponse = async () => {
 
+      if (!applicant_uuidprops) {
+        console.log('No applicant UUID found.');
+        return;
+      }
+
       try {
-        console.log("applicant_uuidProps...........................", applicant_uuid)
-        const response = await axios.get(`http://localhost:5000/api/first_round_res/${applicant_uuid}`)
-        if (response.data && response.data.length > 0) {
+        const response = await axios.get(`${apiurl}/first_round_res/${applicant_uuidprops}`);
+        if (isMounted && response.data && response.data.length > 0) {
           setFirstRound(response.data[0]);
-          console.log("setFirstRound", setFirstRound)
         } else {
           console.log("No data found");
         }
-
-        console.log("First round response:", response);
       } catch (err) {
-
-        console.log(err)
+        console.error("Error fetching first round data:", err);
       }
-
-    }
+    };
 
     fetchingresponse();
-  }, [applicant_uuid])
+
+    return () => {
+      isMounted = false;  // Cleanup flag to avoid state updates after unmount
+    };
+  }, [applicant_uuidprops]);
 
 
-  const noshowatinterview = async (applicant_uuid, action) => {
-    console.log("status....", applicant_uuid);
+
+
+  const noshowatinterview = async (applicant_uuidprops, action) => {
+    console.log("status....", applicant_uuidprops);
 
     // Create the payload object to be sent in the request
     const payload = {
-      applicant_uuid: applicant_uuid,
+      applicant_uuid: applicant_uuidprops,
       action,
       // Include other data if needed, such as a comment
 
     };
-    console.log("status....", applicant_uuid, payload.action);
+    console.log("status....", applicant_uuidprops, payload.action);
     try {
       const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
 
       if (res.status === 200) {
         // Show success message
-        toast.success(res.data.message);
+        if (toast) {
+          toast.success(res.data.message);
+        } else {
+          console.error("Toast is undefined");
+        };
 
         // Reload the page after a short delay
         setTimeout(() => {
@@ -184,7 +193,7 @@ const Hrinterview = () => {
   const [trainers, setTrainers] = useState([]);
   const [trainerId, setTrainerId] = useState('');
   const [selectedTrainerName, setSelectedTrainerName] = useState(null);
-  const [applicantUuid, setApplicantUuid] = useState(''); // This should be set based on your use case
+  const [applicantUuid, setApplicantUuid] = useState(sessionStorage.getItem('uuid')); // This should be set based on your use case
   const apiurl = process.env.REACT_APP_API; // Ensure this is set correctly
   const [showDropdown, setShowDropdown] = useState(true); // New state for controlling dropdown visibility
   const handleTrainerSelect = (eventKey) => {
@@ -219,9 +228,9 @@ const Hrinterview = () => {
       alert('Please select a trainer.');
       return;
     }
-    console.log(`${applicant_uuid} assing to ${trainerId}`)
+    console.log(`${applicant_uuidprops} assing to ${trainerId}`)
     const payload = {
-      applicant_uuid: applicant_uuid,
+      applicant_uuid: applicant_uuidprops,
       trainer_id: trainerId,
     };
     console.log('Payload of trainer details', payload);
@@ -232,7 +241,11 @@ const Hrinterview = () => {
       });
 
       if (res.status === 200) {
-        toast.success(res.data.message)
+        if (toast) {
+          toast.success(res.data.message);
+        } else {
+          console.error("Toast is undefined");
+        }
         setShowDropdown(false); // Hide the dropdown after successful assignment
         //  formData.recommend_hiring = ""; // Reset recommendation status if needed
       } else {
@@ -250,7 +263,7 @@ const Hrinterview = () => {
 
 
       <Col md={8} lg={5} className="m-4">
-        <h2 className='m-2'>{applicant_uuid} First Round Details</h2>
+        <h2 className='m-2'>{applicant_uuidprops} First Round Details</h2>
         {/* Accordion to display first round details */}
         <Accordion defaultActiveKey="0" className="mt-4">
           {Object.entries(firstRound).map(([key, value], index) => (
@@ -267,14 +280,14 @@ const Hrinterview = () => {
         <div className="d-flex justify-content-end gap-2">
           <Button
             variant="warning"
-            onClick={() => noshowatinterview(applicant_uuid, 'no show at Interview')}
+            onClick={() => noshowatinterview(applicant_uuidprops, 'no show at Interview')}
             className="mt-2"
           >
             No Show
           </Button>
           <Button
             variant="danger"
-            onClick={() => noshowatinterview(applicant_uuid, 'rejected at Hr')}
+            onClick={() => noshowatinterview(applicant_uuidprops, 'rejected at Hr')}
             className="mt-2"
           >
             Rejected
@@ -285,125 +298,13 @@ const Hrinterview = () => {
 
 
         <Form onSubmit={handleSubmit} >
-          {/* Submission Date */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              1. Submission Date
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="date"
-                name="submissionDate"
-                value={formData.submissionDate}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
 
-          {/* PLEASE SELECT YOUR NAME */}
-          {/* <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              2. PLEASE SELECT YOUR NAME
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="select"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-              >
-                <option value="">Select...</option>
-                <option>Roshan</option>
-                <option>Hurr</option>
-                <option>Sultan</option>
-              </Form.Control>
-            </Col>
-          </Form.Group> */}
 
-          {/* PLEASE ENTER YOUR EMAIL */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              2. PLEASE ENTER YOUR EMAIL
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
-
-          {/* First Name */}
-          {/* <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              4. First Name
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                name="firstName"
-                placeholder="Enter first name"
-                value={formData.firstName}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group> */}
-
-          {/* Last Name
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              5. Last Name
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                name="lastName"
-                placeholder="Enter last name"
-                value={formData.lastName}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group> */}
-
-          {/* PLEASE ENTER THE APPLICANT ID */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              3. PLEASE ENTER THE APPLICANT ID
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                name="applicantId"
-                placeholder="Enter Applicant ID"
-                value={formData.applicantId}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
-
-          {/* PLEASE ENTER THE CANDIDATE'S EMAIL */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              4. PLEASE ENTER THE CANDIDATE'S EMAIL
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="email"
-                name="candidateEmail"
-                placeholder="Enter Candidate's Email"
-                value={formData.candidateEmail}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
 
           {/* PLEASE SELECT THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              5. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR
+              1. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -420,7 +321,7 @@ const Hrinterview = () => {
           {/* WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              6. WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING
+              2. WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -439,7 +340,7 @@ const Hrinterview = () => {
           {/* PLEASE SELECT WHERE WILL THE APPLICANT GO FOR TRAINING */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              7. PLEASE ENTER WHERE WILL THE APPLICANT GO FOR TRAINING
+              3. PLEASE ENTER WHERE WILL THE APPLICANT GO FOR TRAINING
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -456,7 +357,7 @@ const Hrinterview = () => {
           {/* COMPENSATION TYPE */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              8. COMPENSATION TYPE
+              4. COMPENSATION TYPE
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -473,7 +374,7 @@ const Hrinterview = () => {
           {/* PLEASE ENTER THE OFFERED SALARY */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              9. PLEASE ENTER THE OFFERED SALARY
+              5. PLEASE ENTER THE OFFERED SALARY
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -489,7 +390,7 @@ const Hrinterview = () => {
           {/* IS THE APPLICANT ON CURRENT OR BACK PAYROLL */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              10. IS THE APPLICANT ON CURRENT OR BACK PAYROLL
+              6. IS THE APPLICANT ON CURRENT OR BACK PAYROLL
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -508,7 +409,7 @@ const Hrinterview = () => {
           {/* DID THE APPLICANT ACCEPT THE OFFER? */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              11. DID THE APPLICANT ACCEPT THE OFFER?
+              7. DID THE APPLICANT ACCEPT THE OFFER?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -533,7 +434,7 @@ const Hrinterview = () => {
           {/* IF THE APPLICANT HAS DECIDED TO THINK ABOUT IT PLEASE SELECT WHEN WILL HE RETURN BACK TO YOU */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              12. IF THE APPLICANT HAS DECIDED TO THINK ABOUT IT PLEASE SELECT WHEN WILL HE RETURN BACK TO YOU
+              8. IF THE APPLICANT HAS DECIDED TO THINK ABOUT IT PLEASE SELECT WHEN WILL HE RETURN BACK TO YOU
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -548,7 +449,7 @@ const Hrinterview = () => {
           {/* PLEASE ENTER THE APPLICANT'S DATE OF JOINING */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              13. PLEASE ENTER THE APPLICANT'S DATE OF JOINING
+              9. PLEASE ENTER THE APPLICANT'S DATE OF JOINING
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -560,42 +461,13 @@ const Hrinterview = () => {
             </Col>
           </Form.Group>
 
-          {/* OTHER NOTES/POINTERS */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              14. OTHER NOTES/POINTERS
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="notes"
-                placeholder="Enter any notes or pointers"
-                value={formData.notes}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
 
-          {/* IS THE APPLICANT A NO SHOW? */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              15. IS THE APPLICANT A NO SHOW?
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Check
-                type="checkbox"
-                name="noShow"
-                checked={formData.noShow}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
+
 
           {/* PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              16. PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK
+              10. PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -608,67 +480,11 @@ const Hrinterview = () => {
             </Col>
           </Form.Group>
 
-          {/* WOULD YOU LIKE TO PROCEED WITH THE CANDIDATE? */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              17. WOULD YOU LIKE TO PROCEED WITH THE CANDIDATE?
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Check
-                type="radio"
-                label="Yes"
-                name="proceedCandidate"
-                value="Yes"
-                checked={formData.proceedCandidate === 'Yes'}
-                onChange={handleChange}
-              />
-              <Form.Check
-                type="radio"
-                label="No"
-                name="proceedCandidate"
-                value="No"
-                checked={formData.proceedCandidate === 'No'}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
-
-          {/* Applicant's Phone # */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              18. Applicant's Phone #
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                name="phoneNumber"
-                placeholder="Enter phone number"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
-
-          {/* Submission ID */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              19. Submission ID
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                name="submissionId"
-                placeholder="Enter submission ID"
-                value={formData.submissionId}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
 
           {/* DID THE EMPLOYEE BACK OUT? */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              20. DID THE EMPLOYEE BACK OUT?
+              11. DID THE EMPLOYEE BACK OUT?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -693,7 +509,7 @@ const Hrinterview = () => {
           {/* IF SO WHY DID HE BACK OUT */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              21. IF SO WHY DID HE BACK OUT
+              12. IF SO WHY DID HE BACK OUT
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -706,33 +522,9 @@ const Hrinterview = () => {
             </Col>
           </Form.Group>
 
-          {/* VERIFICATION OF JOINING */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              22. VERIFICATION OF JOINING
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Check
-                type="radio"
-                label="Yes"
-                name="verificationJoining"
-                value="Yes"
-                checked={formData.verificationJoining === 'Yes'}
-                onChange={handleChange}
-              />
-              <Form.Check
-                type="radio"
-                label="No"
-                name="verificationJoining"
-                value="No"
-                checked={formData.verificationJoining === 'No'}
-                onChange={handleChange}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              23. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
+              13. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
             </Form.Label>
             <Col sm={6} className="text-start">
               <Form.Check
@@ -791,13 +583,30 @@ const Hrinterview = () => {
               />
             </Col>
           </Form.Group>
-
+          {/* OTHER NOTES/POINTERS */}
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              14. OTHER NOTES/POINTERS
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="notes"
+                placeholder="Enter any notes or pointers"
+                value={formData.notes}
+                onChange={handleChange}
+              />
+            </Col>
+          </Form.Group>
           {/* Submit Button */}
           <Form.Group as={Row} className="mb-3">
             <Col sm={{ span: 6, offset: 6 }}>
               <Button type="submit">Submit Details</Button>
             </Col>
           </Form.Group>
+
+
         </Form>
       </Col>
       {/* Confirmation Modal */}

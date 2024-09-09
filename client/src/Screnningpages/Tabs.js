@@ -90,9 +90,9 @@ export default function CenteredTabs() {
             {applicantDetails && (
                 <Box mb={3}>
                     <Typography variant="h6">Applicant Details</Typography>
-                    <Typography>Name: {applicantDetails.name}</Typography>
-                    <Typography>Email: {applicantDetails.email}</Typography>
-                    <Typography>Status: {applicantDetails.status}</Typography>
+                    <Typography ><span style={{ color: "blue" }}>Name:</span> {applicantDetails.name}</Typography>
+                    {/* <Typography>Email: {applicantDetails.email}</Typography> */}
+                    <Typography><span style={{ color: "blue" }}>Status:</span>  {applicantDetails.status}</Typography>
 
                     {/* Close and Refresh Button */}
                     <Button
@@ -102,14 +102,14 @@ export default function CenteredTabs() {
                             // Clear the applicantDetails state
                             setApplicantDetails(null);
                             setMobileNumber("")
-                           
+
 
                             // Reload the page or perform other necessary actions
-                           
+
                         }}
                         sx={{ marginTop: 2 }} // Adds spacing from the content above
                     >
-                        Close 
+                        Close
                     </Button>
                 </Box>
             )}

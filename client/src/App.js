@@ -13,7 +13,7 @@ import Register from './Adminpages/Register';
 import New from './Screnningpages/New';
 import Listprofile from './Screnningpages/Screening';
 import Profile from './pages/Profile';
-import { jwtDecode } from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode';
 import Hrinterview from './HrRound/Hrinterview';
 import ApplicantForm from './InterviewRound/interviewForm';
 import HrNew from './HrRound/HrNew';
@@ -30,11 +30,12 @@ import InterviewerDashboard from "./InterviewRound/interviewerDashboard"
 import { ToastContainer } from 'react-toastify';
 import MarketJobOpenings from './Markets/markets';
 import Markethome from './Markets/markethome';
+import UpdatePassword from './pages/UpdatePassword';
 function App() {
   return (
     <Router>
-        <MyProvider>
-      <AppComponent />
+      <MyProvider>
+        <AppComponent />
       </MyProvider>
     </Router>
   );
@@ -42,8 +43,8 @@ function App() {
 
 function AppComponent() {
   const token = localStorage.getItem('token');
-  const [applicant_uuidProps,setApplicant_uuid]=useState("");
-  console.log(applicant_uuidProps,"applicantid--->")
+  const [applicant_uuidProps, setApplicant_uuid] = useState("");
+  console.log(applicant_uuidProps, "applicantid--->")
 
   let role = null;
 
@@ -76,22 +77,29 @@ function AppComponent() {
             {role === 'admin' && (
               <>
                 <Route path="/adminhome" element={<AdminHome />} />
+                <Route path="/updatepassword" element={<UpdatePassword />} />
                 <Route path="/admindetailedview" element={<AdminDetailedView />} />
                 <Route path="/register" element={<Register />} />
               </>
             )}
             {role === 'hr' && (
               <>
-                <Route path="/hrhome" element={<HrHome  />} />
-                <Route path="/hrinterview" element={<Hrinterview  />} />
+                <Route path="/hrhome" element={<HrHome />} />
+                <Route path="/hrinterview" element={<Hrinterview />} />
                 {/* <Route path="/hrnew" element={<HrNew/>} /> */}
-                <Route path="/hrnew" element={<HrNew  />}></Route>
-                <Route path="/hrtabs" element={<HrTabs  />} />
-                <Route path="/TrainerRes" element={<TrainerRes/>}></Route>
+                <Route path="/updatepassword" element={<UpdatePassword />} />
+                <Route path="/hrnew" element={<HrNew />}></Route>
+                <Route path="/hrtabs" element={<HrTabs />} />
+                <Route path="/TrainerRes" element={<TrainerRes />}></Route>
 
               </>
             )}
-            {role === 'trainer' && <Route path="/trainerhome" element={<TrainerHome />} />}
+            {role === 'trainer' &&
+              (
+                <><Route path="/trainerhome" element={<TrainerHome />} />
+                  <Route path="/updatepassword" element={<UpdatePassword />} />
+                </>
+              )}
             {role === 'screening_manager' && (
               <>
                 <Route path="/screeinghome" element={<ScreeningHome />} />
@@ -100,6 +108,7 @@ function AppComponent() {
                 <Route path="/Interviewedprofiles" element={<Interviewedprofiles />} />
                 <Route path="/tabs" element={<CenteredTabs />} />
                 <Route path="/marketjobopenings" element={<MarketJobOpenings />} />
+                <Route path="/updatepassword" element={<UpdatePassword />} />
               </>
             )}
             {role === 'interviewer' && (
@@ -108,21 +117,23 @@ function AppComponent() {
                 <Route path="/interview" element={<ApplicantForm applicant_uuidProps={applicant_uuidProps} />} />
                 <Route path="/new" element={<New />} />
                 <Route path="/interviewerdashboard" element={<InterviewerDashboard />} />
+                <Route path="/updatepassword" element={<UpdatePassword />} />
               </>
             )}
-             {role === 'market_manager' && (
+            {role === 'market_manager' && (
               <>
-             
+
                 <Route path="/markethome" element={<Markethome />} />
-             
+                <Route path="/updatepassword" element={<UpdatePassword />} />
+
               </>
             )}
-             <Route path="/" element={<Public />} />
+            <Route path="/" element={<Public />} />
           </>
         )}
-        <Route path="*" element={<Navigate to={ '/'} />} />
+        <Route path="*" element={<Navigate to={'/'} />} />
       </Routes>
-      <ToastContainer />
+
     </div>
   );
 }

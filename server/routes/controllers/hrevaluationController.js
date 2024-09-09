@@ -5,7 +5,7 @@ const addHREvaluation = async (req, res) => {
     console.log("trying to add hr evalution response ")
     const {
         applicantId,
-        candidateEmail,
+
         market,
         marketTraining,
         trainingLocation,
@@ -16,20 +16,41 @@ const addHREvaluation = async (req, res) => {
         returnDate,
         joiningDate,
         notes,
+
         workHoursDays,
-        proceedCandidate,
-        phoneNumber,
-        recommend_hiring,
+
         backOut,
         reasonBackOut,
-        verificationJoining
+
+        recommend_hiring,
     } = req.body;
-    console.log("recommend_hiring", recommend_hiring, applicantId)
+
+    console.log("recommend_hiring applicantId ->>>", applicantId)
     try {
+
+        console.log([ applicantId,
+
+            market,
+            marketTraining,
+            trainingLocation,
+            compensationType,
+            offeredSalary,
+            payroll,
+            acceptOffer,
+            returnDate,
+            joiningDate,
+            notes,
+    
+            workHoursDays,
+    
+            backOut,
+            reasonBackOut,
+    
+            recommend_hiring,])
         const [result] = await db.query(
             `INSERT INTO hrevaluation (
                 applicant_id,
-                candidate_email,
+               
                 market,
                 market_training,
                 training_location,
@@ -41,15 +62,13 @@ const addHREvaluation = async (req, res) => {
                 joining_date,
                 notes,
                 work_hours_days,
-                proceed_candidate,
-                phone_number,
                 back_out,
-                reason_back_out,
-                verification_joining
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
+                reason_back_out
+               
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 applicantId,
-                candidateEmail,
+
                 market,
                 marketTraining,
                 trainingLocation,
@@ -61,11 +80,10 @@ const addHREvaluation = async (req, res) => {
                 joiningDate,
                 notes,
                 workHoursDays,
-                proceedCandidate,
-                phoneNumber,
+
                 backOut,
                 reasonBackOut,
-                verificationJoining
+
             ]
         );
         // Define the values for the update query
@@ -85,7 +103,7 @@ const addHREvaluation = async (req, res) => {
         res.status(200).json({ message: 'Evaluation added successfully', result, updateResult });
     } catch (error) {
         res.status(500).json({ error: error.message });
-        console.log("eeeeeeeeeeeeeeeee")
+       
     }
 };
 
