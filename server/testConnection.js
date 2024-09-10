@@ -25,4 +25,6 @@ async function testConnection() {
     }
 }
 
-testConnection();
+// testConnection();
+
+module.exports = testConnection;
