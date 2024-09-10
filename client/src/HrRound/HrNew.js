@@ -63,7 +63,9 @@ function HrNew() {
                 <td>{index + 1}</td>
                 <td>{profile.applicant_name}</td>
                 <td>{profile.applicant_uuid}</td>
-                <td>{new Date(profile.time_of_hrinterview).toLocaleDateString('en-US')}</td>
+                <td>{new Date(profile.time_of_hrinterview).toLocaleString('en-US', { hour12: true })}
+                </td>
+               
 
                 <td>
                   <button

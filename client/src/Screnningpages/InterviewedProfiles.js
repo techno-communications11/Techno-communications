@@ -11,9 +11,10 @@ import { DataGrid } from '@mui/x-data-grid';
 import Accordion from 'react-bootstrap/Accordion';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { Button } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import ConfirmationModal from "../pages/Confirm"
+import TextField from '@mui/material/TextField';  // Import TextField here
 const statuses = [
     'pending at Screening',
     'no show at Screening',
@@ -52,7 +53,7 @@ export default function InterviewedProfiles() {
     const [interviewers, setInterviewers] = useState([]);
     const [firstRound, setFirstRound] = useState([])
     const [row, setRow] = useState(null);
-
+    const [confirmassiging, setConfirmassiging] = useState(false);
 
 
     useEffect(() => {
@@ -64,6 +65,7 @@ export default function InterviewedProfiles() {
 
 
                 setProfiles(response.data);
+                console.log(response.data)
                 setFilteredProfiles(response.data);
             } catch (error) {
                 console.log(error);
@@ -168,6 +170,7 @@ export default function InterviewedProfiles() {
         setSelectedProfile(null);
         setComment('');
         setShowMoreModel(false);
+        setSelectedDateTime("");
         setCalendlyUrl('');
         setShowCalendlyModal(false);
         setShowDateModel(false);
@@ -176,19 +179,33 @@ export default function InterviewedProfiles() {
 
     const handleSelectHost = async (eventKey) => {
         const selectedhr = hrs.find(hr => hr.name === eventKey);
-        const selectedInterviewer = interviewers.find(Interviewer => Interviewer.name === eventKey);
-        if (selectedhr) {
-            setSelectedHost(selectedhr);
-        } else {
-            setSelectedHost(selectedInterviewer);
-        }
+        const selectedInterviewer = interviewers.find(interviewer => interviewer.name === eventKey);
 
+        // Check if either HR or Interviewer is selected and has an email before proceeding
         if (selectedhr || selectedInterviewer) {
-            setCalendlyUrl("https://calendly.com/ptharun-techno-communications");
-            setShowCalendlyModal(true);
-            // setShowModal(false)
+            const selectedHost = selectedhr || selectedInterviewer;
+            const calendlyUsername = selectedHost.email?.trim().split(/[@.]/).join('-').slice(0, -4);
+
+            if (selectedHost) {
+                setSelectedHost(selectedHost);
+            }
+
+            // Only proceed with Calendly URL if the host has an email
+            if (calendlyUsername) {
+                const calendlyUrl = `https://calendly.com/${calendlyUsername}`;
+                setShowCalendlyModal(true);
+                setCalendlyUrl(calendlyUrl);
+            } else {
+                console.error('Selected host does not have a valid email for Calendly URL.');
+            }
+        } else {
+            console.error('No HR or interviewer selected.');
         }
     };
+
+
+
+
     const handleShowNext = () => {
         setShowDateModel(true);
         setShowModal(false);
@@ -202,9 +219,18 @@ export default function InterviewedProfiles() {
             toast.error('Please select a date and time.');
             return;
         }
+        const now = new Date();
+        if (selectedDateTime <= now) {
+            toast.error("Please select a date and time in the future.");
+            return;
+        }
+
 
         try {
-            const url = hrs.includes(selectedHost.name)
+            const hrNames = hrs.map(hr => hr.name);
+
+            console.log("selectedHost.name..................", selectedHost.name)
+            const url = hrNames.includes(selectedHost.name)
                 ? `${apiurl}/assigntohr`
                 : `${apiurl}/assign-interviewer`;
 
@@ -212,14 +238,20 @@ export default function InterviewedProfiles() {
                 applicant_uuid: selectedProfile ? selectedProfile.applicant_uuid : null,
 
             };
-
+            console.log(hrs, "hrsssssssssssssss....")
             // Dynamically add hr_id or interviewer_id based on the condition
-            if (hrs.includes(selectedHost.name)) {
+            if (hrNames.includes(selectedHost.name)) {
+                console.log(hrs, "hrsssssssssssssss....", selectedHost.name);
                 payload.hr_id = selectedHost ? selectedHost.id : null;
-                payload.time_of_hrinterview = selectedDateTime ? selectedDateTime.toISOString() : null
+                payload.time_of_hrinterview = selectedDateTime ? selectedDateTime.toISOString() : null;
+                console.log("hrs table payload", payload, url);
+                console.log("payload category", payload, url);
+
             } else {
                 payload.interviewer_id = selectedHost ? selectedHost.id : null;
                 payload.time_of_interview = selectedDateTime ? selectedDateTime.toISOString() : null
+                console.log("interviewer table paload")
+                console.log("palyed catogory", payload, url)
             }
 
             const response = await axios.post(url, payload, {
@@ -228,6 +260,7 @@ export default function InterviewedProfiles() {
 
             if (response.status === 200) {
                 toast.success(response.data.message);
+                setSelectedDateTime("")
             }
         } catch (error) {
             console.error('Error updating status:', error);
@@ -241,7 +274,8 @@ export default function InterviewedProfiles() {
         { field: 'applicant_name', headerName: 'Name', width: 130 },
         { field: 'applicant_phone', headerName: 'Phone', width: 150 },
         { field: 'created_at', headerName: 'Created At', width: 200 },
-        { field: 'applicant_uuid', headerName: 'UUID', width: 200 },
+        { field: 'applicant_uuid', headerName: 'UUID', width: 100 },
+        { field: 'applicant_email', headerName: 'email', width: 200 },
         {
             field: 'status',
             headerName: 'Action',
@@ -268,77 +302,124 @@ export default function InterviewedProfiles() {
     ];
 
 
-
     const renderModalContent = () => {
         if (!selectedProfile) return null;
 
         if (['selected at Interview', 'no show at Hr'].includes(selectedProfile.status)) {
             return (
                 <div>
-                    <Form>
-                        <Form.Group controlId="formHRSelection">
-                            <Form.Label>Select HR</Form.Label>
-                            <Dropdown onSelect={handleSelectHost}>
-                                <Dropdown.Toggle variant="success" id="dropdown-basic">
-                                    {selectedHost ? selectedHost.name : 'Select HR'}
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu>
-                                    {hrs.map(hr => (
-                                        <Dropdown.Item key={hr.id} eventKey={hr.name}>
-                                            {hr.name}
-                                        </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </Form.Group>
-                    </Form>
-                    {calendlyUrl && selectedHost && (
-                        <iframe
-                            title="Calendly"
-                            src={calendlyUrl}
-                            width="100%"
-                            height="500"
-                            frameBorder="0"
-                            allowFullScreen
-                        ></iframe>
+                    {!showCalendlyModal ? (
+                        <Form>
+                            <Form.Group controlId="formHRSelection">
+                                <Form.Label>Select HR</Form.Label>
+                                <Dropdown onSelect={handleSelectHost}>
+                                    <Dropdown.Toggle variant="success" id="dropdown-basic">
+                                        {selectedHost ? selectedHost.name : 'Select HR'}
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu>
+                                        {hrs.map(hr => (
+                                            <Dropdown.Item key={hr.id} eventKey={hr.name}>
+                                                {hr.name}
+                                            </Dropdown.Item>
+                                        ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </Form.Group>
+                        </Form>
+                    ) : (
+                        <div className="d-flex justify-content-between">
+                            <div className="flex-grow-1 me-2">
+                                <iframe
+                                    src={calendlyUrl}
+                                    width="500"
+                                    height="500"
+                                    frameBorder="0"
+                                    title="Calendly Scheduling"
+                                    className="h-300"
+                                ></iframe>
+                            </div>
+                            <div className="flex-grow-1 ms-2">
+                                <Form.Group controlId="dateTime" className=" h-50 p-4 ">
+                                    <Modal.Title className='fs-5 mb-2'>Select Date & Time</Modal.Title>
+                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                        <DateTimePicker
+                                            value={selectedDateTime}
+                                            onChange={(date) => setSelectedDateTime(date)}
+                                            renderInput={(params) => <TextField {...params} />}
+                                            className="form-control w-100"
+                                        />
+                                    </LocalizationProvider>
+                                    <Button className='w-100 mt-2 bg-primary  text-white' onClick={() => setConfirmassiging(true)}>
+                                        Assign to Hr
+                                    </Button>
+                                </Form.Group>
+                                <ConfirmationModal
+                                    show={confirmassiging}
+                                    handleClose={() => setConfirmassiging(false)}
+                                    handleConfirm={handleDateTimeSave}
+                                    message={'Have you scheduled the HR interview in the calendar? Please confirm before submitting.'}
+                                />
+                            </div>
+                        </div>
                     )}
                 </div>
             );
         }
 
-        if (['no show at Screening',
-            'no show at Interview',
-            'need second opinion at Interview',
-            'put on hold at Interview'
-        ].includes(selectedProfile.status)) {
+        if (['no Response at Screening', 'no show at Interview', 'need second opinion at Interview', 'put on hold at Interview'].includes(selectedProfile.status)) {
             return (
                 <div>
-                    <Form>
-                        <Form.Group controlId="formHRSelection">
-                            <Form.Label>Select Interviewer</Form.Label>
-                            <Dropdown onSelect={handleSelectHost}>
-                                <Dropdown.Toggle variant="success" id="dropdown-basic">
-                                    {selectedHost ? selectedHost.name : 'Select Interviewer'}
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu>
-                                    {interviewers.map(Interviewer => (
-                                        <Dropdown.Item key={Interviewer.id} eventKey={Interviewer.name}>
-                                            {Interviewer.name}
-                                        </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </Form.Group>
-                    </Form>
-                    {calendlyUrl && selectedHost && (
-                        <iframe
-                            title="Calendly"
-                            src={calendlyUrl}
-                            width="100%"
-                            height="500"
-                            frameBorder="0"
-                            allowFullScreen
-                        ></iframe>
+                    {!showCalendlyModal ? (
+                        <Form>
+                            <Form.Group controlId="formHRSelection">
+                                <Form.Label>Select Interviewer</Form.Label>
+                                <Dropdown onSelect={handleSelectHost}>
+                                    <Dropdown.Toggle variant="success" id="dropdown-basic">
+                                        {selectedHost ? selectedHost.name : 'Select Interviewer'}
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu>
+                                        {interviewers.map(Interviewer => (
+                                            <Dropdown.Item key={Interviewer.id} eventKey={Interviewer.name}>
+                                                {Interviewer.name}
+                                            </Dropdown.Item>
+                                        ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </Form.Group>
+                        </Form>
+                    ) : (
+                        <div className="d-flex justify-content-between">
+                            <div className="flex-grow-1 me-2">
+                                <iframe
+                                    src={calendlyUrl}
+                                    width="500"
+                                    height="500"
+                                    frameBorder="0"
+                                    title="Calendly Scheduling"
+                                    className="h-300"
+                                ></iframe>
+                            </div>
+                            <div className="flex-grow-1 ms-2">
+                                <Form.Group controlId="dateTime" className=" h-50 p-4 ">
+                                    <Modal.Title className='fs-5 mb-2'>Select Date & Time</Modal.Title>
+                                    <DateTimePicker
+                                        value={selectedDateTime}
+                                        onChange={(date) => setSelectedDateTime(date)}
+                                        renderInput={(params) => <TextField {...params} />}
+                                        className="form-control w-100"
+                                    />
+                                    <Button className='w-100 mt-2  bg-primary  text-white' onClick={() => setConfirmassiging(true)}>
+                                        Assign to Interviewer
+                                    </Button>
+                                </Form.Group>
+                                <ConfirmationModal
+                                    show={confirmassiging}
+                                    handleClose={() => setConfirmassiging(false)}
+                                    handleConfirm={handleDateTimeSave}
+                                    message={'Have you scheduled the interview in the calendar? Please confirm before submitting.'}
+                                />
+                            </div>
+                        </div>
                     )}
                 </div>
             );
@@ -384,7 +465,7 @@ export default function InterviewedProfiles() {
         switch (category) {
             case 'Screening':
                 return ['pending at Screening',
-                    'no show at Screening',
+                    'no Response at Screening',
                     'rejected at Screening',
                     'Not Interested at screening',];
             case 'Interview':
@@ -396,6 +477,7 @@ export default function InterviewedProfiles() {
                     'put on hold at Interview',];
             case 'HR':
                 return ['no show at Hr',
+                    "Moved to HR",
                     'selected at Hr',
                     'rejected at Hr',
                     'Sent for Evaluation',
@@ -418,209 +500,187 @@ export default function InterviewedProfiles() {
         });
         setFilteredProfiles(filtered);
     };
-    
+
 
     return (
-        <div>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <div>
 
-            <div className="d-flex justify-content-between align-items-center mb-2">
-                <h5>Applicant Profiles</h5>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                    <h5>Applicant Profiles</h5>
 
-                <div className="d-flex align-items-center m-2">
+                    <div className="d-flex align-items-center m-2">
 
-                    <div style={{ position: 'relative', marginRight: '15px' }}>
-                        <Form.Control
-                            as="select"
-                            value={selectedCategory}
-                            onChange={handleCategoryChange}  // Category change handler
-                            style={{
-                                width: '250px',
-                                padding: '8px 12px',
-                                border: 'solid 1px #ced4da',
-                                borderRadius: '4px'
-                            }}
-                        >
-                            <option value="">SELECT CATEGORIES</option>
-                            <option value="Screening">Screening</option>
-                            <option value="Interview">Interview</option>
-                            <option value="HR">HR</option>
-                        </Form.Control>
-                        <ArrowDropDownIcon style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-                    </div>
+                        <div style={{ position: 'relative', marginRight: '15px' }}>
+                            <Form.Control
+                                as="select"
+                                value={selectedCategory}
+                                onChange={handleCategoryChange}  // Category change handler
+                                style={{
+                                    width: '250px',
+                                    padding: '8px 12px',
+                                    border: 'solid 1px #ced4da',
+                                    borderRadius: '4px'
+                                }}
+                            >
+                                <option value="">SELECT CATEGORIES</option>
+                                <option value="Screening">Screening</option>
+                                <option value="Interview">Interview</option>
+                                <option value="HR">HR</option>
+                            </Form.Control>
+                            <ArrowDropDownIcon style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+                        </div>
 
-                    <div style={{ position: 'relative', marginRight: '15px' }}>
-                        <Form.Control
-                            as="select"
-                            value={selectedStatus}
-                            onChange={(e) => handleFilterApply(e.target.value)}  // Status change handler
-                            style={{
-                                width: '250px',
-                                padding: '8px 12px',
-                                border: 'solid 1px #ced4da',
-                                borderRadius: '4px'
-                            }}
-                        >
-                            <option value="">SELECT STATUS</option>
-                            {getStatusOptions(selectedCategory).map((status, index) => (
-                                <option key={index} value={status}>
-                                    {status.toUpperCase()}
-                                </option>
-                            ))}
-                        </Form.Control>
-                        <ArrowDropDownIcon style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-                    </div>
-                  
-                    <Tooltip title="Filter Profiles"></Tooltip>
-                </div>
-
-
-            </div>
-
-
-            {/* Filter Modal */}
-            <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Filter Profiles</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="filterStatus">
-                            <Form.Label>Select Status</Form.Label>
+                        <div style={{ position: 'relative', marginRight: '15px' }}>
                             <Form.Control
                                 as="select"
                                 value={selectedStatus}
-                                onChange={(e) => handleFilterApply(e.target.value)}
+                                onChange={(e) => handleFilterApply(e.target.value)}  // Status change handler
+                                style={{
+                                    width: '250px',
+                                    padding: '8px 12px',
+                                    border: 'solid 1px #ced4da',
+                                    borderRadius: '4px'
+                                }}
                             >
-                                <option value="">All</option>
-                                {statuses.map(status => (
-                                    <option key={status} value={status}>{status.toUpperCase()} </option>
+                                <option value="">SELECT STATUS</option>
+                                {getStatusOptions(selectedCategory).map((status, index) => (
+                                    <option key={index} value={status}>
+                                        {status.toUpperCase()}
+                                    </option>
                                 ))}
                             </Form.Control>
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button className="m-1" variant="contained" color="secondary" onClick={() => setShowFilterModal(false)}>
-                        Close
-                    </Button>
-                    <Button variant="contained" color="success" onClick={() => handleFilterApply(selectedStatus)}>
-                        Apply Filter
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-            <div style={{ height: 420, width: '100%' }}>
-                <DataGrid
-                    rows={filteredProfiles}
-                    columns={columns}
-                    pageSize={5}
-                    rowsPerPageOptions={[5]}
-                    getRowId={getRowId}
-                />
-            </div>
+                            <ArrowDropDownIcon style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+                        </div>
 
-            <Modal show={showModal && selectedProfile && [
-                'no show at Hr',
-                'no show at Interview',
-                'need second opinion at Interview',
-                'put on hold at Interview',
-                'need second opinion at Interview',
-                'selected at Interview'
-            ].includes(selectedProfile.status)} onHide={handleCloseModal}>
-                <Modal.Header closeButton>
-                    <Modal.Title>{`Action for ${selectedProfile?.status}`}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>{renderModalContent()}</Modal.Body>
-                {selectedHost && (
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleShowNext}>Next</Button>
-                    </Modal.Footer>
-                )}
-            </Modal>
-            <Modal show={showMoreModel} onHide={handleCloseModal} size='xl'>
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        Interview results of applicant_uuid:  {row?.applicant_uuid || 'Unknown Applicant'}
-                    </Modal.Title>
-
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="d-flex">
-                        <div className=" pe-2" style={{ width: '25rem' }}>
-                            <Accordion defaultActiveKey="0" className="mt-4">
-                                {Object.entries(firstRound).slice(0, Math.ceil(Object.entries(firstRound).length / 3)).map(([key, value], index) => (
-                                    <Accordion.Item eventKey={index.toString()} key={index}>
-                                        <Accordion.Header>{key}</Accordion.Header>
-                                        <Accordion.Body>
-                                            {value ? value.toString() : 'No data available'}
-                                        </Accordion.Body>
-                                    </Accordion.Item>
-                                ))}
-                            </Accordion>
-                        </div>
-                        <div className=" px-2" style={{ width: '25rem' }}>
-                            <Accordion defaultActiveKey="0" className="mt-4">
-                                {Object.entries(firstRound).slice(Math.ceil(Object.entries(firstRound).length / 3), 2 * Math.ceil(Object.entries(firstRound).length / 3)).map(([key, value], index) => (
-                                    <Accordion.Item eventKey={(index + Math.ceil(Object.entries(firstRound).length / 3)).toString()} key={index + Math.ceil(Object.entries(firstRound).length / 3)}>
-                                        <Accordion.Header>{key}</Accordion.Header>
-                                        <Accordion.Body>
-                                            {value ? value.toString() : 'No data available'}
-                                        </Accordion.Body>
-                                    </Accordion.Item>
-                                ))}
-                            </Accordion>
-                        </div>
-                        <div className=" ps-2" style={{ width: '25rem' }}  >
-                            <Accordion defaultActiveKey="0" className="mt-4">
-                                {Object.entries(firstRound).slice(2 * Math.ceil(Object.entries(firstRound).length / 3)).map(([key, value], index) => (
-                                    <Accordion.Item eventKey={(index + 2 * Math.ceil(Object.entries(firstRound).length / 3)).toString()} key={index + 2 * Math.ceil(Object.entries(firstRound).length / 3)}>
-                                        <Accordion.Header>{key}</Accordion.Header>
-                                        <Accordion.Body>
-                                            {value ? value.toString() : 'No data available'}
-                                        </Accordion.Body>
-                                    </Accordion.Item>
-                                ))}
-                            </Accordion>
-                        </div>
+                        <Tooltip title="Filter Profiles"></Tooltip>
                     </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModal}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+
+
+                </div>
+
+
+                {/* Filter Modal */}
+                <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Filter Profiles</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Form.Group controlId="filterStatus">
+                                <Form.Label>Select Status</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    value={selectedStatus}
+                                    onChange={(e) => handleFilterApply(e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {statuses.map(status => (
+                                        <option key={status} value={status}>{status.toUpperCase()} </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button className="m-1" variant="contained" color="secondary" onClick={() => setShowFilterModal(false)}>
+                            Close
+                        </Button>
+                        <Button variant="contained" color="success" onClick={() => handleFilterApply(selectedStatus)}>
+                            Apply Filter
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+                <div style={{ height: 420, width: '100%' }}>
+                    <DataGrid
+                        rows={filteredProfiles}
+                        columns={columns}
+                        pageSize={5}
+                        rowsPerPageOptions={[5]}
+                        getRowId={getRowId}
+                    />
+                </div>
+
+                <Modal backdrop='static' show={showModal && selectedProfile && [
+                    'no show at Hr',
+                    'no Response at Screening',
+                    'no show at Interview',
+                    'need second opinion at Interview',
+                    'put on hold at Interview',
+                    'need second opinion at Interview',
+                    'selected at Interview'
+                ].includes(selectedProfile.status)} onHide={handleCloseModal} size='lg'>
+                    <Modal.Header closeButton >
+                        <Modal.Title>{`Action for ${selectedProfile?.status}`}</Modal.Title>
+
+                    </Modal.Header>
+                    <Modal.Body>{renderModalContent()}</Modal.Body>
+                    {/* {selectedHost && (
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleShowNext}>Next</Button>
+                        </Modal.Footer>
+                    )} */}
+                </Modal>
+                <Modal show={showMoreModel} onHide={handleCloseModal} size='xl'>
+                    <Modal.Header closeButton>
+                        <Modal.Title>
+                            Interview results of applicant_uuid:  {row?.applicant_uuid || 'Unknown Applicant'}
+                        </Modal.Title>
+
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="d-flex">
+                            <div className=" pe-2" style={{ width: '25rem' }}>
+                                <Accordion defaultActiveKey="0" className="mt-4">
+                                    {Object.entries(firstRound).slice(0, Math.ceil(Object.entries(firstRound).length / 3)).map(([key, value], index) => (
+                                        <Accordion.Item eventKey={index.toString()} key={index}>
+                                            <Accordion.Header>{key}</Accordion.Header>
+                                            <Accordion.Body>
+                                                {value ? value.toString() : 'No data available'}
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    ))}
+                                </Accordion>
+                            </div>
+                            <div className=" px-2" style={{ width: '25rem' }}>
+                                <Accordion defaultActiveKey="0" className="mt-4">
+                                    {Object.entries(firstRound).slice(Math.ceil(Object.entries(firstRound).length / 3), 2 * Math.ceil(Object.entries(firstRound).length / 3)).map(([key, value], index) => (
+                                        <Accordion.Item eventKey={(index + Math.ceil(Object.entries(firstRound).length / 3)).toString()} key={index + Math.ceil(Object.entries(firstRound).length / 3)}>
+                                            <Accordion.Header>{key}</Accordion.Header>
+                                            <Accordion.Body>
+                                                {value ? value.toString() : 'No data available'}
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    ))}
+                                </Accordion>
+                            </div>
+                            <div className=" ps-2" style={{ width: '25rem' }}  >
+                                <Accordion defaultActiveKey="0" className="mt-4">
+                                    {Object.entries(firstRound).slice(2 * Math.ceil(Object.entries(firstRound).length / 3)).map(([key, value], index) => (
+                                        <Accordion.Item eventKey={(index + 2 * Math.ceil(Object.entries(firstRound).length / 3)).toString()} key={index + 2 * Math.ceil(Object.entries(firstRound).length / 3)}>
+                                            <Accordion.Header>{key}</Accordion.Header>
+                                            <Accordion.Body>
+                                                {value ? value.toString() : 'No data available'}
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    ))}
+                                </Accordion>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={handleCloseModal}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
 
 
-            <Modal show={showDateModel} onHide={handleCloseModal}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Select Interview Date and Time</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="formInterviewDate">
-                            <DatePicker
-                                selected={selectedDateTime}
-                                onChange={(date) => setSelectedDateTime(date)}
-                                showTimeSelect
-                                dateFormat="Pp"
-                                className="form-control"
-                                placeholderText="Select date and time"
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer className='d-flex gap-3'>
-                    <Button variant="secondary" onClick={handleCloseModal} >
-                        Close
-                    </Button>
-                    <Button variant="success" onClick={handleDateTimeSave} >
-                        save
-                    </Button>
-                </Modal.Footer>
-            </Modal>
 
-            <ToastContainer />
-        </div>
+
+                <ToastContainer />
+            </div>
+        </LocalizationProvider>
     );
 }

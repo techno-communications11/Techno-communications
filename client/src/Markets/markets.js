@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Card, CardContent, Typography, Box } from '@mui/material';
+import { Grid, Card, CardContent, Typography, Box, styled } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const MarketJobOpenings = () => {
@@ -38,8 +38,8 @@ const MarketJobOpenings = () => {
                                 </Typography>
                                 <Box display="flex" alignItems="center" mt={2}>
                                     <AccessTimeIcon color="action" />
-                                    <Typography variant="body2" color="textSecondary" ml={1}>
-                                    Deadline: {new Date(market.deadline).toLocaleDateString('en-US')}
+                                    <Typography variant="body2" color="textSecondary" ml={1} style={{ color: "red", fontSize: "20px" }}>
+                                        Deadline: {new Date(market.deadline).toLocaleDateString('en-US')}
                                     </Typography>
                                 </Box>
                             </CardContent>

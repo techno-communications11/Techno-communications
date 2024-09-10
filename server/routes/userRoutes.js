@@ -4,7 +4,7 @@ const { getApplicantsForScreening, getApplicationforinterviewr, getApplicationfo
 const { login } = require('./controllers/Login');
 const { getAllHRs, getAllinterviewers ,getAllTrainers} = require('./controllers/getroles'); // Adjust the path if necessary
 const { getAllUsersStatus } = require('./controllers/admin');
-const applicantController = require('./controllers/applicantController');
+const{ createApplicantReferral,updatemail } = require('./controllers/applicantController');
 const { getmarkets } = require('./controllers/Markets');
 const { addFirstRoundEvaluation, getHREvaluationById } = require('./controllers/interviewevaluation');
 const { addHREvaluation } = require('./controllers/hrevaluationController');
@@ -13,7 +13,14 @@ const assigningapplications = require('./controllers/assignapplicants');
 const { getApplicantDetailsByMobile } = require('./controllers/statusbypfone')
 const {downloadApplicantsData}  = require('./controllers/downloadApplicantsData')
 const {getMarkets,postJob}  = require("./controllers/marketController")
+const {updatePassword} = require("./controllers/updatepass")
 
+
+//routes to update password
+router.post('/updatePassword',updatePassword)
+
+//Route for updqate email
+router.post('/updateemail',updatemail)
 // Route to get all HR users
 router.get('/hrs', getAllHRs);
 //Route to post job
@@ -62,7 +69,7 @@ router.get('/testing', (req, res) => {
 });
 
 // Route to handle form submission
-router.post('/submit', applicantController.createApplicantReferral);
+router.post('/submit', createApplicantReferral);
 
 // Route to assign applicant to HR
 router.post('/assigntohr', assigningapplications.assignApplicanttohr);

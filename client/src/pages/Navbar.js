@@ -6,11 +6,12 @@ import { jwtDecode } from 'jwt-decode';
 import Avatar from '@mui/material/Avatar';
 import { deepPurple } from '@mui/material/colors';
 import Badge from '@mui/material/Badge';
+import IconButton from '@mui/material/IconButton';
+import SettingsIcon from '@mui/icons-material/Settings'; // Import the Settings icon
 
 function AppNavbar() {
   const apiurl = process.env.REACT_APP_API;
   const navigate = useNavigate();
-  // const [error, setError] = useState('');
   const [counts, setCounts] = useState(0);
   const token = localStorage.getItem('token');
   let role = '';
@@ -36,7 +37,6 @@ function AppNavbar() {
       navigate('/');
     } catch (error) {
       console.error("Error logging out:", error);
-      // setError('Logout failed. Please try again later.');
     }
   };
 
@@ -60,18 +60,12 @@ function AppNavbar() {
           }
         }
       } catch (error) {
-        console.log(error)
-        // setError('Failed to fetch counts. Please try again later.');
+        console.log(error);
       }
     };
 
-
     fetchCounts();
-    // fetch every 2 seconds
-
-    // Cleanup interval on component unmount
   }, [role, id, apiurl]);
-
 
   function stringToColor(string) {
     let hash = 0;
@@ -116,15 +110,14 @@ function AppNavbar() {
                   Register
                 </Nav.Link>
               )}
-              {role !== "trainer" &&
+              {role !== "trainer" &&role!=='market_manager'&&
                 <Nav.Link
                   as={Link}
                   to={
                     role === "interviewer" ? "/InterviewerDashboard" :
                       role === "screening_manager" ? "screeinghome" :
                         role === "admin" ? "/adminhome" :
-                          // role === "trainer" ? "/trainerhome" :
-                          role === "hr" ? "/hrhome" : "/"
+                          role === "hr" ? "/hrhome" : role !== "market_manager" ? "" : '/'
                   }
                   className='fw-bolder nav-link-custom'
                 >
@@ -132,7 +125,7 @@ function AppNavbar() {
                 </Nav.Link>
               }
 
-              {(role !== 'admin' && role !== 'trainer') && (
+              {(role !== 'admin' && role !== 'trainer'&&role!=='market_manager') && (
                 <Nav.Link
                   as={Link}
                   to={role === "interviewer" ? "/interviewhome" : role === "hr" ? "/hrtabs" : role === "screening_manager" ? "/tabs" : ''}
@@ -150,12 +143,19 @@ function AppNavbar() {
                   New
                   {counts > 0 && (
                     <Badge badgeContent={counts} className='mb-4 ms-2' color="error">
-                                 
                     </Badge>
                   )}
                 </Nav.Link>
               )}
 
+              <Nav.Link>
+                <IconButton
+                  color="primary"
+                  onClick={() => navigate('/updatepassword')} // Navigate to UpdatePassword component
+                >
+                  <SettingsIcon />
+                </IconButton>
+              </Nav.Link>
 
               <Nav.Link className='d-flex align-items-center'>
                 <Avatar
