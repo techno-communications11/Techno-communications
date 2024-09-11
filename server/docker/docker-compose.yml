@@ -10,6 +10,11 @@ services:
       MYSQL_DATABASE: test_db
     ports:
       - 3306:3306
+    # dev
+    # volumes:
+    #   - C:\Users\ssoub\mysql_data:/var/lib/mysql
+    #   - C:\Users\ssoub\database_backups:/backup
+    # production
     volumes:
       - /mysql_data:/var/lib/mysql
       - /database_backups:/backup
