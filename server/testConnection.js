@@ -14,7 +14,7 @@ const pool = mysql.createPool({
 const promisePool = pool.promise();
 
 // Test the connection
-async function testConnection() {
+const  testConnection = async() => {
     try {
         const [rows] = await promisePool.query('SELECT 1 + 1 AS result');
         console.log('Database connection successful. Result:', rows[0].result);
@@ -25,4 +25,8 @@ async function testConnection() {
     }
 }
 
-testConnection();
+
+
+module.exports={
+    testConnection
+}

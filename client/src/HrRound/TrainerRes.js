@@ -7,10 +7,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function TrainerRes() {
+function TrainerRes({ setTrainerCount }) {
     const apiurl = process.env.REACT_APP_API;
-
-    const navigate = useNavigate();
     const userData = decodeToken();
     const [profiles, setProfiles] = useState([]);
     const [showModal, setShowModal] = useState(false);
@@ -23,16 +21,16 @@ function TrainerRes() {
                     headers: getAuthHeaders()
                 });
 
-                console.log(response.data);
                 if (response.status === 200) {
                     setProfiles(response.data);
+                    setTrainerCount(response.data.length); // Pass count back to HrTabs
                 }
             } catch (err) {
                 console.log(err);
             }
         };
         assignedToInterviewer();
-    }, [apiurl, userData.id]);
+    }, [apiurl, userData.id, setTrainerCount]);
 
     const handleInterviewClick = (profile) => {
         setSelectedProfile(profile);
@@ -45,22 +43,18 @@ function TrainerRes() {
             action: selectedProfile.applicant_status === "Recommended For Hiring" ? "selected at Hr" : "rejected at Hr",
         };
 
-        console.log("finalllllstatus....", payload);
         try {
             const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
 
             if (res.status === 200) {
-                // Show success message
                 toast.success(res.data.message);
 
-                // Reload the page after a short delay
                 setTimeout(() => {
                     window.location.reload();
                 }, 1800);
             }
         } catch (error) {
             console.error("Error updating status:", error);
-            // Show error message
             toast.error("Failed to update status.");
         }
 
@@ -101,13 +95,12 @@ function TrainerRes() {
                 </table>
             </div>
 
-            {/* Confirmation Modal */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Action</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Are you sure you are Hirring  {selectedProfile?.applicant_name}?
+                    Are you sure you are hiring {selectedProfile?.applicant_name}?
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowModal(false)}>

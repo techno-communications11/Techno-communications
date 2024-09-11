@@ -1,4 +1,5 @@
 const db = require('../config/db');
+// const { io } = require('../../app');
 
 const getApplicantsForScreening = async (req, res) => {
     const { userId } = req.params;
@@ -204,7 +205,7 @@ JOIN
 
 
 
-const getApplicationforTrainer = async (req, res) => {
+const getApplicationforTrainer = (io)=> async (req, res) => {
 
     const { userId } = req.params;
     console.log(`trying get applicants for Trainer......for ${userId}`)
@@ -225,7 +226,7 @@ WHERE
 `,
             [userId]
         );
-
+       
         res.status(200).json(applicantsResult);
         console.log(applicantsResult)
     } catch (error) {
@@ -236,7 +237,7 @@ WHERE
 };
 
 
-const gertrainerfeedbackapplicants = async (req, res) => {
+const gertrainerfeedbackapplicants = (io)=> async (req, res) => {
 
     const { userId } = req.params;
     console.log("trying get applicants for hr trined applicants......")
@@ -254,19 +255,21 @@ FROM
 JOIN 
     applicant_referrals ON hrinterview.applicant_uuid = applicant_referrals.applicant_uuid
 WHERE 
-    hrinterview.hr_id = 6
+    hrinterview.hr_id = ?
     AND applicant_referrals.status IN ('Recommended For Hiring', 'Not Recommended For Hiring');
 ;
      
  `,
             [userId]
         );
-
+        const count = applicantsResult.length;
+        console.log(count,"countinggggggggggggggggggg")
+        io.emit('trainerfeedbackcount', count);
         res.status(200).json(applicantsResult);
         console.log(applicantsResult)
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });     
     }
 
 

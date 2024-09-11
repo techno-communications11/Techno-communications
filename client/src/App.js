@@ -30,6 +30,7 @@ import InterviewerDashboard from "./InterviewRound/interviewerDashboard"
 import { ToastContainer } from 'react-toastify';
 import MarketJobOpenings from './Markets/markets';
 import Markethome from './Markets/markethome';
+import Individual_performance from './Adminpages/Work';
 import UpdatePassword from './pages/UpdatePassword';
 function App() {
   return (
@@ -76,6 +77,7 @@ function AppComponent() {
           <>
             {role === 'admin' && (
               <>
+                <Route path="/work" element={<Individual_performance />} />
                 <Route path="/adminhome" element={<AdminHome />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
                 <Route path="/admindetailedview" element={<AdminDetailedView />} />

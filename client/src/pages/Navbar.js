@@ -110,7 +110,7 @@ function AppNavbar() {
                   Register
                 </Nav.Link>
               )}
-              {role !== "trainer" &&role!=='market_manager'&&
+              {role !== "trainer" && role !== 'market_manager' &&
                 <Nav.Link
                   as={Link}
                   to={
@@ -125,7 +125,7 @@ function AppNavbar() {
                 </Nav.Link>
               }
 
-              {(role !== 'admin' && role !== 'trainer'&&role!=='market_manager') && (
+              {(role !== 'admin' && role !== 'trainer' && role !== 'market_manager') && (
                 <Nav.Link
                   as={Link}
                   to={role === "interviewer" ? "/interviewhome" : role === "hr" ? "/hrtabs" : role === "screening_manager" ? "/tabs" : ''}
