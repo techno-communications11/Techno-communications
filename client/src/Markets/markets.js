@@ -3,13 +3,14 @@ import { Grid, Card, CardContent, Typography, Box, styled } from '@mui/material'
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const MarketJobOpenings = () => {
+    const apiurl = process.env.REACT_APP_API;
     const [markets, setMarkets] = useState([]);
 
     useEffect(() => {
         // Fetch data from the API
         const fetchMarketJobs = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/getmarketjobs');
+                const response = await fetch(`${apiurl}/getmarketjobs`);
                 const data = await response.json();
                 setMarkets(data);
             } catch (error) {

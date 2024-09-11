@@ -6,6 +6,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 
 const UpdatePassword = () => {
+    const apiurl = process.env.REACT_APP_API;
     let userData = decodeToken();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,7 +24,7 @@ const UpdatePassword = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/api/updatePassword', {
+            const response = await axios.post(`${apiurl}/updatePassword`, {
                 updatePassword: password,
                 userId: userData.id // Replace with actual user ID if dynamic
             });

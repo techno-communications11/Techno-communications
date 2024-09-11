@@ -15,7 +15,7 @@ const Markethome = () => {
         // Fetch data from the API
         const fetchMarketJobs = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/getmarketjobs');
+                const response = await fetch(`${apiurl}/getmarketjobs`);
                 const data = await response.json();
                 const filteredData = data.filter(val => val.name === "New York");
                 setMarkets(filteredData);
