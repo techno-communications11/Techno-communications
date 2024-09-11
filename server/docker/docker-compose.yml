@@ -1,0 +1,44 @@
+version: "3.7"
+
+services:
+  mysqldb:
+    image: mysql:8.1
+    container_name: mysqldb
+    hostname: mysqldb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+    ports:
+      - 3306:3306
+    # dev
+    # volumes:
+    #   - C:\Users\ssoub\mysql_data:/var/lib/mysql
+    #   - C:\Users\ssoub\database_backups:/backup
+    # production
+    volumes:
+      - /mysql_data:/var/lib/mysql
+      - /database_backups:/backup
+    networks:
+      - mysql
+    profiles:
+      - advance
+
+  dbadmin:
+    image: phpmyadmin:latest
+    container_name: dbadmin
+    environment:
+      PMA_HOST: mysqldb
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - 8000:80
+    depends_on:
+      - mysqldb
+    networks:
+      - mysql
+    profiles:
+      - advance
+
+networks:
+  mysql:
+    driver: bridge

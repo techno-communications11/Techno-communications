@@ -25,7 +25,9 @@ const  testConnection = async() => {
     }
 }
 
+// testConnection();
 
+module.exports = testConnection;
 
 module.exports={
     testConnection
