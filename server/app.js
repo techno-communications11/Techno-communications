@@ -4,6 +4,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const userRoutes = require('./routes/userRoutes');
 const authMiddleware = require('./middleware/authMiddleware');
+const testConnection = require('./testConnection');
 // const applicantRoutes = require('./routes/applicantRoutes');
 // const screening =  require('./routes/userRoutes')
 const cors = require('cors')
@@ -34,6 +35,9 @@ app.use('/api', userRoutes);
 app.use('/api', authMiddleware, userRoutes);
 // app.use('/api', applicantRoutes);
 // app.use('/api', screening);  //http://localhost:5000/api/users/1/applicants
+
+testConnection();
+
 // Start Server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
