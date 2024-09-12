@@ -17,6 +17,7 @@ require('dotenv').config();
         const usersWithNewPasswords = [
            
             { id: 46, password: 'password123' },
+            { id: 38, password: 'password123' },
             { id: 47, password: 'password123' },
             { id: 45, password: 'password123' },
             { id: 50, password: 'password123' },
