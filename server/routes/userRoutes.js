@@ -16,8 +16,13 @@ const { getMarkets, postJob } = require("./controllers/marketController")
 const { updatePassword } = require("./controllers/updatepass")
 const { trackingWork } = require("./controllers/tracking")
 const { getAllUsers } = require("./controllers/getroles")
+const {createUser} = require("./controllers/userController")
 
 module.exports = (io) => {
+
+//Route to Create User
+router.post('/createuser', createUser)
+
     // route get all Users
     router.get('/getAllUsers', getAllUsers)
     //routes to update password

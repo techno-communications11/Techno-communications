@@ -49,7 +49,7 @@ function Public() {
     // const phoneValid = regexPhone.test(phoneRef.current?.value);
     const marketValid = selectedMarket !== '';
     const referredByValid = referredByRef.current?.value.trim() !== '';
-    const referenceNtidValid = referenceNtidRef.current?.value.trim() !== '';
+    // const referenceNtidValid = referenceNtidRef.current?.value.trim() !== '';
 
     // Update invalidFields state
     const newInvalidFields = {
@@ -57,7 +57,7 @@ function Public() {
         // email: !emailValid,
         // phone: !phoneValid,
         referredBy: !referredByValid,
-        referenceNtid: !referenceNtidValid,
+        // referenceNtid: !referenceNtidValid,
         market: !marketValid
     };
 
@@ -156,6 +156,8 @@ function Public() {
 
   return (
     <Container fluid>
+     
+
       <Row className="vh-100">
         {/* Left Column with Image */}
         <Col md={6} lg={6} className="d-flex justify-content-center align-items-center">
@@ -218,9 +220,8 @@ function Public() {
               <Form.Control
                 ref={referenceNtidRef}
                 type="text"
-                placeholder="Reference NTID"
-                required
-                isInvalid={invalidFields.referenceNtid}
+                placeholder="Reference NTID (optional)"
+               
               />
             </Form.Group>
 
