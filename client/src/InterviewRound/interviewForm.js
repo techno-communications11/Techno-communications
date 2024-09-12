@@ -136,12 +136,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
     const validationErrors = validateForm();
     setErrors(validationErrors);
 
-    if (Object.keys(validationErrors).length > 0) {
+    // if (Object.keys(validationErrors).length > 0) {
      
-      toast.error("All fields must be filled");
-      // Don't submit the form if there are validation errors
-      return;
-    }
+    //   toast.error("All fields must be filled");
+    //   // Don't submit the form if there are validation errors
+    //   return;
+    // }
     
 
     try {
