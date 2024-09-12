@@ -166,7 +166,7 @@ const addFirstRoundEvaluation = async (req, res) => {
         console.log('Values:', values);
 
         // Execute the initial query
-        const [result] = await db.query(query, values);
+        const result = await db.query(query, values);
 
         // Define the values for the update query
         const valuesForUpdate = [recommend_hiring, applicant_uuid];
