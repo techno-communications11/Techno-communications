@@ -43,12 +43,12 @@ const addFirstRoundEvaluation = async (req, res) => {
         negotiations,
         applicant_strength,
         applicants_weakness,
-        comments,
+        
         contract_sign,
         evaluation,
         recommend_hiring,
         course_type_selection,
-        current_residence,
+       
         current_city,
         current_country,
     } = req.body;
@@ -99,15 +99,15 @@ const addFirstRoundEvaluation = async (req, res) => {
             negotiations,
             applicant_strength,
             applicants_weakness,
-            comments,
+            
             contract_sign,
             evaluation,
             recommend_hiring,
             course_type_selection,
-            current_residence,
+           
             current_city,
             current_country
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -152,12 +152,12 @@ const addFirstRoundEvaluation = async (req, res) => {
         negotiations,
         applicant_strength,
         applicants_weakness,
-        comments,
+        
         contract_sign,
         evaluation,
         recommend_hiring,
         course_type_selection,
-        current_residence,
+       
         current_city,
         current_country,
     ];
@@ -178,7 +178,6 @@ const addFirstRoundEvaluation = async (req, res) => {
           WHERE applicant_uuid = ?
         `, valuesForUpdate);
 
-        console.log("Database update successful");
 
         // Send a success response
         res.status(200).json({ message: 'Evaluation added successfully', result, updateResult });
