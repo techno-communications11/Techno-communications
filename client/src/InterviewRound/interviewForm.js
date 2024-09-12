@@ -153,6 +153,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
       if (response.status === 200) {
         toast.success("response submitted successfully!");
         console.log(formData)
+        setTimeout(() => {
+          // setShowToast(true);
+          naviagte('/interviewhome')
+          // Reload the page after the toast disappears
+        }, 1800);
+  
       }
 
     } catch (error) {
@@ -160,12 +166,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
       toast.error("Failed submit response.");
     } finally {
       // setShowToast(false);
-      setTimeout(() => {
-        // setShowToast(true);
-        naviagte('/interviewhome')
-        // Reload the page after the toast disappears
-      }, 1800);
-
+      
     }
   };
   const noshowatinterview = async (applicant_uuid) => {

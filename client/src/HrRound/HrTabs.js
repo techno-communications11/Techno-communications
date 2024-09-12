@@ -12,7 +12,7 @@ import axios from 'axios';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import Badge from '@mui/material/Badge';
 
-const socket = io('http://localhost:5000'); // Replace with your backend URL if necessary
+// const socket = io('http://localhost:5000'); // Replace with your backend URL if necessary
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -63,19 +63,19 @@ export default function HrTabs() {
         };
         assignedToInterviewer();
     }, [apiurl, userData.id, setTrainerCount]);
-    useEffect(() => {
-        // Listen for 'trainerfeedbackcount' event from the server
-        socket.on('trainerfeedbackcount', (data) => {
+    // useEffect(() => {
+    //     // Listen for 'trainerfeedbackcount' event from the server
+    //     socket.on('trainerfeedbackcount', (data) => {
 
-            setTrainerCount(data); // Update state with new counts
-            console.log(data, "couningguornggggggg")
-        });
+    //         setTrainerCount(data); // Update state with new counts
+    //         console.log(data, "couningguornggggggg")
+    //     });
 
-        // Cleanup the event listener on component unmount
-        return () => {
-            socket.off('trainerfeedbackcount');
-        };
-    }, []);
+    //     // Cleanup the event listener on component unmount
+    //     return () => {
+    //         socket.off('trainerfeedbackcount');
+    //     };
+    // }, []);
 
 
     return (
