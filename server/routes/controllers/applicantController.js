@@ -9,7 +9,7 @@ const generateShortID = (name, phoneNumber, currentYear) => {
 };
 
 const createApplicantReferral = async (req, res) => {
-    const { name, email, phone, referred_by, reference_id, sourced_by, work_location } = req.body;
+    const { name, email, phone, referred_by, reference_id, sourcedBy, work_location } = req.body;
     const currentYear = new Date().getFullYear();
     const uuid = generateShortID(name, phone, currentYear);
     console.log("Trying to submit..........", name, email, phone, referred_by, reference_id, work_location);
@@ -41,7 +41,7 @@ const createApplicantReferral = async (req, res) => {
         // Insert the applicant details into the applicant_referrals table
         const result = await db.query(
             'INSERT INTO applicant_referrals (applicant_uuid, name, email, phone, referred_by, sourced_by, reference_id, work_location, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-            [uuid, name, email, phone, referred_by, sourced_by, reference_id, locationId]
+            [uuid, name, email, phone, referred_by, sourcedBy, reference_id, locationId]
         );
 
         res.status(201).json({ message: 'Applicant referral created successfully', referralId: result.insertId });

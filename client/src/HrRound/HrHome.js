@@ -59,7 +59,7 @@ function HrHome() {
           {stats.map((stat, index) => (
             <Col key={index} xs={12} sm={6} md={4} lg={2} className="mb-4">
               <Card
-                onClick={() => handleShow(stat.status)}
+                // onClick={() => handleShow(stat.status)}
                 className="shadow-sm card-style h-100"
                 style={{ cursor: "pointer", backgroundColor: stat.bgColor }}
               >

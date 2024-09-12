@@ -155,7 +155,9 @@ const getApplicationforinterviewr = async (req, res) => {
     interviews.applicant_uuid,
     interviews.time_of_interview,
     applicant_referrals.name AS applicant_name,
-    applicant_referrals.email AS email
+    applicant_referrals.email AS email,
+     applicant_referrals.phone AS phone
+
     
 FROM 
     interviews

@@ -25,6 +25,7 @@ function InterViewHome({setApplicant_uuid,setApplicantEmail}) {
           const sortedProfiles = response.data.sort((a, b) => 
             new Date(b.time_of_interview) - new Date(a.time_of_interview)
           );
+          console.log(sortedProfiles,"<<<<<sortedProfiles")
           setProfiles(sortedProfiles);
           setFilteredProfiles(sortedProfiles);
         }
@@ -86,6 +87,8 @@ const handleInterviewClick=(profile)=>{
             <th style={{backgroundColor:'#E10174', color:'white'}}>SI.No</th>
             <th style={{backgroundColor:'#E10174', color:'white'}}>Applicant Name</th>
             <th style={{backgroundColor:'#E10174', color:'white'}}>Applicant UUID</th>
+            <th style={{backgroundColor:'#E10174', color:'white'}}>Applicant Phone</th>
+            <th style={{backgroundColor:'#E10174', color:'white'}}>Applicant email</th>
             <th style={{backgroundColor:'#E10174', color:'white'}}>Interview Time</th>
             <th style={{backgroundColor:'#E10174', color:'white'}}>Action</th>
           </tr>
@@ -96,6 +99,8 @@ const handleInterviewClick=(profile)=>{
               <td>{index + 1}</td>
               <td>{profile.applicant_name}</td>
               <td>{profile.applicant_uuid}</td>
+              <td>{profile.phone}</td>
+              <td>{profile.email}</td>
               <td>
                 {format(new Date(profile.time_of_interview), 'MM/dd/yyyy hh:mm a')}
               </td>

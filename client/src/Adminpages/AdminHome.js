@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import decodeToken from '../decodedDetails';
-import { Col, Container, Row, Modal, Table, Button } from 'react-bootstrap';
-import axios from 'axios';
+import { Container, Grid, Typography, Button, Modal, Table, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import CanvasJSReact from '@canvasjs/react-charts';
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
@@ -18,25 +18,18 @@ function AdminHome() {
         try {
             const response = await axios.get(`${apiurl}/status`);
             const data = response.data;
-            console.log(data, "dddd")
 
-            var total = 0
+            let total = 0;
             const stats = {};
 
-            Object.entries(data).map((statusData) => (
-                total += statusData[1].count
-            ))
-
             data.forEach(status => {
-
+                total += status.count;
                 stats[status.status] = status.count;
             });
-            console.log('total ttstvt', stats)
 
             setProfileStats({
                 total,
                 ...stats
-
             });
         } catch (error) {
             console.error('Error fetching profile stats:', error);
@@ -68,12 +61,12 @@ function AdminHome() {
         (profileStats["no show at Hr"] || 0) +
         (profileStats["no show at Interview"] || 0) +
         (profileStats["no show at Screening"] || 0) +
-        (profileStats[""] || 0)
+        (profileStats[""] || 0);
 
     const selectedTotal =
         (profileStats["selected at Hr"] || 0) +
         (profileStats["Recommended For Hiring"] || 0) +
-        (profileStats["selected at Interview" || 0])
+        (profileStats["selected at Interview"] || 0);
 
     const rejectedTotal =
         (profileStats["rejected at Hr"] || 0) +
@@ -113,63 +106,67 @@ function AdminHome() {
 
     return (
         <Container>
-            <Container>
-                <Row md={12}>
-                    <Col xs={12} sm={12} className='d-flex mt-3'>
-                        <h2> Summary Admin Dashboard</h2>
-                        <h2 className='ms-auto'>{user.name}</h2>
-                    </Col>
-                    <Col xs={12} sm={12} className='d-flex mt-3 gap-2'>
-                        <Link className='btn btn-primary text-dark fw-bold bg-transparent  ' to="/admindetailedview">
-                            Detailed view
-                        </Link>
-                        <Link className='btn btn-primary text-dark fw-bold bg-transparent  ' to="/work">
-                            Detailed view
-                        </Link>
-                    </Col>
-                </Row>
-            </Container>
-            <Container>
-                <Row md={12}>
-                    <Col>
-                        <Row className='mt-4 g-3'>
-                            <Row className='gap-2'>
-                                <Col xs={12} sm={6} md={5} className='card-style p-4 border' style={{ cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Total')}>
-                                    <p className='fw-bolder'>Total</p>
-                                    <p>{status.Total}</p>
-                                </Col>
-                                <Col xs={12} sm={6} md={5} className='card-style p-4 border' style={{ cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Rejected')}>
-                                    <p className='fw-bolder'>Rejected</p>
-                                    <p>{status.Rejected}</p>
-                                </Col>
-                            </Row>
-                            <Row className='gap-2 mt-2'>
-                                <Col xs={12} sm={6} md={5} className='card-style border p-4 shadow-lg' style={{ cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Pending')}>
-                                    <p className='fw-bolder'>Pending</p>
-                                    <p>{status.Pending}</p>
-                                </Col>
-                                <Col xs={12} sm={6} md={5} className='card-style border p-4 shadow-lg' style={{ cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Selected')}>
-                                    <p className='fw-bolder'>Selected</p>
-                                    <p>{status.Selected}</p>
-                                </Col>
-                            </Row>
-                        </Row>
-                    </Col>
-                    <Col md={6} sm={12} xs={12} className="d-flex align-items-center justify-content-center mt-4">
-                        <div style={{ width: '100%', height: '400px' }}>
-                            <CanvasJSChart options={chartOptions} />
-                        </div>
-                    </Col>
-                </Row>
-            </Container>
+            <Grid container spacing={3} sx={{ mt: 3 }}>
+                <Grid item xs={12} sm={12} container alignItems="center">
+                    <Typography variant="h4">Summary Admin Dashboard</Typography>
+                    <Typography variant="h6" sx={{ ml: 'auto' }}>{user.name}</Typography>
+                </Grid>
+                <Grid item xs={12} sm={12}>
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <Button variant="contained" color="primary" component={Link} to="/admindetailedview">
+                            Detailed View
+                        </Button>
+                        <Button variant="contained" color="primary" component={Link} to="/work">
+                            Individual Progress
+                        </Button>
+                    </Box>
+                </Grid>
+            </Grid>
+            <Grid container spacing={3} sx={{ mt: 4 }}>
+                {/* Cards Section */}
+                <Grid item xs={12} md={6}>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} sm={6} md={6}>
+                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Total')}>
+                                <Typography variant="h6">Total</Typography>
+                                <Typography variant="h4">{status.Total}</Typography>
+                            </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={6}>
+                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Rejected')}>
+                                <Typography variant="h6">Rejected</Typography>
+                                <Typography variant="h4">{status.Rejected}</Typography>
+                            </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={6}>
+                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Pending')}>
+                                <Typography variant="h6">Pending</Typography>
+                                <Typography variant="h4">{status.Pending}</Typography>
+                            </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={6}>
+                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Selected')}>
+                                <Typography variant="h6">Selected</Typography>
+                                <Typography variant="h4">{status.Selected}</Typography>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </Grid>
+
+                {/* Pie Chart Section */}
+                <Grid item xs={12} md={6} container alignItems="center" justifyContent="center">
+                    <div style={{ width: '100%', height: '400px' }}>
+                        <CanvasJSChart options={chartOptions} />
+                    </div>
+                </Grid>
+            </Grid>
+
 
             {/* Modal for displaying detailed data */}
-            <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" className="custom-modal-width mt-5">
-                <Modal.Header closeButton>
-                    <Modal.Title>{currentStatus} Details</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Table striped bordered hover>
+            <Modal open={showModal} onClose={() => setShowModal(false)} maxWidth="lg" fullWidth>
+                <Box sx={{ p: 4 }}>
+                    <Typography variant="h6" gutterBottom>{currentStatus} Details</Typography>
+                    <Table>
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -201,12 +198,10 @@ function AdminHome() {
                             ))}
                         </tbody>
                     </Table>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                    <Button variant="contained" color="secondary" onClick={() => setShowModal(false)} sx={{ mt: 2 }}>
                         Close
                     </Button>
-                </Modal.Footer>
+                </Box>
             </Modal>
         </Container>
     );

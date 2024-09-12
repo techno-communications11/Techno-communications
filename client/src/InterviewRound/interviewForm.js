@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import Rating from '@mui/material/Rating';
+import Stack from '@mui/material/Stack';
+
 const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
   const navigate = useNavigate();
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -64,12 +67,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
     negotiations: '',
     applicant_strength: '',
     applicants_weakness: '',
-    comments: '',
+
     contract_sign: '',
     evaluation: '',
     recommend_hiring: '',
     course_type_selection: '',
-    current_residence: '',
+
     current_city: '',
     current_country: '',
   });
@@ -96,7 +99,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
     fields.forEach(field => {
       const value = formData[field];
 
-      if (value === undefined || value === null || typeof value !== 'string' || value.trim() === '') {
+      if (value === undefined || value === null ) {
         errors[field] = `${field.replace(/_/g, ' ')} is required.`;
       }
     });
@@ -127,24 +130,31 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
 
 
   const handleSubmit = async (event) => {
+    console.log("cliked", applicantEmail)
     event.preventDefault();
 
     const validationErrors = validateForm();
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-      return; // Don't submit the form if there are validation errors
+     
+      toast.error("All fields must be filled");
+      // Don't submit the form if there are validation errors
+      return;
     }
+    
 
     try {
+
       const response = await axios.post(`${process.env.REACT_APP_API}/add-evaluation`, formData, {
         headers: getAuthHeaders(),
       });
 
       if (response.status === 200) {
         toast.success("response submitted successfully!");
+        console.log(formData)
       }
-      console.log(formData)
+
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error("Failed submit response.");
@@ -267,10 +277,11 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
               <Form.Control
                 type="email"
                 name="email_on_file" // Add name attribute for the state
-                value={applicantEmail} // Bind value to state
-                placeholder="Applicant's email" // Placeholder text
+                value={formData.applicantEmail} // Bind value to state
+                placeholder={applicantEmail}
+                // Placeholder text
                 onChange={handleChange}
-                isInvalid={!!errors.email_on_file} // Handle changes with a change handler
+                readOnly
               />
             </Col>
           </Form.Group>
@@ -416,20 +427,43 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
             <Form.Label column sm={6} className="text-start">
               13. COURSE TYPE
             </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="select"
+            <Col sm={6} className='text-start'    >
+              <Form.Check
+                type="radio"
+                label="Online"
                 name="course_type"
-                value={formData.course_type}
+                id="courseTypeOnline"
+                value="Online"
+                checked={formData.course_type === "Online"}
                 onChange={handleChange}
                 isInvalid={!!errors.course_type}
-              >
-                <option>Online</option>
-                <option>In-Person</option>
-                <option>Hybrid</option>
-              </Form.Control>
+              />
+              <Form.Check
+                type="radio"
+                label="In-Person"
+                name="course_type"
+                id="courseTypeInPerson"
+                value="In-Person"
+                checked={formData.course_type === "In-Person"}
+                onChange={handleChange}
+                isInvalid={!!errors.course_type}
+              />
+              <Form.Check
+                type="radio"
+                label="Hybrid"
+                name="course_type"
+                id="courseTypeHybrid"
+                value="Hybrid"
+                checked={formData.course_type === "Hybrid"}
+                onChange={handleChange}
+                isInvalid={!!errors.course_type}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.course_type}
+              </Form.Control.Feedback>
             </Col>
           </Form.Group>
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               14. PLEASE MENTION THE SEMESTER HE/SHE IS IN
@@ -834,79 +868,78 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
               33. APPEARANCE & DEMEANOR
             </Form.Label>
             <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="appearance"
-                value={formData.appearance}
-                onChange={handleChange}
-                isInvalid={!!errors.appearance}
-              />
+              <Stack spacing={1}>
+                <Rating
+                  name="appearance"
+                  value={formData.appearance}
+                  onChange={(event, newValue) => handleChange({ target: { name: 'appearance', value: newValue } })}
+                  size="large"
+                />
+              </Stack>
             </Col>
           </Form.Group>
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               34. PERSONALITY
             </Form.Label>
             <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="personality"
-                value={formData.personality}
-                onChange={handleChange}
-                isInvalid={!!errors.personality}
-              />
+              <Stack spacing={1}>
+                <Rating
+                  name="personality"
+                  value={formData.personality}
+                  onChange={(event, newValue) => handleChange({ target: { name: 'personality', value: newValue } })}
+                  size="large"
+                />
+              </Stack>
             </Col>
           </Form.Group>
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               35. CONFIDENCE
             </Form.Label>
             <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="confidence"
-                value={formData.confidence}
-                onChange={handleChange}
-                isInvalid={!!errors.confidence}
-              />
+              <Stack spacing={1}>
+                <Rating
+                  name="confidence"
+                  value={formData.confidence}
+                  onChange={(event, newValue) => handleChange({ target: { name: 'confidence', value: newValue } })}
+                  size="large"
+                />
+              </Stack>
             </Col>
           </Form.Group>
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               36. COMMUNICATION SKILLS
             </Form.Label>
             <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="communication_skills"
-                value={formData.communication_skills}
-                onChange={handleChange}
-                isInvalid={!!errors.communication_skills}
-              />
+              <Stack spacing={1}>
+                <Rating
+                  name="communication_skills"
+                  value={formData.communication_skills}
+                  onChange={(event, newValue) => handleChange({ target: { name: 'communication_skills', value: newValue } })}
+                  size="large"
+                />
+              </Stack>
             </Col>
           </Form.Group>
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               37. PITCH
             </Form.Label>
             <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
-                name="pitch"
-                value={formData.pitch}
-                onChange={handleChange}
-                isInvalid={!!errors.pitch}
-              />
+              <Stack spacing={1}>
+                <Rating
+                  name="pitch"
+                  value={formData.pitch}
+                  onChange={(event, newValue) => handleChange({ target: { name: 'pitch', value: newValue } })}
+                  size="large"
+                />
+              </Stack>
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
@@ -914,17 +947,17 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
               38. OVERCOMING OBJECTIONS
             </Form.Label>
             <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
+            <Stack spacing={1}>
+              <Rating
                 name="overcoming_objections"
-                value={formData.overcoming_objections}
-                onChange={handleChange}
-                isInvalid={!!errors.overcoming_objections}
-              />
+                value={formData.overcoming_objections} // assuming value is stored in formData
+                onChange={(event, newValue) => handleChange({ target: { name: "overcoming_objections", value: newValue } })}
+                size="large" // you can also use 'small' or 'large' based on your preference
+                />
+              </Stack>
             </Col>
           </Form.Group>
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               39. NEGOTIATION

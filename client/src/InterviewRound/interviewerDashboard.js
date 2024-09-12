@@ -12,12 +12,12 @@ function InterviewerDashboard() {
 
     // Hardcoded static numbers for each status
     const staticStats = [
-       
+
         { status: "no show at Interview", count: 3, bgColor: "#FF5733" }, // Orange
         { status: "selected at Interview", count: 7, bgColor: "#28A745" }, // Green
         { status: "rejected at Interview", count: 4, bgColor: "#DC3545" }, // Red
         { status: "put on hold at Interview", count: 2, bgColor: "#6C757D" }, // Gray
-        { status: "Moved to HR", count: 6, bgColor: "#007BFF" } ,// Blue
+        { status: "Moved to HR", count: 6, bgColor: "#007BFF" },// Blue
         { status: "need second opinion at Interview", count: 5, bgColor: "#FFCC00" } // Yellow
     ];
 
@@ -82,7 +82,7 @@ function InterviewerDashboard() {
                 {staticStats.map((stat) => (
                     <Col key={stat.status} xs={12} sm={6} md={4} lg={2} className="mb-4">
                         <Card
-                            onClick={() => handleShow(stat.status)}
+                            // onClick={() => handleShow(stat.status)}
                             className="shadow-sm card-style h-100"
                             style={{ cursor: "pointer", backgroundColor: stat.bgColor }}
                         >

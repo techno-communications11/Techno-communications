@@ -4,9 +4,10 @@ import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-
+import decodeToken from '../decodedDetails';
 
 function Screening() {
+  const userData = decodeToken();
   const [error, setError] = useState('');
   const [selectedMarket, setSelectedMarket] = useState('');
   const [markets, setMarkets] = useState([]);
@@ -15,10 +16,8 @@ function Screening() {
   const phoneRef = useRef();
   const referredByRef = useRef();
   const referenceNtidRef = useRef();
-  const sourcedByRef = useRef();
   const apiUrl = process.env.REACT_APP_API;
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // const regexPhone = /^[0-9]{10}$/;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,13 +25,10 @@ function Screening() {
 
     const nameValid = nameRef.current?.value.trim() !== '';
     const emailValid = regexEmail.test(emailRef.current?.value);
-    // const phoneValid = regexPhone.test(phoneRef.current?.value);
     const marketValid = selectedMarket !== '';
     const referredByValid = referredByRef.current?.value.trim() !== '';
-    const referenceNtidValid = referenceNtidRef.current?.value.trim() !== '';
-    const sourcedByValid = sourcedByRef.current?.value.trim() !== '';
 
-    if (!nameValid || !emailValid  || !marketValid || !referredByValid || !referenceNtidValid || !sourcedByValid) {
+    if (!nameValid || !emailValid || !marketValid || !referredByValid) {
       setError('Please fill out all fields correctly.');
       return;
     }
@@ -47,46 +43,34 @@ function Screening() {
         work_location: selectedMarket,
         referred_by: referredByRef.current.value,
         reference_id: referenceNtidRef.current.value,
-        sourcedBy: sourcedByRef.current.value,
+        sourcedBy: userData.name,  // Directly assign the userData.name here
       };
-      console.log(formData)
+      console.log(formData);
 
       const response = await axios.post(`${apiUrl}/submit`, formData);
 
       if (response.status === 201) {
-        console.log("Data submitted successfully");
+        Swal.fire({
+          title: "Thank You!",
+          text: "Data submitted successfully!",
+          icon: "success",
+        });
+        
         // Reset the form fields on successful submission
         nameRef.current.value = "";
         emailRef.current.value = "";
         phoneRef.current.value = "";
         referredByRef.current.value = "";
         referenceNtidRef.current.value = "";
-        sourcedByRef.current.value = "";
         setSelectedMarket("");
-        if (response.status === 201) {
-          Swal.fire({
-            title: "Thank You!",
-            text: "Data submitted successfully!",
-            icon: "success"
-          });
-        } else {
-          Swal.fire({
-            title: "Unexpected response",
-            text: `${response.data.message}`,
-            icon: "error"
-          });
-        }
-        
       } else {
         setError("Unexpected response status: " + response.status);
       }
     } catch (error) {
       console.error("Submission error:", error);
       setError('Failed to submit data. Please try again later.');
-      
     }
   };
-
 
   const handleSelectMarket = (eventKey) => {
     setSelectedMarket(eventKey);
@@ -97,7 +81,6 @@ function Screening() {
       try {
         const response = await axios.get(`${apiUrl}/markets`);
         setMarkets(response.data);
-        console.log(response.data);
       } catch (error) {
         setError('Failed to fetch markets. Please try again later.');
       }
@@ -165,14 +148,6 @@ function Screening() {
                 placeholder="Reference NTID"
               />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicSourcedBy">
-              <Form.Control
-                ref={sourcedByRef}
-                className="shadow-none border"
-                type="text"
-                placeholder="sourcedBy"
-              />
-            </Form.Group>
 
             <Form.Group className="mb-3 border-secondary" controlId="formBasicMarket">
               <Dropdown onSelect={handleSelectMarket}>
@@ -188,9 +163,8 @@ function Screening() {
                 </Dropdown.Menu>
               </Dropdown>
             </Form.Group>
-                  
 
-            <Button className='w-100' variant="contained" type="submit" >
+            <Button className='w-100' variant="contained" type="submit">
               Submit
             </Button>
 
