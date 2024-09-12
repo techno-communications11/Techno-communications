@@ -1,5 +1,6 @@
 const db = require('../config/db');
 
+// Add first-round evaluation and update applicant referral status
 const addFirstRoundEvaluation = async (req, res) => {
     const {
         applicant_uuid,
@@ -43,186 +44,93 @@ const addFirstRoundEvaluation = async (req, res) => {
         negotiations,
         applicant_strength,
         applicants_weakness,
-        
         contract_sign,
         evaluation,
         recommend_hiring,
         course_type_selection,
-       
         current_city,
         current_country,
     } = req.body;
-    // console.log("incoming valuessssssssssssssssss..")
-
-
 
     const query = `
         INSERT INTO first_round_evaluation (
-            applicant_uuid,
-            applicants_age,
-            applicants_gender,
-            email_on_file,
-            country,
-            city,
-            interviewed_before,
-            visa_category,
-            education_level,
-            major_in,
-            currently_studying,
-            university_name,
-            course_type,
-            semester,
-            had_car,
-            family_operate_ti,
-            cellphone_carrier,
-            worked_before,
-            currently_employed,
-            current_company,
-            current_job_in_ti,
-            hours_of_daily_work,
-            daily_wage,
-            compensation_type,
-            reason_to_leave,
-            cellular_experience,
-            name_tele_company_name,
-            experience_of_tele,
-            type_of_work_doing,
-            other_employment_exp,
-            foreign_work_exp,
-            mention_line_exp,
-            appearance,
-            personality,
-            confidence,
-            communication_skills,
-            pitch,
-            overcoming_objections,
-            negotiations,
-            applicant_strength,
-            applicants_weakness,
-            
-            contract_sign,
-            evaluation,
-            recommend_hiring,
-            course_type_selection,
-           
-            current_city,
-            current_country
-        ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            applicant_uuid, applicants_age, applicants_gender, email_on_file, country, city, interviewed_before,
+            visa_category, education_level, major_in, currently_studying, university_name, course_type, semester,
+            had_car, family_operate_ti, cellphone_carrier, worked_before, currently_employed, current_company, 
+            current_job_in_ti, hours_of_daily_work, daily_wage, compensation_type, reason_to_leave, cellular_experience,
+            name_tele_company_name, experience_of_tele, type_of_work_doing, other_employment_exp, foreign_work_exp,
+            mention_line_exp, appearance, personality, confidence, communication_skills, pitch, overcoming_objections,
+            negotiations, applicant_strength, applicants_weakness, contract_sign, evaluation, recommend_hiring, 
+            course_type_selection, current_city, current_country
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `;
 
     const values = [
-        applicant_uuid,
-        applicants_age,
-        applicants_gender,
-        email_on_file,
-        country,
-        city,
-        interviewed_before,
-        visa_category,
-        education_level,
-        major_in,
-        currently_studying,
-        university_name,
-        course_type,
-        semester,
-        had_car,
-        family_operate_ti,
-        cellphone_carrier,
-        worked_before,
-        currently_employed,
-        current_company,
-        current_job_in_ti,
-        hours_of_daily_work,
-        daily_wage,
-        compensation_type,
-        reason_to_leave,
-        cellular_experience,
-        name_tele_company_name,
-        experience_of_tele,
-        type_of_work_doing,
-        other_employment_exp,
-        foreign_work_exp,
-        mention_line_exp,
-        appearance,
-        personality,
-        confidence,
-        communication_skills,
-        pitch,
-        overcoming_objections,
-        negotiations,
-        applicant_strength,
-        applicants_weakness,
-        
-        contract_sign,
-        evaluation,
-        recommend_hiring,
-        course_type_selection,
-       
-        current_city,
-        current_country,
+        applicant_uuid, applicants_age, applicants_gender, email_on_file, country, city, interviewed_before,
+        visa_category, education_level, major_in, currently_studying, university_name, course_type, semester,
+        had_car, family_operate_ti, cellphone_carrier, worked_before, currently_employed, current_company,
+        current_job_in_ti, hours_of_daily_work, daily_wage, compensation_type, reason_to_leave, cellular_experience,
+        name_tele_company_name, experience_of_tele, type_of_work_doing, other_employment_exp, foreign_work_exp,
+        mention_line_exp, appearance, personality, confidence, communication_skills, pitch, overcoming_objections,
+        negotiations, applicant_strength, applicants_weakness, contract_sign, evaluation, recommend_hiring,
+        course_type_selection, current_city, current_country
     ];
 
     try {
         console.log('Values:', values);
-
-        // Execute the initial query
         const result = await db.query(query, values);
 
-        // Define the values for the update query
-        const valuesForUpdate = [recommend_hiring, applicant_uuid];
-
-        // Execute the update query
-        const [updateResult] = await db.query(`
-          UPDATE applicant_referrals
-          SET status = ?
+        // Update applicant_referrals table with recommendation
+        const updateQuery = `
+          UPDATE applicant_referrals 
+          SET status = ? 
           WHERE applicant_uuid = ?
-        `, valuesForUpdate);
+        `;
+        const valuesForUpdate = [recommend_hiring, applicant_uuid];
+        const updateResult = await db.query(updateQuery, valuesForUpdate);
 
-
-        // Send a success response
         res.status(200).json({ message: 'Evaluation added successfully', result, updateResult });
     } catch (error) {
-        // Handle any errors
         console.error('SQL Error:', error.message);
         res.status(500).json({ error: error.message });
     }
-
 };
 
-
+// Get first-round evaluation by applicant ID
 const getHREvaluationById = async (req, res) => {
     const { applicantId } = req.params;
-    console.log(`trying to get firstround response of ${applicantId} `)
     try {
         const [rows] = await db.query(
-            `SELECT * FROM  first_round_evaluation WHERE applicant_uuid = ?`,
-            [applicantId]
+            `SELECT * FROM first_round_evaluation WHERE applicant_uuid = ?`, [applicantId]
         );
-
         if (rows.length > 0) {
             res.status(200).json(rows);
         } else {
             res.status(404).json({ message: 'No evaluation found for this applicant ID' });
         }
     } catch (error) {
+        console.error('SQL Error:', error.message);
         res.status(500).json({ error: error.message });
     }
 };
-const addnewstatus = async (req, res) => {
 
-    const { name_applicant } = req.body
+// Add new status by applicant name
+const addnewstatus = async (req, res) => {
+    const { name_applicant } = req.body;
 
     try {
-        const [results] = await db.query(`SELECT work_location user_id FROM work_locations WHERE column_id = ?`, [name_applicant])
-        res.status(200).json({ message: 'rettrived succesfully ', results })
+        const [results] = await db.query(
+            `SELECT user_id, work_location FROM work_locations WHERE column_id = ?`, [name_applicant]
+        );
+        res.status(200).json({ message: 'Retrieved successfully', results });
     } catch (err) {
-        console.log(err)
+        console.error('SQL Error:', err.message);
+        res.status(500).json({ error: err.message });
     }
-
-}
+};
 
 module.exports = {
     getHREvaluationById,
     addFirstRoundEvaluation,
     addnewstatus
-}
+};
