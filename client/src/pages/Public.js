@@ -49,7 +49,7 @@ function Public() {
     // const phoneValid = regexPhone.test(phoneRef.current?.value);
     const marketValid = selectedMarket !== '';
     const referredByValid = referredByRef.current?.value.trim() !== '';
-    const referenceNtidValid = referenceNtidRef.current?.value.trim() !== '';
+    // const referenceNtidValid = referenceNtidRef.current?.value.trim() !== '';
 
     // Update invalidFields state
     const newInvalidFields = {
@@ -57,7 +57,7 @@ function Public() {
         // email: !emailValid,
         // phone: !phoneValid,
         referredBy: !referredByValid,
-        referenceNtid: !referenceNtidValid,
+        // referenceNtid: !referenceNtidValid,
         market: !marketValid
     };
 
@@ -156,6 +156,8 @@ function Public() {
 
   return (
     <Container fluid>
+     
+
       <Row className="vh-100">
         {/* Left Column with Image */}
         <Col md={6} lg={6} className="d-flex justify-content-center align-items-center">
@@ -169,7 +171,7 @@ function Public() {
 
         {/* Right Column with Form */}
         <Col md={6} lg={6} className="d-flex flex-column mt-4">
-          <h2 className='mt-4'>TECHNO-HIRING</h2>
+          <h2 className='mt-4'>TECHNO HIRING</h2>
           <Form className="shadow-lg p-4 rounded-3 mt-4" onSubmit={handleSubmit} noValidate>
             <h3 className="text-center mb-4 fw-bolder">Candidate Details Form</h3>
 
@@ -218,9 +220,8 @@ function Public() {
               <Form.Control
                 ref={referenceNtidRef}
                 type="text"
-                placeholder="Reference NTID"
-                required
-                isInvalid={invalidFields.referenceNtid}
+                placeholder="Reference NTID (optional)"
+               
               />
             </Form.Group>
 

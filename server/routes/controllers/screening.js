@@ -1,4 +1,5 @@
 const db = require('../config/db');
+// const { io } = require('../../app');
 
 const getApplicantsForScreening = async (req, res) => {
     const { userId } = req.params;
@@ -153,11 +154,14 @@ const getApplicationforinterviewr = async (req, res) => {
             `SELECT 
     interviews.applicant_uuid,
     interviews.time_of_interview,
-    applicant_referrals.name AS applicant_name
+    applicant_referrals.name AS applicant_name,
+    applicant_referrals.email AS email
+    
 FROM 
     interviews
 JOIN 
     applicant_referrals ON interviews.applicant_uuid = applicant_referrals.applicant_uuid
+   
 WHERE 
     interviews.interviewer_id = ?
     AND applicant_referrals.status = 'moved to Interview';
@@ -204,7 +208,7 @@ JOIN
 
 
 
-const getApplicationforTrainer = async (req, res) => {
+const getApplicationforTrainer = (io) => async (req, res) => {
 
     const { userId } = req.params;
     console.log(`trying get applicants for Trainer......for ${userId}`)
@@ -236,7 +240,7 @@ WHERE
 };
 
 
-const gertrainerfeedbackapplicants = async (req, res) => {
+const gertrainerfeedbackapplicants = (io) => async (req, res) => {
 
     const { userId } = req.params;
     console.log("trying get applicants for hr trined applicants......")
@@ -254,14 +258,16 @@ FROM
 JOIN 
     applicant_referrals ON hrinterview.applicant_uuid = applicant_referrals.applicant_uuid
 WHERE 
-    hrinterview.hr_id = 6
+    hrinterview.hr_id = ?
     AND applicant_referrals.status IN ('Recommended For Hiring', 'Not Recommended For Hiring');
 ;
      
  `,
             [userId]
         );
-
+        const count = applicantsResult.length;
+        console.log(count, "countinggggggggggggggggggg")
+        io.emit('trainerfeedbackcount', count);
         res.status(200).json(applicantsResult);
         console.log(applicantsResult)
     } catch (error) {

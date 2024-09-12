@@ -30,6 +30,7 @@ import InterviewerDashboard from "./InterviewRound/interviewerDashboard"
 import { ToastContainer } from 'react-toastify';
 import MarketJobOpenings from './Markets/markets';
 import Markethome from './Markets/markethome';
+import Individual_performance from './Adminpages/Work';
 import UpdatePassword from './pages/UpdatePassword';
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
 function AppComponent() {
   const token = localStorage.getItem('token');
   const [applicant_uuidProps, setApplicant_uuid] = useState("");
+  const [ applicantEmail, setApplicantEmail] = useState("")
   console.log(applicant_uuidProps, "applicantid--->")
 
   let role = null;
@@ -76,6 +78,7 @@ function AppComponent() {
           <>
             {role === 'admin' && (
               <>
+                <Route path="/work" element={<Individual_performance />} />
                 <Route path="/adminhome" element={<AdminHome />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
                 <Route path="/admindetailedview" element={<AdminDetailedView />} />
@@ -113,8 +116,8 @@ function AppComponent() {
             )}
             {role === 'interviewer' && (
               <>
-                <Route path="/interviewhome" element={<InterviewHome setApplicant_uuid={setApplicant_uuid} />} />
-                <Route path="/interview" element={<ApplicantForm applicant_uuidProps={applicant_uuidProps} />} />
+                <Route path="/interviewhome" element={<InterviewHome setApplicant_uuid={setApplicant_uuid} setApplicantEmail={setApplicantEmail} />} />
+                <Route path="/interview" element={<ApplicantForm applicant_uuidProps={applicant_uuidProps} applicantEmail={applicantEmail} />} />
                 <Route path="/new" element={<New />} />
                 <Route path="/interviewerdashboard" element={<InterviewerDashboard />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />

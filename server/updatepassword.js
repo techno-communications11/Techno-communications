@@ -33,7 +33,7 @@ require('dotenv').config();
             // Hash the new password
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(user.password, salt);
-
+            console.log("hashedPassword::", hashedPassword)
             // Update the password in the database
             const [result] = await db.query(
                 'UPDATE users SET password = ? WHERE id = ?',

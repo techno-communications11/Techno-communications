@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-const ApplicantForm = ({ applicant_uuidProps }) => {
+const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
   const navigate = useNavigate();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -26,7 +26,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
     applicant_uuid: applicant_uuidProps,
     applicants_age: '',
     applicants_gender: '',
-    email_on_file: '',
+    email_on_file: applicantEmail,
     country: '',
     city: '',
     interviewed_before: false,
@@ -88,11 +88,11 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
       'type_of_work_doing', 'foreign_work_exp', 'mention_line_exp', 'appearance',
       'personality', 'confidence', 'communication_skills', 'pitch',
       'overcoming_objections', 'negotiations', 'applicant_strength',
-      'applicants_weakness', 'comments', 'contract_sign', 'evaluation',
-      'recommend_hiring', 'course_type_selection', 'current_residence',
+      'applicants_weakness', 'contract_sign', 'evaluation',
+      'recommend_hiring',
       'current_city', 'current_country'
     ];
-   
+
     fields.forEach(field => {
       const value = formData[field];
 
@@ -267,7 +267,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
               <Form.Control
                 type="email"
                 name="email_on_file" // Add name attribute for the state
-                value={formData.email_on_file} // Bind value to state
+                value={applicantEmail} // Bind value to state
                 placeholder="Applicant's email" // Placeholder text
                 onChange={handleChange}
                 isInvalid={!!errors.email_on_file} // Handle changes with a change handler
@@ -327,17 +327,18 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
             </Form.Label>
             <Col sm={6}>
               <Form.Control
-                as="select"
+                type="text"  // Change 'as="select"' to 'type="text"'
                 name="visa_category" // Add name attribute
                 value={formData.visa_category} // Bind value attribute to formData
-                onChange={handleChange}
-                isInvalid={!!errors.visa_category}  // Handle changes with a change handler
-              >
-                <option>Visa Category 1</option>
-                <option>Visa Category 2</option>
-              </Form.Control>
+                onChange={handleChange} // Handle changes with a change handler
+                isInvalid={!!errors.visa_category}  // Display validation error if needed
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.visa_category} {/* Display error message */}
+              </Form.Control.Feedback>
             </Col>
           </Form.Group>
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               9. CURRENT LEVEL OF COMPLETED EDUCATION
@@ -972,7 +973,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
               />
             </Col>
           </Form.Group>
-          <Form.Group as={Row} className="mb-3">
+          {/* <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               42. ADDITIONAL NOTES & COMMENTS
             </Form.Label>
@@ -987,10 +988,10 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
                 isInvalid={!!errors.comments}
               />
             </Col>
-          </Form.Group>
+          </Form.Group> */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              43. HOW LONG OF A CONTRACT CAN THE APPLICANT SIGN IF GIVEN JOB
+              42. HOW LONG OF A CONTRACT CAN THE APPLICANT SIGN IF GIVEN JOB
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -1005,7 +1006,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              44. PLEASE WRITE A SUMMARY RECOMMENDATION/EVALUATION
+              43. PLEASE WRITE A SUMMARY RECOMMENDATION/EVALUATION
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -1021,7 +1022,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              45. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
+              44. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
             </Form.Label>
             <Col sm={6} className="text-start">
               <Form.Check
@@ -1063,7 +1064,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
             </Col>
           </Form.Group>
 
-          <Form.Group as={Row} className="mb-3">
+          {/* <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               46. PLEASE SELECT THE COURSE TYPE
             </Form.Label>
@@ -1078,8 +1079,8 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
                 <option value="Hybrid">Hybrid</option>
               </Form.Control>
             </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
+          </Form.Group> */}
+          {/* <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               47. ROSHAN'S INTERVIEW RESCHEDULER
             </Form.Label>
@@ -1090,10 +1091,10 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
                 isInvalid={!!errors.current_residence}
               />
             </Col>
-          </Form.Group>
+          </Form.Group> */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              48. WHAT CITY IS HE IN?
+              45. WHAT CITY IS HE IN?
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -1109,7 +1110,7 @@ const ApplicantForm = ({ applicant_uuidProps }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              49. PLEASE SELECT THE COUNTRY
+              46. PLEASE SELECT THE COUNTRY
             </Form.Label>
             <Col sm={6}>
               <Form.Control

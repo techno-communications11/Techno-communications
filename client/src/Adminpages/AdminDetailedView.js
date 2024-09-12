@@ -55,7 +55,7 @@ function AdminDetailedView() {
     fetchProfileStats();
   }, []);
 
-  
+
 
   const handleCardClick = async (type) => {
     setModalTitle(type);
@@ -196,8 +196,7 @@ function AdminDetailedView() {
                 <th>Market</th>
                 <th>Refer By</th>
                 <th>Referred ID</th>
-                <th>Comments</th>
-                <th>Status</th>
+
                 <th>Created At</th>
               </tr>
             </thead>

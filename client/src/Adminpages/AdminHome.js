@@ -18,26 +18,26 @@ function AdminHome() {
         try {
             const response = await axios.get(`${apiurl}/status`);
             const data = response.data;
-            console.log(data,"dddd")
+            console.log(data, "dddd")
 
             var total = 0
-      const stats = {};
-      
-        Object.entries(data).map((statusData) => (
-          total += statusData[1].count
-        ))
-      
-      data.forEach(status => {
-        
-          stats[status.status] = status.count;
-      });
-      console.log('total ttstvt', stats)
+            const stats = {};
 
-      setProfileStats({
-        total,
-        ...stats
-        
-      });
+            Object.entries(data).map((statusData) => (
+                total += statusData[1].count
+            ))
+
+            data.forEach(status => {
+
+                stats[status.status] = status.count;
+            });
+            console.log('total ttstvt', stats)
+
+            setProfileStats({
+                total,
+                ...stats
+
+            });
         } catch (error) {
             console.error('Error fetching profile stats:', error);
         }
@@ -67,13 +67,13 @@ function AdminHome() {
         (profileStats["put on hold at Interview"] || 0) +
         (profileStats["no show at Hr"] || 0) +
         (profileStats["no show at Interview"] || 0) +
-        (profileStats["no show at Screening"] || 0)+
-        (profileStats[""]||0)
+        (profileStats["no show at Screening"] || 0) +
+        (profileStats[""] || 0)
 
     const selectedTotal =
-        (profileStats["selected at Hr"] || 0)+
-        (profileStats["Recommended For Hiring"]||0)+
-        (profileStats["selected at Interview"||0])
+        (profileStats["selected at Hr"] || 0) +
+        (profileStats["Recommended For Hiring"] || 0) +
+        (profileStats["selected at Interview" || 0])
 
     const rejectedTotal =
         (profileStats["rejected at Hr"] || 0) +
@@ -83,9 +83,9 @@ function AdminHome() {
 
     const status = {
         "Total": profileStats["total"] || 0,
-        "Selected": selectedTotal||0,
-        "Pending": pendingTotal||0,
-        "Rejected": rejectedTotal||0,
+        "Selected": selectedTotal || 0,
+        "Pending": pendingTotal || 0,
+        "Rejected": rejectedTotal || 0,
     };
 
     const chartOptions = {
@@ -119,8 +119,11 @@ function AdminHome() {
                         <h2> Summary Admin Dashboard</h2>
                         <h2 className='ms-auto'>{user.name}</h2>
                     </Col>
-                    <Col xs={12} sm={12} className='d-flex mt-3'>
-                        <Link  className='btn btn-primary text-dark fw-bold bg-transparent  ' to="/admindetailedview">
+                    <Col xs={12} sm={12} className='d-flex mt-3 gap-2'>
+                        <Link className='btn btn-primary text-dark fw-bold bg-transparent  ' to="/admindetailedview">
+                            Detailed view
+                        </Link>
+                        <Link className='btn btn-primary text-dark fw-bold bg-transparent  ' to="/work">
                             Detailed view
                         </Link>
                     </Col>
