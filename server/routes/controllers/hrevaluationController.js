@@ -32,31 +32,38 @@ const addHREvaluation = async (req, res) => {
                 applicant_id,
                 market,
                 market_training,
+
                 training_location,
                 compensation_type,
                 offered_salary,
+
                 payroll,
                 accept_offer,
                 return_date,
+
                 joining_date,
                 notes,
                 work_hours_days,
                 back_out,
                 reason_back_out
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?,  ?, ?, ?,  ?, ?, ?,  ?, ?, ?,  ?,?)`,
             [
                 applicantId,
                 market,
                 marketTraining,
+
                 trainingLocation,
                 compensationType,
                 offeredSalary,
+
                 payroll,
                 acceptOfferValue, // Using converted value
                 returnDate,
+
                 joiningDate,
                 notes,
                 workHoursDays,
+
                 backOutValue, // Using converted value
                 reasonBackOut,
             ]
