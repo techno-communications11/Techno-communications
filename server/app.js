@@ -19,7 +19,7 @@ const server = http.createServer(app);
 // const io = socketIO(server);
 const io = socketIo(server, { // Initialize Socket.IO with server and CORS settings
   cors: {
-    origin: 'http://localhost:3000', // Replace with your frontend URL
+    origin: 'https://hiring.techno-communications.com/', // Replace with your frontend URL
     methods: ['GET', 'POST']
   }
 });

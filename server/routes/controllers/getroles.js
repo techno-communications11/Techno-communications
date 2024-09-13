@@ -9,7 +9,15 @@ const getAllHRs = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch HRs' });
   }
 };
-
+const getAllScreening = async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM users WHERE role = ?', ['screening_manager']);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Error fetching HRs:', error);
+    res.status(500).json({ message: 'Failed to fetch HRs' });
+  }
+};
 const getAllinterviewers = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM users WHERE role = ?', ['interviewer']);
@@ -50,5 +58,6 @@ module.exports = {
   getAllHRs,
   getAllinterviewers,
   getAllTrainers,
-  getAllUsers
+  getAllUsers,
+  getAllScreening
 };

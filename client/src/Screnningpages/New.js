@@ -20,7 +20,7 @@ function New() {
   const [profiles, setProfiles] = useState([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [email, setEmail] = useState('');
-
+  const [screens, setScreens] = useState([]);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showCalendlyModal, setShowCalendlyModal] = useState(false);
@@ -28,6 +28,7 @@ function New() {
   const [comment, setComment] = useState('');
   const [moveForwardMenu, setMoveForwardMenu] = useState(false);
   const [selectedHost, setSelectedHost] = useState(null);
+  const [selectedScreen, setSelectedScreen] = useState(null);
   const [hosts, setHosts] = useState([]);
   const [hrs, setHrs] = useState([]);
   // const [screeners, setScreeners] = useState([]);
@@ -65,7 +66,11 @@ function New() {
   useEffect(() => {
     setLoading(true);
 
-
+    fetchData(
+      `${apiurl}/screening`,
+      setScreens,
+      'Failed to fetch hosts. Please try again later.'
+    );
 
     fetchData(
       `${apiurl}/interviewer`,
@@ -108,10 +113,20 @@ function New() {
   };
 
   const handleShowModal = (profile) => {
+    console.log("profile>>>>", profile);
     setSelectedProfile(profile);
-    setShowEmailModal(true);
+
+    // Check if the email is null, undefined, or an empty string
+    if (profile.applicant_email === null || profile.applicant_email === "" || profile.applicant_email === undefined) {
+      setShowEmailModal(true);
+    } else {
+      setShowModal(true);
+    }
+
 
   };
+
+
   const handleShowNext = () => {
     setShowDateModel(true);
     setShowCalendlyModal(false);
@@ -177,8 +192,33 @@ function New() {
   const handleChangeScrenningToggle = () => {
     setChangeScrenningMenu(!ChangeScrenningMenu);
   };
-  const handleSelect = () => {
-  }
+  const handleSelect = async (eventKey, applicant_uuid) => {
+    const selected = screens.find(screen => screen.name === eventKey);
+
+    setSelectedScreen(selected);
+
+    if (selected) {
+      const newUserId = selected.id;
+      console.log(newUserId, "<<<<<<<<<<newUserId", applicant_uuid)
+      try {
+        console.log("apiurl>>>>>>", apiurl)
+        const response = await axios.post(`${apiurl}/assignapplicanttoUser`, {
+          newUserId: newUserId,
+          applicantId: applicant_uuid
+        });
+
+        if (response.status === 200) {
+          toast.success(response.data.message);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        }
+      } catch (error) {
+        toast.error('Error occurred while Assigning  user');
+      }
+    }
+  };
+
   const handleDateTimeSave = async () => {
     if (!selectedDateTime) {
       toast.error("Please select a date and time.");
@@ -426,7 +466,7 @@ function New() {
                     message={`Are you sure you want to mark this applicant as ${actionToPerform}?`}
                   />
                 </Container>
-                
+
 
                 {/* Right Container for Move Forward Button */}
                 <Container>
@@ -453,6 +493,35 @@ function New() {
                           ))}
                       </Dropdown.Menu>
                     </Dropdown>
+                    <Dropdown
+                      onSelect={(eventKey) => {
+                        if (selectedProfile) {
+                          handleSelect(eventKey, selectedProfile.applicant_uuid); // Only call handleSelect if selectedProfile exists
+                        } else {
+                          console.error('selectedProfile is null or undefined');
+                        }
+                      }}
+                      show={ChangeScrenningMenu}
+                      onToggle={handleChangeScrenningToggle}
+                    >
+                      <Dropdown.Toggle className="w-100 bg-primary text-white border-secondary" id="dropdown-basic">
+                        Change Assign To
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu className="w-auto">
+                        {screens
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((screen, index) => (
+                            <Dropdown.Item
+                              key={index}
+                              eventKey={screen.name}
+                              className="bg-light text-dark"
+                            >
+                              {screen.name}
+                            </Dropdown.Item>
+                          ))}
+                      </Dropdown.Menu>
+                    </Dropdown>
+
                   </Row>
                 </Container>
               </div>
@@ -497,7 +566,7 @@ function New() {
                     >
                       Assign to Interviewer
                     </Button>
-                    
+
                   </div>
                   <ConfirmationModal
                     show={confirmassiging}

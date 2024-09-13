@@ -6,7 +6,7 @@ import { toast, ToastContainer } from 'react-toastify';
 function Register() {
   const [error, setError] = useState('');
   const [markets, setMarkets] = useState([]);
-  const [roles, setRoles] = useState(['Admin', 'Screening Manager', 'Interviewer', 'HR', 'Trainer']);
+  const [roles, setRoles] = useState(['admin', 'screening_manager', 'interviewer', 'hr', 'trainer']);
   const [selectedMarket, setSelectedMarket] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
   const [calendlyUsername, setCalendlyUsername] = useState('');
@@ -120,7 +120,7 @@ function Register() {
               </Select>
             </FormControl>
 
-            {selectedRole === 'Screening Manager' && (
+            {selectedRole === 'screening_manager' && (
               <FormControl fullWidth margin="normal">
                 <InputLabel>Select Market</InputLabel>
                 <Select

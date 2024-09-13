@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getApplicantsForScreening, getApplicationforinterviewr, getApplicationforhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants } = require('./controllers/screening');
+const { getApplicationforinterviewr, getApplicationforhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants } = require('./controllers/screening');
 const { login } = require('./controllers/Login');
-const { getAllHRs, getAllinterviewers, getAllTrainers } = require('./controllers/getroles'); // Adjust the path if necessary
+const { getApplicantsForScreening,assignApplicantToUser} = require('./controllers/screeningApplications');
+const { getAllHRs, getAllinterviewers, getAllTrainers ,getAllScreening} = require('./controllers/getroles'); // Adjust the path if necessary
 const { getAllUsersStatus } = require('./controllers/admin');
 const { createApplicantReferral, updatemail } = require('./controllers/applicantController');
 const { getmarkets } = require('./controllers/Markets');
@@ -16,13 +17,14 @@ const { getMarkets, postJob } = require("./controllers/marketController")
 const { updatePassword } = require("./controllers/updatepass")
 const { trackingWork } = require("./controllers/tracking")
 const { getAllUsers } = require("./controllers/getroles")
-const {createUser} = require("./controllers/userController")
+const {createUser} = require("./controllers/createUser")
 
 module.exports = (io) => {
 
 //Route to Create User
 router.post('/createuser', createUser)
-
+//Route to assignApplicantToUser
+router.post('/assignapplicanttoUser', assignApplicantToUser)
     // route get all Users
     router.get('/getAllUsers', getAllUsers)
     //routes to update password
@@ -36,6 +38,8 @@ router.post('/createuser', createUser)
     router.post('/updateemail', updatemail)
     // Route to get all HR users
     router.get('/hrs', getAllHRs);
+      // Route to get all HR users
+      router.get('/screening', getAllScreening);
     //Route to post job
     router.post('/post-job', postJob);
     //Route to get all marketjobs

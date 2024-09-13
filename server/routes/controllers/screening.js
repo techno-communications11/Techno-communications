@@ -1,93 +1,7 @@
 const db = require('../config/db');
 // const { io } = require('../../app');
 
-const getApplicantsForScreening = async (req, res) => {
-    const { userId } = req.params;
 
-    try {
-        console.log('Fetching work locations for user:', userId);
-
-        // Step 1: Get Work Locations for the User
-        const [locationsResult] = await db.query(
-            `SELECT wl.id AS work_location_id
-             FROM work_locations wl
-             JOIN user_work_locations uwl ON wl.id = uwl.work_location_id
-             WHERE uwl.user_id = ?`,
-            [userId]
-        );
-
-
-        if (locationsResult.length === 0) {
-            return res.status(404).json({ message: 'No work locations found for the user.' });
-        }
-
-        // Extract location IDs
-        const locationIds = locationsResult.map(location => location.work_location_id);
-
-        // Step 2: Get Users for These Locations
-        const [usersResult] = await db.query(
-            `SELECT DISTINCT uwl.user_id
-             FROM user_work_locations uwl
-             WHERE uwl.work_location_id IN (?)`,
-            [locationIds]
-        );
-
-        if (usersResult.length === 0) {
-            return res.status(404).json({ message: 'No users found for the locations.' });
-        }
-
-        // Extract unique user IDs
-        const userIds = [...new Set(usersResult.map(user => user.user_id))];
-        console.log('User IDs:', userIds);
-
-        if (userIds.length === 0) {
-            return res.status(404).json({ message: 'No user IDs available for assignment.' });
-        }
-
-        // Step 3: Get Applicants for These Locations
-        const [applicantsResult] = await db.query(
-            `SELECT ar.id AS applicant_id, ar.applicant_uuid, ar.name AS applicant_name, ar.email AS applicant_email, 
-                    ar.phone AS applicant_phone, ar.referred_by, ar.reference_id, ar.created_at
-             FROM applicant_referrals ar
-             WHERE ar.work_location IN (?)
-             AND ar.status = 'pending at screening';`,
-            [locationIds]
-        );
-
-        if (applicantsResult.length === 0) {
-            return res.status(404).json({ message: 'No applicants found for the given locations.' });
-        }
-
-        // Step 4: Distribute Applicants in Round-Robin Fashion
-        let currentUserIndex = 0;
-        const distributedApplicants = applicantsResult.map(applicant => {
-            const assignedUserId = userIds[currentUserIndex];
-            currentUserIndex = (currentUserIndex + 1) % userIds.length;
-            db.query(
-                `UPDATE applicant_referrals 
-                 SET assigned_user_id = ? 
-                 WHERE applicant_uuid = ?`, // Ensure you're updating the correct applicant by applicant_id
-                [assignedUserId, applicant.applicant_uuid] // Pass assignedUserId and applicant's ID
-            );
-            // Round-robin logic
-            return { ...applicant, assigned_user_id: assignedUserId };
-        });
-
-        console.log('User ID:', userId);
-
-
-
-        // Step 5: Filter Applicants assigned to the current user
-        const accurateProfile = distributedApplicants.filter(item => item.assigned_user_id === Number(userId));
-        console.log('Filtered Applicants for current user:', accurateProfile);
-
-        // Return the filtered applicants
-        res.status(200).json(accurateProfile);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
-};
 
 
 // module.exports = { getApplicantsForScreening };
@@ -288,4 +202,4 @@ WHERE
 
 
 
-module.exports = { getApplicantsForScreening, getApplicationforinterviewr, getApplicationforhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants };
+module.exports = {  getApplicationforinterviewr, getApplicationforhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants };

@@ -305,7 +305,7 @@ export default function InterviewedProfiles() {
     const renderModalContent = () => {
         if (!selectedProfile) return null;
 
-        if (['selected at Interview', 'no show at Hr'].includes(selectedProfile.status)) {
+        if (['need second opinion at Interview', 'selected at Interview', 'no show at Hr', 'put on hold at Interview'].includes(selectedProfile.status)) {
             return (
                 <div>
                     {!showCalendlyModal ? (
@@ -366,7 +366,7 @@ export default function InterviewedProfiles() {
             );
         }
 
-        if (['no Response at Screening', 'no show at Interview', 'need second opinion at Interview', 'put on hold at Interview'].includes(selectedProfile.status)) {
+        if (['no Response at Screening', 'no show at Interview'].includes(selectedProfile.status)) {
             return (
                 <div>
                     {!showCalendlyModal ? (
