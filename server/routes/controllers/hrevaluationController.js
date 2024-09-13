@@ -2,10 +2,9 @@
 const db = require('../config/db');
 
 const addHREvaluation = async (req, res) => {
-    console.log("trying to add hr evalution response ")
+    console.log("Starting to add HR evaluation...");
     const {
         applicantId,
-
         market,
         marketTraining,
         trainingLocation,
@@ -16,20 +15,15 @@ const addHREvaluation = async (req, res) => {
         returnDate,
         joiningDate,
         notes,
-
         workHoursDays,
-
         backOut,
         reasonBackOut,
-
         recommend_hiring,
     } = req.body;
 
-    console.log("recommend_hiring applicantId ->>>", applicantId)
     try {
-
-        console.log([ applicantId,
-
+        console.log("Received applicant data:", {
+            applicantId,
             market,
             marketTraining,
             trainingLocation,
@@ -40,17 +34,16 @@ const addHREvaluation = async (req, res) => {
             returnDate,
             joiningDate,
             notes,
-    
             workHoursDays,
-    
             backOut,
             reasonBackOut,
-    
-            recommend_hiring,])
+            recommend_hiring
+        });
+
+        // Insert data into hrevaluation table
         const [result] = await db.query(
             `INSERT INTO hrevaluation (
                 applicant_id,
-               
                 market,
                 market_training,
                 training_location,
@@ -64,11 +57,9 @@ const addHREvaluation = async (req, res) => {
                 work_hours_days,
                 back_out,
                 reason_back_out
-               
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 applicantId,
-
                 market,
                 marketTraining,
                 trainingLocation,
@@ -80,33 +71,35 @@ const addHREvaluation = async (req, res) => {
                 joiningDate,
                 notes,
                 workHoursDays,
-
                 backOut,
                 reasonBackOut,
-
             ]
         );
-        // Define the values for the update query
-        console.log("recommend_hiring22222222", recommend_hiring)
+
+        console.log("HR evaluation inserted successfully. Result:", result);
+
+        // Update applicant_referrals table with recommendation
+        const updateQuery = `
+            UPDATE applicant_referrals
+            SET status = ?
+            WHERE applicant_uuid = ?
+        `;
         const valuesForUpdate = [recommend_hiring, applicantId];
+        const [updateResult] = await db.query(updateQuery, valuesForUpdate);
 
-        // Execute the update query
-        const [updateResult] = await db.query(`
-   UPDATE applicant_referrals
-   SET status = ?
-   WHERE applicant_uuid = ?
- `, valuesForUpdate);
-
-        console.log("Database update successful");
+        console.log("Applicant referral updated successfully. Update result:", updateResult);
 
         // Send a success response
-        res.status(200).json({ message: 'Evaluation added successfully', result, updateResult });
+        res.status(200).json({ message: 'Evaluation added and referral updated successfully', result, updateResult });
     } catch (error) {
-        res.status(500).json({ error: error.message });
-       
+        // Detailed error logging for debugging
+        console.error("Error during HR evaluation insertion or referral update:", error);
+
+        // Send error response with status code and message
+        res.status(500).json({ error: 'Failed to add HR evaluation or update referral', details: error.message });
     }
 };
 
 module.exports = {
     addHREvaluation
-}
+};
