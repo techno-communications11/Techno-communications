@@ -15,8 +15,8 @@ const Markethome = () => {
         // Fetch data from the API
         const fetchMarketJobs = async () => {
             try {
-                const response = await fetch(`${apiurl}/getmarketjobs`);
-                const data = await response.json();
+                const response = await axios.get(`${apiurl}/getmarketjobs`);
+                const data = response.data;
                 const filteredData = data.filter(val => val.name === "New York");
                 setMarkets(filteredData);
                 console.log(filteredData, "filteredData");
@@ -66,7 +66,7 @@ const Markethome = () => {
     return (
         <Box sx={{ flexGrow: 1, mt: 4 }}>
             <Grid container spacing={2}>
-                <Grid md={1}> 
+                <Grid md={1}>
 
                 </Grid>
                 <Grid item md={6}>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Card, CardContent, Typography, Box, styled } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import axios from 'axios'
 
 const MarketJobOpenings = () => {
     const apiurl = process.env.REACT_APP_API;
@@ -10,8 +11,9 @@ const MarketJobOpenings = () => {
         // Fetch data from the API
         const fetchMarketJobs = async () => {
             try {
-                const response = await fetch(`${apiurl}/getmarketjobs`);
-                const data = await response.json();
+                const response = await axios.get(`${apiurl}/getmarketjobs`);
+                const data = response.data;
+                console.log("data>>>", data)
                 setMarkets(data);
             } catch (error) {
                 console.error('Error fetching market job openings:', error);
