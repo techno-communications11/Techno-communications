@@ -142,7 +142,8 @@ function AdminDetailedView() {
         <Col xs={12} md={12} lg={12}>
           <Row>
             {Object.entries(profileStats).map(([status, count]) => (
-              <Col key={status} xs={12} md={2} onClick={() => handleCardClick(status)} className="mb-3 d-flex align-items-stretch rounded" style={{ cursor: 'pointer' }}>
+              <Col key={status} xs={12} md={2} className="mb-3 d-flex align-items-stretch rounded" style={{ cursor: 'pointer' }}>
+                {/* onClick={() => handleCardClick(status)}  */}
                 <Card.Body className="text-center card-style p-4 w-100 d-flex flex-column justify-content-center">
                   <Card.Text
                     style={{

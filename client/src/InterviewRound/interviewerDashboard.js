@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Container, Row, Col, Modal, Button, Table, Form } from 'react-bootstrap';
 import decodeToken from '../decodedDetails';
+import getStatusCounts from '../pages/getStatusCounts'; // Ensure this path is correct
 
 function InterviewerDashboard() {
     const [profiles, setProfiles] = useState([]);
@@ -8,20 +9,34 @@ function InterviewerDashboard() {
     const [showModal, setShowModal] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [stats, setStats] = useState([]);
     const userData = decodeToken();
 
-    // Hardcoded static numbers for each status
-    const staticStats = [
+    useEffect(() => {
+        const fetchStatusCounts = async () => {
+            try {
+                const data = await getStatusCounts();
+                setStats(data);
+                console.log(data);
+            } catch (error) {
+                console.error("Error fetching status counts:", error);
+            }
+        };
+        fetchStatusCounts();
+    }, []);
 
-        { status: "no show at Interview", count: 3, bgColor: "#FF5733" }, // Orange
-        { status: "selected at Interview", count: 7, bgColor: "#28A745" }, // Green
-        { status: "rejected at Interview", count: 4, bgColor: "#DC3545" }, // Red
-        { status: "put on hold at Interview", count: 2, bgColor: "#6C757D" }, // Gray
-        { status: "Moved to HR", count: 6, bgColor: "#007BFF" },// Blue
-        { status: "need second opinion at Interview", count: 5, bgColor: "#FFCC00" } // Yellow
+    // Static statuses with colors
+    const filteredStatuses = [
+        { status: "no show at Interview", bgColor: "#FF5733" }, // Orange
+        { status: "selected at Interview", bgColor: "#28A745" }, // Green
+        { status: "rejected at Interview", bgColor: "#DC3545" }, // Red
+        { status: "put on hold at Interview", bgColor: "#6C757D" }, // Gray
+        { status: "Moved to HR", bgColor: "#007BFF" }, // Blue
+        { status: "need second opinion at Interview", bgColor: "#FFCC00" } // Yellow
     ];
 
-    const TotalCount = staticStats.reduce((total, stat) => total + stat.count, 0);
+    // Calculate Total Count
+    const TotalCount = stats.reduce((total, stat) => total + stat.count, 0);
 
     useEffect(() => {
         if (searchQuery) {
@@ -78,26 +93,29 @@ function InterviewerDashboard() {
                     </Card>
                 </Col>
 
-                {/* Cards for each static status */}
-                {staticStats.map((stat) => (
-                    <Col key={stat.status} xs={12} sm={6} md={4} lg={2} className="mb-4">
-                        <Card
-                            // onClick={() => handleShow(stat.status)}
-                            className="shadow-sm card-style h-100"
-                            style={{ cursor: "pointer", backgroundColor: stat.bgColor }}
-                        >
-                            <Card.Body className="d-flex flex-column justify-content-center" >
-                                <Card.Title className="fw-bold" style={{
-                                    textTransform: 'capitalize',
-                                    fontFamily: 'Roboto, sans-serif',
-                                }}>
-                                    {stat.count}
-                                </Card.Title>
-                                <Card.Text className='fs-6 fw-bold' >{stat.status}</Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
+                {/* Cards for each status */}
+                {filteredStatuses.map(({ status, bgColor }) => {
+                    const stat = stats.find(stat => stat.status === status) || { count: 0 };
+                    return (
+                        <Col key={status} xs={12} sm={6} md={4} lg={2} className="mb-4">
+                            <Card
+                                // onClick={() => handleShow(status)}
+                                className="shadow-sm card-style h-100"
+                                style={{ cursor: "pointer", backgroundColor: bgColor }}
+                            >
+                                <Card.Body className="d-flex flex-column justify-content-center">
+                                    <Card.Title className="fw-bold" style={{
+                                        textTransform: 'capitalize',
+                                        fontFamily: 'Roboto, sans-serif',
+                                    }}>
+                                        {stat.count}
+                                    </Card.Title>
+                                    <Card.Text className='fs-6 fw-bold'>{status}</Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    );
+                })}
             </Row>
 
             {/* Modal for displaying profiles */}

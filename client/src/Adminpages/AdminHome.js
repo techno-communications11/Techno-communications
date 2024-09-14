@@ -127,25 +127,29 @@ function AdminHome() {
                 <Grid item xs={12} md={6}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} sm={6} md={6}>
-                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Total')}>
+                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }}>
+                            {/* onClick={() => fetchDetailsByStatus('Total')} */}
                                 <Typography variant="h6">Total</Typography>
                                 <Typography variant="h4">{status.Total}</Typography>
                             </Box>
                         </Grid>
                         <Grid item xs={12} sm={6} md={6}>
-                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Rejected')}>
+                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} >
+                            {/* onClick={() => fetchDetailsByStatus('Rejected')} */}
                                 <Typography variant="h6">Rejected</Typography>
                                 <Typography variant="h4">{status.Rejected}</Typography>
                             </Box>
                         </Grid>
                         <Grid item xs={12} sm={6} md={6}>
-                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Pending')}>
+                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} >
+                            {/* onClick={() => fetchDetailsByStatus('Pending')} */}
                                 <Typography variant="h6">Pending</Typography>
                                 <Typography variant="h4">{status.Pending}</Typography>
                             </Box>
                         </Grid>
                         <Grid item xs={12} sm={6} md={6}>
-                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} onClick={() => fetchDetailsByStatus('Selected')}>
+                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} >
+                            {/* onClick={() => fetchDetailsByStatus('Selected')} */}
                                 <Typography variant="h6">Selected</Typography>
                                 <Typography variant="h4">{status.Selected}</Typography>
                             </Box>
