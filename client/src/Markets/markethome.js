@@ -17,7 +17,7 @@ const Markethome = () => {
             try {
                 const response = await axios.get(`${apiurl}/getmarketjobs`);
                 const data = response.data;
-                const filteredData = data.filter(val => val.name === "New York");
+                const filteredData = data.filter(val => val.name === "ARIZONA");
                 setMarkets(filteredData);
                 console.log(filteredData, "filteredData");
             } catch (error) {
@@ -29,7 +29,7 @@ const Markethome = () => {
     }, []);
 
     const [jobDetails, setJobDetails] = useState({
-        location: 'New York', // Default location
+        location: 'ARIZONA', // Default location
         openings: '',
         deadline: '',
     });
@@ -52,7 +52,7 @@ const Markethome = () => {
                 console.log("Job posted successfully");
 
                 setJobDetails({
-                    location: 'New York', // Reset to default location
+                    location: 'ARIZONA', // Reset to default location
                     openings: '',
                     deadline: '',
                 });
@@ -94,9 +94,9 @@ const Markethome = () => {
                             margin="normal"
                             variant="outlined"
                         >
-                            <MenuItem value="New York">New York</MenuItem>
+                           
                             <MenuItem value="San Francisco">San Francisco</MenuItem>
-                            <MenuItem value="Chicago Office">Chicago Office</MenuItem>
+                           
                             <MenuItem value="ARIZONA">ARIZONA</MenuItem>
                             <MenuItem value="Bay Area">Bay Area</MenuItem>
                         </TextField>
