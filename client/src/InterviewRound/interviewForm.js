@@ -8,7 +8,7 @@ import axios from 'axios';
 import Rating from '@mui/material/Rating';
 import Stack from '@mui/material/Stack';
 
-const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
+const ApplicantForm = ({ applicant_uuidProps, applicantEmail ,applicantPhone}) => {
   const navigate = useNavigate();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -272,7 +272,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              4. PLEASE ENTER THE APPLICANT'S EMAIL ON FILE.
+              4. APPLICANT'S EMAIL ON FILE.
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -288,14 +288,68 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              5. Please Select Your Country
+              5.  APPLICANT'S MOBILE NUM ON FILE.
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Control
+                type="phone"
+                name="phone_on_file" // Add name attribute for the state
+                // value={formData.applicantEmail} // Bind value to state
+                placeholder={applicantPhone}
+                // Placeholder text
+                onChange={handleChange}
+                readOnly
+              />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              6. PLEASE SELECT THE COUNTRY
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Control
+                as="select"
+                name="current_country"
+                value={formData.current_country}
+                onChange={handleChange}
+                isInvalid={!!errors.current_country}
+              >
+                <option value={formData.current_country}>{!formData.current_country ? 'Select a country' : formData.current_country}</option>
+                <option value="USA">USA</option>
+                <option value="Canada">Canada</option>
+                <option value="UK">UK</option>
+                <option value="India">India</option>
+              </Form.Control>
+
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              7. WHAT CITY IS HE IN?
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Control
+                type="text"
+                placeholder="Enter city"
+                name="current_city"
+                value={formData.current_city}
+                onChange={handleChange}
+                isInvalid={!!errors.current_city}
+              />
+
+            </Col>
+          </Form.Group>
+        
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              8.PLEASE ENTER THE HOME COUNTRY
             </Form.Label>
             <Col sm={6}>
               <Form.Control
                 type='text'
                 name="country" // Add name attribute for the state
                 value={formData.country}
-                placeholder='Enter Country'// Bind selected value to formData
+                placeholder='Enter Home Country'// Bind selected value to formData
                 onChange={handleChange}
                 isInvalid={!!errors.country} // Handle changes with a change handler
               >
@@ -305,13 +359,13 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              6. PLEASE ENTER THE CITY
+              9. PLEASE ENTER THE HOME CITY
             </Form.Label>
             <Col sm={6}>
               <Form.Control
                 type="text"
                 name="city" // Add name attribute
-                placeholder="Enter city"
+                placeholder="Enter  Home city"
                 value={formData.city} // Bind value to formData
                 onChange={handleChange}
                 isInvalid={!!errors.city}  // Handle changes with a change handler
@@ -320,7 +374,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              7. HAS THE APPLICANT INTERVIEWED WITH US BEFORE?
+              10. HAS THE APPLICANT INTERVIEWED WITH US BEFORE?
             </Form.Label>
             <Col sm={6} className="text-start">
               <Form.Check
@@ -335,7 +389,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
 
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              8. WHAT VISA CATEGORY IS THE APPLICANT ON
+              11. WHAT VISA CATEGORY IS THE APPLICANT ON
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -353,7 +407,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
 
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              9. CURRENT LEVEL OF COMPLETED EDUCATION
+              12. CURRENT LEVEL OF COMPLETED EDUCATION
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -373,7 +427,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              10. WHAT DID THEY MAJOR IN
+              13. WHAT DID THEY MAJOR IN
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -388,7 +442,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              11. ARE YOU CURRENTLY STUDYING
+              14. ARE YOU CURRENTLY STUDYING
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -411,7 +465,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              12. ENTER THE NAME OF THE UNIVERSITY
+              15. ENTER THE NAME OF THE UNIVERSITY
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -426,7 +480,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              13. COURSE TYPE
+              16. COURSE TYPE
             </Form.Label>
             <Col sm={6} className='text-start'    >
               <Form.Check
@@ -467,7 +521,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
 
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              14. PLEASE MENTION THE SEMESTER HE/SHE IS IN
+              17. PLEASE MENTION THE SEMESTER HE/SHE IS IN
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -482,7 +536,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              15. DOES THE APPLICANT HAVE A CAR?
+              18. DOES THE APPLICANT HAVE A CAR?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -507,7 +561,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              16. DOES APPLICANT'S FRIENDS/FAMILY WORK/OPERATE IN THE TELECOMMUNICATION INDUSTRY? (OWN STORES)
+              19. DOES APPLICANT'S FRIENDS/FAMILY WORK/OPERATE IN THE TELECOMMUNICATION INDUSTRY? (OWN STORES)
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -535,7 +589,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Cellphone Carrier */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              17. WHAT CELLPHONE CARRIER DO THEY WORK FOR
+              20. WHAT CELLPHONE CARRIER DO THEY WORK FOR
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -553,7 +607,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Worked in US */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              18. HAS THE APPLICANT WORKED IN THE US BEFORE?
+              21. HAS THE APPLICANT WORKED IN THE US BEFORE?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -579,7 +633,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Current Employment */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              19. IS THE APPLICANT CURRENTLY EMPLOYED
+              22. IS THE APPLICANT CURRENTLY EMPLOYED
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -605,7 +659,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Company Name */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              20. PLEASE MENTION THE COMPANY
+              23. PLEASE MENTION THE COMPANY
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -623,7 +677,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Job in Telecom */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              21. IS THE CURRENT JOB IN TELECOMMUNICATION INDUSTRY?
+              24. IS THE CURRENT JOB IN TELECOMMUNICATION INDUSTRY?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -648,7 +702,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Hours Worked */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              22. HOW MANY HOURS A WEEK DOES HE/SHE WORK
+              25. HOW MANY HOURS A WEEK DOES HE/SHE WORK
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -665,7 +719,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Salary */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              23. HOW MUCH DOES HE MAKE
+              26. HOW MUCH DOES HE MAKE
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -683,7 +737,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Type of Compensation */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              24. TYPE OF COMPENSATION?
+              27. TYPE OF COMPENSATION?
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -707,7 +761,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Reason for Leaving */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              25. WHY DOES HE WANT TO LEAVE?
+              28. WHY DOES HE WANT TO LEAVE?
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -729,7 +783,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
 
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              26. DOES THE EMPLOYEE HAVE ANY CELLULAR EXPERIENCE
+              29. DOES THE EMPLOYEE HAVE ANY CELLULAR EXPERIENCE
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -763,7 +817,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Previous Telecom Work */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              27. PLEASE MENTION THE NAME WHERE HE WORKED IN TELECOMMUNICATION
+              30. PLEASE MENTION THE NAME WHERE HE WORKED IN TELECOMMUNICATION
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -781,7 +835,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           {/* Duration of Telecom Work */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              28. HOW LONG DID HE/SHE WORK THERE?
+              31. HOW LONG DID HE/SHE WORK THERE?
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -796,7 +850,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              29. WHAT IS THE KIND OF WORK HE IS DOING RIGHT NOW
+              32. WHAT IS THE KIND OF WORK HE IS DOING RIGHT NOW
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -811,7 +865,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              30. MENTION ANY OTHER EMPLOYMENT EXPERIENCE SEPARATE BY EACH LINE.
+              33. MENTION ANY OTHER EMPLOYMENT EXPERIENCE SEPARATE BY EACH LINE.
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -827,7 +881,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              31. DOES THE EMPLOYEE HAVE FOREIGN WORK EXPERIENCE?
+              34. DOES THE EMPLOYEE HAVE FOREIGN WORK EXPERIENCE?
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -850,7 +904,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              32. PLEASE MENTION THE FOREIGN EXPERIENCE (SEPARATE BY EACH LINE)
+              35. PLEASE MENTION THE FOREIGN EXPERIENCE (SEPARATE BY EACH LINE)
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -865,103 +919,218 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              33. APPEARANCE & DEMEANOR
-            </Form.Label>
-            <Col sm={6}>
-              <Stack spacing={1}>
-                <Rating
-                  name="appearance"
-                  value={formData.appearance}
-                  onChange={(event, newValue) => handleChange({ target: { name: 'appearance', value: newValue } })}
-                  size="large"
-                />
-              </Stack>
-            </Col>
-          </Form.Group>
+  <Form.Label column sm={6} className="text-start">
+    36. APPEARANCE & DEMEANOR
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Check 
+      type="radio"
+      label="Poor"
+      name="appearance"
+      value="poor"
+      checked={formData.appearance === 'poor'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Good"
+      name="appearance"
+      value="good"
+      checked={formData.appearance === 'good'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Excellent"
+      name="appearance"
+      value="excellent"
+      checked={formData.appearance === 'excellent'}
+      onChange={handleChange}
+      inline
+    />
+  </Col>
+</Form.Group>
+
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    37. PERSONALITY
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Check 
+      type="radio"
+      label="Poor"
+      name="personality"
+      value="poor"
+      checked={formData.personality === 'poor'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Good"
+      name="personality"
+      value="good"
+      checked={formData.personality === 'good'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Excellent"
+      name="personality"
+      value="excellent"
+      checked={formData.personality === 'excellent'}
+      onChange={handleChange}
+      inline
+    />
+  </Col>
+</Form.Group>
+
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    38. CONFIDENCE
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Check 
+      type="radio"
+      label="Poor"
+      name="confidence"
+      value="poor"
+      checked={formData.confidence === 'poor'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Good"
+      name="confidence"
+      value="good"
+      checked={formData.confidence === 'good'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Excellent"
+      name="confidence"
+      value="excellent"
+      checked={formData.confidence === 'excellent'}
+      onChange={handleChange}
+      inline
+    />
+  </Col>
+</Form.Group>
+
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    39. COMMUNICATION SKILLS
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Check 
+      type="radio"
+      label="Poor"
+      name="communication_skills"
+      value="poor"
+      checked={formData.communication_skills === 'poor'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Good"
+      name="communication_skills"
+      value="good"
+      checked={formData.communication_skills === 'good'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Excellent"
+      name="communication_skills"
+      value="excellent"
+      checked={formData.communication_skills === 'excellent'}
+      onChange={handleChange}
+      inline
+    />
+  </Col>
+</Form.Group>
+
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    37. PITCH
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Check 
+      type="radio"
+      label="Poor"
+      name="pitch"
+      value="poor"
+      checked={formData.pitch === 'poor'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Good"
+      name="pitch"
+      value="good"
+      checked={formData.pitch === 'good'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Excellent"
+      name="pitch"
+      value="excellent"
+      checked={formData.pitch === 'excellent'}
+      onChange={handleChange}
+      inline
+    />
+  </Col>
+</Form.Group>
+
+<Form.Group as={Row} className="mb-3">
+  <Form.Label column sm={6} className="text-start">
+    40. OVERCOMING OBJECTIONS
+  </Form.Label>
+  <Col sm={6}>
+    <Form.Check 
+      type="radio"
+      label="Poor"
+      name="overcoming_objections"
+      value="poor"
+      checked={formData.overcoming_objections === 'poor'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Good"
+      name="overcoming_objections"
+      value="good"
+      checked={formData.overcoming_objections === 'good'}
+      onChange={handleChange}
+      inline
+    />
+    <Form.Check 
+      type="radio"
+      label="Excellent"
+      name="overcoming_objections"
+      value="excellent"
+      checked={formData.overcoming_objections === 'excellent'}
+      onChange={handleChange}
+      inline
+    />
+  </Col>
+</Form.Group>
 
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              34. PERSONALITY
-            </Form.Label>
-            <Col sm={6}>
-              <Stack spacing={1}>
-                <Rating
-                  name="personality"
-                  value={formData.personality}
-                  onChange={(event, newValue) => handleChange({ target: { name: 'personality', value: newValue } })}
-                  size="large"
-                />
-              </Stack>
-            </Col>
-          </Form.Group>
-
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              35. CONFIDENCE
-            </Form.Label>
-            <Col sm={6}>
-              <Stack spacing={1}>
-                <Rating
-                  name="confidence"
-                  value={formData.confidence}
-                  onChange={(event, newValue) => handleChange({ target: { name: 'confidence', value: newValue } })}
-                  size="large"
-                />
-              </Stack>
-            </Col>
-          </Form.Group>
-
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              36. COMMUNICATION SKILLS
-            </Form.Label>
-            <Col sm={6}>
-              <Stack spacing={1}>
-                <Rating
-                  name="communication_skills"
-                  value={formData.communication_skills}
-                  onChange={(event, newValue) => handleChange({ target: { name: 'communication_skills', value: newValue } })}
-                  size="large"
-                />
-              </Stack>
-            </Col>
-          </Form.Group>
-
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              37. PITCH
-            </Form.Label>
-            <Col sm={6}>
-              <Stack spacing={1}>
-                <Rating
-                  name="pitch"
-                  value={formData.pitch}
-                  onChange={(event, newValue) => handleChange({ target: { name: 'pitch', value: newValue } })}
-                  size="large"
-                />
-              </Stack>
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              38. OVERCOMING OBJECTIONS
-            </Form.Label>
-            <Col sm={6}>
-            <Stack spacing={1}>
-              <Rating
-                name="overcoming_objections"
-                value={formData.overcoming_objections} // assuming value is stored in formData
-                onChange={(event, newValue) => handleChange({ target: { name: "overcoming_objections", value: newValue } })}
-                size="large" // you can also use 'small' or 'large' based on your preference
-                />
-              </Stack>
-            </Col>
-          </Form.Group>
-
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              39. NEGOTIATION
+              41. NEGOTIATION
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -977,7 +1146,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              40. WHAT ARE THE STRENGTHS OF THE APPLICANT
+              42. WHAT ARE THE STRENGTHS OF THE APPLICANT
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -993,7 +1162,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              41. WHAT ARE THE WEAKNESSES OF THE APPLICANT
+              43. WHAT ARE THE WEAKNESSES OF THE APPLICANT
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -1025,7 +1194,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group> */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              42. HOW LONG OF A CONTRACT CAN THE APPLICANT SIGN IF GIVEN JOB
+              44. HOW LONG OF A CONTRACT CAN THE APPLICANT SIGN IF GIVEN JOB
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -1040,7 +1209,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              43. PLEASE WRITE A SUMMARY RECOMMENDATION/EVALUATION
+              45. PLEASE WRITE A SUMMARY RECOMMENDATION/EVALUATION
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -1056,7 +1225,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              44. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
+              46. WOULD YOU RECOMMEND THE APPLICANT FOR HIRING?
             </Form.Label>
             <Col sm={6} className="text-start">
               <Form.Check
@@ -1126,43 +1295,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail }) => {
               />
             </Col>
           </Form.Group> */}
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              45. WHAT CITY IS HE IN?
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                placeholder="Enter city"
-                name="current_city"
-                value={formData.current_city}
-                onChange={handleChange}
-                isInvalid={!!errors.current_city}
-              />
-
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              46. PLEASE SELECT THE COUNTRY
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="select"
-                name="current_country"
-                value={formData.current_country}
-                onChange={handleChange}
-                isInvalid={!!errors.current_country}
-              >
-                <option value={formData.current_country}>{!formData.current_country ? 'Select a country' : formData.current_country}</option>
-                <option value="USA">USA</option>
-                <option value="Canada">Canada</option>
-                <option value="UK">UK</option>
-                <option value="India">India</option>
-              </Form.Control>
-
-            </Col>
-          </Form.Group>
+        
           <Form.Group as={Row} className="mb-3">
             <Col sm={{ span: 6, offset: 6 }}>
               <Button type="submit" onClick={handleSubmit}>Submit Details</Button>

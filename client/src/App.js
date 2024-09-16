@@ -45,7 +45,8 @@ function App() {
 function AppComponent() {
   const token = localStorage.getItem('token');
   const [applicant_uuidProps, setApplicant_uuid] = useState("");
-  const [ applicantEmail, setApplicantEmail] = useState("")
+  const [ applicantEmail, setApplicantEmail] = useState("");
+  const [ applicantPhone, setApplicantPhone] = useState("")
   console.log(applicant_uuidProps, "applicantid--->")
 
   let role = null;
@@ -116,8 +117,8 @@ function AppComponent() {
             )}
             {role === 'interviewer' && (
               <>
-                <Route path="/interviewhome" element={<InterviewHome setApplicant_uuid={setApplicant_uuid} setApplicantEmail={setApplicantEmail} />} />
-                <Route path="/interview" element={<ApplicantForm applicant_uuidProps={applicant_uuidProps} applicantEmail={applicantEmail} />} />
+                <Route path="/interviewhome" element={<InterviewHome setApplicant_uuid={setApplicant_uuid} setApplicantEmail={setApplicantEmail}  setApplicantPhone={setApplicantPhone} />} />
+                <Route path="/interview" element={<ApplicantForm applicant_uuidProps={applicant_uuidProps} applicantEmail={applicantEmail}   applicantPhone={applicantPhone} />} />
                 <Route path="/new" element={<New />} />
                 <Route path="/interviewerdashboard" element={<InterviewerDashboard />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />

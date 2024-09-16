@@ -5,7 +5,7 @@ import axios from 'axios';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import { format } from 'date-fns';
 
-function InterViewHome({setApplicant_uuid,setApplicantEmail}) {
+function InterViewHome({setApplicant_uuid,setApplicantEmail,setApplicantPhone}) {
   const apiurl = process.env.REACT_APP_API;
   const navigate = useNavigate();
   const userData = decodeToken();
@@ -58,6 +58,7 @@ const handleInterviewClick=(profile)=>{
   console.log(profile)
  setApplicant_uuid(profile.applicant_uuid);
  setApplicantEmail(profile.email)
+ setApplicantPhone(profile.phone)
  console.log("profile.email",profile.email)
  navigate('/interview')
 }
