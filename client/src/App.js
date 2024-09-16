@@ -13,7 +13,7 @@ import Register from './Adminpages/Register';
 import New from './Screnningpages/New';
 import Listprofile from './Screnningpages/Screening';
 import Profile from './pages/Profile';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode }from 'jwt-decode'; // Fixed the import
 import Hrinterview from './HrRound/Hrinterview';
 import ApplicantForm from './InterviewRound/interviewForm';
 import HrNew from './HrRound/HrNew';
@@ -24,14 +24,15 @@ import CenteredTabs from './Screnningpages/Tabs';
 import HrTabs from './HrRound/HrTabs';
 import Interviewedprofiles from './Screnningpages/InterviewedProfiles';
 import TrainerRes from './HrRound/TrainerRes';
-import AdminDetailedView from "./Adminpages/AdminDetailedView"
+import AdminDetailedView from "./Adminpages/AdminDetailedView";
 import { MyProvider } from './pages/MyContext';
-import InterviewerDashboard from "./InterviewRound/interviewerDashboard"
+import InterviewerDashboard from "./InterviewRound/interviewerDashboard";
 import { ToastContainer } from 'react-toastify';
 import MarketJobOpenings from './Markets/markets';
 import Markethome from './Markets/markethome';
 import Individual_performance from './Adminpages/Work';
 import UpdatePassword from './pages/UpdatePassword';
+
 function App() {
   return (
     <Router>
@@ -45,9 +46,8 @@ function App() {
 function AppComponent() {
   const token = localStorage.getItem('token');
   const [applicant_uuidProps, setApplicant_uuid] = useState("");
-  const [ applicantEmail, setApplicantEmail] = useState("");
-  const [ applicantPhone, setApplicantPhone] = useState("")
-  console.log(applicant_uuidProps, "applicantid--->")
+  const [applicantEmail, setApplicantEmail] = useState("");
+  const [applicantPhone, setApplicantPhone] = useState("");
 
   let role = null;
 
@@ -90,20 +90,18 @@ function AppComponent() {
               <>
                 <Route path="/hrhome" element={<HrHome />} />
                 <Route path="/hrinterview" element={<Hrinterview />} />
-                {/* <Route path="/hrnew" element={<HrNew/>} /> */}
                 <Route path="/updatepassword" element={<UpdatePassword />} />
-                <Route path="/hrnew" element={<HrNew />}></Route>
+                <Route path="/hrnew" element={<HrNew />} />
                 <Route path="/hrtabs" element={<HrTabs />} />
-                <Route path="/TrainerRes" element={<TrainerRes />}></Route>
-
+                <Route path="/TrainerRes" element={<TrainerRes />} />
               </>
             )}
-            {role === 'trainer' &&
-              (
-                <><Route path="/trainerhome" element={<TrainerHome />} />
-                  <Route path="/updatepassword" element={<UpdatePassword />} />
-                </>
-              )}
+            {role === 'trainer' && (
+              <>
+                <Route path="/trainerhome" element={<TrainerHome />} />
+                <Route path="/updatepassword" element={<UpdatePassword />} />
+              </>
+            )}
             {role === 'screening_manager' && (
               <>
                 <Route path="/screeinghome" element={<ScreeningHome />} />
@@ -117,8 +115,8 @@ function AppComponent() {
             )}
             {role === 'interviewer' && (
               <>
-                <Route path="/interviewhome" element={<InterviewHome setApplicant_uuid={setApplicant_uuid} setApplicantEmail={setApplicantEmail}  setApplicantPhone={setApplicantPhone} />} />
-                <Route path="/interview" element={<ApplicantForm applicant_uuidProps={applicant_uuidProps} applicantEmail={applicantEmail}   applicantPhone={applicantPhone} />} />
+                <Route path="/interviewhome" element={<InterviewHome setApplicant_uuid={setApplicant_uuid} setApplicantEmail={setApplicantEmail} setApplicantPhone={setApplicantPhone} />} />
+                <Route path="/interview" element={<ApplicantForm applicant_uuidProps={applicant_uuidProps} applicantEmail={applicantEmail} applicantPhone={applicantPhone} />} />
                 <Route path="/new" element={<New />} />
                 <Route path="/interviewerdashboard" element={<InterviewerDashboard />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
@@ -126,10 +124,8 @@ function AppComponent() {
             )}
             {role === 'market_manager' && (
               <>
-
                 <Route path="/markethome" element={<Markethome />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
-
               </>
             )}
             <Route path="/" element={<Public />} />
@@ -137,7 +133,7 @@ function AppComponent() {
         )}
         <Route path="*" element={<Navigate to={'/'} />} />
       </Routes>
-
+    
     </div>
   );
 }

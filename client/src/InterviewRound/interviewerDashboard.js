@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, Container, Row, Col, Modal, Button, Table, Form } from 'react-bootstrap';
 import decodeToken from '../decodedDetails';
 import getStatusCounts from '../pages/getStatusCounts'; // Ensure this path is correct
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Make sure this is imported
 
 function InterviewerDashboard() {
     const [profiles, setProfiles] = useState([]);
@@ -26,18 +28,23 @@ function InterviewerDashboard() {
     }, []);
 
     // Static statuses with colors
-    const filteredStatuses = [
-        { status: "no show at Interview", bgColor: "#FF5733" }, // Orange
-        { status: "selected at Interview", bgColor: "#28A745" }, // Green
-        { status: "rejected at Interview", bgColor: "#DC3545" }, // Red
-        { status: "put on hold at Interview", bgColor: "#6C757D" }, // Gray
-        { status: "Moved to HR", bgColor: "#007BFF" }, // Blue
-        { status: "need second opinion at Interview", bgColor: "#FFCC00" } // Yellow
-    ];
-
-    // Calculate Total Count
-    const TotalCount = stats.reduce((total, stat) => total + stat.count, 0);
-
+   // Assuming stats is an array of objects with properties { status, count }
+const filteredStatuses = [
+    { status: "no show at Interview", bgColor: "#FF5733" }, // Orange
+    { status: "selected at Interview", bgColor: "#28A745" }, // Green
+    { status: "rejected at Interview", bgColor: "#DC3545" }, // Red
+    { status: "put on hold at Interview", bgColor: "#6C757D" }, // Gray
+    { status: "Moved to HR", bgColor: "#007BFF" }, // Blue
+    { status: "need second opinion at Interview", bgColor: "#FFCC00" } // Yellow
+  ];
+  
+  // Filter the stats based on statuses in filteredStatuses
+  const TotalCount = stats
+    .filter(stat => filteredStatuses.some(fStatus => fStatus.status === stat.status)) // Filter only matching statuses
+    .reduce((total, stat) => total + stat.count, 0); // Sum the count for matching statuses
+  
+  console.log("TotalCount>>>>>>>>>", TotalCount);
+  
     useEffect(() => {
         if (searchQuery) {
             const filtered = profiles.filter(profile =>
@@ -163,6 +170,7 @@ function InterviewerDashboard() {
                     <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
+            <ToastContainer />
         </Container>
     );
 }

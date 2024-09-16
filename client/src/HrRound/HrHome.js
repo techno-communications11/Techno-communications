@@ -35,10 +35,11 @@ function HrHome() {
     { status: "no show at Hr", bgColor: '#f8d7da' }
   ];
 
-  let TotalCount = 0;
-  stats.filter(stat => filteredStatuses.find(filteredStat => filteredStat.status === stat.status))
-    .map(stat => TotalCount += stat.count);
-  console.log(TotalCount);
+  const TotalCount = stats
+  .filter(stat => filteredStatuses.some(fStatus => fStatus.status === stat.status)) // Filter only matching statuses
+  .reduce((total, stat) => total + stat.count, 0); // Sum the count for matching statuses
+
+console.log("TotalCount>>>>>>>>>", TotalCount);
 
   return (
     <div>

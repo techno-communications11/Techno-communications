@@ -121,6 +121,7 @@ export default function InterviewedProfiles() {
 
             // Check if the response status is 200 and data is an array with at least one element
             if (response.status === 200 && Array.isArray(response.data) && response.data.length > 0) {
+                console.log(response.data[0])
                 setFirstRound(response.data[0]);
                 setRow(response.data[0]);
                 setShowMoreModel(true);
@@ -366,7 +367,7 @@ export default function InterviewedProfiles() {
             );
         }
 
-        if (['no Response at Screening', 'no show at Interview'].includes(selectedProfile.status)) {
+        if (['no show at Screening', 'no show at Interview'].includes(selectedProfile.status)) {
             return (
                 <div>
                     {!showCalendlyModal ? (
@@ -465,7 +466,7 @@ export default function InterviewedProfiles() {
         switch (category) {
             case 'Screening':
                 return ['pending at Screening',
-                    'no Response at Screening',
+                    'no show at Screening',
                     'rejected at Screening',
                     'Not Interested at screening',];
             case 'Interview':
@@ -501,7 +502,13 @@ export default function InterviewedProfiles() {
         setFilteredProfiles(filtered);
     };
 
-
+    // Function to format the key
+    function formatKey(key) {
+        return key
+            .split('_') // Split the string by underscores
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+            .join(' '); // Join them back with spaces
+    }
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <div>
@@ -603,7 +610,7 @@ export default function InterviewedProfiles() {
 
                 <Modal backdrop='static' show={showModal && selectedProfile && [
                     'no show at Hr',
-                    'no Response at Screening',
+                    'no show at Screening',
                     'no show at Interview',
                     'need second opinion at Interview',
                     'put on hold at Interview',
@@ -621,7 +628,7 @@ export default function InterviewedProfiles() {
                         </Modal.Footer>
                     )} */}
                 </Modal>
-                <Modal show={showMoreModel} onHide={handleCloseModal} size='xl'>
+                <Modal show={showMoreModel} onHide={handleCloseModal} size='xl' style={{ height: '90vh' }} className='mt-2'>
                     <Modal.Header closeButton>
                         <Modal.Title>
                             Interview results of applicant_uuid:  {row?.applicant_uuid || 'Unknown Applicant'}
@@ -634,7 +641,7 @@ export default function InterviewedProfiles() {
                                 <Accordion defaultActiveKey="0" className="mt-4">
                                     {Object.entries(firstRound).slice(0, Math.ceil(Object.entries(firstRound).length / 3)).map(([key, value], index) => (
                                         <Accordion.Item eventKey={index.toString()} key={index}>
-                                            <Accordion.Header>{key}</Accordion.Header>
+                                            <Accordion.Header>{formatKey(key)}</Accordion.Header>
                                             <Accordion.Body>
                                                 {value ? value.toString() : 'No data available'}
                                             </Accordion.Body>
@@ -646,7 +653,7 @@ export default function InterviewedProfiles() {
                                 <Accordion defaultActiveKey="0" className="mt-4">
                                     {Object.entries(firstRound).slice(Math.ceil(Object.entries(firstRound).length / 3), 2 * Math.ceil(Object.entries(firstRound).length / 3)).map(([key, value], index) => (
                                         <Accordion.Item eventKey={(index + Math.ceil(Object.entries(firstRound).length / 3)).toString()} key={index + Math.ceil(Object.entries(firstRound).length / 3)}>
-                                            <Accordion.Header>{key}</Accordion.Header>
+                                            <Accordion.Header>{formatKey(key)}</Accordion.Header>
                                             <Accordion.Body>
                                                 {value ? value.toString() : 'No data available'}
                                             </Accordion.Body>
@@ -658,7 +665,7 @@ export default function InterviewedProfiles() {
                                 <Accordion defaultActiveKey="0" className="mt-4">
                                     {Object.entries(firstRound).slice(2 * Math.ceil(Object.entries(firstRound).length / 3)).map(([key, value], index) => (
                                         <Accordion.Item eventKey={(index + 2 * Math.ceil(Object.entries(firstRound).length / 3)).toString()} key={index + 2 * Math.ceil(Object.entries(firstRound).length / 3)}>
-                                            <Accordion.Header>{key}</Accordion.Header>
+                                            <Accordion.Header>{formatKey(key)}</Accordion.Header>
                                             <Accordion.Body>
                                                 {value ? value.toString() : 'No data available'}
                                             </Accordion.Body>

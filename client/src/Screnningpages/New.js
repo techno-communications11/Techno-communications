@@ -448,7 +448,7 @@ function New() {
                       color="warning"
                       onClick={() => handleAction(selectedProfile.applicant_uuid, 'no show at Screening')}
                     >
-                      No Response
+                      No Show
                     </Button>
                     <Button
                       variant="contained"

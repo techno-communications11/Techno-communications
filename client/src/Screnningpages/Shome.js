@@ -37,10 +37,11 @@ function ScreeningHome() {
     { status: 'moved to Interview', color: '#5cb85c' },
   ];
 
-  let TotalCount = 0;
-  stats.filter(stat => filteredStatuses.find(filteredStat => filteredStat.status === stat.status))
-    .map(stat => TotalCount += stat.count);
-  console.log(TotalCount);
+  const TotalCount = stats
+    .filter(stat => filteredStatuses.some(fStatus => fStatus.status === stat.status)) // Filter only matching statuses
+    .reduce((total, stat) => total + stat.count, 0); // Sum the count for matching statuses
+
+  console.log("TotalCount>>>>>>>>>", TotalCount);
   useEffect(() => {
     if (searchQuery) {
       const filtered = profiles.filter(profile =>
@@ -96,7 +97,7 @@ function ScreeningHome() {
           <Card className="shadow-sm h-100" style={{ backgroundColor: '#0275d8', cursor: 'pointer', color: 'white' }}>
             <Card.Body className="d-flex flex-column justify-content-center">
               <Card.Title className="fw-bold" style={{ fontSize: '2rem' }}>
-              {TotalCount}
+                {TotalCount}
               </Card.Title>
               <Card.Text className='fs-6 fw-bold'>
                 Total
@@ -113,7 +114,7 @@ function ScreeningHome() {
               <Card
                 className="shadow-sm h-100"
                 style={{ backgroundColor: color, cursor: 'pointer', color: 'white' }}
-                // onClick={() => handleShow(status)}
+              // onClick={() => handleShow(status)}
               >
                 <Card.Body className="d-flex flex-column justify-content-center">
                   <Card.Title className="fw-bold" style={{ fontSize: '2rem' }}>
