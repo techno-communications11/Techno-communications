@@ -8,7 +8,7 @@ import axios from 'axios';
 import Rating from '@mui/material/Rating';
 import Stack from '@mui/material/Stack';
 
-const ApplicantForm = ({ applicant_uuidProps, applicantEmail ,applicantPhone}) => {
+const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) => {
   const navigate = useNavigate();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -99,7 +99,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail ,applicantPhone}) =
     fields.forEach(field => {
       const value = formData[field];
 
-      if (value === undefined || value === null ) {
+      if (value === undefined || value === null) {
         errors[field] = `${field.replace(/_/g, ' ')} is required.`;
       }
     });
@@ -137,12 +137,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail ,applicantPhone}) =
     setErrors(validationErrors);
 
     // if (Object.keys(validationErrors).length > 0) {
-     
+
     //   toast.error("All fields must be filled");
     //   // Don't submit the form if there are validation errors
     //   return;
     // }
-    
+
 
     try {
 
@@ -158,7 +158,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail ,applicantPhone}) =
           naviagte('/interviewhome')
           // Reload the page after the toast disappears
         }, 1800);
-  
+
       }
 
     } catch (error) {
@@ -166,7 +166,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail ,applicantPhone}) =
       toast.error("Failed submit response.");
     } finally {
       // setShowToast(false);
-      
+
     }
   };
   const noshowatinterview = async (applicant_uuid) => {
@@ -339,7 +339,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail ,applicantPhone}) =
 
             </Col>
           </Form.Group>
-        
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               8.PLEASE ENTER THE HOME COUNTRY
@@ -919,231 +919,250 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail ,applicantPhone}) =
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
-  <Form.Label column sm={6} className="text-start">
-    36. APPEARANCE & DEMEANOR
-  </Form.Label>
-  <Col sm={6}>
-    <Form.Check 
-      type="radio"
-      label="Poor"
-      name="appearance"
-      value="poor"
-      checked={formData.appearance === 'poor'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Good"
-      name="appearance"
-      value="good"
-      checked={formData.appearance === 'good'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Excellent"
-      name="appearance"
-      value="excellent"
-      checked={formData.appearance === 'excellent'}
-      onChange={handleChange}
-      inline
-    />
-  </Col>
-</Form.Group>
+            <Form.Label column sm={6} className="text-start">
+              36. APPEARANCE & DEMEANOR
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Check
+                type="radio"
+                label="Poor"
+                name="appearance"
+                value="poor"
+                checked={formData.appearance === 'poor'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Good"
+                name="appearance"
+                value="good"
+                checked={formData.appearance === 'good'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Excellent"
+                name="appearance"
+                value="excellent"
+                checked={formData.appearance === 'excellent'}
+                onChange={handleChange}
+                inline
+              />
+            </Col>
+          </Form.Group>
 
-<Form.Group as={Row} className="mb-3">
-  <Form.Label column sm={6} className="text-start">
-    37. PERSONALITY
-  </Form.Label>
-  <Col sm={6}>
-    <Form.Check 
-      type="radio"
-      label="Poor"
-      name="personality"
-      value="poor"
-      checked={formData.personality === 'poor'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Good"
-      name="personality"
-      value="good"
-      checked={formData.personality === 'good'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Excellent"
-      name="personality"
-      value="excellent"
-      checked={formData.personality === 'excellent'}
-      onChange={handleChange}
-      inline
-    />
-  </Col>
-</Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              37. PERSONALITY
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Check
+                type="radio"
+                label="Poor"
+                name="personality"
+                value="poor"
+                checked={formData.personality === 'poor'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Good"
+                name="personality"
+                value="good"
+                checked={formData.personality === 'good'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Excellent"
+                name="personality"
+                value="excellent"
+                checked={formData.personality === 'excellent'}
+                onChange={handleChange}
+                inline
+              />
+            </Col>
+          </Form.Group>
 
-<Form.Group as={Row} className="mb-3">
-  <Form.Label column sm={6} className="text-start">
-    38. CONFIDENCE
-  </Form.Label>
-  <Col sm={6}>
-    <Form.Check 
-      type="radio"
-      label="Poor"
-      name="confidence"
-      value="poor"
-      checked={formData.confidence === 'poor'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Good"
-      name="confidence"
-      value="good"
-      checked={formData.confidence === 'good'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Excellent"
-      name="confidence"
-      value="excellent"
-      checked={formData.confidence === 'excellent'}
-      onChange={handleChange}
-      inline
-    />
-  </Col>
-</Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              38. CONFIDENCE
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Check
+                type="radio"
+                label="Poor"
+                name="confidence"
+                value="poor"
+                checked={formData.confidence === 'poor'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Good"
+                name="confidence"
+                value="good"
+                checked={formData.confidence === 'good'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Excellent"
+                name="confidence"
+                value="excellent"
+                checked={formData.confidence === 'excellent'}
+                onChange={handleChange}
+                inline
+              />
+            </Col>
+          </Form.Group>
 
-<Form.Group as={Row} className="mb-3">
-  <Form.Label column sm={6} className="text-start">
-    39. COMMUNICATION SKILLS
-  </Form.Label>
-  <Col sm={6}>
-    <Form.Check 
-      type="radio"
-      label="Poor"
-      name="communication_skills"
-      value="poor"
-      checked={formData.communication_skills === 'poor'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Good"
-      name="communication_skills"
-      value="good"
-      checked={formData.communication_skills === 'good'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Excellent"
-      name="communication_skills"
-      value="excellent"
-      checked={formData.communication_skills === 'excellent'}
-      onChange={handleChange}
-      inline
-    />
-  </Col>
-</Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              39. COMMUNICATION SKILLS
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Check
+                type="radio"
+                label="Poor"
+                name="communication_skills"
+                value="poor"
+                checked={formData.communication_skills === 'poor'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Good"
+                name="communication_skills"
+                value="good"
+                checked={formData.communication_skills === 'good'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Excellent"
+                name="communication_skills"
+                value="excellent"
+                checked={formData.communication_skills === 'excellent'}
+                onChange={handleChange}
+                inline
+              />
+            </Col>
+          </Form.Group>
 
-<Form.Group as={Row} className="mb-3">
-  <Form.Label column sm={6} className="text-start">
-    37. PITCH
-  </Form.Label>
-  <Col sm={6}>
-    <Form.Check 
-      type="radio"
-      label="Poor"
-      name="pitch"
-      value="poor"
-      checked={formData.pitch === 'poor'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Good"
-      name="pitch"
-      value="good"
-      checked={formData.pitch === 'good'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Excellent"
-      name="pitch"
-      value="excellent"
-      checked={formData.pitch === 'excellent'}
-      onChange={handleChange}
-      inline
-    />
-  </Col>
-</Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              37. PITCH
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Check
+                type="radio"
+                label="Poor"
+                name="pitch"
+                value="poor"
+                checked={formData.pitch === 'poor'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Good"
+                name="pitch"
+                value="good"
+                checked={formData.pitch === 'good'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Excellent"
+                name="pitch"
+                value="excellent"
+                checked={formData.pitch === 'excellent'}
+                onChange={handleChange}
+                inline
+              />
+            </Col>
+          </Form.Group>
 
-<Form.Group as={Row} className="mb-3">
-  <Form.Label column sm={6} className="text-start">
-    40. OVERCOMING OBJECTIONS
-  </Form.Label>
-  <Col sm={6}>
-    <Form.Check 
-      type="radio"
-      label="Poor"
-      name="overcoming_objections"
-      value="poor"
-      checked={formData.overcoming_objections === 'poor'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Good"
-      name="overcoming_objections"
-      value="good"
-      checked={formData.overcoming_objections === 'good'}
-      onChange={handleChange}
-      inline
-    />
-    <Form.Check 
-      type="radio"
-      label="Excellent"
-      name="overcoming_objections"
-      value="excellent"
-      checked={formData.overcoming_objections === 'excellent'}
-      onChange={handleChange}
-      inline
-    />
-  </Col>
-</Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              40. OVERCOMING OBJECTIONS
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Check
+                type="radio"
+                label="Poor"
+                name="overcoming_objections"
+                value="poor"
+                checked={formData.overcoming_objections === 'poor'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Good"
+                name="overcoming_objections"
+                value="good"
+                checked={formData.overcoming_objections === 'good'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Excellent"
+                name="overcoming_objections"
+                value="excellent"
+                checked={formData.overcoming_objections === 'excellent'}
+                onChange={handleChange}
+                inline
+              />
+            </Col>
+          </Form.Group>
 
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               41. NEGOTIATION
             </Form.Label>
             <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter comments"
+              <Form.Check
+                type="radio"
+                label="Poor"
                 name="negotiations"
-                value={formData.negotiations}
+                value="poor"
+                checked={formData.negotiations === 'poor'}
                 onChange={handleChange}
-                isInvalid={!!errors.negotiations}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Good"
+                name="negotiations"
+                value="good"
+                checked={formData.negotiations === 'good'}
+                onChange={handleChange}
+                inline
+              />
+              <Form.Check
+                type="radio"
+                label="Excellent"
+                name="negotiations"
+                value="excellent"
+                checked={formData.negotiations === 'excellent'}
+                onChange={handleChange}
+                inline
               />
             </Col>
           </Form.Group>
+
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               42. WHAT ARE THE STRENGTHS OF THE APPLICANT
@@ -1295,7 +1314,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail ,applicantPhone}) =
               />
             </Col>
           </Form.Group> */}
-        
+
           <Form.Group as={Row} className="mb-3">
             <Col sm={{ span: 6, offset: 6 }}>
               <Button type="submit" onClick={handleSubmit}>Submit Details</Button>

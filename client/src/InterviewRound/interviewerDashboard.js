@@ -117,7 +117,7 @@ const filteredStatuses = [
                                     }}>
                                         {stat.count}
                                     </Card.Title>
-                                    <Card.Text className='fs-6 fw-bold'>{status}</Card.Text>
+                                    <Card.Text className='fs-6 fw-bold' style={{ textTransform: 'capitalize' }}>{status}</Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
