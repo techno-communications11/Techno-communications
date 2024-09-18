@@ -177,23 +177,26 @@ export default function InterviewedProfiles() {
         setShowDateModel(false);
         setSelectedHost("");
     };
-
     const handleSelectHost = async (eventKey) => {
         const selectedhr = hrs.find(hr => hr.name === eventKey);
         const selectedInterviewer = interviewers.find(interviewer => interviewer.name === eventKey);
-
+    
         // Check if either HR or Interviewer is selected and has an email before proceeding
         if (selectedhr || selectedInterviewer) {
             const selectedHost = selectedhr || selectedInterviewer;
-            const calendlyUsername = selectedHost.email?.trim().split(/[@.]/).join('-').slice(0, -4);
-
-            if (selectedHost) {
-                setSelectedHost(selectedHost);
+    
+            let calendlyUsername = '';
+            if (selectedHost.email) {
+                calendlyUsername = selectedHost.email.trim().split(/[@.]/).join('-').slice(0, -4);
+                // Special case handling for a specific email
+                if (selectedHost.email === "sultan@texasmobilepcs.com") {
+                    calendlyUsername = "sultan-sph2";
+                }
             }
-
-            // Only proceed with Calendly URL if the host has an email
+    
             if (calendlyUsername) {
                 const calendlyUrl = `https://calendly.com/${calendlyUsername}`;
+                setSelectedHost(selectedHost);
                 setShowCalendlyModal(true);
                 setCalendlyUrl(calendlyUrl);
             } else {
@@ -203,7 +206,7 @@ export default function InterviewedProfiles() {
             console.error('No HR or interviewer selected.');
         }
     };
-
+    
 
 
 

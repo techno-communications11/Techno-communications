@@ -82,7 +82,7 @@ function ScreeningHome() {
   };
 
   return (
-    <Container style={{ minHeight: "80vh" }}>
+    <Container style={{ minHeight: "80vh" }}> 
       <div className='d-flex my-4'>
         <h2 className="text-start fw-bolder">{`Screening Dashboard`}</h2>
         <h2 className='ms-auto fw-bolder'>{userData.name}</h2>

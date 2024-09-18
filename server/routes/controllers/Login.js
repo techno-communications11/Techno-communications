@@ -10,7 +10,7 @@ const login = async (req, res) => {
 
     try {
         // Fetch the user from the database
-        const [rows] = await db.query('SELECT id, password, role, name FROM users WHERE email = ?', [email]);
+        const [rows] = await db.query('SELECT id, password, role,work_location_id, name FROM users WHERE email = ?', [email]);
         const user = rows[0]; // Get the first row from the result
         console.log("userrrrrrrrrr", user)
         // If the user does not exist or the password is incorrect

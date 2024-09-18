@@ -13,7 +13,7 @@ import Register from './Adminpages/Register';
 import New from './Screnningpages/New';
 import Listprofile from './Screnningpages/Screening';
 import Profile from './pages/Profile';
-import {jwtDecode }from 'jwt-decode'; // Fixed the import
+import { jwtDecode } from 'jwt-decode'; // Fixed the import
 import Hrinterview from './HrRound/Hrinterview';
 import ApplicantForm from './InterviewRound/interviewForm';
 import HrNew from './HrRound/HrNew';
@@ -32,6 +32,8 @@ import MarketJobOpenings from './Markets/markets';
 import Markethome from './Markets/markethome';
 import Individual_performance from './Adminpages/Work';
 import UpdatePassword from './pages/UpdatePassword';
+import { selectClasses } from '@mui/material';
+import SelectedAtHr from './Adminpages/SelectedAtHr';
 
 function App() {
   return (
@@ -80,6 +82,7 @@ function AppComponent() {
             {role === 'admin' && (
               <>
                 <Route path="/work" element={<Individual_performance />} />
+                <Route path="/selectedathr" element={<SelectedAtHr />} />
                 <Route path="/adminhome" element={<AdminHome />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
                 <Route path="/admindetailedview" element={<AdminDetailedView />} />
@@ -133,7 +136,7 @@ function AppComponent() {
         )}
         <Route path="*" element={<Navigate to={'/'} />} />
       </Routes>
-    
+
     </div>
   );
 }

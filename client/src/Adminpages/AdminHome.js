@@ -119,6 +119,9 @@ function AdminHome() {
                         <Button variant="contained" color="primary" component={Link} to="/work">
                             Individual Progress
                         </Button>
+                        <Button variant="contained" color="primary" component={Link} to="/selectedathr">
+                            selected At Hr
+                        </Button>
                     </Box>
                 </Grid>
             </Grid>
