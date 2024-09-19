@@ -16,5 +16,5 @@ docker exec ${CONTAINER_NAME} mysqldump -u root -proot ${DB_NAME} > ${BACKUP_FIL
 # Optionally, compress the backup file
 gzip ${BACKUP_FILE}
 
-# Remove backups older than 7 days
-find ${BACKUP_DIR} -type f -name "*.sql.gz" -mtime +7 -exec rm {} \;
+# Remove backups older than 3 hours (180 minutes)
+find ${BACKUP_DIR} -type f -name "*.sql.gz" -mmin +180 -exec rm {} \;
