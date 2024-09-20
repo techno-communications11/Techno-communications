@@ -120,7 +120,7 @@ function AdminHome() {
                             Individual Progress
                         </Button>
                         <Button variant="contained" color="primary" component={Link} to="/selectedathr">
-                            selected At Hr
+                            NTID CREATION
                         </Button>
                     </Box>
                 </Grid>

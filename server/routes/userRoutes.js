@@ -18,9 +18,14 @@ const { updatePassword } = require("./controllers/updatepass")
 const { trackingWork } = require("./controllers/tracking")
 const { getAllUsers } = require("./controllers/getroles")
 const {createUser} = require("./controllers/createUser")
+const {createNtid,getSelectedAtHr} = require ("./controllers/ntids")
 
 module.exports = (io) => {
 
+ // Route to get all selected applicants at HR stage
+router.get('/applicants/selected-at-hr', getSelectedAtHr);   
+//Route to Create ntids
+router.post('/ntids', createNtid)
 //Route to Create User
 router.post('/createuser', createUser)
 //Route to assignApplicantToUser

@@ -2,7 +2,7 @@
 
 # Configuration
 CONTAINER_NAME="mysqldb"
-DB_NAME="test_db"
+DB_NAME="hiring-portal"
 BACKUP_DIR="/database_backups"  # Adjust this if the backup directory path is different
 TIMESTAMP=$(date +"%F_%H-%M-%S")
 BACKUP_FILE="${BACKUP_DIR}/${DB_NAME}_${TIMESTAMP}.sql"
