@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import decodeToken from '../decodedDetails';
+import { Spinner, Row } from 'react-bootstrap';
+
 import { Container, Grid, Typography, Button, Modal, Table, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import DetailCards from './DetailCards';
 import CanvasJSReact from '@canvasjs/react-charts';
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
+
 
 function AdminHome() {
     const user = decodeToken();
@@ -13,8 +17,9 @@ function AdminHome() {
     const [showModal, setShowModal] = useState(false);
     const [modalData, setModalData] = useState([]);
     const [currentStatus, setCurrentStatus] = useState('');
-
+    const [loading, setLoading] = useState(false);
     const fetchProfileStats = async () => {
+        setLoading(true); // Start loading
         try {
             const response = await axios.get(`${apiurl}/status`);
             const data = response.data;
@@ -33,6 +38,8 @@ function AdminHome() {
             });
         } catch (error) {
             console.error('Error fetching profile stats:', error);
+        } finally {
+            setLoading(false); // Stop loading
         }
     };
 
@@ -51,6 +58,19 @@ function AdminHome() {
         fetchProfileStats();
     }, []);
 
+    const statuses = [
+
+        'moved to Interview',
+        'no show at Interview',
+        'rejected at Interview',
+        'selected at Interview',
+        'need second opinion at Interview',
+        'no show at Hr',
+        'selected at Hr',
+        'rejected at Hr',
+
+        'Moved to HR',
+    ];
     const pendingTotal =
         (profileStats["Applicant will think about It"] || 0) +
         (profileStats["Sent for Evaluation"] || 0) +
@@ -105,68 +125,46 @@ function AdminHome() {
     };
 
     return (
-        <Container>
-            <Grid container spacing={3} sx={{ mt: 3 }}>
-                <Grid item xs={12} sm={12} container alignItems="center">
+        <Row>
+            <Container>
+                <Grid container spacing={3} sx={{ mt: 3 }}>
+                    {/* <Grid item xs={12} sm={12} container alignItems="center">
                     <Typography variant="h4">Summary Admin Dashboard</Typography>
                     <Typography variant="h6" sx={{ ml: 'auto' }}>{user.name}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={12}>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Button variant="contained" color="primary" component={Link} to="/admindetailedview">
-                            Detailed View
-                        </Button>
-                        <Button variant="contained" color="primary" component={Link} to="/work">
-                            Individual Progress
-                        </Button>
-                        <Button variant="contained" color="primary" component={Link} to="/selectedathr">
-                            NTID CREATION
-                        </Button>
-                    </Box>
-                </Grid>
-            </Grid>
-            <Grid container spacing={3} sx={{ mt: 4 }}>
-                {/* Cards Section */}
-                <Grid item xs={12} md={6}>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6} md={6}>
-                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }}>
-                            {/* onClick={() => fetchDetailsByStatus('Total')} */}
-                                <Typography variant="h6">Total</Typography>
-                                <Typography variant="h4">{status.Total}</Typography>
-                            </Box>
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={6}>
-                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} >
-                            {/* onClick={() => fetchDetailsByStatus('Rejected')} */}
-                                <Typography variant="h6">Rejected</Typography>
-                                <Typography variant="h4">{status.Rejected}</Typography>
-                            </Box>
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={6}>
-                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} >
-                            {/* onClick={() => fetchDetailsByStatus('Pending')} */}
-                                <Typography variant="h6">Pending</Typography>
-                                <Typography variant="h4">{status.Pending}</Typography>
-                            </Box>
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={6}>
-                            <Box sx={{ p: 4, border: '1px solid #ddd', borderRadius: 2, boxShadow: 2, cursor: 'pointer' }} >
-                            {/* onClick={() => fetchDetailsByStatus('Selected')} */}
-                                <Typography variant="h6">Selected</Typography>
-                                <Typography variant="h4">{status.Selected}</Typography>
-                            </Box>
-                        </Grid>
+                </Grid> */}
+                    <Grid item xs={12} sm={12}>
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                            {/* <Button variant="contained" color="primary" component={Link} to="/admindetailedview"> */}
+                            <Button variant="contained" color="primary" component={Link} to="/detail">
+                                {/* <Button variant="contained" color="primary" component={Link} to="/admindetailedview"> */}
+                                Detailed View
+                            </Button>
+                            <Button variant="contained" color="primary" component={Link} to="/work">
+                                Individual Progress
+                            </Button>
+                            <Button variant="contained" color="primary" component={Link} to="/selectedathr">
+                                HIRED APPLICANTS
+                            </Button>
+                        </Box>
                     </Grid>
                 </Grid>
-
-                {/* Pie Chart Section */}
-                <Grid item xs={12} md={6} container alignItems="center" justifyContent="center">
-                    <div style={{ width: '100%', height: '400px' }}>
-                        <CanvasJSChart options={chartOptions} />
+            </Container>
+            <Grid container  >
+                {loading ? (
+                    // Show the spinner when loading
+                    <div className="d-flex justify-content-center align-centealign-items-center">
+                        <Spinner animation="border" variant="primary" />
                     </div>
-                </Grid>
+                ) : (
+                    <>
+                        < Grid  > <DetailCards /></Grid>
+
+                        {/* Pie Chart Section */}
+
+                    </>
+                )}
             </Grid>
+
 
 
             {/* Modal for displaying detailed data */}
@@ -210,7 +208,7 @@ function AdminHome() {
                     </Button>
                 </Box>
             </Modal>
-        </Container>
+        </Row>
     );
 }
 

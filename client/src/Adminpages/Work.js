@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Typography, MenuItem, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Card, CardContent, } from '@mui/material';
+import { Container, Grid, Typography, MenuItem, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import axios from 'axios';
 import { LocalizationProvider } from '@mui/x-date-pickers-pro/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import dayjs from 'dayjs';
-
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 function IndividualPerformance() {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [users, setUsers] = useState([]);
@@ -15,7 +15,6 @@ function IndividualPerformance() {
   const [dateRange, setDateRange] = useState([null, null]); // Start date and end date
   const apiurl = process.env.REACT_APP_API;
 
-  // Fetch user list for the dropdown (assuming this is available from the backend)
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -30,7 +29,6 @@ function IndividualPerformance() {
     fetchUsers();
   }, [apiurl]);
 
-  // Handle form submission to fetch performance data
   const handleFilter = async () => {
     try {
       const startDate = dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : '';
@@ -47,6 +45,7 @@ function IndividualPerformance() {
   };
 
   return (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
     <Container>
       <Typography variant="h4" gutterBottom className='m-4' style={{ color: "GrayText" }}>
         Individual Performance
@@ -108,35 +107,33 @@ function IndividualPerformance() {
         Total Results: {count}
       </Typography>
 
-      {/* Display Data */}
+      {/* Display Data in Table */}
       {performanceData.length > 0 ? (
-        <Grid container spacing={2}>
-          {performanceData.map((item, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Card variant="outlined">
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Applicant UUID:
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {item.applicant_uuid}
-                  </Typography>
-                  <Typography variant="h6" gutterBottom>
-                    Referral Status:
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {item.referral_status}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold',color:"green" }}>Applicant UUID</TableCell>
+                <TableCell style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold',color:"#f1720d" }}>Referral Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {performanceData.map((item, index) => (
+                <TableRow key={index} style={{ backgroundColor: index % 2 ? '#f9f9f9' : '#ffffff' }}>
+                  <TableCell>{item.applicant_uuid}</TableCell>
+                  <TableCell>{item.referral_status}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       ) : (
         <Typography>No data available for the selected filters.</Typography>
       )}
     </Container>
+    </LocalizationProvider>
   );
 }
 
 export default IndividualPerformance;
+

@@ -34,6 +34,8 @@ import Individual_performance from './Adminpages/Work';
 import UpdatePassword from './pages/UpdatePassword';
 import { selectClasses } from '@mui/material';
 import SelectedAtHr from './Adminpages/SelectedAtHr';
+import DetailedView from './Adminpages/DetailedView'
+import DetailCards from './Adminpages/DetailCards';
 
 function App() {
   return (
@@ -82,6 +84,8 @@ function AppComponent() {
             {role === 'admin' && (
               <>
                 <Route path="/work" element={<Individual_performance />} />
+                <Route path="/detailacrds" element={<DetailCards />} />
+                <Route path="/detail" element={<DetailedView />} />
                 <Route path="/selectedathr" element={<SelectedAtHr />} />
                 <Route path="/adminhome" element={<AdminHome />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Avatar, Typography, Box, TextField, IconButton, Card } from '@mui/material';
+import { Row, Col, Form } from 'react-bootstrap';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox,
+  Avatar, Typography, Box, TextField, IconButton, Card, MenuItem, Select, FormControl, InputLabel
+} from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -13,34 +17,58 @@ function SelectedAtHr() {
   const apiurl = process.env.REACT_APP_API;
 
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [clickedIndexes, setClickedIndexes] = useState(new Set());
 
-  // Fetch data from the API when the component mounts
+  // Filters
+  const [marketFilter, setMarketFilter] = useState('');
+  const [joiningDateFilter, setJoiningDateFilter] = useState([null, null]);
+
   useEffect(() => {
+    // Fetch applicants data on component mount
     const fetchApplicantsData = async () => {
       try {
-        const response = await axios.get(`${apiurl}/applicants/selected-at-hr`); // API call
+        const response = await axios.get(`${apiurl}/applicants/selected-at-hr`);
         if (response.status === 200) {
-          setData(response.data.data); // Set the fetched data
-          console.log(">><<<<<<<<<<<<", response.data.data)
+          setData(response.data.data);
+          setFilteredData(response.data.data);
         } else {
           toast.error('Error fetching applicants data');
         }
       } catch (error) {
         console.error('Error fetching applicants:', error);
-        // toast.error('Error fetching applicants data: ' + error.message);
+        toast.error('Error fetching applicants');
       }
     };
 
     fetchApplicantsData();
   }, []);
 
+  useEffect(() => {
+    let updatedData = [...data];
+
+    // Filter by Market Hiring For
+    if (marketFilter) {
+      updatedData = updatedData.filter(row => row.MarketHiringFor === marketFilter);
+    }
+
+    // Filter by Date of Joining Range
+    const [startDate, endDate] = joiningDateFilter;
+    if (startDate && endDate) {
+      updatedData = updatedData.filter(row => {
+        const joiningDate = new Date(row.DateOfJoining);
+        return joiningDate >= startDate && joiningDate <= endDate;
+      });
+    }
+
+    setFilteredData(updatedData);
+  }, [marketFilter, joiningDateFilter, data]);
+
   const handleInputChange = (index, field, value) => {
     const updatedData = [...data];
     updatedData[index][field] = value;
     setData(updatedData);
   };
-
 
   const isValidRow = (row) => {
     return row.ntidCreated && row.ntidCreatedDate && row.ntid && row.addedToSchedule;
@@ -52,7 +80,7 @@ function SelectedAtHr() {
     if (newClickedIndexes.has(index)) {
       newClickedIndexes.delete(index);
     } else {
-      const rowData = data[index];
+      const rowData = filteredData[index];
 
       if (isValidRow(rowData)) {
         newClickedIndexes.add(index);
@@ -64,29 +92,25 @@ function SelectedAtHr() {
           ntid,
           addedToSchedule,
           markAsAssigned: true,
-          applicant_uuid // Include the applicant_uuid in the payload
+          applicant_uuid
         };
 
         try {
           const response = await axios.post(`${apiurl}/ntids`, dataToSend);
-          console.log("dataToSend<<>>>", dataToSend)
           if (response.status === 201) {
-            toast.success("NTID entry created successfully!");
+            toast.success('NTID entry created successfully!');
             setClickedIndexes(newClickedIndexes);
             setTimeout(() => {
               window.location.reload();
-            }, 1800); // You can adjust the delay (1000 ms = 1 second)
+            }, 1800);
             return response.data;
-
           }
-
         } catch (error) {
-          console.error("API error:", error);
-          toast.error("Error creating NTID entry: " + error.message);
-          throw error; // Optional, depending on error handling preference
+          console.error('API error:', error);
+          toast.error('Error creating NTID entry: ' + error.message);
         }
       } else {
-        toast.error("Please fill all required fields before submitting!");
+        toast.error('Please fill all required fields before submitting!');
       }
     }
 
@@ -95,34 +119,73 @@ function SelectedAtHr() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      {data.length === 0 ? (
+      {/* Filters */}
+      <Box display="flex" justifyContent="space-around" mb={3} className="mt-4">
+        <Form.Group variant="outlined" size="small" style={{ minWidth: 220 }}>
+          {/* <InputLabel>Market Hiring For</InputLabel> */}
+          <Form.Select
+            value={marketFilter}
+            onChange={(e) => setMarketFilter(e.target.value)}
+
+            style={{
+              borderRadius: '20px',
+              padding: '10px',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+              borderColor: '#007bff',
+              color: '#007bff',
+              fontWeight: 'bold',
+            }}
+          >
+            <option value="">All Markets</option>
+            {data
+              .map(row => row.MarketHiringFor)
+              .filter((value, index, self) => value !== "" && self.indexOf(value) === index)
+              .map((market, idx) => (
+
+                <option key={idx} value={market}>
+
+                  {market !== "" && market}
+                </option>
+              ))}
+          </Form.Select>
+        </Form.Group>
+
+        <DateRangePicker
+          startText="Start Date"
+          endText="End Date"
+          value={joiningDateFilter}
+          onChange={(newValue) => setJoiningDateFilter(newValue)}
+          renderInput={(startProps, endProps) => (
+            <>
+              <TextField {...startProps} fullWidth variant="outlined" sx={{ marginRight: 2 }} />
+              <TextField {...endProps} fullWidth variant="outlined" />
+            </>
+          )}
+        />
+      </Box>
+
+      {/* Table */}
+      {filteredData.length === 0 ? (
         <Card
           style={{
             padding: '50px',
-            marginTop: "20px",
-            justifyContent: "center",
+            marginTop: '20px',
+            justifyContent: 'center',
             textAlign: 'center',
-            width: "60%",
-            margin: '0 auto', // centers the card horizontally
-            backgroundColor: '#f5f5f5', // light background color
-            border: '1px solid #e0e0e0', // subtle border
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // shadow for depth
-            borderRadius: '8px' // rounded corners
+            width: '60%',
+            margin: '0 auto',
+            backgroundColor: '#f5f5f5',
+            border: '1px solid #e0e0e0',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+            borderRadius: '8px'
           }}
         >
-          <Typography
-            variant="h6"
-            style={{
-              color: '#3f51b5', // primary color for the text
-              fontWeight: 'bold'
-            }}
-          >
+          <Typography variant="h6" style={{ color: '#3f51b5', fontWeight: 'bold' }}>
             No applications to Create NTID Right Now
           </Typography>
         </Card>
-
       ) : (
-        <TableContainer component={Paper} style={{ width: '100%' }}>
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -138,11 +201,11 @@ function SelectedAtHr() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((row, index) => (
+              {filteredData.map((row, index) => (
                 <TableRow key={index} style={{ backgroundColor: index % 2 === 0 ? '#f0f0f0' : '#ffffff' }}>
                   <TableCell>
                     <Box display="flex" alignItems="center">
-                      <Avatar alt={row.fullName} sx={{ backgroundColor: row.avatarColor || '#3f51b5' }} />
+                      <Avatar alt={row.name} sx={{ backgroundColor: row.avatarColor || '#3f51b5' }} />
                       <Box ml={2}>
                         <Typography variant="body1" style={{ fontWeight: 'bold' }}>{row.name}</Typography>
                         <Typography variant="body2" color="textSecondary">{row.email}</Typography>
@@ -152,7 +215,7 @@ function SelectedAtHr() {
                     </Box>
                   </TableCell>
                   <TableCell>{row.MarketHiringFor}</TableCell>
-                  <TableCell>{row.TrainingAt || "N/A"}</TableCell>
+                  <TableCell>{row.TrainingAt || 'N/A'}</TableCell>
                   <TableCell>
                     {
                       (() => {
@@ -171,12 +234,11 @@ function SelectedAtHr() {
 
                               {daysLeft > 0 ? `${daysLeft} days left` : 'Joining date passed'}
                             </Typography>
-                          </Box>  
+                          </Box>
                         );
                       })()
                     }
                   </TableCell>
-
                   <TableCell>
                     <Checkbox
                       checked={row.ntidCreated}
@@ -184,29 +246,22 @@ function SelectedAtHr() {
                     />
                   </TableCell>
                   <TableCell>
-                    {row.ntidCreated ? (
-                      <DesktopDatePicker
-                        value={row.ntidCreatedDate}
-                        onChange={(date) => handleInputChange(index, 'ntidCreatedDate', date)}
-                        renderInput={(params) => <TextField {...params} />}
-                      />
-                    ) : (
-                      <TextField
-                        value={row.ntidCreatedDate}
-                        onChange={(e) => handleInputChange(index, 'ntidCreatedDate', e.target.value)}
-                        placeholder="NTID Created Date"
-                        variant="outlined"
-                        size="small"
-                      />
-                    )}
+                    <TextField
+                      type="date"
+                      value={row.ntidCreatedDate || ''}
+                      onChange={(e) => handleInputChange(index, 'ntidCreatedDate', e.target.value)}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                    />
                   </TableCell>
                   <TableCell>
                     <TextField
-                      value={row.ntid}
+                      value={row.ntid || ''}
                       onChange={(e) => handleInputChange(index, 'ntid', e.target.value)}
-                      placeholder="NTID"
                       variant="outlined"
                       size="small"
+                      fullWidth
                     />
                   </TableCell>
                   <TableCell>
@@ -216,11 +271,8 @@ function SelectedAtHr() {
                     />
                   </TableCell>
                   <TableCell>
-                    <IconButton
-                      onClick={() => handleIconClick(index)}
-                      style={{ color: clickedIndexes.has(index) ? 'green' : 'gray' }}
-                    >
-                      <CheckCircleIcon />
+                    <IconButton onClick={() => handleIconClick(index)} disabled={clickedIndexes.has(index)}>
+                      <CheckCircleIcon style={{ color: clickedIndexes.has(index) ? '#76c7c0' : '#3f51b5' }} />
                     </IconButton>
                   </TableCell>
                 </TableRow>
@@ -232,7 +284,6 @@ function SelectedAtHr() {
       <ToastContainer />
     </LocalizationProvider>
   );
-
 }
 
 export default SelectedAtHr;

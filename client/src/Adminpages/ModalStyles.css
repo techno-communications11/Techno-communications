@@ -1,0 +1,28 @@
+/* ModalStyles.css */
+
+.table thead th {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white;
+  }
+  
+  .table tbody tr:nth-child(odd) {
+    background-color: #f8f9fa; /* Light gray for odd rows */
+  }
+  
+  .table tbody tr:nth-child(even) {
+    background-color: #ffffff; /* White for even rows */
+  }
+  
+  .table tbody tr:hover {
+    background-color: #e9ecef; /* Light gray for hover effect */
+  }
+  
+  .table th, .table td {
+    vertical-align: middle; /* Aligns content vertically in the center */
+  }
+  
+  /* Optional: Add some padding for cells */
+  .table td {
+    padding: 15px;
+  }
+  

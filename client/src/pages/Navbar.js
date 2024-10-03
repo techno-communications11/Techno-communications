@@ -105,11 +105,7 @@ function AppNavbar() {
                   List Profile
                 </Nav.Link>
               )}
-              {role === 'admin' && (
-                <Nav.Link as={Link} to="/register" className='fw-bolder nav-link-custom'>
-                  Register
-                </Nav.Link>
-              )}
+            
               {role !== "trainer" && role !== 'market_manager' &&
                 <Nav.Link
                   as={Link}
@@ -124,6 +120,11 @@ function AppNavbar() {
                   Dashboard
                 </Nav.Link>
               }
+                {role === 'admin' && (
+                <Nav.Link as={Link} to="/register" className='fw-bolder nav-link-custom'>
+                  Register
+                </Nav.Link>
+              )}
 
               {(role !== 'admin' && role !== 'trainer' && role !== 'market_manager') && (
                 <Nav.Link

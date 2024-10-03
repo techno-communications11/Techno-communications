@@ -9,7 +9,7 @@ const { createApplicantReferral, updatemail } = require('./controllers/applicant
 const { getmarkets } = require('./controllers/Markets');
 const { addFirstRoundEvaluation, getHREvaluationById } = require('./controllers/interviewevaluation');
 const { addHREvaluation } = require('./controllers/hrevaluationController');
-const { getStatusCounts, statusupdate } = require('./controllers/status')
+const { getStatusCounts,getStatusCountss, statusupdate,getStatusCountsByLocation ,getStatusDetailCounts,getStatusCountsByWorkLocation} = require('./controllers/status')
 const assigningapplications = require('./controllers/assignapplicants');
 const { getApplicantDetailsByMobile } = require('./controllers/statusbypfone')
 const { downloadApplicantsData } = require('./controllers/downloadApplicantsData')
@@ -75,6 +75,14 @@ router.post('/assignapplicanttoUser', assignApplicantToUser)
     router.post('/login', login);
     //route for status
     router.get('/status', getStatusCounts)
+    //route for status
+    router.get('/statuss', getStatusCountss)
+      //route for status
+      router.get('/statuslocation', getStatusCountsByWorkLocation)
+    //route for detailstatus
+    router.get('/Detailstatus', getStatusDetailCounts)
+     //route for getStatusCountsByLocation
+     router.get('/getStatusCountsByLocation/:location_id', getStatusCountsByLocation)
 
     // upadting staus at each level
     router.post('/updatestatus', statusupdate)

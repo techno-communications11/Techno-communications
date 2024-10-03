@@ -81,6 +81,18 @@ const addHREvaluation = async (req, res) => {
         );
 
         console.log("Applicant referral updated successfully. Update result:", updateResult);
+        // Check if recommend_hiring is "selected at Hr" and update hrinterview table if true
+        if (recommend_hiring === "selected at Hr") {
+            const hrInterviewValues = [recommend_hiring, applicantId];
+            const [hrUpdateResult] = await db.query(
+                `UPDATE hrinterview
+                 SET status = ?
+                 WHERE applicant_uuid = ?`,
+                hrInterviewValues
+            );
+
+            console.log("HR interview updated successfully. Update result:", hrUpdateResult);
+        }
 
         // Send a success response
         res.status(200).json({ message: 'Evaluation added and referral updated successfully', result, updateResult });

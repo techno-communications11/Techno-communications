@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, Row, Col, Modal, Table, Container } from 'react-bootstrap';
-import CanvasJSReact from '@canvasjs/react-charts';
-import { jwtDecode } from 'jwt-decode';
-import './AdminHome.css'; // Import custom CSS file
+import { Card, Row, Col, Modal, Table, Container,Spinner } from 'react-bootstrap';
+import { jwtDecode } from 'jwt-decode';  // Fix import for jwtDecode
+import AdminFilters from './AdminFilters';
+import AdminStatusCards from './AdminStatusCards';
 import Button from '@mui/material/Button';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-
 import { toast, ToastContainer } from 'react-toastify';
-
+import CanvasJSReact from '@canvasjs/react-charts';
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 function AdminDetailedView() {
   const [profileStats, setProfileStats] = useState([]);
+  const [selectedLocationId, setSelectedLocationId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [profiles, setProfiles] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [statusRes, setStatusRes] = useState([]);
   const [showPieModal, setShowPieModal] = useState(false);
   const token = localStorage.getItem('token');
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [statusCounts, setStatusCounts] = useState([]);
+  const [loading, setLoading] = useState(false);
   let name = null;
   const apiurl = process.env.REACT_APP_API;
 
@@ -29,8 +34,9 @@ function AdminDetailedView() {
       console.error('Token decoding failed', error);
     }
   }
-
+  // ${apiurl}/getStatusCountsByLocation/11
   const fetchProfileStats = async () => {
+    setLoading(true); // Start loading
     try {
       const response = await axios.get(`${apiurl}/status`);
       const data = response.data;
@@ -48,6 +54,8 @@ function AdminDetailedView() {
       });
     } catch (error) {
       console.error('Error fetching profile stats:', error);
+    }finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -55,12 +63,15 @@ function AdminDetailedView() {
     fetchProfileStats();
   }, []);
 
-
+  const handleMarketChange = (selectedId) => {
+    // setSelectedMarket(selectedId);
+    setSelectedLocationId(selectedId);
+    console.log(selectedId); // Make sure this is defined and accessible3
+  };
 
   const handleCardClick = async (type) => {
     setModalTitle(type);
     setShowModal(true);
-
     try {
       // Fetch profiles logic here...
     } catch (error) {
@@ -84,14 +95,12 @@ function AdminDetailedView() {
       });
 
       const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'applicant_data.xlsx';
       document.body.appendChild(a);
       a.click();
-
       a.remove();
       window.URL.revokeObjectURL(url);
 
@@ -100,7 +109,7 @@ function AdminDetailedView() {
       console.error("Error downloading data:", err);
       toast.error("Failed to download data.");
     }
-  }
+  };
 
   const chartOptions = {
     animationEnabled: true,
@@ -126,50 +135,7 @@ function AdminDetailedView() {
 
   return (
     <Container className="mt-3">
-      <div className='d-flex'>
-        <h2 className="text-start mb-4" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>{`Detailed Admin Dashboard`}</h2>
-        <h2 className='ms-auto'>{name}</h2>
-      </div>
-      <div md={6} className='text-start'>
-        <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={DownloadApplicantData} style={{ color: "green", margin: '2px', alignSelf: "end", outlineStyle: "none !important" }}>
-          Download Applicants Data
-        </Button>
-        <Button variant="outlined" onClick={handleClickPieButton} style={{ margin: '2px' }}>
-          Pie Chart view
-        </Button>
-      </div>
-      <Row className="mb-4 mt-2">
-        <Col xs={12} md={12} lg={12}>
-          <Row>
-            {Object.entries(profileStats).map(([status, count]) => (
-              <Col key={status} xs={12} md={2} className="mb-3 d-flex align-items-stretch rounded" style={{ cursor: 'pointer' }}>
-                {/* onClick={() => handleCardClick(status)}  */}
-                <Card.Body className="text-center card-style p-4 w-100 d-flex flex-column justify-content-center">
-                  <Card.Text
-                    style={{
-                      fontSize: '1rem',
-                      fontFamily: 'Roboto, sans-serif',
-                      fontWeight: 700,
-                    }}
-                  >
-                    {count}
-                  </Card.Text>
-                  <Card.Title
-                    style={{
-                      fontFamily: 'Roboto, sans-serif',
-                      fontWeight: 400,
-                      fontSize: '1rem',
-                      textTransform: 'capitalize',
-                    }}
-                  >
-                    {status !== "" ? status : "New"}
-                  </Card.Title>
-                </Card.Body>
-              </Col>
-            ))}
-          </Row>
-        </Col>
-      </Row>
+      
 
       <Modal show={showPieModal} onHide={handleCloseModal} size="xl">
         <Modal.Header closeButton>
@@ -182,50 +148,32 @@ function AdminDetailedView() {
         </Modal.Body>
       </Modal>
 
-      <Modal show={showModal} onHide={handleCloseModal} size="xl" className="custom-modal-width mt-5">
-        <Modal.Header closeButton>
-          <Modal.Title>{modalTitle} Profiles</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Market</th>
-                <th>Refer By</th>
-                <th>Referred ID</th>
-
-                <th>Created At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {profiles.map((profile) => (
-                <tr key={profile.id}>
-                  <td>{profile.id}</td>
-                  <td>{profile.name}</td>
-                  <td>{profile.email}</td>
-                  <td>{profile.phone}</td>
-                  <td>{profile.market}</td>
-                  <td>{profile.referBy}</td>
-                  <td>{profile.referedId}</td>
-                  <td>{profile.comments}</td>
-                  <td>{profile.status}</td>
-                  <td>{profile.createdAt}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      
       <ToastContainer />
+      <AdminFilters
+        setStatusCounts={setStatusCounts}
+        handleMarketChange={handleMarketChange}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        DownloadApplicantData={DownloadApplicantData}
+        handleClickPieButton={handleClickPieButton}
+        setSelectedLocationId={setSelectedLocationId}
+      />
+
+      <AdminStatusCards
+        handleCardClick={handleCardClick}
+        showModal={showModal}
+        statusCounts={statusCounts}
+        modalTitle={modalTitle}
+        profiles={profiles}  // Your original profiles array
+        handleCloseModal={handleCloseModal}
+        chartOptions={chartOptions}
+        showPieModal={showPieModal}
+        total={total}
+        selectedLocationId={selectedLocationId}
+        dateRange={dateRange} // New prop for selected location ID
+      />
+
     </Container>
   );
 }
