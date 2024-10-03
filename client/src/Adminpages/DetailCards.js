@@ -320,7 +320,7 @@ const DetailCards = () => {
                                 ))
                             ) : (
                                 <div style={{ textAlign: 'center', width: '100%', paddingTop: '50px' }}>
-                                    <h4>No Records Found</h4>
+                                    <h4>Select one or more markets to view detailed information</h4>
                                 </div>
                             )}
                         </Row>
@@ -332,7 +332,7 @@ const DetailCards = () => {
                             </div>
                         ) : (
                             <div style={{ textAlign: 'center', paddingTop: '50px' }}>
-                                <h4>No Records Found for Chart</h4>
+                                <h4>No Records Found </h4>
                             </div>
                         )}
                     </Col>
