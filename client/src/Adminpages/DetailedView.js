@@ -12,8 +12,9 @@ import Select from 'react-select'; // Import react-select
 const DetailedView = () => {
     const [selectedMarkets, setSelectedMarkets] = useState([]); // Change to handle multiple markets
     const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedUsers, setSelectedUsers] = useState([]); // Updated to store multiple users
+
     const [selectedStatus, setSelectedStatus] = useState('');
-    const [selectedUser, setSelectedUser] = useState('');
     const [dateRange, setDateRange] = useState([null, null]);
     const [selectedProfiles, setSelectedProfiles] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -70,7 +71,7 @@ const DetailedView = () => {
 
     useEffect(() => {
         fetchProfiles();
-    }, [selectedMarkets, selectedCategory, selectedStatus, selectedUser, dateRange]);
+    }, [selectedMarkets, selectedCategory, selectedStatus, selectedUsers, dateRange]);
 
     const fetchProfiles = async () => {
         setLoading(true);
@@ -80,7 +81,7 @@ const DetailedView = () => {
                 market: selectedMarkets.map((m) => m.value), // Handle multiple markets
                 category: selectedCategory,
                 status: selectedStatus,
-                user: selectedUser,
+                users: selectedUsers.map((u) => u.value), // Handle multiple users
                 startDate: dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : null,
                 endDate: dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : null,
             };
@@ -91,7 +92,7 @@ const DetailedView = () => {
                 console.log("details", details);
                 setSelectedProfiles(details || []);
                 setIsFilterApplied(
-                    selectedMarkets.length > 0 || selectedCategory || selectedStatus || selectedUser || (dateRange[0] && dateRange[1])
+                    selectedMarkets.length > 0 || selectedCategory || selectedStatus || selectedUsers || (dateRange[0] && dateRange[1])
                 );
             } else {
                 console.error('Error fetching profiles:', response);
@@ -111,10 +112,20 @@ const DetailedView = () => {
         setSelectedCategory(e.target.value);
     };
 
-    const handleUserChange = (value) => {
-        SetcardShow(true)
-        setSelectedUser(value);
+
+    const handleUserChange = (selectedOptions) => {
+        console.log("selectedOptions.length", selectedOptions.length);
+
+        if (selectedOptions.length < 1) {
+            SetcardShow(false); // Hide the card if no user is selected
+        } else {
+            SetcardShow(true);  // Show the card when one or more users are selected
+        }
+
+        setSelectedUsers(selectedOptions); // Update state with multiple users
     };
+
+
 
     const handleFilterApply = (status) => {
         setSelectedStatus(status);
@@ -151,8 +162,10 @@ const DetailedView = () => {
                 ? selectedMarkets.some((market) => currentStatus.work_location_names[index] === market.value)
                 : true;
 
-            const inUser = selectedUser
-                ? [currentStatus.screening_manager_names[index], currentStatus.interviewer_names[index], currentStatus.hr_names[index]].includes(selectedUser)
+            const inUsers = selectedUsers.length > 0
+                ? selectedUsers.some((user) =>
+                    [currentStatus.screening_manager_names[index], currentStatus.interviewer_names[index], currentStatus.hr_names[index]].includes(user.value)
+                )
                 : true;
 
             const createdDate = dayjs(currentStatus.created_at_dates[index]);
@@ -162,7 +175,7 @@ const DetailedView = () => {
 
             const filteredByStatus = selectedStatus ? currentStatus.status === selectedStatus : true;
 
-            if (inMarket && inUser && inDateRange && filteredByStatus) {
+            if (inMarket && inUsers && inDateRange && filteredByStatus) {
                 filteredData.applicant_names.push(currentStatus.applicant_names[index]);
                 filteredData.created_at_dates.push(currentStatus.created_at_dates[index]);
                 filteredData.work_location_names.push(currentStatus.work_location_names[index]);
@@ -239,7 +252,7 @@ const DetailedView = () => {
     };
 
 
-    const userOptions = users.map((user) => ({ value: user, label: user }));
+    // const userOptions = users.map((user) => ({ value: user, label: user }));
 
     return (
         <Box p={3}>
@@ -298,21 +311,37 @@ const DetailedView = () => {
                         ))}
                     </Form.Select>
                 </Form.Group>
-                <Form.Group controlId="userSelector" style={{ flex: 1 }}>
+                <Form.Group controlId="userSelector" style={{ flex: 2 }}>
                     <Select
-                        value={userOptions.find(option => option.value === selectedUser)}
-                        onChange={(selectedOption) => handleUserChange(selectedOption ? selectedOption.value : '')}
-                        options={userOptions}
-                        placeholder="Search User"
+                        isMulti
+                        value={selectedUsers}
+                        options={users.map(user => ({ value: user, label: user }))} // Assuming 'users' is your user data
+                        onChange={handleUserChange}
+                        placeholder="Select One or More Users"
                         styles={{
-                            control: (base) => ({
-                                ...base,
-                                ...smallerFormStyles,
+                            control: (provided) => ({
+                                ...provided,
+                                padding: '8px',
+                                fontSize: '14px',
+                                borderRadius: '8px',
+                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                                borderColor: '#007bff',
+                            }),
+                            multiValue: (provided) => ({
+                                ...provided,
+                                backgroundColor: '#007bff',
+                                color: 'white',
+                                borderRadius: '4px',
+                                padding: '2px',
+                            }),
+                            multiValueLabel: (provided) => ({
+                                ...provided,
+                                color: 'white',
                             }),
                         }}
-                        isClearable
                     />
                 </Form.Group>
+
 
 
                 {/* Date Range Picker with reduced size */}
