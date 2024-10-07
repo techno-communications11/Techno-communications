@@ -17,6 +17,7 @@ const createNtid = async (req, res) => {
         const [result] = await db.query(
             `INSERT INTO ntids (applicant_uuid,ntid_created, ntid_created_date, ntid, added_to_schedule, mark_as_assigned) 
              VALUES (?, ?, ?, ?, ?,?)`,
+             //need create ntids table with above fields and update status main applicant referals table and hrinterview
             [applicant_uuid, ntidCreated, ntidCreatedDate, ntid, addedToSchedule, markAsAssigned]
         );
 

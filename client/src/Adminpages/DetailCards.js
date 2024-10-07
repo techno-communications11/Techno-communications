@@ -34,6 +34,7 @@ const DetailCards = () => {
         { id: 17, name: 'SAN FRANCISCO' },
         { id: 18, name: 'SAN JOSE' },
         { id: 19, name: 'SANTA ROSA' },
+        { id: 21, name: 'RELOCATION' },
     ];
 
     useEffect(() => {
@@ -230,11 +231,10 @@ const DetailCards = () => {
                         />
                     </LocalizationProvider>
                 </Col>
-                <Col md={2} className="d-flex align-items-center">
-                    {/* Pie Chart Button */}
+                {/* <Col md={2} className="d-flex align-items-center">
+                   
                     <Button
-                        variant="contained"
-                        startIcon={<PieChartIcon />} // Optional pie chart icon
+                        variant="contained"// Optional pie chart icon
                         onClick={handleClickPieButton}
                         sx={{
                             backgroundColor: '#007bff',
@@ -249,7 +249,7 @@ const DetailCards = () => {
                     >
                         Pie Chart
                     </Button>
-                </Col>
+                </Col> */}
 
                 <Row className="mt-1">
                     <Col md={2}>

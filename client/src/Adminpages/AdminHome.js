@@ -139,9 +139,9 @@ function AdminHome() {
                                 {/* <Button variant="contained" color="primary" component={Link} to="/admindetailedview"> */}
                                 Detailed View
                             </Button>
-                            <Button variant="contained" color="primary" component={Link} to="/work">
+                            {/* <Button variant="contained" color="primary" component={Link} to="/work">
                                 Individual Progress
-                            </Button>
+                            </Button> */}
                             <Button variant="contained" color="primary" component={Link} to="/selectedathr">
                                 HIRED APPLICANTS
                             </Button>

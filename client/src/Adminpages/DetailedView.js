@@ -2,22 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { LocalizationProvider, DateRangePicker } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { Form, Card, Col } from 'react-bootstrap';
+import { Form, Card, Col, Row } from 'react-bootstrap';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import Select from 'react-select'; // Import react-select
 
 const DetailedView = () => {
-    const [selectedMarket, setSelectedMarket] = useState('');
+    const [selectedMarkets, setSelectedMarkets] = useState([]); // Change to handle multiple markets
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedUser, setSelectedUser] = useState('');
     const [dateRange, setDateRange] = useState([null, null]);
     const [selectedProfiles, setSelectedProfiles] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [cardShow, SetcardShow] = useState(false);
     const [currentPage, setCurrentPage] = useState(1); // To track current page for pagination
-    const profilesPerPage = 6; // Number of profiles to show per page
+    const profilesPerPage = 5; // Number of profiles to show per page
+    // const [selectedUser, setSelectedUser] = useState('');
     const [isFilterApplied, setIsFilterApplied] = useState(false); // To check if filters are applied
 
     const locations = [
@@ -37,6 +40,7 @@ const DetailedView = () => {
         { id: 17, name: 'SAN FRANCISCO' },
         { id: 18, name: 'SAN JOSE' },
         { id: 19, name: 'SANTA ROSA' },
+        { id: 21, name: 'RELOCATION' },
     ];
 
     let users = [
@@ -66,14 +70,14 @@ const DetailedView = () => {
 
     useEffect(() => {
         fetchProfiles();
-    }, [selectedMarket, selectedCategory, selectedStatus, selectedUser, dateRange]);
+    }, [selectedMarkets, selectedCategory, selectedStatus, selectedUser, dateRange]);
 
     const fetchProfiles = async () => {
         setLoading(true);
         try {
             const url = `${process.env.REACT_APP_API}/Detailstatus`;
             const params = {
-                market: selectedMarket,
+                market: selectedMarkets.map((m) => m.value), // Handle multiple markets
                 category: selectedCategory,
                 status: selectedStatus,
                 user: selectedUser,
@@ -84,10 +88,10 @@ const DetailedView = () => {
 
             if (response.status === 200) {
                 const details = response.data.status_counts;
-                console.log("details", details)
+                console.log("details", details);
                 setSelectedProfiles(details || []);
                 setIsFilterApplied(
-                    selectedMarket || selectedCategory || selectedStatus || selectedUser || (dateRange[0] && dateRange[1])
+                    selectedMarkets.length > 0 || selectedCategory || selectedStatus || selectedUser || (dateRange[0] && dateRange[1])
                 );
             } else {
                 console.error('Error fetching profiles:', response);
@@ -99,16 +103,17 @@ const DetailedView = () => {
         }
     };
 
-    const handleLocationChange = (e) => {
-        setSelectedMarket(e.target.value);
+    const handleLocationChange = (selectedOptions) => {
+        setSelectedMarkets(selectedOptions); // Update state with multiple selections
     };
 
     const handleCategoryChange = (e) => {
         setSelectedCategory(e.target.value);
     };
 
-    const handleUserChange = (e) => {
-        setSelectedUser(e.target.value);
+    const handleUserChange = (value) => {
+        SetcardShow(true)
+        setSelectedUser(value);
     };
 
     const handleFilterApply = (status) => {
@@ -127,108 +132,164 @@ const DetailedView = () => {
                 return [];
         }
     };
+    const filteredProfiles = selectedProfiles.map((currentStatus) => {
+        // console.log("st...", currentStatus); // Log the current status object
 
-        // Filter selected profiles based on the selected filters and synchronize the attributes
-        const filteredProfiles = selectedProfiles.map((status) => {
-            const filteredData = {
-                applicant_names: [],
-                created_at_dates: [],
-                work_location_names: [],
-                screening_manager_names: [],
-                interviewer_names: [],
-                hr_names: [],
-                joining_dates: [],
-                status: status.status
-            };
+        const filteredData = {
+            applicant_names: [],
+            created_at_dates: [],
+            work_location_names: [],
+            screening_manager_names: [],
+            interviewer_names: [],
+            hr_names: [],
+            joining_dates: [],
+            status: currentStatus.status, // Store the original status here
+        };
 
-            status.applicant_names.forEach((_, index) => {
-                const inMarket = selectedMarket ? status.work_location_names[index] === selectedMarket : true;
-                const inUser = selectedUser
-                    ? [status.screening_manager_names[index], status.interviewer_names[index], status.hr_names[index]].includes(selectedUser)
-                    : true;
+        currentStatus.applicant_names.forEach((_, index) => {
+            const inMarket = selectedMarkets.length > 0
+                ? selectedMarkets.some((market) => currentStatus.work_location_names[index] === market.value)
+                : true;
 
-                const createdDate = dayjs(status.created_at_dates[index]);
-                const inDateRange = dateRange[0] && dateRange[1]
-                    ? createdDate.isAfter(dayjs(dateRange[0]).startOf('day')) && createdDate.isBefore(dayjs(dateRange[1]).endOf('day'))
-                    : true;
+            const inUser = selectedUser
+                ? [currentStatus.screening_manager_names[index], currentStatus.interviewer_names[index], currentStatus.hr_names[index]].includes(selectedUser)
+                : true;
 
-                const filteredByStatus = selectedStatus ? status.status === selectedStatus : true;
+            const createdDate = dayjs(currentStatus.created_at_dates[index]);
+            const inDateRange = dateRange[0] && dateRange[1]
+                ? createdDate.isAfter(dayjs(dateRange[0]).startOf('day')) && createdDate.isBefore(dayjs(dateRange[1]).endOf('day'))
+                : true;
 
-                // If all filters pass, add the item to the filtered data
-                if (inMarket && inUser && inDateRange && filteredByStatus) {
-                    filteredData.applicant_names.push(status.applicant_names[index]);
-                    filteredData.created_at_dates.push(status.created_at_dates[index]);
-                    filteredData.work_location_names.push(status.work_location_names[index]);
-                    filteredData.screening_manager_names.push(status.screening_manager_names[index]);
-                    filteredData.interviewer_names.push(status.interviewer_names[index]);
-                    filteredData.hr_names.push(status.hr_names[index]);
-                    filteredData.joining_dates.push(status.joining_dates[index]);
-                }
-            });
+            const filteredByStatus = selectedStatus ? currentStatus.status === selectedStatus : true;
 
-            return filteredData;
-        }).filter(data => data.applicant_names.length > 0);
-
-        // Flatten the filtered profiles into a single array for pagination
-        const flattenedProfiles = filteredProfiles.flatMap(status => {
-            console.log("@>?", status)
-            return status.applicant_names.map((name, index) => ({
-                applicant_name: name,
-                created_at_date: status.created_at_dates[index],
-                work_location_name: status.work_location_names[index],
-                screening_manager_name: status.screening_manager_names[index] || 'N/A',
-                interviewer_name: status.interviewer_names[index] || 'N/A',
-                hr_name: status.hr_names[index] || 'N/A',
-                status: status.status,
-                joining_date: status.joining_dates[index] && status.joining_dates[index] !== '0000-00-00'
-                    ? dayjs(status.joining_dates[index]).format('YYYY-MM-DD')
-                    : 'N/A'
-            }));
+            if (inMarket && inUser && inDateRange && filteredByStatus) {
+                filteredData.applicant_names.push(currentStatus.applicant_names[index]);
+                filteredData.created_at_dates.push(currentStatus.created_at_dates[index]);
+                filteredData.work_location_names.push(currentStatus.work_location_names[index]);
+                filteredData.screening_manager_names.push(currentStatus.screening_manager_names[index]);
+                filteredData.interviewer_names.push(currentStatus.interviewer_names[index]);
+                filteredData.hr_names.push(currentStatus.hr_names[index]);
+                filteredData.joining_dates.push(currentStatus.joining_dates[index]);
+            }
         });
 
-    // Pagination logic: Get current profiles based on currentPage
+        return filteredData; // Return the filtered data object
+    }).filter(data => data.applicant_names.length > 0); // Filter out empty results
+
+
+    // console.log("112", filteredProfiles)
+    const flattenedProfiles = filteredProfiles.flatMap(status => {
+        return status.applicant_names.map((name, index) => ({
+            applicant_name: name,
+            created_at_date: status.created_at_dates[index],
+            work_location_name: status.work_location_names[index],
+            screening_manager_name: status.screening_manager_names[index] || 'N/A',
+            interviewer_name: status.interviewer_names[index] || 'N/A',
+            hr_name: status.hr_names[index] || 'N/A',
+            status: status.status,
+            joining_date: status.joining_dates[index] && status.joining_dates[index] !== '0000-00-00'
+                ? dayjs(status.joining_dates[index]).format('YYYY-MM-DD')
+                : 'N/A'
+        }));
+    });
+    // console.log("flattenedProfiles", flattenedProfiles)
     const indexOfLastProfile = currentPage * profilesPerPage;
     const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
     const currentProfiles = flattenedProfiles.slice(indexOfFirstProfile, indexOfLastProfile);
 
-    // Calculate the total number of pages based on the total number of applicants
     const pageCount = Math.ceil(flattenedProfiles.length / profilesPerPage);
 
-    // Pagination Handler
     const handlePageChange = (event, value) => {
         setCurrentPage(value);
     };
 
-    let serialNumber = indexOfFirstProfile + 1; // Initialize serial number based on the page
+    let serialNumber = indexOfFirstProfile + 1;
+    const smallerFormStyles = {
+        borderRadius: '8px',
+        padding: '8px',
+        fontSize: '14px',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+        borderColor: '#007bff',
+    };
+    console.log("currentProfiles", currentProfiles)
+    const profileStats = flattenedProfiles.reduce((acc, profile) => {
+        acc[profile.status] = (acc[profile.status] || 0) + 1;
+        return acc;
+    }, {});
+
+    const pendingTotal = (profileStats["pending at Screening"] || 0) + (profileStats["moved to Interview"] || 0) + (profileStats["put on hold at Interview"] || 0) + (profileStats["selected at Interview"] || 0) + (profileStats["Sent for Evaluation"] || 0) + (profileStats["need second opinion at Interview"] || 0) + (profileStats["Applicant will think about It"] || 0) + (profileStats["Moved to HR"] || 0) + (profileStats["selected at Hr"] || 0);
+
+    const rejectedTotal = (profileStats["rejected at Screening"] || 0) + (profileStats["no show at Screening"] || 0) + (profileStats["Not Interested at screening"] || 0) + (profileStats["rejected at Interview"] || 0) + (profileStats["no show at Interview"] || 0) + (profileStats["no show at Hr"] || 0) + (profileStats["rejected at Hr"] || 0);
+
+    const firstRoundPendingTotal = (profileStats["pending at Screening"] || 0) + (profileStats["moved to Interview"] || 0) + (profileStats["put on hold at Interview"] || 0);
+
+    const hrRoundPendingTotal = (profileStats["selected at Interview"] || 0) + (profileStats["Sent for Evaluation"] || 0) + (profileStats["need second opinion at Interview"] || 0) + (profileStats["Applicant will think about It"] || 0) + (profileStats["Moved to HR"] || 0);
+
+    const pendingAtNITDSTotal = profileStats["selected at Hr"] || 0;
+    const ntidCreatedTotal = profileStats["NTID Created"] || 0;
+
+    const finalStatusCounts = {
+        // "Total": Object.values(profileStats).reduce((acc, val) => acc + val, 0),
+        "Rejected": rejectedTotal,
+        "Pending": pendingTotal,
+        "1st Round - Pending": firstRoundPendingTotal,
+        "HR Round - Pending": hrRoundPendingTotal,
+        "Pending at NTID": pendingAtNITDSTotal,
+        "NTID Created": ntidCreatedTotal,
+    };
+
+
+    const userOptions = users.map((user) => ({ value: user, label: user }));
 
     return (
         <Box p={3}>
             {/* Filter Controls */}
             <Box display="flex" gap={2} mb={3} sx={{ width: '100%', flexWrap: 'wrap' }}>
-                <Form.Group controlId="marketSelector" style={{ flex: 1 }}>
-                    <Form.Select value={selectedMarket} onChange={handleLocationChange} style={formStyles}>
-                        <option value="">All Markets</option>
-                        {locations.map((location) => (
-                            <option key={location.id} value={location.name}>
-                                {location.name}
-                            </option>
-                        ))}
-                    </Form.Select>
+                {/* Market Selector with extra space */}
+                <Form.Group controlId="marketSelector" style={{ flex: 2 }}> {/* Increased flex */}
+                    <Select
+                        isMulti
+                        value={selectedMarkets}
+                        options={locations.map(loc => ({ value: loc.name, label: loc.name }))}
+                        onChange={handleLocationChange}
+                        placeholder="Select One or More Markets"
+                        styles={{
+                            control: (provided) => ({
+                                ...provided,
+                                padding: '8px',
+                                fontSize: '14px',
+                                borderRadius: '8px',
+                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                                borderColor: '#007bff',
+                            }),
+                            multiValue: (provided) => ({
+                                ...provided,
+                                backgroundColor: '#007bff',
+                                color: 'white',
+                                borderRadius: '4px',
+                                padding: '2px',
+                            }),
+                            multiValueLabel: (provided) => ({
+                                ...provided,
+                                color: 'white',
+                            }),
+                        }}
+                    />
                 </Form.Group>
 
-                {/* Category Selector */}
+                {/* Category Selector with reduced size */}
                 <Form.Group controlId="categorySelector" style={{ flex: 1 }}>
-                    <Form.Select value={selectedCategory} onChange={handleCategoryChange} style={formStyles}>
-                        <option value="">SELECT CATEGORIES</option>
+                    <Form.Select value={selectedCategory} onChange={handleCategoryChange} style={smallerFormStyles}>
+                        <option value=""> CATEGORIES</option>
                         <option value="Screening">Screening</option>
                         <option value="Interview">Interview</option>
                         <option value="HR">HR</option>
                     </Form.Select>
                 </Form.Group>
 
-                {/* Status Selector */}
+                {/* Status Selector with reduced size */}
                 <Form.Group controlId="statusSelector" style={{ flex: 1 }}>
-                    <Form.Select value={selectedStatus} onChange={(e) => handleFilterApply(e.target.value)} style={formStyles}>
+                    <Form.Select value={selectedStatus} onChange={(e) => handleFilterApply(e.target.value)} style={smallerFormStyles}>
                         <option value="">SELECT STATUS</option>
                         {getStatusOptions(selectedCategory).map((status, index) => (
                             <option key={index} value={status}>
@@ -237,20 +298,24 @@ const DetailedView = () => {
                         ))}
                     </Form.Select>
                 </Form.Group>
-
-                {/* User Selector */}
                 <Form.Group controlId="userSelector" style={{ flex: 1 }}>
-                    <Form.Select value={selectedUser} onChange={handleUserChange} style={formStyles}>
-                        <option value="">All Users</option>
-                        {users.map((user, i) => (
-                            <option key={i} value={user}>
-                                {user}
-                            </option>
-                        ))}
-                    </Form.Select>
+                    <Select
+                        value={userOptions.find(option => option.value === selectedUser)}
+                        onChange={(selectedOption) => handleUserChange(selectedOption ? selectedOption.value : '')}
+                        options={userOptions}
+                        placeholder="Search User"
+                        styles={{
+                            control: (base) => ({
+                                ...base,
+                                ...smallerFormStyles,
+                            }),
+                        }}
+                        isClearable
+                    />
                 </Form.Group>
 
-                {/* Date Range Picker */}
+
+                {/* Date Range Picker with reduced size */}
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DateRangePicker
                         startText="Start Date"
@@ -260,10 +325,10 @@ const DetailedView = () => {
                         renderInput={(startProps, endProps) => (
                             <>
                                 <Form.Group controlId="startDate" style={{ flex: 1 }}>
-                                    <Form.Control {...startProps} type="text" style={formStyles} />
+                                    <Form.Control {...startProps} type="text" style={smallerFormStyles} />
                                 </Form.Group>
                                 <Form.Group controlId="endDate" style={{ flex: 1 }}>
-                                    <Form.Control {...endProps} type="text" style={formStyles} />
+                                    <Form.Control {...endProps} type="text" style={smallerFormStyles} />
                                 </Form.Group>
                             </>
                         )}
@@ -271,9 +336,10 @@ const DetailedView = () => {
                 </LocalizationProvider>
             </Box>
 
+
             {/* Total Count Card */}
             {isFilterApplied && (
-                <Box mb={3}>
+                <Row mb={3}>
                     <Col xs={12} md={2} className="mb-3">
                         <Card
                             sx={{
@@ -290,7 +356,7 @@ const DetailedView = () => {
                                 flexDirection="column"
                                 alignItems="center"
                                 justifyContent="center"
-                                height="100%"
+                                height="130px"
                             >
                                 <Typography variant="h4" fontWeight={700}>
                                     {flattenedProfiles.length}
@@ -301,7 +367,41 @@ const DetailedView = () => {
                             </Box>
                         </Card>
                     </Col>
-                </Box>
+
+                    <Col xs={12} md={10} className="mb-3" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '16px' }}>
+                        {cardShow && Object.entries(finalStatusCounts).map(([status, count], index) => (
+                            <Card
+                                key={index}
+                                sx={{
+                                    backgroundColor: "#196c5d",
+                                    cursor: 'pointer',
+                                    width: '200px', // Adjust width as needed
+                                    height: '100%',
+                                    boxShadow: 3,
+                                    borderRadius: 2
+                                }}
+                            >
+                                <Box
+                                    p={2}
+                                    display="flex"
+                                    flexDirection="column"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    height="120px"
+                                    width="150px"
+                                >
+                                    <Typography variant="h4" fontWeight={700}>
+                                        {count}
+                                    </Typography>
+                                    <Typography variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
+                                        {status}
+                                    </Typography>
+                                </Box>
+                            </Card>
+                        ))}
+                    </Col>
+
+                </Row>
             )}
 
             {/* Table to display filtered profiles */}
