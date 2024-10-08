@@ -10,9 +10,12 @@ import Accordion from 'react-bootstrap/Accordion';
 import 'react-toastify/dist/ReactToastify.css';
 import { MyContext } from '../pages/MyContext';
 import { useContext } from 'react';
+import decodeToken from '../decodedDetails';
+import { ro } from 'date-fns/locale';
 
 const Hrinterview = () => {
   const { applicant_uuid } = useContext(MyContext);
+  const userData = decodeToken();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleShow = () => setShowConfirmation(true);
@@ -22,18 +25,25 @@ const Hrinterview = () => {
     }
   }, [applicant_uuid]);
   let applicant_uuidprops = applicant_uuid || sessionStorage.getItem('uuid');
-
+  const role = userData.role
+  console.log("applicant_uuid1111111111111111111111111", applicant_uuidprops, role)
   const handleClose = () => setShowConfirmation(false);
 
   const handleConfirm = () => {
     // Show the toast message upon confirmation
     toast.success('Action confirmed!');
     setShowConfirmation(false);
+
     setTimeout(() => {
-      navigate("/hrnew")
-    }, 1800)
+      if (role === "direct_hiring") {
+        navigate("/directnew");
+      } else {
+        navigate("/hrnew");
+      }
+    }, 1800);
   };
-  console.log("applicant_uuid1111111111111111111111111", applicant_uuid)
+
+
 
   // State for showing toast and form data
   const navigate = useNavigate();
@@ -108,9 +118,16 @@ const Hrinterview = () => {
       if (response.status === 200) {
         toast.success(response.data.message);
         setTimeout(() => {
-          navigate('/hrtabs'); // Correct spelling of navigate
+          if (role === "direct_hiring") {
+            navigate("/directnew");
+          } else {
+            navigate("/hrtabs");
+          }
         }, 1800);
-        applicant_uuidprops='';
+        // setTimeout(() => {
+        //   navigate('/hrtabs'); // Correct spelling of navigate
+        // }, 1800);
+        applicant_uuidprops = '';
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -178,11 +195,17 @@ const Hrinterview = () => {
         } else {
           console.error("Toast is undefined");
         };
-
-        // Reload the page after a short delay
         setTimeout(() => {
-          navigate("/hrtabs")
+          if (role === "direct_hiring") {
+            navigate("/directnew");
+          } else {
+            navigate("/hrtabs");
+          }
         }, 1800);
+        // Reload the page after a short delay
+        // setTimeout(() => {
+        //   navigate("/hrtabs")
+        // }, 1800);
       }
     } catch (error) {
       console.error("Error updating no-show to interview:", error);
@@ -205,6 +228,7 @@ const Hrinterview = () => {
     //   setSelectedTrainerName(selectedTrainer.name);
     // }
   };
+
   useEffect(() => {
     // Fetch trainers list when component mounts
     const fetchTrainers = async () => {

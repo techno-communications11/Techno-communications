@@ -53,6 +53,7 @@ const DetailedView = () => {
         "Yasir Khan",
         "Mahmed Amhed",
         "Roshan Interview",
+        "Roshan Screening",
         "Bilal Interview",
         "EL Paso Market",
         "Amad Khatri",

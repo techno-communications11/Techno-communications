@@ -31,6 +31,7 @@ function SelectedAtHr() {
         const response = await axios.get(`${apiurl}/applicants/selected-at-hr`);
         if (response.status === 200) {
           setData(response.data.data);
+          console.log("check", response.data.data)
           setFilteredData(response.data.data);
         } else {
           toast.error('Error fetching applicants data');
@@ -122,11 +123,9 @@ function SelectedAtHr() {
       {/* Filters */}
       <Box display="flex" justifyContent="space-around" mb={3} className="mt-4">
         <Form.Group variant="outlined" size="small" style={{ minWidth: 220 }}>
-          {/* <InputLabel>Market Hiring For</InputLabel> */}
           <Form.Select
             value={marketFilter}
             onChange={(e) => setMarketFilter(e.target.value)}
-
             style={{
               borderRadius: '20px',
               padding: '10px',
@@ -139,12 +138,12 @@ function SelectedAtHr() {
             <option value="">All Markets</option>
             {data
               .map(row => row.MarketHiringFor)
-              .filter((value, index, self) => value !== "" && self.indexOf(value) === index)
+              .filter(value => value !== "") // Remove empty values
+              .map(value => value.toLowerCase()) // Normalize to lowercase
+              .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
               .map((market, idx) => (
-
                 <option key={idx} value={market}>
-
-                  {market !== "" && market}
+                  {market.charAt(0).toUpperCase() + market.slice(1)} {/* Capitalize the first letter */}
                 </option>
               ))}
           </Form.Select>

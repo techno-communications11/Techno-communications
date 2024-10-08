@@ -76,6 +76,9 @@ function Login() {
           case 'market_manager':
             navigate('/markethome');
             break;
+            case 'direct_hiring':
+              navigate('/directHiring');
+              break;
           default:
             navigate('/');
             break;

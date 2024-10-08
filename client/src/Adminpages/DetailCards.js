@@ -101,6 +101,7 @@ const DetailCards = () => {
             (profileStats["need second opinion at Interview"] || 0) +
             (profileStats["Applicant will think about It"] || 0) +
             (profileStats["Moved to HR"] || 0) +
+            (profileStats["Recommended For Hiring"] || 0) +
             (profileStats["selected at Hr"] || 0);
 
         const rejectedTotal =
@@ -110,6 +111,7 @@ const DetailCards = () => {
             (profileStats["rejected at Interview"] || 0) +
             (profileStats["no show at Interview"] || 0) +
             (profileStats["no show at Hr"] || 0) +
+            (profileStats["Not Recommended For Hiring"] || 0) +
             (profileStats["rejected at Hr"] || 0);
 
         const firstRoundPendingTotal =
@@ -118,6 +120,7 @@ const DetailCards = () => {
             (profileStats["put on hold at Interview"] || 0);
 
         const hrRoundPendingTotal =
+            (profileStats["Recommended For Hiring"] || 0) +
             (profileStats["selected at Interview"] || 0) +
             (profileStats["Sent for Evaluation"] || 0) +
             (profileStats["need second opinion at Interview"] || 0) +

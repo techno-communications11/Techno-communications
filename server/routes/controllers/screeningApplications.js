@@ -97,6 +97,7 @@ const getApplicantsForScreening = async (req, res) => {
 };
 
 
+
 const assignApplicantToUser = async (req, res) => {
     const { applicantId, newUserId } = req.body;  // Extract from request body
     console.log(">>>>>>", applicantId, newUserId)

@@ -91,8 +91,10 @@ export default function CenteredTabs() {
                 <Box mb={3}>
                     <Typography variant="h6">Applicant Details</Typography>
                     <Typography ><span style={{ color: "blue" }}>Name:</span> {applicantDetails.name}</Typography>
-                    {/* <Typography>Email: {applicantDetails.email}</Typography> */}
+                   
                     <Typography><span style={{ color: "blue" }}>Status:</span>  {applicantDetails.status}</Typography>
+                    <Typography><span style={{ color: "blue" }}>Screening Manager</span> {applicantDetails.screening_manager_name
+                    }</Typography>
 
                     {/* Close and Refresh Button */}
                     <Button

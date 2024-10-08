@@ -19,7 +19,7 @@ const { trackingWork } = require("./controllers/tracking")
 const { getAllUsers } = require("./controllers/getroles")
 const {createUser} = require("./controllers/createUser")
 const {createNtid,getSelectedAtHr} = require ("./controllers/ntids")
-
+const {DirectReferal,getApplicantsForDirect} = require('./controllers/Direct');
 module.exports = (io) => {
 
  // Route to get all selected applicants at HR stage
@@ -125,11 +125,16 @@ router.post('/assignapplicanttoUser', assignApplicantToUser)
 
     //dowload applicants data in Excel
     router.get("/datadowload", downloadApplicantsData)
+      //getApplicantsForDirect 
+      router.get("/getApplicantsForDirect/:userId", getApplicantsForDirect)
 
     // Another test route (if needed)
     router.get('/test', (req, res) => {
         res.send('Test route is working!');
     });
+     // directform route
+     router.post('/directform', DirectReferal)
+  
 
     //get Applicants for Trainer
     router.get('/users/:userId/trainerapplicants',  getApplicationforTrainer(io))

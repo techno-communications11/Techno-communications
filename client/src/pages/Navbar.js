@@ -100,27 +100,32 @@ function AppNavbar() {
         <Navbar.Collapse id="navbarSupportedContent">
           <Nav className="ms-auto d-flex align-items-center">
             <div className='d-flex gap-3 align-items-center'>
-              {role === 'screening_manager' && (
-                <Nav.Link as={Link} to="/screening" className='fw-bolder nav-link-custom'>
+              {(role === 'screening_manager' || role === 'direct_hiring') && (
+                <Nav.Link
+                  as={Link}
+                  to={role === 'screening_manager' ? "/screening" : role === 'direct_hiring' ? "/directform" : ""}
+                  className='fw-bolder nav-link-custom'>
                   List Profile
                 </Nav.Link>
               )}
-            
+
+
               {role !== "trainer" && role !== 'market_manager' &&
                 <Nav.Link
                   as={Link}
                   to={
                     role === "interviewer" ? "/InterviewerDashboard" :
-                      role === "screening_manager" ? "screeinghome" :
-                        role === "admin" ? "/adminhome" :
-                          role === "hr" ? "/hrhome" : role !== "market_manager" ? "" : '/'
+                      role === "direct_hiring" ? "/directHiring" :
+                        role === "screening_manager" ? "screeinghome" :
+                          role === "admin" ? "/adminhome" :
+                            role === "hr" ? "/hrhome" : role !== "market_manager" ? "" : '/'
                   }
                   className='fw-bolder nav-link-custom'
                 >
                   Dashboard
                 </Nav.Link>
               }
-                {role === 'admin' && (
+              {role === 'admin' && (
                 <Nav.Link as={Link} to="/register" className='fw-bolder nav-link-custom'>
                   Register
                 </Nav.Link>
@@ -129,7 +134,7 @@ function AppNavbar() {
               {(role !== 'admin' && role !== 'trainer' && role !== 'market_manager') && (
                 <Nav.Link
                   as={Link}
-                  to={role === "interviewer" ? "/interviewhome" : role === "hr" ? "/hrtabs" : role === "screening_manager" ? "/tabs" : ''}
+                  to={role === "interviewer" ? "/interviewhome" : role === "hr" ? "/hrtabs" : role === "screening_manager" ? "/tabs" : role === "direct_hiring" ? "/directnew" : ""}
                   className='fw-bolder nav-link-custom'
                   style={{
                     position: 'relative',

@@ -36,6 +36,9 @@ import { selectClasses } from '@mui/material';
 import SelectedAtHr from './Adminpages/SelectedAtHr';
 import DetailedView from './Adminpages/DetailedView'
 import DetailCards from './Adminpages/DetailCards';
+import DirectHiring from './Direct/DirectHiring';
+import DirectForm from './Direct/DirectForm';
+import DirectNew from './Direct/DirectNew';
 
 function App() {
   return (
@@ -103,9 +106,19 @@ function AppComponent() {
                 <Route path="/TrainerRes" element={<TrainerRes />} />
               </>
             )}
+            
             {role === 'trainer' && (
               <>
                 <Route path="/trainerhome" element={<TrainerHome />} />
+                <Route path="/updatepassword" element={<UpdatePassword />} />
+              </>
+            )}
+             {role === 'direct_hiring' && (
+              <>
+                <Route path="/directHiring" element={<DirectHiring />} />
+                <Route path="/directform" element={<DirectForm />} />
+                <Route path="/directnew" element={<DirectNew />} />
+                <Route path="/hrinterview" element={<Hrinterview />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
               </>
             )}
