@@ -7,21 +7,22 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
-import Select from 'react-select'; // Import react-select
+import Select from 'react-select'; 
 
 const DetailedView = () => {
     const [selectedMarkets, setSelectedMarkets] = useState([]); // Change to handle multiple markets
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedUsers, setSelectedUsers] = useState([]); // Updated to store multiple users
 
-    const [selectedStatus, setSelectedStatus] = useState('');
+    const [selectedStatus, setSelectedStatus] = useState([]);
     const [dateRange, setDateRange] = useState([null, null]);
     const [selectedProfiles, setSelectedProfiles] = useState([]);
     const [loading, setLoading] = useState(false);
     const [cardShow, SetcardShow] = useState(false);
     const [currentPage, setCurrentPage] = useState(1); // To track current page for pagination
-    const profilesPerPage = 5; // Number of profiles to show per page
+    const profilesPerPage = 25; // Number of profiles to show per page
     // const [selectedUser, setSelectedUser] = useState('');
+    const [selectedGroupStatus, setSelectedGroupStatus] = useState("");
     const [isFilterApplied, setIsFilterApplied] = useState(false); // To check if filters are applied
 
     const locations = [
@@ -47,6 +48,7 @@ const DetailedView = () => {
     let users = [
         "Amman Battala",
         "Alishba Ahmed",
+        "ALISHA PADANIYA",
         "Aslam Khan",
         "Arlette Lopez",
         "Abdul Rafay",
@@ -54,20 +56,24 @@ const DetailedView = () => {
         "Mahmed Amhed",
         "Roshan Interview",
         "Roshan Screening",
+        "Roshan Shaikh",
         "Bilal Interview",
         "EL Paso Market",
         "Amad Khatri",
         "Ali Palsaniya",
         "Aslam Khan",
         "Olinda Rangel",
+        "Qamar Shahzad",
         "Shafaque Qureshi",
-        "Sultan Admin",
+        "Sultan Interview",
         "Shah Noor Butt",
+        "Shoaib",
         "Kamaran Mohammed",
         "Rahim Nasir Khan",
         "Syed Danish",
         "Fayaz Chandrani",
         "Mohamad Elayan"
+
     ];
 
     useEffect(() => {
@@ -127,10 +133,17 @@ const DetailedView = () => {
     };
 
 
-
     const handleFilterApply = (status) => {
-        setSelectedStatus(status);
-    };
+        // Set the selected group status to show it in the dropdown
+        setSelectedGroupStatus(status);
+
+        // Get all individual statuses related to the selected group status
+        const relatedStatuses = statusMap[status] || []; // Default to an empty array if no match
+
+        // Set the selected status to the array of related statuses for filtering
+        setSelectedStatus(relatedStatuses);
+    }
+
 
     const getStatusOptions = (category) => {
         switch (category) {
@@ -173,8 +186,9 @@ const DetailedView = () => {
             const inDateRange = dateRange[0] && dateRange[1]
                 ? createdDate.isAfter(dayjs(dateRange[0]).startOf('day')) && createdDate.isBefore(dayjs(dateRange[1]).endOf('day'))
                 : true;
-
-            const filteredByStatus = selectedStatus ? currentStatus.status === selectedStatus : true;
+            const filteredByStatus = selectedStatus.length > 0
+                ? selectedStatus.includes(currentStatus.status)
+                : true;
 
             if (inMarket && inUsers && inDateRange && filteredByStatus) {
                 filteredData.applicant_names.push(currentStatus.applicant_names[index]);
@@ -252,8 +266,51 @@ const DetailedView = () => {
         "NTID Created": ntidCreatedTotal,
     };
 
-
+    const groupstatus = ["Rejected",
+        "Pending",
+        "1st Round - Pending",
+        "HR Round - Pending",
+        "Pending at NTID",
+        "NTID Created",]
     // const userOptions = users.map((user) => ({ value: user, label: user }));
+    const statusMap = {
+        "Pending": [
+            "pending at Screening",
+            "moved to Interview",
+            "put on hold at Interview",
+            "selected at Interview",
+            "Sent for Evaluation",
+            "need second opinion at Interview",
+            "Applicant will think about It",
+            "Moved to HR",
+            "selected at Hr"
+        ],
+        "Rejected": [
+            "rejected at Screening",
+            "no show at Screening",
+            "Not Interested at screening",
+            "rejected at Interview",
+            "no show at Interview",
+            "no show at Hr",
+            "Not Recommended For Hiring",
+            "rejected at Hr"
+        ],
+        "1st Round - Pending": [
+            "pending at Screening",
+            "moved to Interview",
+            "put on hold at Interview"
+        ],
+        "HR Round - Pending": [
+            "selected at Interview",
+            "Sent for Evaluation",
+            "need second opinion at Interview",
+            "Applicant will think about It",
+            "Moved to HR",
+            "Recommended For Hiring"
+        ],
+        "Pending at NTID": ["selected at Hr"],
+        "NTID Created": ["NTID Created"]
+    };
 
     return (
         <Box p={3}>
@@ -292,26 +349,33 @@ const DetailedView = () => {
                 </Form.Group>
 
                 {/* Category Selector with reduced size */}
-                <Form.Group controlId="categorySelector" style={{ flex: 1 }}>
+                {/* <Form.Group controlId="categorySelector" style={{ flex: 1 }}>
                     <Form.Select value={selectedCategory} onChange={handleCategoryChange} style={smallerFormStyles}>
                         <option value=""> CATEGORIES</option>
                         <option value="Screening">Screening</option>
                         <option value="Interview">Interview</option>
                         <option value="HR">HR</option>
                     </Form.Select>
-                </Form.Group>
+                </Form.Group> */}
 
                 {/* Status Selector with reduced size */}
+
                 <Form.Group controlId="statusSelector" style={{ flex: 1 }}>
-                    <Form.Select value={selectedStatus} onChange={(e) => handleFilterApply(e.target.value)} style={smallerFormStyles}>
+                    <Form.Select
+                        value={selectedGroupStatus}
+                        onChange={(e) => handleFilterApply(e.target.value)}
+                        style={{ ...smallerFormStyles, height: '52px' }} // Adjust the height here
+                    >
                         <option value="">SELECT STATUS</option>
-                        {getStatusOptions(selectedCategory).map((status, index) => (
+                        {groupstatus.map((status, index) => (
                             <option key={index} value={status}>
                                 {status.toUpperCase()}
                             </option>
                         ))}
                     </Form.Select>
                 </Form.Group>
+
+
                 <Form.Group controlId="userSelector" style={{ flex: 2 }}>
                     <Select
                         isMulti
@@ -441,7 +505,7 @@ const DetailedView = () => {
                 isFilterApplied ? (
                     flattenedProfiles.length > 0 ? (
                         <>
-                            <TableContainer component={Paper} sx={{ width: '90%', boxShadow: 2, borderRadius: 2, marginLeft: '60px' }}>
+                            <TableContainer component={Paper} sx={{ width: '100%', boxShadow: 2, borderRadius: 2}}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>

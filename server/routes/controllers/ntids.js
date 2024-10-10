@@ -7,36 +7,55 @@ const createNtid = async (req, res) => {
     // Destructure the data from the request body
     const { ntidCreated, ntidCreatedDate, ntid, addedToSchedule, markAsAssigned, applicant_uuid } = req.body;
 
-    // Validate the input (you can add more validation as needed)
-    if (!ntidCreated || !ntidCreatedDate || !ntid) {
-        return res.status(400).json({ error: "NTID Created, NTID Created Date, and NTID are required." });
+    // Validate the input
+    if (!ntidCreated || !ntidCreatedDate || !ntid || !applicant_uuid) {
+        return res.status(400).json({ error: "NTID Created, NTID Created Date, NTID, and applicant_uuid are required." });
     }
+
+    // Start transaction
+    const connection = await db.getConnection();
+    await connection.beginTransaction();
 
     try {
         // Insert the new NTID entry into the ntids table
-        const [result] = await db.query(
-            `INSERT INTO ntids (applicant_uuid,ntid_created, ntid_created_date, ntid, added_to_schedule, mark_as_assigned) 
-             VALUES (?, ?, ?, ?, ?,?)`,
-             //need create ntids table with above fields and update status main applicant referals table and hrinterview
+        const [result] = await connection.query(
+            `INSERT INTO ntids (applicant_uuid, ntid_created, ntid_created_date, ntid, added_to_schedule, mark_as_assigned) 
+             VALUES (?, ?, ?, ?, ?, ?)`,
             [applicant_uuid, ntidCreated, ntidCreatedDate, ntid, addedToSchedule, markAsAssigned]
         );
 
-        // Update the status column in the applicant_referrals table for the provided applicant_uuid
-        await db.query(
+        // Update the status in the hrinterview table for the provided applicant_uuid
+        await connection.query(
             `UPDATE hrinterview 
              SET status = "mark_assigned" 
              WHERE applicant_uuid = ?`,
             [applicant_uuid]
         );
 
+        // Update the status in the applicant_referrals table for the provided applicant_uuid
+        await connection.query(
+            `UPDATE applicant_referrals  
+             SET status = "mark_assigned" 
+             WHERE applicant_uuid = ?`,
+            [applicant_uuid]
+        );
+
+        // Commit the transaction
+        await connection.commit();
+
         // Send a success response
         res.status(201).json({ message: "NTID entry created and status updated successfully", id: result.insertId });
     } catch (error) {
-        // Handle any errors
+        // Rollback the transaction in case of error
+        await connection.rollback();
         console.error("Error creating NTID entry or updating status:", error);
         res.status(500).json({ error: error.message });
+    } finally {
+        // Release the connection
+        connection.release();
     }
 };
+
 
 
 
@@ -44,7 +63,7 @@ const getSelectedAtHr = async (req, res) => {
     console.log("Trying to get all selected applicants at HR stage");
 
     try {
-        // Query to select relevant data from hrevaluation and applicant_referrals tables
+        // Query to select relevant data from hrevaluation, applicant_referrals, and ntids tables
         const [applicants] = await db.query(
             `SELECT 
                 hrevaluation.market AS MarketHiringFor, 
@@ -53,16 +72,26 @@ const getSelectedAtHr = async (req, res) => {
                 applicant_referrals.applicant_uuid AS applicant_uuid,
                 applicant_referrals.phone AS phone,
                 applicant_referrals.email AS email,
-                applicant_referrals.name AS name
+                applicant_referrals.name AS name,
+                applicant_referrals.status AS status,
+                ntids.ntid_created AS ntidCreated,
+                ntids.ntid_created_date AS ntidCreatedDate,
+                ntids.ntid AS ntid,
+                ntids.added_to_schedule AS addedToSchedule
             FROM 
                 hrevaluation
             INNER JOIN 
                 applicant_referrals 
             ON 
                 hrevaluation.applicant_id = applicant_referrals.applicant_uuid
+            LEFT JOIN 
+                ntids 
+            ON 
+                applicant_referrals.applicant_uuid = ntids.applicant_uuid
             WHERE 
-                applicant_referrals.status = "selected at Hr";`
+                applicant_referrals.status COLLATE utf8mb4_unicode_ci IN ("selected at Hr", "mark_assigned");`
         );
+        
         if (applicants.length === 0) {
             return res.status(404).json({ message: "No applicants found selected at HR stage." });
         }
@@ -77,6 +106,9 @@ const getSelectedAtHr = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+
+
+
 
 {/*
     const getSelectedAtHr = async (req, res) => {
