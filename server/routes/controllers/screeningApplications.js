@@ -138,6 +138,87 @@ const assignApplicantToUser = async (req, res) => {
 };
 
 
+const assignnewHr= async (req, res) => {
+    const { applicantId, newUserId } = req.body;  // Extract from request body
+    console.log(">>>>>>", applicantId, newUserId)
+    try {
+        // Step 1: Check if the applicant exists
+        const [applicantResult] = await db.query(
+            `SELECT applicant_uuid FROM applicant_referrals WHERE applicant_uuid = ?`,
+            [applicantId]
+        );
+
+        if (applicantResult.length === 0) {
+            return res.status(404).json({ message: 'Applicant not found.' });
+        }
+
+        // Step 2: Check if the new user exists
+        const [userResult] = await db.query(
+            `SELECT id FROM users WHERE id = ?`,
+            [newUserId]
+        );
+
+        if (userResult.length === 0) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        // Step 3: Update the applicant assignment
+        await db.query(
+            `UPDATE hrinterview 
+             SET hr_id = ? 
+             WHERE applicant_uuid = ?`,
+            [newUserId, applicantId]
+        );
+
+        res.status(200).json({ message: 'Applicant successfully assigned to the new hr.' });
+    } catch (error) {
+        console.error('Error during applicant reassignment:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+const assignnewInterviewer = async (req, res) => {
+    const { applicantId, newUserId } = req.body;  // Extract from request body
+    console.log(">>>>>>", applicantId, newUserId)
+    try {
+        // Step 1: Check if the applicant exists
+        const [applicantResult] = await db.query(
+            `SELECT applicant_uuid FROM applicant_referrals WHERE applicant_uuid = ?`,
+            [applicantId]
+        );
+
+        if (applicantResult.length === 0) {
+            return res.status(404).json({ message: 'Applicant not found.' });
+        }
+
+        // Step 2: Check if the new user exists
+        const [userResult] = await db.query(
+            `SELECT id FROM users WHERE id = ?`,
+            [newUserId]
+        );
+
+        if (userResult.length === 0) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        // Step 3: Update the applicant assignment
+        await db.query(
+            `UPDATE  interviews 
+             SET interviewer_id  = ? 
+             WHERE applicant_uuid = ?`,
+            [newUserId, applicantId]
+        );
+
+        res.status(200).json({ message: 'Applicant successfully assigned to the new interviewer.' });
+    } catch (error) {
+        console.error('Error during applicant reassignment:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+
 module.exports = {
-    getApplicantsForScreening, assignApplicantToUser
+    getApplicantsForScreening, assignApplicantToUser,assignnewHr,assignnewInterviewer
 }

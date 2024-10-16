@@ -1,10 +1,8 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
 import { useNavigate } from 'react-router';
-// import { useNavigate } from 'react-router';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
-import { Table, Form, Row, Col, Button, Container, Toast, Tabs, Tab, Modal, Dropdown } from 'react-bootstrap';
+import { Form, Row, Col, Button, Container, Modal, Dropdown } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import Accordion from 'react-bootstrap/Accordion';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,6 +15,7 @@ const Hrinterview = () => {
   const { applicant_uuid } = useContext(MyContext);
   const userData = decodeToken();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleShow = () => setShowConfirmation(true);
   useEffect(() => {
@@ -43,17 +42,63 @@ const Hrinterview = () => {
     }, 1800);
   };
 
+  const validateForm = () => {
+    const errors = {};
+    const fields = [
+      'market', 'marketTraining', 'trainingLocation', 'compensationType',
+      'payroll',  'joiningDate',  'workHoursDays',
+      'recommend_hiring',
+    ];
 
+    fields.forEach(field => {
+      const value = formData[field];
 
-  // State for showing toast and form data
+      if (value === undefined || value === null || typeof value !== 'string' || value.trim() === '') {
+        errors[field] = `${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required.`;
+      }
+    });
+
+    const dateFields = ['joiningDate'];
+    dateFields.forEach(field => {
+      const parsedDate = Date.parse(formData[field]);
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0); 
+      if (!isNaN(parsedDate)) {
+        if (parsedDate < currentDate) {
+          errors[field] = `${field.replace(/([A-Z])/g, ' ')} must be today or in the future.`;
+        }
+      } else {
+        errors[field] = `${field.replace(/([A-Z])/g, ' ')} is invalid.`;
+      }
+    });
+
+    return errors;
+  };
+  const locations = [
+    { id: 4, name: 'ARIZONA' },
+    { id: 5, name: 'Bay Area' },
+    { id: 6, name: 'COLORADO' },
+    { id: 7, name: 'DALLAS' },
+    { id: 8, name: 'El Paso' },
+    { id: 9, name: 'FLORIDA' },
+    { id: 10, name: 'HOUSTON' },
+    { id: 11, name: 'LOS ANGELES' },
+    { id: 12, name: 'MEMPHIS' },
+    { id: 13, name: 'NASHVILLE' },
+    { id: 14, name: 'NORTH CAROLINA' },
+    { id: 15, name: 'SACRAMENTO' },
+    { id: 16, name: 'SAN DIEGO' },
+    { id: 17, name: 'SAN FRANCISCO' },
+    { id: 18, name: 'SAN JOSE' },
+    { id: 19, name: 'SANTA ROSA' },
+    { id: 21, name: 'RELOCATION' },
+];
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
   const [firstRound, setFirstRound] = useState([])
   const [activeKey, setActiveKey] = useState(null); // State to manage active tab
   const [formData, setFormData] = useState({
-
     applicantId: applicant_uuidprops,
-
     market: '',
     marketTraining: '',
     trainingLocation: '',
@@ -64,37 +109,89 @@ const Hrinterview = () => {
     returnDate: '',
     joiningDate: '',
     notes: '',
-
     workHoursDays: '',
-
     backOut: '',
     reasonBackOut: '',
-
     recommend_hiring: '',
+    evaluationDate:'',
+  
   });
+  console.log(formData, " data submitted royee")
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prevState => ({
       ...prevState,
       [name]: type === 'checkbox' ? checked : value
     }));
+    if (errors[name]) {
+      if (type === 'checkbox') {
+        if (checked) {
+          setErrors(prevErrors => ({
+            ...prevErrors,
+            [name]: "" // Clear the error for the checkbox field
+          }));
+        }
+      } else {
+        if (value.trim() !== "") {
+          if ( name === 'joiningDate') {
+            const parsedDate = Date.parse(value);
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0); // Set current date to midnight for comparison
+            if (!isNaN(parsedDate)) {
+              if (parsedDate >= currentDate) {
+                setErrors(prevErrors => ({
+                  ...prevErrors,
+                  [name]: "" // Clear the error for valid date fields
+                }));
+              } else {
+                setErrors(prevErrors => ({
+                  ...prevErrors,
+                  [name]: `${name.replace(/([A-Z])/g, ' $1')} must be today or in the future.`
+                }));
+              }
+            } else {
+              setErrors(prevErrors => ({
+                ...prevErrors,
+                [name]: `${name.replace(/([A-Z])/g, ' ')} is invalid.`
+              }));
+            }
+          } else {
+            setErrors(prevErrors => ({
+              ...prevErrors,
+              [name]: "" // Clear the error for the other fields
+            }));
+          }
+        } else {
+          setErrors(prevErrors => ({
+            ...prevErrors,
+            [name]: `${name.replace(/([A-Z])/g, ' ')} is required.` // Show error message
+          }));
+        }
+      }
+    }
   };
-  console.log(formData)
-  // Handle form submission
+
+
+
+
   const handleSubmit = async (event) => {
+    console.log("hi>>>")
     event.preventDefault();
+    const formErrors = validateForm();
 
+    if (Object.keys(formErrors).length > 0) {
+      console.log(formErrors,'hi checking')
+      setErrors(formErrors);
+      return;
+    }
+
+console.log("formData",formData)
     try {
-      // Send POST request to the backend
-      const response = await axios.post(`${process.env.REACT_APP_API}/add-hrevaluation`, formData);
-
-
+      console.log("starting...")
+      const response = await axios.post(`${apiurl}/add-hrevaluation`, formData);
       setFormData({
-
         applicantId: '',
-
         market: '',
         marketTraining: '',
         trainingLocation: '',
@@ -105,17 +202,15 @@ const Hrinterview = () => {
         returnDate: '',
         joiningDate: '',
         notes: '',
-
         workHoursDays: '',
-
         backOut: '',
         reasonBackOut: '',
-
         recommend_hiring: '',
+        evaluationDate:"" ,
       });
-
-      // Check if the response is successful
+      console.log("22starting...")
       if (response.status === 200) {
+        console.log("api calling...")
         toast.success(response.data.message);
         setTimeout(() => {
           if (role === "direct_hiring") {
@@ -132,26 +227,16 @@ const Hrinterview = () => {
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error("Failed to submit response.");
-    } finally {
-
-      // Adjust the timeout duration if needed
     }
   };
 
-
-
-
-
   useEffect(() => {
     let isMounted = true;
-
     const fetchingresponse = async () => {
-
       if (!applicant_uuidprops) {
         console.log('No applicant UUID found.');
         return;
       }
-
       try {
         const response = await axios.get(`${apiurl}/first_round_res/${applicant_uuidprops}`);
         if (isMounted && response.data && response.data.length > 0) {
@@ -163,9 +248,7 @@ const Hrinterview = () => {
         console.error("Error fetching first round data:", err);
       }
     };
-
     fetchingresponse();
-
     return () => {
       isMounted = false;  // Cleanup flag to avoid state updates after unmount
     };
@@ -327,20 +410,26 @@ const Hrinterview = () => {
 
           {/* PLEASE SELECT THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR */}
           <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              1. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="name"
-                name="market"
-                value={formData.market}
-                onChange={handleChange}
-              >
+               <Form.Label column sm={6} className="text-start">
+        1. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR
+                  </Form.Label>
+              <Col sm={6}>
+         <Form.Select
+             name="market"
+            value={formData.market}
+            onChange={handleChange}
+            isInvalid={!!errors.market}
+        >
+            <option value="">Select Market</option> {/* Default empty option */}
+            {locations.map(location => (
+                <option key={location.id} value={location.name}>
+                    {location.name}
+                </option>
+            ))}
+               </Form.Select>
+          </Col>
+                 </Form.Group>
 
-              </Form.Control>
-            </Col>
-          </Form.Group>
 
           {/* WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING */}
           <Form.Group as={Row} className="mb-3">
@@ -352,6 +441,7 @@ const Hrinterview = () => {
                 as="select"
                 name="marketTraining"
                 value={formData.marketTraining}
+                isInvalid={!!errors.marketTraining}
                 onChange={handleChange}
               >
                 <option value="">Select...</option>
@@ -363,20 +453,26 @@ const Hrinterview = () => {
 
           {/* PLEASE SELECT WHERE WILL THE APPLICANT GO FOR TRAINING */}
           <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              3. PLEASE ENTER WHERE WILL THE APPLICANT GO FOR TRAINING
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                type="name"
-                name="trainingLocation"
-                value={formData.trainingLocation}
-                onChange={handleChange}
-              >
+             <Form.Label column sm={6} className="text-start">
+        3. PLEASE ENTER WHERE WILL THE APPLICANT GO FOR TRAINING
+             </Form.Label>
+              <Col sm={6}>
+              <Form.Select
+            name="trainingLocation"
+            value={formData.trainingLocation}
+            onChange={handleChange}
+            isInvalid={!!errors.trainingLocation}
+        >
+            <option value="">Select Training Location</option> {/* Default empty option */}
+            {locations.map(location => (
+                <option key={location.id} value={location.name}>
+                    {location.name}
+                </option>
+            ))}
+           </Form.Select>
+           </Col>
+                </Form.Group>
 
-              </Form.Control>
-            </Col>
-          </Form.Group>
 
           {/* COMPENSATION TYPE */}
           <Form.Group as={Row} className="mb-3">
@@ -387,7 +483,9 @@ const Hrinterview = () => {
               <Form.Control
                 type="name"
                 name="compensationType"
+              
                 value={formData.compensationType}
+                isInvalid={!!errors.compensationType}
                 onChange={handleChange}
               >
 
@@ -405,7 +503,7 @@ const Hrinterview = () => {
                 type="number"
                 name="offeredSalary"
                 placeholder="Enter salary"
-                value={formData.offeredSalary}
+             
                 onChange={handleChange}
               />
             </Col>
@@ -421,6 +519,7 @@ const Hrinterview = () => {
                 as="select"
                 name="payroll"
                 value={formData.payroll}
+                isInvalid={!!errors.payroll}
                 onChange={handleChange}
               >
                 <option value="">Select...</option>
@@ -442,6 +541,7 @@ const Hrinterview = () => {
                 name="acceptOffer"
                 value="Yes"
                 checked={formData.acceptOffer === 'Yes'}
+                isInvalid={!!errors.acceptOffer}
                 onChange={handleChange}
               />
               <Form.Check
@@ -450,6 +550,7 @@ const Hrinterview = () => {
                 name="acceptOffer"
                 value="No"
                 checked={formData.acceptOffer === 'No'}
+                // isInvalid={!!errors.acceptOffer}
                 onChange={handleChange}
               />
             </Col>
@@ -465,7 +566,9 @@ const Hrinterview = () => {
                 type="date"
                 name="returnDate"
                 value={formData.returnDate}
+                // isInvalid={!!errors.returnDate}
                 onChange={handleChange}
+                min={new Date().toISOString().split("T")[0]} // Disable previous dates
               />
             </Col>
           </Form.Group>
@@ -480,7 +583,9 @@ const Hrinterview = () => {
                 type="date"
                 name="joiningDate"
                 value={formData.joiningDate}
+                isInvalid={!!errors.joiningDate}
                 onChange={handleChange}
+                min={new Date().toISOString().split("T")[0]} // Disable previous dates
               />
             </Col>
           </Form.Group>
@@ -499,6 +604,7 @@ const Hrinterview = () => {
                 name="workHoursDays"
                 placeholder="Enter hours/days"
                 value={formData.workHoursDays}
+                isInvalid={!!errors.workHoursDays}
                 onChange={handleChange}
               />
             </Col>
@@ -517,6 +623,7 @@ const Hrinterview = () => {
                 name="backOut"
                 value="Yes"
                 checked={formData.backOut === 'Yes'}
+                // isInvalid={!!errors.backOut}
                 onChange={handleChange}
               />
               <Form.Check
@@ -525,6 +632,7 @@ const Hrinterview = () => {
                 name="backOut"
                 value="No"
                 checked={formData.backOut === 'No'}
+                isInvalid={!!errors.backOut}
                 onChange={handleChange}
               />
             </Col>
@@ -541,6 +649,7 @@ const Hrinterview = () => {
                 name="reasonBackOut"
                 placeholder="Enter reason"
                 value={formData.reasonBackOut}
+                // isInvalid={!!errors.reasonBackOut}
                 onChange={handleChange}
               />
             </Col>
@@ -558,7 +667,7 @@ const Hrinterview = () => {
                 value="selected at Hr"  // Updated to send 'selected at Hr' as the value
                 checked={formData.recommend_hiring === 'selected at Hr'}
                 onChange={handleChange}
-              // isInvalid={!!errors.recommend_hiring}
+                isInvalid={!!errors.recommend_hiring}
               />
               <Form.Check
                 type="radio"
@@ -567,44 +676,81 @@ const Hrinterview = () => {
                 value="rejected at Hr"  // Updated to send 'rejected at Hr' as the value
                 checked={formData.recommend_hiring === 'rejected at Hr'}
                 onChange={handleChange}
-              // isInvalid={!!errors.recommend_hiring}
+                isInvalid={!!errors.recommend_hiring}
               />
-              <Form.Check
+              {/* <Form.Check
                 type="radio"
-                label="Sent for Evaluation"
+                label=" Evaluation"
                 name="recommend_hiring"
                 value="Sent for Evaluation"
                 checked={formData.recommend_hiring === 'Sent for Evaluation'}
                 onChange={handleChange}
-              // isInvalid={!!errors.recommend_hiring}
-              />
-              {formData.recommend_hiring === 'Sent for Evaluation' && showDropdown && <div className='p-2'>
-                {/** Dropdown for selecting a trainer */}
-                <Dropdown onSelect={handleTrainerSelect}>
-                  <Dropdown.Toggle variant="success" id="dropdown-basic">
-                    {selectedTrainerName ? selectedTrainerName.name : "Select Trainer"}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    {trainers.map((trainer) => (
-                      <Dropdown.Item key={trainer.id} eventKey={trainer.name}>
-                        {trainer.name}
-                      </Dropdown.Item>
-                    ))}
-                  </Dropdown.Menu>
-                </Dropdown>
-
-                {/** Button to trigger assignment */}
-                <Button className='p-2 m-1' onClick={() => sentForEvaluation(applicantUuid)}>Assign Trainer</Button>
-              </div>}
-              <Form.Check
+                isInvalid={!!errors.recommend_hiring}
+              /> */}
+              {/* {formData.recommend_hiring === 'Sent for Evaluation' && showDropdown && <div className='p-2'> */}
+                <Form.Group as={Row} className="mb-3">
+                  <Col sm={12}>
+                    <Form.Check
+                      type="radio"
+                      label="Store Evaluation"
+                      name="recommend_hiring"
+                      value="Store Evaluation"
+                      checked={formData.recommend_hiring === 'Store Evaluation'}
+                      isInvalid={!!errors.recommend_hiring}
+                      onChange={handleChange}
+                    />
+                    <Form.Check
+                      type="radio"
+                      label="Spanish Evaluation"
+                      name="recommend_hiring"
+                      value="Spanish Evaluation"
+                      checked={formData.recommend_hiring === 'Spanish Evaluation'}
+                      isInvalid={!!errors.recommend_hiring}
+                      onChange={handleChange}
+                    />
+                    <Form.Check
+                      type="radio"
+                      label="Will think about it"
+                      name="recommend_hiring"
+                      value="Applicant will think about It"
+                      checked={formData.recommend_hiring === 'Applicant will think about It'}
+                      isInvalid={!!errors.recommend_hiring}
+                      onChange={handleChange}
+                    />
+                  </Col>
+                </Form.Group>
+                {formData.recommend_hiring === 'Store Evaluation' && (
+                 <Form.Group as={Row} className="mb-3">
+                 <Form.Label column sm={12} className="text-start">
+                   Select evaluation date:
+                 </Form.Label>
+                 <Col sm={12}>
+                   <Form.Control
+                     type="date"
+                     name="evaluationDate"
+                     value={formData.evaluationDate}
+                     onChange={handleChange}
+                     isInvalid={!!errors.evaluationDate}
+                     min={new Date().toISOString().split("T")[0]} // Disable previous dates
+                   />
+                   <Form.Control.Feedback type="invalid">
+                     {errors.evaluationDate}
+                   </Form.Control.Feedback>
+                 </Col>
+               </Form.Group>
+               
+                )}
+              
+              {/* </div>} */}
+              {/* <Form.Check
                 type="radio"
                 label="Applicant will think about It"
                 name="recommend_hiring"
                 value="Applicant will think about It"
                 checked={formData.recommend_hiring === 'Applicant will think about It'}
                 onChange={handleChange}
-              // isInvalid={!!errors.recommend_hiring}
-              />
+                isInvalid={!!errors.recommend_hiring}
+              /> */}
             </Col>
           </Form.Group>
           {/* OTHER NOTES/POINTERS */}
@@ -619,6 +765,7 @@ const Hrinterview = () => {
                 name="notes"
                 placeholder="Enter any notes or pointers"
                 value={formData.notes}
+                // isInvalid={!!errors.notes}
                 onChange={handleChange}
               />
             </Col>
@@ -632,7 +779,7 @@ const Hrinterview = () => {
 
 
         </Form>
-      </Col>
+     </Col>
       {/* Confirmation Modal */}
       <Modal show={showConfirmation} onHide={handleClose}>
         <Modal.Header closeButton>

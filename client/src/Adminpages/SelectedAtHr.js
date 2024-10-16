@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox,
-  Avatar, Typography, Box, TextField, IconButton, Card
+  Avatar, Typography, Box, TextField, IconButton, Card, Tabs, Tab
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -12,6 +12,8 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { differenceInDays } from 'date-fns';
+import Select from 'react-select';
+
 
 function SelectedAtHr() {
   const apiurl = process.env.REACT_APP_API;
@@ -19,9 +21,10 @@ function SelectedAtHr() {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [clickedIndexes, setClickedIndexes] = useState(new Set());
-
+  const [selectedTab, setSelectedTab] = useState(0); // Tab management
+  const [marketFilter, setMarketFilter] = useState([]); 
   // Filters
-  const [marketFilter, setMarketFilter] = useState('');
+ 
   const [joiningDateFilter, setJoiningDateFilter] = useState([null, null]);
 
   useEffect(() => {
@@ -31,6 +34,7 @@ function SelectedAtHr() {
         if (response.status === 200) {
           setData(response.data.data);
           setFilteredData(response.data.data);
+          console.log("response.data.data",response.data.data)
         } else {
           toast.error('Error fetching applicants data');
         }
@@ -44,12 +48,16 @@ function SelectedAtHr() {
   }, []);
 
   useEffect(() => {
-    let updatedData = [...data];
+    let updatedData = [...data];  // Copy the entire data array
   
-    if (marketFilter) {
-      updatedData = updatedData.filter(row => row.MarketHiringFor?.toLowerCase() === marketFilter.toLowerCase());
+    // Apply market filter only if one or more markets are selected
+    if (marketFilter.length > 0) {
+      updatedData = updatedData.filter(row => 
+        marketFilter.includes(row.MarketHiringFor?.toLowerCase())
+      );
     }
   
+    // Apply joining date filter if both start and end dates are selected
     const [startDate, endDate] = joiningDateFilter;
     if (startDate && endDate) {
       updatedData = updatedData.filter(row => {
@@ -58,14 +66,42 @@ function SelectedAtHr() {
       });
     }
   
+    // Filter based on selected tab (either 'selected at HR' or 'mark assigned')
+    if (selectedTab === 0) {
+      updatedData = updatedData.filter(row => row.status === 'selected at Hr');
+    } else {
+      updatedData = updatedData.filter(row => row.status === 'mark_assigned');
+    }
+  
     setFilteredData(updatedData);
-  }, [marketFilter, joiningDateFilter, data]);
+  }, [marketFilter, joiningDateFilter, data, selectedTab]);
+  
 
   const handleInputChange = (index, field, value) => {
-    const updatedData = [...data];
-    updatedData[index][field] = value;
-    setData(updatedData);
+    // Create a copy of filteredData to avoid direct mutation
+    const updatedFilteredData = [...filteredData];
+
+    // Update the specific field of the row in filteredData
+    updatedFilteredData[index] = {
+      ...updatedFilteredData[index], // Copy the existing row data
+      [field]: value // Update the specific field
+    };
+
+    setFilteredData(updatedFilteredData); // Update filteredData state
+
+    // Find the corresponding index in the main data array
+    const mainDataIndex = data.findIndex(item => item.applicant_uuid === updatedFilteredData[index].applicant_uuid);
+
+    if (mainDataIndex > -1) {
+      const updatedMainData = [...data];
+      updatedMainData[mainDataIndex] = {
+        ...updatedMainData[mainDataIndex],
+        [field]: value
+      };
+      setData(updatedMainData); // Update the main data array
+    }
   };
+
 
   const isValidRow = (row) => {
     return row.ntidCreated && row.ntidCreatedDate && row.ntid && row.addedToSchedule;
@@ -113,37 +149,63 @@ function SelectedAtHr() {
     setClickedIndexes(newClickedIndexes);
   };
 
+  const handleTabChange = (event, newValue) => {
+    setSelectedTab(newValue);
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
+      {/* Tabs */}
+      <Tabs value={selectedTab} onChange={handleTabChange} centered>
+        <Tab label="Selected at HR" />
+        <Tab label="Mark Assigned" />
+
+      </Tabs>
+
       {/* Filters */}
       <Box display="flex" justifyContent="space-around" mb={3} className="mt-4">
-        <Form.Group variant="outlined" size="small" style={{ minWidth: 220 }}>
-          <Form.Select 
-            value={marketFilter}
-            onChange={(e) => setMarketFilter(e.target.value)}
-            style={{
+      <Form.Group variant="outlined" size="small" style={{ minWidth: 220 }}>
+        <Select
+          isMulti // Enables multi-select
+          value={marketFilter.map(market => ({ value: market, label: market.charAt(0).toUpperCase() + market.slice(1) }))}
+          onChange={(selectedOptions) => {
+            // Update state with the array of selected market values
+            setMarketFilter(selectedOptions ? selectedOptions.map(option => option.value) : []);
+          }}
+          options={data
+            .map(row => row.MarketHiringFor?.toLowerCase())
+            .filter(value => value !== "")
+            .filter((value, index, self) => self.indexOf(value) === index) // Avoid duplicate values
+            .map((market) => ({
+              value: market,
+              label: market.charAt(0).toUpperCase() + market.slice(1) // Capitalize first letter
+            }))}
+          placeholder="Select Markets"
+          styles={{
+            control: (provided) => ({
+              ...provided,
               borderRadius: '20px',
               padding: '10px',
               boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
               borderColor: '#007bff',
               color: '#007bff',
               fontWeight: 'bold',
-              minWidth: 220
-            }}
-          >
-            <option value="">All Markets</option>
-            {data
-              .map(row => row.MarketHiringFor?.toLowerCase())
-              .filter(value => value !== "")
-              .filter((value, index, self) => self.indexOf(value) === index)
-              .map((market, idx) => (
-                <option key={idx} value={market}>
-                  {market.charAt(0).toUpperCase() + market.slice(1)}
-                </option>
-              ))}
-          </Form.Select>
-        </Form.Group>
-
+              minWidth: 220,
+            }),
+            multiValue: (provided) => ({
+              ...provided,
+              backgroundColor: '#007bff',
+              color: 'white',
+              borderRadius: '4px',
+              padding: '2px',
+            }),
+            multiValueLabel: (provided) => ({
+              ...provided,
+              color: 'white',
+            }),
+          }}
+        />
+      </Form.Group>
         <DateRangePicker
           startText="Start Date"
           endText="End Date"
@@ -175,7 +237,7 @@ function SelectedAtHr() {
           }}
         >
           <Typography variant="h6" style={{ color: '#3f51b5', fontWeight: 'bold' }}>
-            No applications to Create NTID Right Now
+            Select Markets to Create NTID Right Now
           </Typography>
         </Card>
       ) : (
@@ -185,9 +247,9 @@ function SelectedAtHr() {
               <TableRow>
                 <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>Index</TableCell>
                 <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>UserName & Details</TableCell>
-                <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>Market Hiring For</TableCell>
-                <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>Training At</TableCell>
-                <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>Date of Joining</TableCell>
+                <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>Market Hiring </TableCell>
+                <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>Training </TableCell>
+                <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>DOJ</TableCell>
                 <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>NTID Created</TableCell>
                 <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>NTID Created Date</TableCell>
                 <TableCell style={{ backgroundColor: '#3f51b5', color: '#ffffff' }}>NTID</TableCell>
@@ -223,9 +285,10 @@ function SelectedAtHr() {
                             <Typography >
                               {new Date(row.DateOfJoining).toLocaleDateString()}
                             </Typography>
-                            <Typography style={{ color: 'red', fontWeight: 'bold' }}>
-                              {daysLeft > 0 ? `${daysLeft} days left` : 'Joining date passed'}
-                            </Typography>
+                            {row.status === 'mark_assigned' ? " " :
+                              <Typography style={{ color: 'red', fontWeight: '' }}>
+                                {daysLeft > 0 ? `${daysLeft} days left` : 'Joining date passed'}
+                              </Typography>}
                           </Box>
                         );
                       })()
@@ -236,6 +299,7 @@ function SelectedAtHr() {
                       <Checkbox
                         checked={row.ntidCreated}
                         disabled
+                        style={{color:'#46aba2'}}
                       />
                     ) : (
                       <Checkbox
@@ -289,6 +353,7 @@ function SelectedAtHr() {
                       <Checkbox
                         checked={row.addedToSchedule}
                         disabled
+                        style={{color:'#46aba2'}}
                       />
                     ) : (
                       <Checkbox
@@ -298,13 +363,24 @@ function SelectedAtHr() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <IconButton onClick={() => handleIconClick(index)} disabled={clickedIndexes.has(index)}>
-                      <CheckCircleIcon 
-                        style={{ 
-                          color: row.status === 'mark_assigned' ? '#76c7c0' : '#3f51b5' 
-                        }} 
-                      />
-                    </IconButton>
+                    {row.status === 'mark_assigned' ? (
+                      <IconButton disabled>
+                        <CheckCircleIcon
+                          style={{
+                            color: '#46aba2'
+                          }}
+                        />
+                      </IconButton>
+                    ) : (
+                      <IconButton onClick={() => handleIconClick(index)} disabled={clickedIndexes.has(index)}>
+                        <CheckCircleIcon
+                          style={{
+                            color: '#3f51b5'
+                          }}
+                        />
+                      </IconButton>
+                    )}
+
                   </TableCell>
                 </TableRow>
               ))}

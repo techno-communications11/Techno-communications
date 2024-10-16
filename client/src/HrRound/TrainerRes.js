@@ -6,6 +6,7 @@ import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import { toast, ToastContainer } from 'react-toastify';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Button as MuiButton } from '@mui/material';
 
 function TrainerRes({ setTrainerCount }) {
     const apiurl = process.env.REACT_APP_API;
@@ -13,6 +14,7 @@ function TrainerRes({ setTrainerCount }) {
     const [profiles, setProfiles] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState(null);
+    const [actionType, setActionType] = useState('');
 
     useEffect(() => {
         const assignedToInterviewer = async () => {
@@ -32,15 +34,16 @@ function TrainerRes({ setTrainerCount }) {
         assignedToInterviewer();
     }, [apiurl, userData.id, setTrainerCount]);
 
-    const handleInterviewClick = (profile) => {
+    const handleActionClick = (profile, action) => {
         setSelectedProfile(profile);
+        setActionType(action); // Track if it's "Selected" or "Rejected"
         setShowModal(true);
     };
 
     const confirmAction = async () => {
         const payload = {
             applicant_uuid: selectedProfile.applicant_uuid,
-            action: selectedProfile.applicant_status === "Recommended For Hiring" ? "selected at Hr" : "rejected at Hr",
+            action: actionType === 'Selected' ? 'selected at Hr' : 'rejected at Hr',
         };
 
         try {
@@ -82,12 +85,21 @@ function TrainerRes({ setTrainerCount }) {
                                 <td>{profile.applicant_uuid}</td>
                                 <td>{profile.applicant_status}</td>
                                 <td>
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={() => handleInterviewClick(profile)}
+                                    <MuiButton
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => handleActionClick(profile, 'Selected')}
                                     >
-                                        Confirm
-                                    </button>
+                                        Select
+                                    </MuiButton>
+                                    <MuiButton
+                                        variant="contained"
+                                        color="secondary"
+                                        style={{ marginLeft: '10px' }}
+                                        onClick={() => handleActionClick(profile, 'Rejected')}
+                                    >
+                                        Reject
+                                    </MuiButton>
                                 </td>
                             </tr>
                         ))}
@@ -100,7 +112,7 @@ function TrainerRes({ setTrainerCount }) {
                     <Modal.Title>Confirm Action</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Are you sure you are hiring {selectedProfile?.applicant_name}?
+                    Are you sure you want to {actionType.toLowerCase()} {selectedProfile?.applicant_name}?
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowModal(false)}>

@@ -130,7 +130,7 @@ const DetailCards = () => {
         const pendingAtNITDSTotal =
             (profileStats["selected at Hr"] || 0);
 
-        const ntidCreatedTotal = profileStats["NTID Created"] || 0;
+        const ntidCreatedTotal = profileStats["mark_assigned"] || 0;
 
         const finalStatusCounts = {
             "Total": Object.values(profileStats).reduce((acc, val) => acc + val, 0),

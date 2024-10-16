@@ -91,7 +91,7 @@ const getSelectedAtHr = async (req, res) => {
             WHERE 
                 applicant_referrals.status COLLATE utf8mb4_unicode_ci IN ("selected at Hr", "mark_assigned");`
         );
-        
+
         if (applicants.length === 0) {
             return res.status(404).json({ message: "No applicants found selected at HR stage." });
         }

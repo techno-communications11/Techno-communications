@@ -11,7 +11,7 @@ const addHREvaluation = async (req, res) => {
         compensationType,
         offeredSalary,
         payroll,
-        acceptOffer, // This needs conversion
+        acceptOffer,
         returnDate,
         joiningDate,
         notes,
@@ -19,12 +19,14 @@ const addHREvaluation = async (req, res) => {
         backOut,
         reasonBackOut,
         recommend_hiring,
+        selectedEvalution,
+        evaluationDate,
     } = req.body;
 
     try {
-        // Convert acceptOffer to a boolean-compatible integer
+        // Convert acceptOffer and backOut to boolean-compatible integers
         const acceptOfferValue = (acceptOffer === 'Yes') ? 1 : 0;
-        const backOutValue = (backOut === 'Yes') ? 1 : 0; // Similar conversion for backOut if necessary
+        const backOutValue = (backOut === 'Yes') ? 1 : 0;
 
         // Insert into hrevaluation
         const [result] = await db.query(
@@ -32,40 +34,37 @@ const addHREvaluation = async (req, res) => {
                 applicant_id,
                 market,
                 market_training,
-
                 training_location,
                 compensation_type,
                 offered_salary,
-
                 payroll,
                 accept_offer,
                 return_date,
-
                 joining_date,
                 notes,
                 work_hours_days,
                 back_out,
-                reason_back_out
-            ) VALUES (?, ?, ?,  ?, ?, ?,  ?, ?, ?,  ?, ?, ?,  ?,?)`,
+                reason_back_out,
+                selectedEvalution,
+                evaluationDate
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             [
                 applicantId,
                 market,
                 marketTraining,
-
                 trainingLocation,
                 compensationType,
                 offeredSalary,
-
                 payroll,
-                acceptOfferValue, // Using converted value
+                acceptOfferValue,
                 returnDate,
-
                 joiningDate,
                 notes,
                 workHoursDays,
-
-                backOutValue, // Using converted value
+                backOutValue,
                 reasonBackOut,
+                selectedEvalution,
+                evaluationDate,
             ]
         );
 
@@ -81,6 +80,7 @@ const addHREvaluation = async (req, res) => {
         );
 
         console.log("Applicant referral updated successfully. Update result:", updateResult);
+
         // Check if recommend_hiring is "selected at Hr" and update hrinterview table if true
         if (recommend_hiring === "selected at Hr") {
             const hrInterviewValues = [recommend_hiring, applicantId];
@@ -101,6 +101,7 @@ const addHREvaluation = async (req, res) => {
         res.status(500).json({ error: 'Failed to add HR evaluation or update referral', details: error.message });
     }
 };
+
 
 
 module.exports = {

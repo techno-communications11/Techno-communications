@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
-import Select from 'react-select'; 
+import Select from 'react-select';
 
 const DetailedView = () => {
     const [selectedMarkets, setSelectedMarkets] = useState([]); // Change to handle multiple markets
@@ -46,34 +46,20 @@ const DetailedView = () => {
     ];
 
     let users = [
-        "Amman Battala",
+        
         "Alishba Ahmed",
         "ALISHA PADANIYA",
-        "Aslam Khan",
-        "Arlette Lopez",
-        "Abdul Rafay",
-        "Yasir Khan",
-        "Mahmed Amhed",
         "Roshan Interview",
         "Roshan Screening",
         "Roshan Shaikh",
         "Bilal Interview",
         "EL Paso Market",
-        "Amad Khatri",
-        "Ali Palsaniya",
-        "Aslam Khan",
-        "Olinda Rangel",
         "Qamar Shahzad",
         "Shafaque Qureshi",
         "Sultan Interview",
         "Shah Noor Butt",
         "Shoaib",
         "Kamaran Mohammed",
-        "Rahim Nasir Khan",
-        "Syed Danish",
-        "Fayaz Chandrani",
-        "Mohamad Elayan"
-
     ];
 
     useEffect(() => {
@@ -248,18 +234,19 @@ const DetailedView = () => {
     const pendingTotal = (profileStats["pending at Screening"] || 0) + (profileStats["moved to Interview"] || 0) + (profileStats["put on hold at Interview"] || 0) + (profileStats["selected at Interview"] || 0) + (profileStats["Sent for Evaluation"] || 0) + (profileStats["need second opinion at Interview"] || 0) + (profileStats["Applicant will think about It"] || 0) + (profileStats["Moved to HR"] || 0) + (profileStats["selected at Hr"] || 0);
 
     const rejectedTotal = (profileStats["rejected at Screening"] || 0) + (profileStats["no show at Screening"] || 0) + (profileStats["Not Interested at screening"] || 0) + (profileStats["rejected at Interview"] || 0) + (profileStats["no show at Interview"] || 0) + (profileStats["no show at Hr"] || 0) + (profileStats["rejected at Hr"] || 0);
-
-    const firstRoundPendingTotal = (profileStats["pending at Screening"] || 0) + (profileStats["moved to Interview"] || 0) + (profileStats["put on hold at Interview"] || 0);
+    const atscreening = (profileStats["pending at Screening"] || 0);
+    const firstRoundPendingTotal = (profileStats["moved to Interview"] || 0) + (profileStats["put on hold at Interview"] || 0);
 
     const hrRoundPendingTotal = (profileStats["selected at Interview"] || 0) + (profileStats["Sent for Evaluation"] || 0) + (profileStats["need second opinion at Interview"] || 0) + (profileStats["Applicant will think about It"] || 0) + (profileStats["Moved to HR"] || 0);
 
     const pendingAtNITDSTotal = profileStats["selected at Hr"] || 0;
-    const ntidCreatedTotal = profileStats["NTID Created"] || 0;
+    const ntidCreatedTotal = profileStats["mark_assigned"] || 0;
 
     const finalStatusCounts = {
         // "Total": Object.values(profileStats).reduce((acc, val) => acc + val, 0),
         "Rejected": rejectedTotal,
         "Pending": pendingTotal,
+        "Pending At Screening": atscreening,
         "1st Round - Pending": firstRoundPendingTotal,
         "HR Round - Pending": hrRoundPendingTotal,
         "Pending at NTID": pendingAtNITDSTotal,
@@ -268,6 +255,7 @@ const DetailedView = () => {
 
     const groupstatus = ["Rejected",
         "Pending",
+        "pending at Screening",
         "1st Round - Pending",
         "HR Round - Pending",
         "Pending at NTID",
@@ -285,6 +273,7 @@ const DetailedView = () => {
             "Moved to HR",
             "selected at Hr"
         ],
+
         "Rejected": [
             "rejected at Screening",
             "no show at Screening",
@@ -295,8 +284,9 @@ const DetailedView = () => {
             "Not Recommended For Hiring",
             "rejected at Hr"
         ],
+        "pending at Screening": [ "pending at Screening",],
         "1st Round - Pending": [
-            "pending at Screening",
+          
             "moved to Interview",
             "put on hold at Interview"
         ],
@@ -309,7 +299,7 @@ const DetailedView = () => {
             "Recommended For Hiring"
         ],
         "Pending at NTID": ["selected at Hr"],
-        "NTID Created": ["NTID Created"]
+        "NTID Created": ["mark_assigned"]
     };
 
     return (
@@ -505,7 +495,7 @@ const DetailedView = () => {
                 isFilterApplied ? (
                     flattenedProfiles.length > 0 ? (
                         <>
-                            <TableContainer component={Paper} sx={{ width: '100%', boxShadow: 2, borderRadius: 2}}>
+                            <TableContainer component={Paper} sx={{ width: '100%', boxShadow: 2, borderRadius: 2 }}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
@@ -548,7 +538,7 @@ const DetailedView = () => {
                                 />
                             </Stack>
                         </>
-                    ) : (
+                    ): (
                         <Typography variant="h6" color="error">No profiles found For Above Filters</Typography>
                     )
                 ) : (

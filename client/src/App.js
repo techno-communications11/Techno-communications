@@ -39,7 +39,8 @@ import DetailCards from './Adminpages/DetailCards';
 import DirectHiring from './Direct/DirectHiring';
 import DirectForm from './Direct/DirectForm';
 import DirectNew from './Direct/DirectNew';
-
+import Edit from './HrRound/Edit';
+import HrInterviewd from './HrRound/HrInterviewd';
 function App() {
   return (
     <Router>
@@ -99,10 +100,13 @@ function AppComponent() {
             {role === 'hr' && (
               <>
                 <Route path="/hrhome" element={<HrHome />} />
+                <Route path="/edit" element={<Edit />} />
+                <Route path="/hrinterviewed" element={<HrInterviewd />} />
                 <Route path="/hrinterview" element={<Hrinterview />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
                 <Route path="/hrnew" element={<HrNew />} />
                 <Route path="/hrtabs" element={<HrTabs />} />
+                <Route path="/trainerhome" element={<TrainerHome />} />
                 <Route path="/TrainerRes" element={<TrainerRes />} />
               </>
             )}

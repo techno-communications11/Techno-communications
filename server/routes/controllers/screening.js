@@ -155,45 +155,38 @@ WHERE
 
 };
 
-
 const gertrainerfeedbackapplicants = (io) => async (req, res) => {
-
     const { userId } = req.params;
-    console.log("trying get applicants for hr trined applicants......")
+    console.log("Trying to get applicants for HR trained applicants...");
+
     try {
-        // Step 1: Get Work Locations for the User
+        // Step 1: Get applicants based on status and HR ID
         const [applicantsResult] = await db.query(
             `SELECT 
-    hrinterview.applicant_uuid,
-    hrinterview.time_of_hrinterview,
-    applicant_referrals.status AS applicant_status,
-    applicant_referrals.name AS applicant_name
-   
-FROM 
-    hrinterview
-JOIN 
-    applicant_referrals ON hrinterview.applicant_uuid = applicant_referrals.applicant_uuid
-WHERE 
-    hrinterview.hr_id = ?
-    AND applicant_referrals.status IN ('Recommended For Hiring', 'Not Recommended For Hiring');
-;
-     
- `,
+                hrinterview.applicant_uuid,
+                hrinterview.time_of_hrinterview,
+                applicant_referrals.status AS applicant_status,
+                applicant_referrals.name AS applicant_name
+            FROM 
+                hrinterview
+            JOIN 
+                applicant_referrals ON hrinterview.applicant_uuid = applicant_referrals.applicant_uuid
+            WHERE 
+                hrinterview.hr_id = ?
+                AND applicant_referrals.status IN ('Spanish Evaluation', 'Store Evaluation', 'Applicant will think about It');`,
             [userId]
         );
+
         const count = applicantsResult.length;
-        console.log(count, "countinggggggggggggggggggg")
+        console.log(count, "Counting applicants...");
         io.emit('trainerfeedbackcount', count);
         res.status(200).json(applicantsResult);
-        console.log(applicantsResult)
+        console.log(applicantsResult);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: error.message });
     }
-
-
-}
-
+};
 
 
 
