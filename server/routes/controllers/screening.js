@@ -121,8 +121,64 @@ JOIN
     }
 
 };
+const getAllApplicationsForHR = async (req, res) => {
+    console.log("Trying to get applicants for all HRs with HR names...");
+
+    try {
+        // Step 1: Get applicants for all HRs and include HR name from the users table
+        const [applicantsResult] = await db.query(
+            `SELECT 
+                hrinterview.applicant_uuid,
+                hrinterview.hr_id,
+                hrinterview.time_of_hrinterview,
+                applicant_referrals.name AS applicant_name,
+                users.name AS hr_name  -- Fetch HR name from users table
+            FROM 
+                hrinterview
+            JOIN 
+                applicant_referrals ON hrinterview.applicant_uuid = applicant_referrals.applicant_uuid
+            JOIN 
+                users ON hrinterview.hr_id = users.id  -- Join with users table to get HR name
+            WHERE 
+                applicant_referrals.status = 'Moved to HR';`
+        );
+
+        res.status(200).json(applicantsResult);
+        console.log(applicantsResult);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getApplicationforallhr = async (req, res) => {
 
 
+    try {
+        // Step 1: Get Work Locations for the User
+        const [applicantsResult] = await db.query(
+            `SELECT 
+            hrinterview.applicant_uuid,
+    hrinterview.time_of_hrinterview,
+    applicant_referrals.name AS applicant_name
+    FROM 
+    hrinterview
+JOIN 
+ applicant_referrals ON hrinterview.applicant_uuid = applicant_referrals.applicant_uuid
+   WHERE 
+    hrinterview.hr_id = ?   
+    AND applicant_referrals.status = 'Moved to HR';
+ `,
+            [userId]
+        );
+
+        res.status(200).json(applicantsResult);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+
+};
 
 const getApplicationforTrainer = (io) => async (req, res) => {
 
@@ -189,10 +245,44 @@ const gertrainerfeedbackapplicants = (io) => async (req, res) => {
 };
 
 
+const getAllTrainerFeedbackApplicants = (io) => async (req, res) => {
+    console.log("Trying to get applicants for all HRs with HR names...");
+
+    try {
+        // Step 1: Get applicants based on status and include HR name from the users table
+        const [applicantsResult] = await db.query(
+            `SELECT 
+                hrinterview.applicant_uuid,
+                hrinterview.hr_id,
+                hrinterview.time_of_hrinterview,
+                applicant_referrals.status AS applicant_status,
+                applicant_referrals.name AS applicant_name,
+                users.name AS hr_name  -- Fetch the HR name from the users table
+            FROM 
+                hrinterview
+            JOIN 
+                applicant_referrals ON hrinterview.applicant_uuid = applicant_referrals.applicant_uuid
+            JOIN 
+                users ON hrinterview.hr_id = users.id  -- Join with the users table to get HR name
+            WHERE 
+                applicant_referrals.status IN ('Spanish Evaluation', 'Store Evaluation', 'Applicant will think about It');`
+        );
+
+        const count = applicantsResult.length;
+        console.log(count, "Counting all HR applicants...");
+        io.emit('allTrainerFeedbackCount', count);  // Emit the count of applicants for all HRs
+        res.status(200).json(applicantsResult);
+        console.log(applicantsResult);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
 
 
 
 
 
-module.exports = {  getApplicationforinterviewr, getApplicationforhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants };
+
+module.exports = { getApplicationforinterviewr, getApplicationforhr, getAllApplicationsForHR,getApplicationforallhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants ,getAllTrainerFeedbackApplicants};

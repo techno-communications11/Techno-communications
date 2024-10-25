@@ -35,12 +35,18 @@ import UpdatePassword from './pages/UpdatePassword';
 import { selectClasses } from '@mui/material';
 import SelectedAtHr from './Adminpages/SelectedAtHr';
 import DetailedView from './Adminpages/DetailedView'
+
 import DetailCards from './Adminpages/DetailCards';
 import DirectHiring from './Direct/DirectHiring';
+import { DirectDash}  from './Direct/DirectDash';
 import DirectForm from './Direct/DirectForm';
 import DirectNew from './Direct/DirectNew';
 import Edit from './HrRound/Edit';
+import HrPrendings from './Adminpages/HrPrendings';
 import HrInterviewd from './HrRound/HrInterviewd';
+import AdminTabs from './Adminpages/Admintabs';
+import AdminHrEdit from './Adminpages/AdminHrEdit';
+import StatsTicketView from './Adminpages/StatsTicketView';
 function App() {
   return (
     <Router>
@@ -88,6 +94,8 @@ function AppComponent() {
             {role === 'admin' && (
               <>
                 <Route path="/work" element={<Individual_performance />} />
+                <Route path="/adminTabs" element={<AdminTabs />} />
+                <Route path="/AdminHrEdit" element={<AdminHrEdit />} />
                 <Route path="/detailacrds" element={<DetailCards />} />
                 <Route path="/detail" element={<DetailedView />} />
                 <Route path="/selectedathr" element={<SelectedAtHr />} />
@@ -95,6 +103,8 @@ function AppComponent() {
                 <Route path="/updatepassword" element={<UpdatePassword />} />
                 <Route path="/admindetailedview" element={<AdminDetailedView />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/edit" element={<Edit />} />
+                <Route path="/statusticketview" element={<StatsTicketView />} />
               </>
             )}
             {role === 'hr' && (
@@ -119,7 +129,9 @@ function AppComponent() {
             )}
              {role === 'direct_hiring' && (
               <>
-                <Route path="/directHiring" element={<DirectHiring />} />
+              
+                <Route path="/directHiring" element={<DirectDash />} />
+                {/* <Route path="/directdash" element={<DirectDash />} /> */}
                 <Route path="/directform" element={<DirectForm />} />
                 <Route path="/directnew" element={<DirectNew />} />
                 <Route path="/hrinterview" element={<Hrinterview />} />

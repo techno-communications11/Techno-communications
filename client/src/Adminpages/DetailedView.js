@@ -7,25 +7,29 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import * as XLSX from 'xlsx';
+import { Button } from '@mui/material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import Select from 'react-select';
 
 const DetailedView = () => {
     const [selectedMarkets, setSelectedMarkets] = useState([]); // Change to handle multiple markets
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedUsers, setSelectedUsers] = useState([]); // Updated to store multiple users
-
     const [selectedStatus, setSelectedStatus] = useState([]);
     const [dateRange, setDateRange] = useState([null, null]);
     const [selectedProfiles, setSelectedProfiles] = useState([]);
     const [loading, setLoading] = useState(false);
     const [cardShow, SetcardShow] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1); // To track current page for pagination
+    const [currentPage, setCurrentPage] = useState(1); // Pagination
     const profilesPerPage = 25; // Number of profiles to show per page
-    // const [selectedUser, setSelectedUser] = useState('');
     const [selectedGroupStatus, setSelectedGroupStatus] = useState("");
     const [isFilterApplied, setIsFilterApplied] = useState(false); // To check if filters are applied
+    const [selectAll, setSelectAll] = useState(false); // New state to handle 'Select All'
 
     const locations = [
+        { id: 0, name: 'Select All' },
+        // { id: 1, name: 'test' },
         { id: 4, name: 'ARIZONA' },
         { id: 5, name: 'Bay Area' },
         { id: 6, name: 'COLORADO' },
@@ -36,17 +40,17 @@ const DetailedView = () => {
         { id: 11, name: 'LOS ANGELES' },
         { id: 12, name: 'MEMPHIS' },
         { id: 13, name: 'NASHVILLE' },
-        { id: 14, name: 'NORTH CAROLINA' },
+        { id: 14, name: 'NORTH CAROL' },
         { id: 15, name: 'SACRAMENTO' },
-        { id: 16, name: 'SAN DIEGO' },
+        { id: 16, name: 'SAN DEIGIO' },
         { id: 17, name: 'SAN FRANCISCO' },
         { id: 18, name: 'SAN JOSE' },
         { id: 19, name: 'SANTA ROSA' },
-        { id: 21, name: 'RELOCATION' },
+        { id: 21, name: 'relocation' },
+        { id: 23, name: 'DirectHiring' },
     ];
 
     let users = [
-        
         "Alishba Ahmed",
         "ALISHA PADANIYA",
         "Roshan Interview",
@@ -79,13 +83,12 @@ const DetailedView = () => {
                 endDate: dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : null,
             };
             const response = await axios.get(url, { params });
-
             if (response.status === 200) {
                 const details = response.data.status_counts;
-                console.log("details", details);
+                console.log("details", details)
                 setSelectedProfiles(details || []);
                 setIsFilterApplied(
-                    selectedMarkets.length > 0 || selectedCategory || selectedStatus || selectedUsers || (dateRange[0] && dateRange[1])
+                    selectedMarkets.length > 0 || selectedCategory || selectedStatus.length > 0 || selectedUsers.length > 0 || (dateRange[0] && dateRange[1])
                 );
             } else {
                 console.error('Error fetching profiles:', response);
@@ -97,64 +100,94 @@ const DetailedView = () => {
         }
     };
 
+
     const handleLocationChange = (selectedOptions) => {
-        setSelectedMarkets(selectedOptions); // Update state with multiple selections
+        const allLocations = locations.map((loc) => ({ value: loc.name, label: loc.name }));
+        const selectAllOption = selectedOptions.find((option) => option.value === 'Select All');
+
+        if (selectAllOption) {
+            if (!selectAll) {
+                setSelectedMarkets(allLocations); // Select all options
+                setSelectAll(true); // Set 'Select All' to true
+            } else {
+                setSelectedMarkets([]); // Deselect all options
+                setSelectAll(false); // Set 'Select All' to false
+            }
+        } else {
+            setSelectedMarkets(selectedOptions);
+            setSelectAll(false);
+        }
+    };
+
+    const getPlaceholderText = () => {
+        if (selectAll) {
+            return "All Markets Selected";
+        }
+        if (selectedMarkets.length > 0) {
+            return selectedMarkets.some(option => option.value === "Select All")
+                ? "All Markets Selected"
+                : selectedMarkets.map((market) => market.label).join(', ');
+        }
+        return "Select One or More Markets";
     };
 
     const handleCategoryChange = (e) => {
         setSelectedCategory(e.target.value);
     };
 
-
     const handleUserChange = (selectedOptions) => {
-        console.log("selectedOptions.length", selectedOptions.length);
-
         if (selectedOptions.length < 1) {
             SetcardShow(false); // Hide the card if no user is selected
         } else {
             SetcardShow(true);  // Show the card when one or more users are selected
         }
-
         setSelectedUsers(selectedOptions); // Update state with multiple users
     };
 
-
     const handleFilterApply = (status) => {
-        // Set the selected group status to show it in the dropdown
         setSelectedGroupStatus(status);
-
-        // Get all individual statuses related to the selected group status
-        const relatedStatuses = statusMap[status] || []; // Default to an empty array if no match
-
-        // Set the selected status to the array of related statuses for filtering
+        const relatedStatuses = statusMap[status] || [];
         setSelectedStatus(relatedStatuses);
     }
 
-
-    const getStatusOptions = (category) => {
-        switch (category) {
-            case 'Screening':
-                return ['pending at Screening', 'no show at Screening', 'rejected at Screening', 'Not Interested at screening'];
-            case 'Interview':
-                return ['moved to Interview', 'no show at Interview', 'rejected at Interview', 'selected at Interview'];
-            case 'HR':
-                return ['no show at Hr', 'Moved to HR', 'selected at Hr', 'rejected at Hr'];
-            default:
-                return [];
+    useEffect(() => {
+        const savedFilters = JSON.parse(localStorage.getItem('savedFilters'));
+        if (savedFilters) {
+            // Apply the saved filters on component load
+            setSelectedMarkets(savedFilters.selectedMarkets || []);
+            setSelectedCategory(savedFilters.selectedCategory || '');
+            setSelectedStatus(savedFilters.selectedStatus || []);
+            setSelectedUsers(savedFilters.selectedUsers || []);
+            setDateRange(savedFilters.dateRange || [null, null]);
         }
-    };
-    const filteredProfiles = selectedProfiles.map((currentStatus) => {
-        // console.log("st...", currentStatus); // Log the current status object
+    }, []);
 
+    useEffect(() => {
+        const filters = {
+            selectedMarkets,
+            selectedCategory,
+            selectedStatus,
+            selectedUsers,
+            dateRange,
+        };
+        localStorage.setItem('savedFilters', JSON.stringify(filters));
+    }, [selectedMarkets, selectedCategory, selectedStatus, selectedUsers, dateRange]);
+
+    const filteredProfiles = selectedProfiles.map((currentStatus) => {
         const filteredData = {
             applicant_names: [],
+            phone: [],
+            applicant_emails: [],
+            applicant_referred_by: [],
+            applicant_reference_ids: [],
+            applicant_uuids: [],  // Added phone field
             created_at_dates: [],
             work_location_names: [],
             screening_manager_names: [],
             interviewer_names: [],
             hr_names: [],
             joining_dates: [],
-            status: currentStatus.status, // Store the original status here
+            status: currentStatus.status,
         };
 
         currentStatus.applicant_names.forEach((_, index) => {
@@ -163,21 +196,25 @@ const DetailedView = () => {
                 : true;
 
             const inUsers = selectedUsers.length > 0
-                ? selectedUsers.some((user) =>
-                    [currentStatus.screening_manager_names[index], currentStatus.interviewer_names[index], currentStatus.hr_names[index]].includes(user.value)
-                )
+                ? selectedUsers.some((user) => [currentStatus.screening_manager_names[index], currentStatus.interviewer_names[index], currentStatus.hr_names[index]].includes(user.value))
                 : true;
 
             const createdDate = dayjs(currentStatus.created_at_dates[index]);
             const inDateRange = dateRange[0] && dateRange[1]
                 ? createdDate.isAfter(dayjs(dateRange[0]).startOf('day')) && createdDate.isBefore(dayjs(dateRange[1]).endOf('day'))
                 : true;
+
             const filteredByStatus = selectedStatus.length > 0
                 ? selectedStatus.includes(currentStatus.status)
                 : true;
 
             if (inMarket && inUsers && inDateRange && filteredByStatus) {
                 filteredData.applicant_names.push(currentStatus.applicant_names[index]);
+                filteredData.phone.push(currentStatus.phone[index]);
+                filteredData.applicant_emails.push(currentStatus.applicant_emails[index]);
+                filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by[index]);
+                filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids[index]);
+                filteredData.applicant_uuids.push(currentStatus.applicant_uuids[index]); // Added phone filter logic
                 filteredData.created_at_dates.push(currentStatus.created_at_dates[index]);
                 filteredData.work_location_names.push(currentStatus.work_location_names[index]);
                 filteredData.screening_manager_names.push(currentStatus.screening_manager_names[index]);
@@ -187,14 +224,24 @@ const DetailedView = () => {
             }
         });
 
-        return filteredData; // Return the filtered data object
-    }).filter(data => data.applicant_names.length > 0); // Filter out empty results
+        return filteredData;
+    }).filter(data => data.applicant_names.length > 0); // Remove empty results
 
 
-    // console.log("112", filteredProfiles)
+    const statusOrder = [
+        'pending at Screening', 'no show at Screening', 'rejected at Screening', 'Not Interested at screening',
+        'moved to Interview', 'no show at Interview', 'rejected at Interview', 'selected at Interview',
+        'no show at Hr', 'Moved to HR', 'selected at Hr', 'rejected at Hr'
+    ];
+
     const flattenedProfiles = filteredProfiles.flatMap(status => {
         return status.applicant_names.map((name, index) => ({
             applicant_name: name,
+            applicant_phone: status.phone[index],
+            applicant_email: status.applicant_emails[index],
+            applicant_referred_by: status.applicant_referred_by[index],
+            applicant_reference_id: status.applicant_reference_ids[index],
+            applicant_uuid: status.applicant_uuids[index],
             created_at_date: status.created_at_dates[index],
             work_location_name: status.work_location_names[index],
             screening_manager_name: status.screening_manager_names[index] || 'N/A',
@@ -205,13 +252,34 @@ const DetailedView = () => {
                 ? dayjs(status.joining_dates[index]).format('YYYY-MM-DD')
                 : 'N/A'
         }));
+    }).sort((a, b) => {
+        const statusAIndex = statusOrder.indexOf(a.status) !== -1 ? statusOrder.indexOf(a.status) : 9999;
+        const statusBIndex = statusOrder.indexOf(b.status) !== -1 ? statusOrder.indexOf(b.status) : 9999;
+
+        // Sort by status index
+        if (statusAIndex < statusBIndex) return -1;
+        if (statusAIndex > statusBIndex) return 1;
+
+        // Sort by created_at_date
+        return new Date(a.created_at_date) - new Date(b.created_at_date) || a.applicant_name.localeCompare(b.applicant_name); // Add additional sorting by applicant_name
     });
-    // console.log("flattenedProfiles", flattenedProfiles)
+
+
+    const uniqueFlattenedProfiles = flattenedProfiles.filter((profile, index, self) =>
+        index === self.findIndex((p) => (
+            p.applicant_uuid === profile.applicant_uuid
+            // p.created_at_date === profile.created_at_date
+            // p.work_location_name === profile.work_location_name &&
+            // p.screening_manager_name === profile.screening_manager_name
+        ))
+    );
+
+    // console.log("uniqueFlattenedProfiles", uniqueFlattenedProfiles)
     const indexOfLastProfile = currentPage * profilesPerPage;
     const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
-    const currentProfiles = flattenedProfiles.slice(indexOfFirstProfile, indexOfLastProfile);
+    const currentProfiles = uniqueFlattenedProfiles.slice(indexOfFirstProfile, indexOfLastProfile);
 
-    const pageCount = Math.ceil(flattenedProfiles.length / profilesPerPage);
+    const pageCount = Math.ceil(uniqueFlattenedProfiles.length / profilesPerPage);
 
     const handlePageChange = (event, value) => {
         setCurrentPage(value);
@@ -225,21 +293,52 @@ const DetailedView = () => {
         boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
         borderColor: '#007bff',
     };
-    console.log("currentProfiles", currentProfiles)
-    const profileStats = flattenedProfiles.reduce((acc, profile) => {
+    console.log("uniqueFlattenedProfiles", uniqueFlattenedProfiles)
+    const profileStats = uniqueFlattenedProfiles.reduce((acc, profile) => {
         acc[profile.status] = (acc[profile.status] || 0) + 1;
         return acc;
     }, {});
 
-    const pendingTotal = (profileStats["pending at Screening"] || 0) + (profileStats["moved to Interview"] || 0) + (profileStats["put on hold at Interview"] || 0) + (profileStats["selected at Interview"] || 0) + (profileStats["Sent for Evaluation"] || 0) + (profileStats["need second opinion at Interview"] || 0) + (profileStats["Applicant will think about It"] || 0) + (profileStats["Moved to HR"] || 0) + (profileStats["selected at Hr"] || 0);
-
-    const rejectedTotal = (profileStats["rejected at Screening"] || 0) + (profileStats["no show at Screening"] || 0) + (profileStats["Not Interested at screening"] || 0) + (profileStats["rejected at Interview"] || 0) + (profileStats["no show at Interview"] || 0) + (profileStats["no show at Hr"] || 0) + (profileStats["rejected at Hr"] || 0);
+    const pendingTotal =
+        (profileStats["pending at Screening"] || 0) +
+        (profileStats["moved to Interview"] || 0) +
+        (profileStats["put on hold at Interview"] || 0) +
+        (profileStats["selected at Interview"] || 0) +
+        (profileStats["Sent for Evaluation"] || 0) +
+        (profileStats["need second opinion at Interview"] || 0) +
+        (profileStats["Applicant will think about It"] || 0) +
+        (profileStats["Moved to HR"] || 0) +
+        (profileStats["Recommended For Hiring"] || 0) +
+        (profileStats["selected at Hr"] || 0) +
+        (profileStats["Spanish Evaluation"] || 0) +
+        (profileStats["Store Evaluation"] || 0)
+    const rejectedTotal =
+        (profileStats["rejected at Screening"] || 0) +
+        (profileStats["no show at Screening"] || 0) +
+        (profileStats["Not Interested at screening"] || 0) +
+        (profileStats["rejected at Interview"] || 0) +
+        (profileStats["no show at Interview"] || 0) +
+        (profileStats["no show at Hr"] || 0) +
+        (profileStats["Not Recommended For Hiring"] || 0) +
+        (profileStats["rejected at Hr"] || 0);
     const atscreening = (profileStats["pending at Screening"] || 0);
-    const firstRoundPendingTotal = (profileStats["moved to Interview"] || 0) + (profileStats["put on hold at Interview"] || 0);
+    const firstRoundPendingTotal =
+        // (profileStats["pending at Screening"] || 0) +
+        (profileStats["moved to Interview"] || 0) +
+        (profileStats["put on hold at Interview"] || 0);
 
-    const hrRoundPendingTotal = (profileStats["selected at Interview"] || 0) + (profileStats["Sent for Evaluation"] || 0) + (profileStats["need second opinion at Interview"] || 0) + (profileStats["Applicant will think about It"] || 0) + (profileStats["Moved to HR"] || 0);
+    const hrRoundPendingTotal =
+        (profileStats["Recommended For Hiring"] || 0) +
+        (profileStats["selected at Interview"] || 0) +
+        (profileStats["Sent for Evaluation"] || 0) +
+        (profileStats["need second opinion at Interview"] || 0) +
+        (profileStats["Applicant will think about It"] || 0) +
+        (profileStats["Moved to HR"] || 0) +
+        (profileStats["Spanish Evaluation"] || 0) +
+        (profileStats["Store Evaluation"] || 0);
+    const pendingAtNITDSTotal =
+        (profileStats["selected at Hr"] || 0);
 
-    const pendingAtNITDSTotal = profileStats["selected at Hr"] || 0;
     const ntidCreatedTotal = profileStats["mark_assigned"] || 0;
 
     const finalStatusCounts = {
@@ -267,11 +366,14 @@ const DetailedView = () => {
             "moved to Interview",
             "put on hold at Interview",
             "selected at Interview",
+            "Recommended For Hiring",
             "Sent for Evaluation",
             "need second opinion at Interview",
             "Applicant will think about It",
             "Moved to HR",
-            "selected at Hr"
+            "selected at Hr",
+            'Store Evaluation',
+            'Spanish Evaluation',
         ],
 
         "Rejected": [
@@ -284,9 +386,9 @@ const DetailedView = () => {
             "Not Recommended For Hiring",
             "rejected at Hr"
         ],
-        "pending at Screening": [ "pending at Screening",],
+        "pending at Screening": ["pending at Screening",],
         "1st Round - Pending": [
-          
+
             "moved to Interview",
             "put on hold at Interview"
         ],
@@ -296,10 +398,40 @@ const DetailedView = () => {
             "need second opinion at Interview",
             "Applicant will think about It",
             "Moved to HR",
-            "Recommended For Hiring"
+            "Recommended For Hiring",
+            'Store Evaluation',
+            'Spanish Evaluation',
         ],
         "Pending at NTID": ["selected at Hr"],
         "NTID Created": ["mark_assigned"]
+    };
+    const handleDownloadExcel = (uniqueFlattenedProfiles) => {
+        const worksheetData = uniqueFlattenedProfiles.map((profile, index) => ({
+
+            "Created At": dayjs(profile.created_at_date).format('YYYY-MM-DD HH:mm:ss'),
+            "Applicant UUID": profile.applicant_uuid,
+            "Applicant Name": profile.applicant_name,
+            "Phone Number": profile.applicant_phone,
+            "Email": profile.applicant_email,
+            "Referred_by": profile.applicant_referred_by,
+            "Referred_id": profile.applicant_reference_id,
+            "Work Location": profile.work_location_name,
+            "Screening Manager": profile.screening_manager_name,
+            "Interviewer": profile.interviewer_name,
+            "HR Name": profile.hr_name,
+            "Status": profile.status,
+            "Joining Date": profile.joining_date,
+        }));
+
+        // Create worksheet from the data
+        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+
+        // Create a workbook and append the worksheet
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants");
+
+        // Generate Excel file and trigger download
+        XLSX.writeFile(workbook, 'Applicants_List.xlsx');
     };
 
     return (
@@ -307,13 +439,13 @@ const DetailedView = () => {
             {/* Filter Controls */}
             <Box display="flex" gap={2} mb={3} sx={{ width: '100%', flexWrap: 'wrap' }}>
                 {/* Market Selector with extra space */}
-                <Form.Group controlId="marketSelector" style={{ flex: 2 }}> {/* Increased flex */}
+                <Form.Group controlId="marketSelector" style={{ flex: 2 }}>
                     <Select
                         isMulti
-                        value={selectedMarkets}
+                        value={selectAll ? [] : selectedMarkets} // Clear actual selections when all are selected
                         options={locations.map(loc => ({ value: loc.name, label: loc.name }))}
                         onChange={handleLocationChange}
-                        placeholder="Select One or More Markets"
+                        placeholder={getPlaceholderText()} // Dynamic placeholder
                         styles={{
                             control: (provided) => ({
                                 ...provided,
@@ -337,6 +469,7 @@ const DetailedView = () => {
                         }}
                     />
                 </Form.Group>
+
 
                 {/* Category Selector with reduced size */}
                 {/* <Form.Group controlId="categorySelector" style={{ flex: 1 }}>
@@ -443,7 +576,7 @@ const DetailedView = () => {
                                 height="130px"
                             >
                                 <Typography variant="h4" fontWeight={700}>
-                                    {flattenedProfiles.length}
+                                    {uniqueFlattenedProfiles.length}
                                 </Typography>
                                 <Typography variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
                                     Total Profiles
@@ -493,8 +626,28 @@ const DetailedView = () => {
                 <Typography variant="h6">Loading...</Typography>
             ) : (
                 isFilterApplied ? (
-                    flattenedProfiles.length > 0 ? (
+                    uniqueFlattenedProfiles.length > 0 ? (
                         <>
+                            <div className='justify-content-end d-flex m-1'>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    startIcon={<FileDownloadIcon />}
+                                    sx={{
+                                        backgroundColor: '#28a745',
+                                        color: 'white',
+                                        borderRadius: '20px',
+                                        padding: '10px 20px',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                        '&:hover': {
+                                            backgroundColor: '#218838',
+                                        },
+                                    }}
+                                    onClick={() => handleDownloadExcel(uniqueFlattenedProfiles)}
+                                >
+                                    Download Data Excel
+                                </Button>
+                            </div>
                             <TableContainer component={Paper} sx={{ width: '100%', boxShadow: 2, borderRadius: 2 }}>
                                 <Table>
                                     <TableHead>
@@ -502,6 +655,8 @@ const DetailedView = () => {
                                             <TableCell style={headerStyle}>S.No</TableCell>
                                             <TableCell style={headerStyle}>Created At</TableCell>
                                             <TableCell style={headerStyle}>Applicant Name</TableCell>
+                                            <TableCell style={headerStyle}> Referred_by</TableCell>
+                                            <TableCell style={headerStyle}>Rreference_ids</TableCell>
                                             <TableCell style={headerStyle}>Work Location</TableCell>
                                             <TableCell style={headerStyle}>Screening Manager</TableCell>
                                             <TableCell style={headerStyle}>Interviewer</TableCell>
@@ -514,17 +669,32 @@ const DetailedView = () => {
                                         {currentProfiles.map((profile, index) => (
                                             <TableRow key={index}>
                                                 <TableCell>{serialNumber++}</TableCell>
-                                                <TableCell>{dayjs(profile.created_at_date).format('YYYY-MM-DD')}</TableCell>
-                                                <TableCell>{profile.applicant_name}</TableCell>
-                                                <TableCell>{profile.work_location_name}</TableCell>
-                                                <TableCell>{profile.screening_manager_name}</TableCell>
-                                                <TableCell>{profile.interviewer_name}</TableCell>
-                                                <TableCell>{profile.hr_name}</TableCell>
-                                                <TableCell>{profile.status}</TableCell>
-                                                <TableCell>{profile.joining_date}</TableCell>
+                                                <TableCell>{profile.created_at_date ? dayjs(profile.created_at_date).format('YYYY-MM-DD') : 'N/A'}</TableCell>
+                                                <TableCell>
+
+                                                    <Box display="flex" alignItems="center">
+
+                                                        <Box ml={2}>
+                                                            <Typography variant="body1" style={{ fontWeight: 'bold' }}> {profile.applicant_name || 'N/A'}</Typography>
+
+                                                            <Typography variant="body1" color="textSecondary">{profile.applicant_phone}</Typography>
+
+                                                        </Box>
+                                                    </Box>
+                                                </TableCell>
+
+                                                <TableCell>{profile.applicant_referred_by || 'N/A'}</TableCell>
+                                                <TableCell>{profile.applicant_reference_id || 'N/A'}</TableCell>
+                                                <TableCell>{profile.work_location_name || 'N/A'}</TableCell>
+                                                <TableCell>{profile.screening_manager_name || 'N/A'}</TableCell>
+                                                <TableCell>{profile.interviewer_name || 'N/A'}</TableCell>
+                                                <TableCell>{profile.hr_name || 'N/A'}</TableCell>
+                                                <TableCell>{profile.status || 'N/A'}</TableCell>
+                                                <TableCell>{profile.joining_date || 'N/A'}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
+
                                 </Table>
                             </TableContainer>
 
@@ -538,7 +708,7 @@ const DetailedView = () => {
                                 />
                             </Stack>
                         </>
-                    ): (
+                    ) : (
                         <Typography variant="h6" color="error">No profiles found For Above Filters</Typography>
                     )
                 ) : (

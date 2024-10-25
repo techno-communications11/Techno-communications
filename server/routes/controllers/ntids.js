@@ -69,6 +69,12 @@ const getSelectedAtHr = async (req, res) => {
                 hrevaluation.market AS MarketHiringFor, 
                 hrevaluation.training_location AS TrainingAt, 
                 hrevaluation.joining_date AS DateOfJoining,
+                 hrevaluation.payroll AS payroll,
+                  hrevaluation.offered_salary AS payment,
+                   hrevaluation.work_hours_days AS noOFDays,
+                   hrevaluation.Contract_disclosed AS contractDisclosed,
+                     hrevaluation.compensation_type AS compensation_type,
+                      hrevaluation.offDays AS offDays,
                 applicant_referrals.applicant_uuid AS applicant_uuid,
                 applicant_referrals.phone AS phone,
                 applicant_referrals.email AS email,
@@ -89,7 +95,7 @@ const getSelectedAtHr = async (req, res) => {
             ON 
                 applicant_referrals.applicant_uuid = ntids.applicant_uuid
             WHERE 
-                applicant_referrals.status COLLATE utf8mb4_unicode_ci IN ("selected at Hr", "mark_assigned");`
+                applicant_referrals.status COLLATE utf8mb4_unicode_ci IN ("selected at Hr", "mark_assigned","backOut");`
         );
 
         if (applicants.length === 0) {

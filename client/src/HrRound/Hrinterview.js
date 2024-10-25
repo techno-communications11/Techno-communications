@@ -10,7 +10,7 @@ import { MyContext } from '../pages/MyContext';
 import { useContext } from 'react';
 import decodeToken from '../decodedDetails';
 import { ro } from 'date-fns/locale';
-
+import Select from "react-select";
 const Hrinterview = () => {
   const { applicant_uuid } = useContext(MyContext);
   const userData = decodeToken();
@@ -111,11 +111,28 @@ const Hrinterview = () => {
     notes: '',
     workHoursDays: '',
     backOut: '',
+    disclosed: '',
     reasonBackOut: '',
     recommend_hiring: '',
     evaluationDate:'',
+    offDays: [],
   
   });
+  const options = [
+    { value: "MON", label: "Monday" },
+    { value: "TUE", label: "Tuesday" },
+    { value: "WED", label: "Wednesday" },
+    { value: "THU", label: "Thursday" },
+    { value: "FRI", label: "Friday" },
+    { value: "SAT", label: "Saturday" },
+    { value: "SUN", label: "Sunday" },
+  ];
+  const handleSelectChange = (selectedOptions) => {
+    setFormData({
+      ...formData,
+      offDays: selectedOptions ? selectedOptions.map(option => option.value) : []
+    });
+  };
   console.log(formData, " data submitted royee")
 
   const handleChange = (e) => {
@@ -204,6 +221,7 @@ console.log("formData",formData)
         notes: '',
         workHoursDays: '',
         backOut: '',
+        disclosed:'',
         reasonBackOut: '',
         recommend_hiring: '',
         evaluationDate:"" ,
@@ -770,6 +788,46 @@ console.log("formData",formData)
               />
             </Col>
           </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              15. Contract Disclosed?
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Check
+                type="radio"
+                label="Yes"
+                name="disclosed"
+                value="Yes"
+                checked={formData.disclosed === 'Yes'}
+                // isInvalid={!!errors.disclosed}
+                onChange={handleChange}
+              />
+              <Form.Check
+                type="radio"
+                label="No"
+                name="disclosed"
+                value="No"
+                checked={formData.disclosed === 'No'}
+                isInvalid={!!errors.disclosed}
+                onChange={handleChange}
+              />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+        <Form.Label column sm={6} className="text-start">
+          Select Off Days
+        </Form.Label>
+        <Col sm={6}>
+          <Select
+            isMulti
+            name="offDays"
+            options={options}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            onChange={handleSelectChange}
+          />
+        </Col>
+      </Form.Group>
           {/* Submit Button */}
           <Form.Group as={Row} className="mb-3">
             <Col sm={{ span: 6, offset: 6 }}>

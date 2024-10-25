@@ -38,6 +38,49 @@ const formdetails = async (req, res) => {
     }
 };
 
+const formDetailsForAllHRs = async (req, res) => {
+    try {
+        console.log("Fetching form details for all HRs");
+
+        // Query to get the data for all HRs from the hrinterview table, hrevaluation, and applicant_referrals
+        const query = ` SELECT 
+                hrevaluation.*, 
+                applicant_referrals.name AS applicant_name, 
+                applicant_referrals.phone AS applicant_phone, 
+                users.name AS hr_name
+            FROM 
+                hrevaluation
+            JOIN 
+                hrinterview 
+                ON hrevaluation.applicant_id = hrinterview.applicant_uuid
+            JOIN 
+                applicant_referrals 
+                ON hrevaluation.applicant_id = applicant_referrals.applicant_uuid
+            JOIN 
+                users 
+                ON hrinterview.hr_id = users.id;`; // Adjust status as needed
+
+        console.log('Executing query for all HRs');
+
+        // Using async/await with the mysql2 promise API
+        const [rows] = await db.query(query);
+
+        // Check if there are any results, if not return 404
+        if (rows.length === 0) {
+            console.log("No rows found for all HRs"); // Log if no results are found
+            return res.status(404).json({ message: 'No details found for any HR' });
+        }
+
+        // Send the results (rows) in the response with 200 status
+        res.status(200).json({ message: 'Form details fetched successfully for all HRs', rows });
+        console.log("Response sent with results:", rows); // Log the response sent
+    } catch (err) {
+        console.log("Error occurred while fetching data for all HRs:", err.message); // Log the error
+        res.status(500).json({ error: 'Error fetching form details for all HRs: ' + err.message });
+    }
+};
+
+
 // Update hrevalution table
 const updateform = async (req, res) => {
     try {
@@ -104,5 +147,6 @@ const updateform = async (req, res) => {
 
 module.exports = {
     formdetails,
-    updateform
+    updateform,
+    formDetailsForAllHRs
 };

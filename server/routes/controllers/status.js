@@ -118,27 +118,26 @@ const getStatusCountsByLocation = async (req, res) => {
 const getStatusDetailCounts = async (req, res) => {
   try {
     const query = `
-     SELECT 
+    SELECT 
   ar.status, 
   COUNT(*) AS count, 
   total.total_count,
-  GROUP_CONCAT(ar.applicant_uuid) AS applicant_uuids,
-  GROUP_CONCAT(DATE_FORMAT(he.joining_date, '%Y-%m-%d')) AS joining_dates,  -- Joining dates from hrevaluation table
-  GROUP_CONCAT(ar.name) AS applicant_names,
-  GROUP_CONCAT(ar.email) AS applicant_emails,
-  GROUP_CONCAT(ar.phone) AS applicant_phones,
-  GROUP_CONCAT(ar.referred_by) AS applicant_referred_by,
-  -- Get screening manager's name from users table based on assigned_user_id
-  GROUP_CONCAT(COALESCE(sm.name, 'No Screening Manager')) AS screening_manager_names,
-  -- Get interviewer's name from users table based on interviewer_id
-  GROUP_CONCAT(COALESCE(intv.name, 'No Interviewer')) AS interviewer_names,
-  -- Get HR's name from users table based on hr_id
-  GROUP_CONCAT(COALESCE(hr.name, 'No HR')) AS hr_names,
-  GROUP_CONCAT(ar.sourced_by) AS applicant_sourced_by,
-  GROUP_CONCAT(ar.reference_id) AS applicant_reference_ids,
-  -- Work location names from work_locations table
-  GROUP_CONCAT(wl.location_name) AS work_location_names,
-  GROUP_CONCAT(DATE_FORMAT(ar.created_at, '%Y-%m-%dT%H:%i:%sZ')) AS created_at_dates
+  -- Grouping applicants and ensuring alignment in result indexes
+  GROUP_CONCAT(ar.applicant_uuid ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_uuids,
+  -- Using COALESCE to fill missing joining dates with empty string
+  GROUP_CONCAT(COALESCE(DATE_FORMAT(he.joining_date, '%Y-%m-%d'), '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',' ) AS joining_dates,  
+  GROUP_CONCAT(COALESCE(ar.name, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_names,
+  GROUP_CONCAT(COALESCE(ar.email, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_emails,
+  -- Returning applicant phone number from applicant_referrals as 'phone'
+  GROUP_CONCAT(COALESCE(ar.phone, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS phone,
+  GROUP_CONCAT(COALESCE(ar.referred_by, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_referred_by,
+  GROUP_CONCAT(COALESCE(sm.name, 'No Screening Manager') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS screening_manager_names,
+  GROUP_CONCAT(COALESCE(intv.name, 'No Interviewer') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS interviewer_names,
+  GROUP_CONCAT(COALESCE(hr.name, 'No HR') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS hr_names,
+  GROUP_CONCAT(COALESCE(ar.sourced_by, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_sourced_by,
+  GROUP_CONCAT(COALESCE(ar.reference_id, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_reference_ids,
+  GROUP_CONCAT(COALESCE(wl.location_name, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS work_location_names,
+  GROUP_CONCAT(DATE_FORMAT(ar.created_at, '%Y-%m-%dT%H:%i:%sZ') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS created_at_dates
 FROM applicant_referrals ar
 -- Subquery to get total count
 JOIN (SELECT COUNT(*) AS total_count FROM applicant_referrals) AS total ON 1=1
@@ -156,6 +155,9 @@ LEFT JOIN users sm ON ar.assigned_user_id = sm.id
 LEFT JOIN work_locations wl ON ar.work_location = wl.id  
 GROUP BY ar.status;
 
+
+
+
     `;
 
     // Execute the query
@@ -171,7 +173,7 @@ GROUP BY ar.status;
       joining_dates: row.joining_dates ? row.joining_dates.split(',') : [],  // Joining dates from hrevaluation
       applicant_names: row.applicant_names ? row.applicant_names.split(',') : [],
       applicant_emails: row.applicant_emails ? row.applicant_emails.split(',') : [],
-      applicant_phones: row.applicant_phones ? row.applicant_phones.split(',') : [],
+      phone: row.phone ? row.phone.split(',') : [],
       applicant_referred_by: row.applicant_referred_by ? row.applicant_referred_by.split(',') : [],
       screening_manager_names: row.screening_manager_names ? row.screening_manager_names.split(',') : [],  // Screening manager names
       interviewer_names: row.interviewer_names ? row.interviewer_names.split(',') : [],  // Interviewer names
@@ -294,5 +296,5 @@ const getStatusCountss = async (req, res) => {
   }
 };
 
-module.exports = { getStatusCounts, getStatusCountss, getStatusCountsByLocation, statusupdate, getStatusDetailCounts,getStatusCountsByWorkLocation };
+module.exports = { getStatusCounts, getStatusCountss, getStatusCountsByLocation, statusupdate, getStatusDetailCounts, getStatusCountsByWorkLocation };
 

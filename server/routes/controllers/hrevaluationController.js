@@ -1,4 +1,3 @@
-// controllers/hrevaluationController.js
 const db = require('../config/db');
 
 const addHREvaluation = async (req, res) => {
@@ -17,16 +16,22 @@ const addHREvaluation = async (req, res) => {
         notes,
         workHoursDays,
         backOut,
+        disclosed,
         reasonBackOut,
         recommend_hiring,
         selectedEvalution,
         evaluationDate,
+        offDays // Adding offDays to the body
     } = req.body;
 
     try {
         // Convert acceptOffer and backOut to boolean-compatible integers
         const acceptOfferValue = (acceptOffer === 'Yes') ? 1 : 0;
         const backOutValue = (backOut === 'Yes') ? 1 : 0;
+        const disclosedValue = (disclosed === 'Yes') ? 1 : 0;
+
+        // Convert offDays array to a string (for storing in a single column)
+        const offDaysString = offDays ? offDays.join(',') : '';
 
         // Insert into hrevaluation
         const [result] = await db.query(
@@ -44,10 +49,12 @@ const addHREvaluation = async (req, res) => {
                 notes,
                 work_hours_days,
                 back_out,
+                Contract_disclosed,
                 reason_back_out,
                 selectedEvalution,
-                evaluationDate
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                evaluationDate,
+                offDays  -- Include the new offDays column
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             [
                 applicantId,
                 market,
@@ -62,9 +69,11 @@ const addHREvaluation = async (req, res) => {
                 notes,
                 workHoursDays,
                 backOutValue,
+                disclosedValue,
                 reasonBackOut,
                 selectedEvalution,
                 evaluationDate,
+                offDaysString // Save offDays as a comma-separated string
             ]
         );
 
@@ -93,6 +102,18 @@ const addHREvaluation = async (req, res) => {
 
             console.log("HR interview updated successfully. Update result:", hrUpdateResult);
         }
+        if (backOut === "Yes") {
+            const backOutStatus = "backOut"
+            const hrInterviewValues = [backOutStatus, applicantId];
+            const [hrUpdateResult] = await db.query(
+                `UPDATE hrinterview
+                 SET status = ?
+                 WHERE applicant_uuid = ?`,
+                hrInterviewValues
+            );
+
+            console.log("HR interview updated successfully. Update result:", hrUpdateResult);
+        }
 
         // Send a success response
         res.status(200).json({ message: 'Evaluation added and referral updated successfully', result, updateResult });
@@ -101,8 +122,6 @@ const addHREvaluation = async (req, res) => {
         res.status(500).json({ error: 'Failed to add HR evaluation or update referral', details: error.message });
     }
 };
-
-
 
 module.exports = {
     addHREvaluation

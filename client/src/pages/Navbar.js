@@ -109,7 +109,11 @@ function AppNavbar() {
                 </Nav.Link>
               )}
 
-
+              {role === 'admin' && (
+                <Nav.Link as={Link} to="/adminTabs" className='fw-bolder nav-link-custom'>
+                  HR Profile
+                </Nav.Link>
+              )}
               {role !== "trainer" && role !== 'market_manager' &&
                 <Nav.Link
                   as={Link}

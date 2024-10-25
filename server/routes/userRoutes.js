@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getApplicationforinterviewr, getApplicationforhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants } = require('./controllers/screening');
+const { getApplicationforinterviewr, getApplicationforhr,getAllApplicationsForHR,getApplicationforallhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants,getAllTrainerFeedbackApplicants } = require('./controllers/screening');
 const { login } = require('./controllers/Login');
 const { getApplicantsForScreening, assignApplicantToUser, assignnewInterviewer, assignnewHr } = require('./controllers/screeningApplications');
 const { getAllHRs, getAllinterviewers, getAllTrainers, getAllScreening } = require('./controllers/getroles'); // Adjust the path if necessary
@@ -20,7 +20,7 @@ const { getAllUsers } = require("./controllers/getroles")
 const { createUser } = require("./controllers/createUser")
 const { createNtid, getSelectedAtHr } = require("./controllers/ntids")
 const { DirectReferal, getApplicantsForDirect } = require('./controllers/Direct');
-const { formdetails, updateform } = require('./controllers/Edit');
+const { formdetails, updateform ,formDetailsForAllHRs} = require('./controllers/Edit');
 module.exports = (io) => {
  
   router.put('/hrevalution/:applicant_id', updateform)
@@ -30,6 +30,7 @@ module.exports = (io) => {
   //Route to Create ntids
   router.post('/ntids', createNtid)
   router.get('/hrevalution/:hr_id', formdetails)
+  router.get('/formDetailsForAllHRs/', formDetailsForAllHRs)
   //Route to Create User
   router.post('/createuser', createUser)
   //Route to assignApplicantToUser
@@ -70,6 +71,7 @@ module.exports = (io) => {
 
   // Define the route to get applicants for screening manager
   router.get('/users/:userId/trainerfeedbackapplicants', gertrainerfeedbackapplicants(io));
+  router.get('/users/getAllTrainerFeedbackApplicants', getAllTrainerFeedbackApplicants(io));
   // Define the route to get applicants for screening manager at all levels
   router.get('/users/:userId/applicantsatalllevel', getApplicantsofScreening);
 
@@ -78,6 +80,8 @@ module.exports = (io) => {
 
   // Define the route to get applicants for HR
   router.get('/users/:userId/hrinterviewapplicants', getApplicationforhr);
+  router.get('/users/getAllApplicationsForHR', getAllApplicationsForHR);
+  router.get('/users/allhrinterviewapplicants', getApplicationforallhr);
 
   // Route for login
   router.post('/login', login);

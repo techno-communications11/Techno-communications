@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Row, Col, Form, Card, Spinner, Modal } from 'react-bootstrap';
 import { Button, TextField } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -6,8 +6,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import PieChartIcon from '@mui/icons-material/PieChart';
+// import PieChartIcon from '@mui/icons-material/PieChart';
 import { CanvasJSChart } from 'canvasjs-react-charts';
+import { MyContext } from '../pages/MyContext';
+import { useNavigate } from 'react-router';
+// import Link from '@mui/material';
 
 const DetailCards = () => {
     const [statusCounts, setStatusCounts] = useState({});
@@ -16,6 +19,8 @@ const DetailCards = () => {
     const [loading, setLoading] = useState(false); // Loading state for both cards and pie chart
     const [isAllSelected, setIsAllSelected] = useState(false); // State to track Select All
     const [showPieModal, setShowPieModal] = useState(false);
+    const {setCaptureStatus,setCaptureDate}=useContext(MyContext)
+    const navigate=useNavigate()
 
     const locations = [
         { id: 4, name: 'ARIZONA' },
@@ -28,13 +33,14 @@ const DetailCards = () => {
         { id: 11, name: 'LOS ANGELES' },
         { id: 12, name: 'MEMPHIS' },
         { id: 13, name: 'NASHVILLE' },
-        { id: 14, name: 'NORTH CAROLINA' },
+        { id: 14, name: 'NORTH CAROL' },
         { id: 15, name: 'SACRAMENTO' },
-        { id: 16, name: 'SAN DIEGO' },
+        { id: 16, name: 'SAN DEIGIO' },
         { id: 17, name: 'SAN FRANCISCO' },
         { id: 18, name: 'SAN JOSE' },
         { id: 19, name: 'SANTA ROSA' },
-        { id: 21, name: 'RELOCATION' },
+        { id: 21, name: 'relocation' },
+        { id: 23, name: 'DirectHiring' },
     ];
 
     useEffect(() => {
@@ -102,8 +108,9 @@ const DetailCards = () => {
             (profileStats["Applicant will think about It"] || 0) +
             (profileStats["Moved to HR"] || 0) +
             (profileStats["Recommended For Hiring"] || 0) +
-            (profileStats["selected at Hr"] || 0);
-
+            (profileStats["selected at Hr"] || 0) +
+            (profileStats["Spanish Evaluation"] || 0) +
+            (profileStats["Store Evaluation"] || 0);
         const rejectedTotal =
             (profileStats["rejected at Screening"] || 0) +
             (profileStats["no show at Screening"] || 0) +
@@ -125,15 +132,17 @@ const DetailCards = () => {
             (profileStats["Sent for Evaluation"] || 0) +
             (profileStats["need second opinion at Interview"] || 0) +
             (profileStats["Applicant will think about It"] || 0) +
-            (profileStats["Moved to HR"] || 0);
-
+            (profileStats["Moved to HR"] || 0) +
+            (profileStats["Spanish Evaluation"] || 0) +
+            (profileStats["Store Evaluation"] || 0);
         const pendingAtNITDSTotal =
             (profileStats["selected at Hr"] || 0);
 
         const ntidCreatedTotal = profileStats["mark_assigned"] || 0;
-
+        const mainTotal = ntidCreatedTotal + pendingTotal + rejectedTotal
         const finalStatusCounts = {
             "Total": Object.values(profileStats).reduce((acc, val) => acc + val, 0),
+            // "Total":mainTotal,
             "Rejected": rejectedTotal,
             "Pending": pendingTotal,
             "1st Round - Pending": firstRoundPendingTotal,
@@ -188,6 +197,11 @@ const DetailCards = () => {
     const handleClickPieButton = () => {
         setShowPieModal(true);
     };
+    const handleDataView=(status)=>{
+        setCaptureDate(dateRange)
+        setCaptureStatus(status)
+        navigate('/statusticketview')
+    }
 
     return (
         <>
@@ -293,7 +307,7 @@ const DetailCards = () => {
                             {Object.keys(statusCounts).length > 0 ? (
                                 Object.keys(statusCounts).map((status) => (
                                     <Col key={status} md={4} className="mb-4">
-                                        <Card
+                                        <Card onClick={()=>handleDataView(status)}
                                             style={{
                                                 height: "140px",
                                                 padding: "10px",
