@@ -10,9 +10,10 @@ export const MyProvider = ({ children }) => {
   // console.log(profileId,'ppiidd')  
   const [captureStatus,setCaptureStatus]=useState(null)
   const[captureDate,setCaptureDate]=useState([dayjs().subtract(7, 'day'), dayjs()])
-    console.log(captureDate,"caps")
+  const [markets,setMarkets]=useState([])
+    console.log(captureDate,"dates",markets,"marks","status",captureStatus)
   return (
-    <MyContext.Provider value={{ applicant_uuid, setapplicant_uuid ,captureStatus,setCaptureStatus,captureDate,setCaptureDate}}>
+    <MyContext.Provider value={{ applicant_uuid, setapplicant_uuid ,captureStatus,setCaptureStatus,captureDate,setCaptureDate,markets,setMarkets}}>
     {children}
   </MyContext.Provider>
   );

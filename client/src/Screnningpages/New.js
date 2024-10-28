@@ -383,7 +383,7 @@ function New() {
         backdrop="static"
         keyboard={false}>
         <Modal.Header closeButton>
-          <Modal.Title>Action for {selectedProfile?.applicant_name}</Modal.Title>
+          <Modal.Title>Action for {selectedProfile?.applicant_uuid}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
 
@@ -400,6 +400,22 @@ function New() {
             </Form.Group>
             <div className='d-flex justify-content-center'>
               <Button variant="contained" color='success' className=' mt-2 ' onClick={handleSubmitEmail}>Update Email</Button>
+
+            </div>
+            <div className='d-flex justify-content-center m-2'>
+              <Button
+                variant="contained"
+                color="warning"
+                onClick={() => handleAction(selectedProfile.applicant_uuid, 'no show at Screening')}
+              >
+                No Show
+              </Button>
+              <ConfirmationModal
+                    show={showConfirm}
+                    handleClose={() => setShowConfirm(false)}
+                    handleConfirm={handleConfirm}
+                    message={`Are you sure you want to mark this applicant as ${actionToPerform}?`}
+                  />
 
             </div>
 

@@ -76,6 +76,8 @@ const getSelectedAtHr = async (req, res) => {
                      hrevaluation.compensation_type AS compensation_type,
                       hrevaluation.offDays AS offDays,
                 applicant_referrals.applicant_uuid AS applicant_uuid,
+                 applicant_referrals.reference_id AS reference_id,
+                  applicant_referrals.referred_by AS referred_by,
                 applicant_referrals.phone AS phone,
                 applicant_referrals.email AS email,
                 applicant_referrals.name AS name,

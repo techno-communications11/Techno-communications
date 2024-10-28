@@ -19,8 +19,8 @@ const DetailCards = () => {
     const [loading, setLoading] = useState(false); // Loading state for both cards and pie chart
     const [isAllSelected, setIsAllSelected] = useState(false); // State to track Select All
     const [showPieModal, setShowPieModal] = useState(false);
-    const {setCaptureStatus,setCaptureDate}=useContext(MyContext)
-    const navigate=useNavigate()
+    const { setCaptureStatus, setCaptureDate, setMarkets } = useContext(MyContext)
+    const navigate = useNavigate()
 
     const locations = [
         { id: 4, name: 'ARIZONA' },
@@ -159,23 +159,29 @@ const DetailCards = () => {
         const { checked } = event.target;
         setIsAllSelected(checked);
         if (checked) {
+            setMarkets(locations.map(location => location.name))
             // If checked, select all markets
             setSelectedMarket(locations.map(location => location.name));
         } else {
             // If unchecked, deselect all markets
             setSelectedMarket([]);
+            setMarkets([]);
         }
     };
 
     const handleLocationChange = (event) => {
         const { value, checked } = event.target;
+
         if (checked) {
-            setSelectedMarket(prevSelected => [...prevSelected, value]); // Add market
+            setSelectedMarket(prevSelected => [...prevSelected, value]); // Add market to selectedMarket
+            setMarkets(prevSelected => [...prevSelected, value]); // Add market to setMarkets without overwriting the previous values
         } else {
-            setSelectedMarket(prevSelected => prevSelected.filter(market => market !== value)); // Remove market
+            setSelectedMarket(prevSelected => prevSelected.filter(market => market !== value)); // Remove market from selectedMarket
+            setMarkets(prevSelected => prevSelected.filter(market => market !== value)); // Remove market from setMarkets
         }
         setIsAllSelected(false); // Uncheck "Select All" when individual changes happen
     };
+
 
     const chartOptions = {
         animationEnabled: true,
@@ -197,10 +203,21 @@ const DetailCards = () => {
     const handleClickPieButton = () => {
         setShowPieModal(true);
     };
-    const handleDataView=(status)=>{
+    const handleDataView = (status) => {
         setCaptureDate(dateRange)
         setCaptureStatus(status)
-        navigate('/statusticketview')
+        const [startDate, endDate] = dateRange;
+        const selectedLocationData = locations.filter(loc => selectedMarket.includes(loc.name)); // Ensure filtering by market names
+
+        // Pass data via state when navigating
+        navigate('/statusticketview', {
+            state: {
+                status,
+                startDate: startDate.format('YYYY-MM-DD'),
+                endDate: endDate.format('YYYY-MM-DD'),
+                markets: selectedLocationData
+            }
+        });
     }
 
     return (
@@ -307,7 +324,7 @@ const DetailCards = () => {
                             {Object.keys(statusCounts).length > 0 ? (
                                 Object.keys(statusCounts).map((status) => (
                                     <Col key={status} md={4} className="mb-4">
-                                        <Card onClick={()=>handleDataView(status)}
+                                        <Card onClick={() => handleDataView(status)}
                                             style={{
                                                 height: "140px",
                                                 padding: "10px",

@@ -232,12 +232,15 @@ const downloadAsExcel = () => {
     console.error("No data available to export");
     return;
   }
- 
+  console.log("filteredData",filteredData)
   // Create a new worksheet from the filtered data
   const worksheet = XLSX.utils.json_to_sheet(filteredData.map((row) => ({
+  
     Name: row.name,
     Email: row.email,
     Phone: row.phone,
+    ReferedBy: row.referred_by,
+    Reference_id: row.reference_id,
     DateOfJoining: new Date(row.DateOfJoining).toLocaleDateString()||'N/A', // Formatting the date
     MarketHiringFor: row.MarketHiringFor||'N/A',
     TrainingAt: row.TrainingAt||'N/A',

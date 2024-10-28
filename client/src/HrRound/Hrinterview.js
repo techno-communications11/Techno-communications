@@ -46,7 +46,7 @@ const Hrinterview = () => {
     const errors = {};
     const fields = [
       'market', 'marketTraining', 'trainingLocation', 'compensationType',
-      'payroll',  'joiningDate',  'workHoursDays',
+      'payroll', 'joiningDate', 'workHoursDays',
       'recommend_hiring',
     ];
 
@@ -62,7 +62,7 @@ const Hrinterview = () => {
     dateFields.forEach(field => {
       const parsedDate = Date.parse(formData[field]);
       const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0); 
+      currentDate.setHours(0, 0, 0, 0);
       if (!isNaN(parsedDate)) {
         if (parsedDate < currentDate) {
           errors[field] = `${field.replace(/([A-Z])/g, ' ')} must be today or in the future.`;
@@ -92,7 +92,7 @@ const Hrinterview = () => {
     { id: 18, name: 'SAN JOSE' },
     { id: 19, name: 'SANTA ROSA' },
     { id: 21, name: 'RELOCATION' },
-];
+  ];
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
   const [firstRound, setFirstRound] = useState([])
@@ -114,9 +114,9 @@ const Hrinterview = () => {
     disclosed: '',
     reasonBackOut: '',
     recommend_hiring: '',
-    evaluationDate:'',
+    evaluationDate: '',
     offDays: [],
-  
+
   });
   const options = [
     { value: "MON", label: "Monday" },
@@ -126,6 +126,7 @@ const Hrinterview = () => {
     { value: "FRI", label: "Friday" },
     { value: "SAT", label: "Saturday" },
     { value: "SUN", label: "Sunday" },
+    { value: "OPEN", label: "Open" },
   ];
   const handleSelectChange = (selectedOptions) => {
     setFormData({
@@ -141,6 +142,21 @@ const Hrinterview = () => {
       ...prevState,
       [name]: type === 'checkbox' ? checked : value
     }));
+    if (name === 'workHoursDays' && formData.timeType === 'days') {
+      if (value < 1 || value > 7) {
+        setErrors({
+          ...errors,
+          workHoursDays: 'Please enter a value between 1 and 7 for days',
+        });
+      } else {
+        setErrors({ ...errors, workHoursDays: '' });
+        setFormData({ ...formData, [name]: value });
+      }
+    } else {
+      setErrors({ ...errors, workHoursDays: '' });
+      setFormData({ ...formData, [name]: value });
+    }
+
     if (errors[name]) {
       if (type === 'checkbox') {
         if (checked) {
@@ -151,7 +167,7 @@ const Hrinterview = () => {
         }
       } else {
         if (value.trim() !== "") {
-          if ( name === 'joiningDate') {
+          if (name === 'joiningDate') {
             const parsedDate = Date.parse(value);
             const currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set current date to midnight for comparison
@@ -198,12 +214,12 @@ const Hrinterview = () => {
     const formErrors = validateForm();
 
     if (Object.keys(formErrors).length > 0) {
-      console.log(formErrors,'hi checking')
+      console.log(formErrors, 'hi checking')
       setErrors(formErrors);
       return;
     }
 
-console.log("formData",formData)
+    console.log("formData", formData)
     try {
       console.log("starting...")
       const response = await axios.post(`${apiurl}/add-hrevaluation`, formData);
@@ -221,10 +237,10 @@ console.log("formData",formData)
         notes: '',
         workHoursDays: '',
         backOut: '',
-        disclosed:'',
+        disclosed: '',
         reasonBackOut: '',
         recommend_hiring: '',
-        evaluationDate:"" ,
+        evaluationDate: "",
       });
       console.log("22starting...")
       if (response.status === 200) {
@@ -380,7 +396,17 @@ console.log("formData",formData)
       console.error('Error assigning trainer:', error);
     }
   };
+  const handleTimeTypeChange = (e) => {
+    const { value } = e.target;
 
+    // Reset the workHoursDays field when timeType is changed
+    setFormData({
+      ...formData,
+      timeType: value,
+      workHoursDays: '', // Clear the input field when switching between hours and days
+    });
+    setErrors({ ...errors, workHoursDays: '' }); // Reset errors when switching
+  };
 
   return (
     <Container className="d-flex justify-content-center ">
@@ -428,25 +454,25 @@ console.log("formData",formData)
 
           {/* PLEASE SELECT THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR */}
           <Form.Group as={Row} className="mb-3">
-               <Form.Label column sm={6} className="text-start">
-        1. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR
-                  </Form.Label>
-              <Col sm={6}>
-         <Form.Select
-             name="market"
-            value={formData.market}
-            onChange={handleChange}
-            isInvalid={!!errors.market}
-        >
-            <option value="">Select Market</option> {/* Default empty option */}
-            {locations.map(location => (
-                <option key={location.id} value={location.name}>
+            <Form.Label column sm={6} className="text-start">
+              1. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Select
+                name="market"
+                value={formData.market}
+                onChange={handleChange}
+                isInvalid={!!errors.market}
+              >
+                <option value="">Select Market</option> {/* Default empty option */}
+                {locations.map(location => (
+                  <option key={location.id} value={location.name}>
                     {location.name}
-                </option>
-            ))}
-               </Form.Select>
-          </Col>
-                 </Form.Group>
+                  </option>
+                ))}
+              </Form.Select>
+            </Col>
+          </Form.Group>
 
 
           {/* WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING */}
@@ -471,25 +497,25 @@ console.log("formData",formData)
 
           {/* PLEASE SELECT WHERE WILL THE APPLICANT GO FOR TRAINING */}
           <Form.Group as={Row} className="mb-3">
-             <Form.Label column sm={6} className="text-start">
-        3. PLEASE ENTER WHERE WILL THE APPLICANT GO FOR TRAINING
-             </Form.Label>
-              <Col sm={6}>
+            <Form.Label column sm={6} className="text-start">
+              3. PLEASE ENTER WHERE WILL THE APPLICANT GO FOR TRAINING
+            </Form.Label>
+            <Col sm={6}>
               <Form.Select
-            name="trainingLocation"
-            value={formData.trainingLocation}
-            onChange={handleChange}
-            isInvalid={!!errors.trainingLocation}
-        >
-            <option value="">Select Training Location</option> {/* Default empty option */}
-            {locations.map(location => (
-                <option key={location.id} value={location.name}>
+                name="trainingLocation"
+                value={formData.trainingLocation}
+                onChange={handleChange}
+                isInvalid={!!errors.trainingLocation}
+              >
+                <option value="">Select Training Location</option> {/* Default empty option */}
+                {locations.map(location => (
+                  <option key={location.id} value={location.name}>
                     {location.name}
-                </option>
-            ))}
-           </Form.Select>
-           </Col>
-                </Form.Group>
+                  </option>
+                ))}
+              </Form.Select>
+            </Col>
+          </Form.Group>
 
 
           {/* COMPENSATION TYPE */}
@@ -501,7 +527,7 @@ console.log("formData",formData)
               <Form.Control
                 type="name"
                 name="compensationType"
-              
+
                 value={formData.compensationType}
                 isInvalid={!!errors.compensationType}
                 onChange={handleChange}
@@ -521,7 +547,7 @@ console.log("formData",formData)
                 type="number"
                 name="offeredSalary"
                 placeholder="Enter salary"
-             
+
                 onChange={handleChange}
               />
             </Col>
@@ -614,17 +640,43 @@ console.log("formData",formData)
           {/* PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              10. PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK
+              10. PLEASE SELECT HOURS OR DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Select
+                name="timeType"
+                value={formData.timeType}
+                onChange={handleTimeTypeChange} // Separate handler for timeType change
+                aria-label="Select hours or days"
+              >
+                <option value="">Select Hours or Days</option>
+                <option value="hours">Hours</option>
+                <option value="days">Days</option>
+              </Form.Select>
+            </Col>
+          </Form.Group>
+
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={6} className="text-start">
+              {formData.timeType === 'days'
+                ? 'Enter days (1-7)'
+                : 'Enter hours'}
             </Form.Label>
             <Col sm={6}>
               <Form.Control
                 type="text"
                 name="workHoursDays"
-                placeholder="Enter hours/days"
+                placeholder={`Enter ${formData.timeType}`}
                 value={formData.workHoursDays}
                 isInvalid={!!errors.workHoursDays}
                 onChange={handleChange}
+                disabled={!formData.timeType} // Disabled when no type selected
               />
+              {errors.workHoursDays && (
+                <Form.Text style={{ color: 'red' }}>
+                  {errors.workHoursDays}
+                </Form.Text>
+              )}
             </Col>
           </Form.Group>
 
@@ -706,59 +758,59 @@ console.log("formData",formData)
                 isInvalid={!!errors.recommend_hiring}
               /> */}
               {/* {formData.recommend_hiring === 'Sent for Evaluation' && showDropdown && <div className='p-2'> */}
+              <Form.Group as={Row} className="mb-3">
+                <Col sm={12}>
+                  <Form.Check
+                    type="radio"
+                    label="Store Evaluation"
+                    name="recommend_hiring"
+                    value="Store Evaluation"
+                    checked={formData.recommend_hiring === 'Store Evaluation'}
+                    isInvalid={!!errors.recommend_hiring}
+                    onChange={handleChange}
+                  />
+                  <Form.Check
+                    type="radio"
+                    label="Spanish Evaluation"
+                    name="recommend_hiring"
+                    value="Spanish Evaluation"
+                    checked={formData.recommend_hiring === 'Spanish Evaluation'}
+                    isInvalid={!!errors.recommend_hiring}
+                    onChange={handleChange}
+                  />
+                  <Form.Check
+                    type="radio"
+                    label="Will think about it"
+                    name="recommend_hiring"
+                    value="Applicant will think about It"
+                    checked={formData.recommend_hiring === 'Applicant will think about It'}
+                    isInvalid={!!errors.recommend_hiring}
+                    onChange={handleChange}
+                  />
+                </Col>
+              </Form.Group>
+              {formData.recommend_hiring === 'Store Evaluation' && (
                 <Form.Group as={Row} className="mb-3">
+                  <Form.Label column sm={12} className="text-start">
+                    Select evaluation date:
+                  </Form.Label>
                   <Col sm={12}>
-                    <Form.Check
-                      type="radio"
-                      label="Store Evaluation"
-                      name="recommend_hiring"
-                      value="Store Evaluation"
-                      checked={formData.recommend_hiring === 'Store Evaluation'}
-                      isInvalid={!!errors.recommend_hiring}
+                    <Form.Control
+                      type="date"
+                      name="evaluationDate"
+                      value={formData.evaluationDate}
                       onChange={handleChange}
+                      isInvalid={!!errors.evaluationDate}
+                      min={new Date().toISOString().split("T")[0]} // Disable previous dates
                     />
-                    <Form.Check
-                      type="radio"
-                      label="Spanish Evaluation"
-                      name="recommend_hiring"
-                      value="Spanish Evaluation"
-                      checked={formData.recommend_hiring === 'Spanish Evaluation'}
-                      isInvalid={!!errors.recommend_hiring}
-                      onChange={handleChange}
-                    />
-                    <Form.Check
-                      type="radio"
-                      label="Will think about it"
-                      name="recommend_hiring"
-                      value="Applicant will think about It"
-                      checked={formData.recommend_hiring === 'Applicant will think about It'}
-                      isInvalid={!!errors.recommend_hiring}
-                      onChange={handleChange}
-                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.evaluationDate}
+                    </Form.Control.Feedback>
                   </Col>
                 </Form.Group>
-                {formData.recommend_hiring === 'Store Evaluation' && (
-                 <Form.Group as={Row} className="mb-3">
-                 <Form.Label column sm={12} className="text-start">
-                   Select evaluation date:
-                 </Form.Label>
-                 <Col sm={12}>
-                   <Form.Control
-                     type="date"
-                     name="evaluationDate"
-                     value={formData.evaluationDate}
-                     onChange={handleChange}
-                     isInvalid={!!errors.evaluationDate}
-                     min={new Date().toISOString().split("T")[0]} // Disable previous dates
-                   />
-                   <Form.Control.Feedback type="invalid">
-                     {errors.evaluationDate}
-                   </Form.Control.Feedback>
-                 </Col>
-               </Form.Group>
-               
-                )}
-              
+
+              )}
+
               {/* </div>} */}
               {/* <Form.Check
                 type="radio"
@@ -814,20 +866,20 @@ console.log("formData",formData)
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
-        <Form.Label column sm={6} className="text-start">
-          Select Off Days
-        </Form.Label>
-        <Col sm={6}>
-          <Select
-            isMulti
-            name="offDays"
-            options={options}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            onChange={handleSelectChange}
-          />
-        </Col>
-      </Form.Group>
+            <Form.Label column sm={6} className="text-start">
+              Select Off Days
+            </Form.Label>
+            <Col sm={6}>
+              <Select
+                isMulti
+                name="offDays"
+                options={options}
+                className="basic-multi-select"
+                classNamePrefix="select"
+                onChange={handleSelectChange}
+              />
+            </Col>
+          </Form.Group>
           {/* Submit Button */}
           <Form.Group as={Row} className="mb-3">
             <Col sm={{ span: 6, offset: 6 }}>
@@ -837,7 +889,7 @@ console.log("formData",formData)
 
 
         </Form>
-     </Col>
+      </Col>
       {/* Confirmation Modal */}
       <Modal show={showConfirmation} onHide={handleClose}>
         <Modal.Header closeButton>
