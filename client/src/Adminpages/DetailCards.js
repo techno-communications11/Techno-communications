@@ -1,26 +1,25 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Row, Col, Form, Card, Spinner, Modal } from 'react-bootstrap';
-import { Button, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import axios from 'axios';
 import dayjs from 'dayjs';
-// import PieChartIcon from '@mui/icons-material/PieChart';
 import { CanvasJSChart } from 'canvasjs-react-charts';
 import { MyContext } from '../pages/MyContext';
-import { useNavigate } from 'react-router';
-// import Link from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const DetailCards = () => {
     const [statusCounts, setStatusCounts] = useState({});
     const [selectedMarket, setSelectedMarket] = useState([]); // Holds multiple markets
-    const [dateRange, setDateRange] = useState([dayjs().subtract(7, 'day'), dayjs()]);
-    const [loading, setLoading] = useState(false); // Loading state for both cards and pie chart
+    const [dateRange, setDateRange] = useState([dayjs().subtract(7, 'day'), dayjs()]); // 7 days default
+    const [loading, setLoading] = useState(false);
     const [isAllSelected, setIsAllSelected] = useState(false); // State to track Select All
-    const [showPieModal, setShowPieModal] = useState(false);
-    const { setCaptureStatus, setCaptureDate, setMarkets } = useContext(MyContext)
-    const navigate = useNavigate()
+    const { setCaptureStatus, setCaptureDate, setMarkets } = useContext(MyContext);
+    const [searchQuery, setSearchQuery] = useState('');
+    // const [IsAllSelected,setIsAllSelected]=useState(false)
+    const  navigate=useNavigate()
 
     const locations = [
         { id: 4, name: 'ARIZONA' },
@@ -43,61 +42,123 @@ const DetailCards = () => {
         { id: 23, name: 'DirectHiring' },
     ];
 
+
+    const filteredMarkets = locations.filter((market) =>
+        market.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     useEffect(() => {
         fetchStatusCounts();
     }, [selectedMarket, dateRange]);
 
+    // Fetch data based on selected markets and date range
     const fetchStatusCounts = async () => {
-        setLoading(true); // Show loading spinner while data is being fetched
+        setLoading(true);
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API}/statuslocation`, {
-                params: {
-                    market: selectedMarket, // Send multiple markets in the query
-                    startDate: dateRange[0].format('YYYY-MM-DD'),
-                    endDate: dateRange[1].format('YYYY-MM-DD')
-                }
-            });
+            const url = `${process.env.REACT_APP_API}/Detailstatus`;
+            const params = {
+                market: selectedMarket,
+                startDate: dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : null,
+                endDate: dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : null,
+            };
+            console.log("Fetching data with params:", params); // Log the parameters for debugging
+            const response = await axios.get(url, { params });
             if (response.status === 200) {
-                const { work_locations } = response.data;
-                processProfileStats(work_locations);
+                const details = response.data.status_counts;
+                setStatusCounts(deriveProfileStats(details));
             } else {
-                console.error('Error fetching status counts:', response);
+                console.error('Error fetching profiles:', response);
             }
         } catch (error) {
             console.error('API Error:', error.message);
         } finally {
-            setLoading(false); // Hide loading spinner once data is fetched
+            setLoading(false);
         }
     };
 
-    const processProfileStats = (locations) => {
-        const [startDate, endDate] = dateRange;
-        const selectedLocationData = locations.filter(loc => selectedMarket.includes(loc.location)); // Filter selected markets
+    // Handle "Select All" and individual market selections
+    const handleSelectAllChange = (event) => {
+            const { checked } = event.target;
+            setIsAllSelected(checked);
+            if (checked) {
+              setMarkets(locations.map(location => location.name))
+              // If checked, select all markets
+              setSelectedMarket(locations.map((location) => location.name));
+            } else {
+              // If unchecked, deselect all markets
+              setSelectedMarket([]);
+              setMarkets([]);
+            }
+          };
+        
+        
+        
+          const handleLocationChange = (event) => {
+            const { value, checked } = event.target;
+          
+            if (checked) {
+              // Add the selected market to both selectedMarket and setMarkets
+              setSelectedMarket((prevSelected) => {
+                const updatedMarkets = [...prevSelected, value];
+                setMarkets(updatedMarkets); // Update setMarkets here
+                return updatedMarkets;
+              });
+            } else {
+              // Remove the deselected market from both selectedMarket and setMarkets
+              setSelectedMarket((prevSelected) => {
+                const updatedMarkets = prevSelected.filter((market) => market !== value);
+                setMarkets(updatedMarkets); // Update setMarkets here
+                return updatedMarkets;
+              });
+            }
+            setIsAllSelected(false); // Uncheck "Select All" when individual changes happen
+          };
 
-        if (!selectedLocationData || selectedLocationData.length === 0) {
-            setStatusCounts({});
-            return;
-        }
+    // Flatten and filter the profiles based on the selected markets and date range
+    const flattenProfiles = (profiles) => {
+        return profiles.flatMap(profile => {
+            return profile.applicant_names.map((name, index) => ({
+                applicant_name: name,
+                applicant_phone: profile.phone[index],
+                applicant_email: profile.applicant_emails[index],
+                applicant_uuid: profile.applicant_uuids[index],
+                work_location_name: profile.work_location_names[index],
+                created_at_date: profile.created_at_dates[index],
+                status: profile.status
+            }));
+        }).filter(profile => {
+            // Filter by market
+            const inMarket = selectedMarket.length > 0
+                ? selectedMarket.includes(profile.work_location_name)
+                : true;
 
-        const profileStats = {};
-        selectedLocationData.forEach((location) => {
-            location.statuses.forEach(statusEntry => {
-                const filteredDates = statusEntry.created_at_dates.filter(date => {
-                    const dateObj = dayjs(date);
-                    return dateObj.isAfter(dayjs(startDate)) && dateObj.isBefore(dayjs(endDate));
-                });
+            // Filter by date range
+            const createdDate = dayjs(profile.created_at_date);
+            const inDateRange = dateRange[0] && dateRange[1]
+                ? createdDate.isAfter(dayjs(dateRange[0]).startOf('day')) && createdDate.isBefore(dayjs(dateRange[1]).endOf('day'))
+                : true;
 
-                if (filteredDates.length > 0) {
-                    profileStats[statusEntry.status] = (profileStats[statusEntry.status] || 0) + statusEntry.count;
-                }
-            });
+            return inMarket && inDateRange;
         });
+    };
 
-        if (Object.keys(profileStats).length === 0) {
-            setStatusCounts({});
-            return;
-        }
+    // Derive profile statistics based on the flattened profiles
+    const deriveProfileStats = (profiles) => {
+        const flattenedProfiles = flattenProfiles(profiles);
+        const uniqueProfiles = flattenedProfiles.filter((profile, index, self) =>
+            index === self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
+        );
 
+        const profileStats = uniqueProfiles.reduce((acc, profile) => {
+            acc[profile.status] = (acc[profile.status] || 0) + 1;
+            return acc;
+        }, {});
+
+        return calculateFinalStatusCounts(profileStats);
+    };
+
+    // Calculate the final counts for each status based on the profile statistics
+    const calculateFinalStatusCounts = (profileStats) => {
         const pendingTotal =
             (profileStats["pending at Screening"] || 0) +
             (profileStats["moved to Interview"] || 0) +
@@ -111,6 +172,7 @@ const DetailCards = () => {
             (profileStats["selected at Hr"] || 0) +
             (profileStats["Spanish Evaluation"] || 0) +
             (profileStats["Store Evaluation"] || 0);
+
         const rejectedTotal =
             (profileStats["rejected at Screening"] || 0) +
             (profileStats["no show at Screening"] || 0) +
@@ -119,6 +181,7 @@ const DetailCards = () => {
             (profileStats["no show at Interview"] || 0) +
             (profileStats["no show at Hr"] || 0) +
             (profileStats["Not Recommended For Hiring"] || 0) +
+            (profileStats["backOut"] || 0) +
             (profileStats["rejected at Hr"] || 0);
 
         const firstRoundPendingTotal =
@@ -135,14 +198,13 @@ const DetailCards = () => {
             (profileStats["Moved to HR"] || 0) +
             (profileStats["Spanish Evaluation"] || 0) +
             (profileStats["Store Evaluation"] || 0);
-        const pendingAtNITDSTotal =
-            (profileStats["selected at Hr"] || 0);
+
+        const pendingAtNITDSTotal = profileStats["selected at Hr"] || 0;
 
         const ntidCreatedTotal = profileStats["mark_assigned"] || 0;
-        const mainTotal = ntidCreatedTotal + pendingTotal + rejectedTotal
-        const finalStatusCounts = {
+
+        return {
             "Total": Object.values(profileStats).reduce((acc, val) => acc + val, 0),
-            // "Total":mainTotal,
             "Rejected": rejectedTotal,
             "Pending": pendingTotal,
             "1st Round - Pending": firstRoundPendingTotal,
@@ -150,75 +212,12 @@ const DetailCards = () => {
             "Pending at NTID": pendingAtNITDSTotal,
             "NTID Created": ntidCreatedTotal,
         };
-
-        setStatusCounts(finalStatusCounts);
-    };
-
-    // Handle "Select All" checkbox change
-    const handleSelectAllChange = (event) => {
-        const { checked } = event.target;
-        setIsAllSelected(checked);
-        if (checked) {
-            setMarkets(locations.map(location => location.name))
-            // If checked, select all markets
-            setSelectedMarket(locations.map(location => location.name));
-        } else {
-            // If unchecked, deselect all markets
-            setSelectedMarket([]);
-            setMarkets([]);
-        }
-    };
-
-    const handleLocationChange = (event) => {
-        const { value, checked } = event.target;
-
-        if (checked) {
-            setSelectedMarket(prevSelected => [...prevSelected, value]); // Add market to selectedMarket
-            setMarkets(prevSelected => [...prevSelected, value]); // Add market to setMarkets without overwriting the previous values
-        } else {
-            setSelectedMarket(prevSelected => prevSelected.filter(market => market !== value)); // Remove market from selectedMarket
-            setMarkets(prevSelected => prevSelected.filter(market => market !== value)); // Remove market from setMarkets
-        }
-        setIsAllSelected(false); // Uncheck "Select All" when individual changes happen
-    };
-
-
-    const chartOptions = {
-        animationEnabled: true,
-        exportEnabled: true,
-        theme: "light1",
-        title: {
-            text: "Status Distribution"
-        },
-        data: [statusCounts && Object.keys(statusCounts).length > 0 ? {
-            type: "pie",
-            indexLabel: "{label}: {y}",
-            dataPoints: Object.keys(statusCounts).map(status => ({
-                label: status,
-                y: statusCounts[status] || 0
-            }))
-        } : null]
-    };
-
-    const handleClickPieButton = () => {
-        setShowPieModal(true);
     };
     const handleDataView = (status) => {
-        setCaptureDate(dateRange)
-        setCaptureStatus(status)
-        const [startDate, endDate] = dateRange;
-        const selectedLocationData = locations.filter(loc => selectedMarket.includes(loc.name)); // Ensure filtering by market names
-
-        // Pass data via state when navigating
-        navigate('/statusticketview', {
-            state: {
-                status,
-                startDate: startDate.format('YYYY-MM-DD'),
-                endDate: endDate.format('YYYY-MM-DD'),
-                markets: selectedLocationData
-            }
-        });
-    }
+        setCaptureStatus(status);
+        setCaptureDate(dateRange);
+        navigate('/statusticketview');
+    };
 
     return (
         <>
@@ -265,25 +264,6 @@ const DetailCards = () => {
                         />
                     </LocalizationProvider>
                 </Col>
-                {/* <Col md={2} className="d-flex align-items-center">
-                   
-                    <Button
-                        variant="contained"// Optional pie chart icon
-                        onClick={handleClickPieButton}
-                        sx={{
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            borderRadius: '20px',
-                            padding: '10px 20px',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                            '&:hover': {
-                                backgroundColor: '#0056b3',
-                            },
-                        }}
-                    >
-                        Pie Chart
-                    </Button>
-                </Col> */}
 
                 <Row className="mt-1">
                     <Col md={2}>
@@ -320,7 +300,7 @@ const DetailCards = () => {
                         </Form.Group>
                     </Col>
                     <Col md={7}>
-                        <Row>
+                        <Row className='mt-3'>
                             {Object.keys(statusCounts).length > 0 ? (
                                 Object.keys(statusCounts).map((status) => (
                                     <Col key={status} md={4} className="mb-4">
@@ -362,11 +342,26 @@ const DetailCards = () => {
                     <Col md={3}>
                         {Object.keys(statusCounts).length > 0 ? (
                             <div style={{ height: '400px' }}>
-                                <CanvasJSChart options={chartOptions} />
+                                <CanvasJSChart
+                                    options={{
+                                        animationEnabled: true,
+                                        exportEnabled: true,
+                                        theme: "light1",
+                                        title: { text: "Status Distribution" },
+                                        data: [{
+                                            type: "pie",
+                                            indexLabel: "{label}: {y}",
+                                            dataPoints: Object.keys(statusCounts).map(status => ({
+                                                label: status,
+                                                y: statusCounts[status] || 0
+                                            }))
+                                        }]
+                                    }}
+                                />
                             </div>
                         ) : (
                             <div style={{ textAlign: 'center', paddingTop: '50px' }}>
-                                <h4>No Records Found </h4>
+                                <h4>No Records Found</h4>
                             </div>
                         )}
                     </Col>

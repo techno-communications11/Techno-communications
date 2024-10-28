@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import axios from 'axios';
-import { toast,ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import 'react-toastify/dist/ReactToastify.css';
 import CustomDateRangePicker from './DateFilter';
@@ -19,7 +19,7 @@ import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import Tooltip from '@mui/material/Tooltip'; // Import Tooltip
 import Swal from 'sweetalert2';
-import {Button} from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 
 function SelectedAtHr() {
@@ -89,7 +89,7 @@ function SelectedAtHr() {
 
   useEffect(() => {
     let updatedData = [...data];
-  
+
     // First filter: `marketFilter` on `MarketHiringFor`
     if (marketFilter.length > 0) {
       const lowerCaseMarketFilter = marketFilter.map(market => market.toLowerCase().trim());
@@ -99,7 +99,7 @@ function SelectedAtHr() {
       });
       console.log('After First Market Filter (MarketHiringFor):', updatedData);
     }
-  
+
     // Second filter: `marketFilter1` on `MarketHiringFor`
     if (marketFilter1.length > 0) {
       const lowerCaseMarketFilter1 = marketFilter1.map(market => market.toLowerCase().trim());
@@ -109,7 +109,7 @@ function SelectedAtHr() {
       });
       console.log('After Second Market Filter (MarketHiringFor):', updatedData);
     }
-  
+
     // Third filter: `marketFilter2` on `TrainingAt`
     if (marketFilter2.length > 0) {
       const lowerCaseMarketFilter2 = marketFilter2.map(market => market.toLowerCase().trim());
@@ -119,7 +119,7 @@ function SelectedAtHr() {
       });
       console.log('After Third Market Filter (TrainingAt):', updatedData);
     }
-  
+
     // Date filter on `DateOfJoining`
     const [startDate, endDate] = joiningDateFilter;
     if (startDate && endDate) {
@@ -129,7 +129,7 @@ function SelectedAtHr() {
       });
       console.log('After Date Filter:', updatedData);
     }
-  
+
     // Status filter based on `selectedTab`
     updatedData = updatedData.filter(row => {
       switch (selectedTab) {
@@ -140,12 +140,12 @@ function SelectedAtHr() {
       }
     });
 
-    console.log(updatedData,"vbackourt")
-  
+    console.log(updatedData, "vbackourt")
+
     setFilteredData(updatedData);
   }, [marketFilter, marketFilter1, marketFilter2, joiningDateFilter, data, selectedTab]);
-  
-  
+
+
 
   const handleInputChange = (index, field, value) => {
     const updatedFilteredData = [...filteredData];
@@ -176,90 +176,126 @@ function SelectedAtHr() {
     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
     return date.toLocaleDateString('en-US', options);
   }
-  const handleIconClick = (index) => {
-    console.log(`Icon clicked at index: ${index}`);
+
+  const isValidRow = (row) => {
+    return row.ntidCreated && row.ntidCreatedDate && row.ntid && row.addedToSchedule;
+  };
+
+  const handleIconClick = async (index) => {
     const newClickedIndexes = new Set(clickedIndexes);
+
     if (newClickedIndexes.has(index)) {
       newClickedIndexes.delete(index);
     } else {
-      newClickedIndexes.add(index);
+      const rowData = filteredData[index];
+
+      if (isValidRow(rowData)) {
+        newClickedIndexes.add(index);
+        const { ntidCreated, ntidCreatedDate, ntid, addedToSchedule, applicant_uuid } = rowData;
+
+        const dataToSend = {
+          ntidCreated,
+          ntidCreatedDate,
+          ntid,
+          addedToSchedule,
+          markAsAssigned: true,
+          applicant_uuid
+        };
+
+        try {
+          const response = await axios.post(`${apiurl}/ntids`, dataToSend);
+          if (response.status === 201) {
+            toast.success('NTID entry created successfully!');
+            setClickedIndexes(newClickedIndexes);
+            setTimeout(() => {
+              window.location.reload();
+            }, 1800);
+          }
+        } catch (error) {
+          console.error('API error:', error);
+          toast.error('Error creating NTID entry: ' + error.message);
+        }
+      } else {
+        toast.error('Please fill all required fields before submitting!');
+      }
     }
+
     setClickedIndexes(newClickedIndexes);
   };
 
-  const confirmAction = async (applicant_uuid, action,name) => {
+  const confirmAction = async (applicant_uuid, action, name) => {
     // Ask for confirmation using SweetAlert2
     const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: `Do you want to ${action} for this applicant ${name}?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, confirm it!',
-        cancelButtonText: 'Cancel'
+      title: 'Are you sure?',
+      text: `Do you want to ${action} for this applicant ${name}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, confirm it!',
+      cancelButtonText: 'Cancel'
     });
 
     if (result.isConfirmed) {
-        const payload = {
-            applicant_uuid: applicant_uuid,
-            action
-        };
-        console.log(payload, 'payload');
+      const payload = {
+        applicant_uuid: applicant_uuid,
+        action
+      };
+      console.log(payload, 'payload');
 
-        try {
-            const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
+      try {
+        const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
 
-            if (res.status === 200) {
-                toast.success(res.data.message);
+        if (res.status === 200) {
+          toast.success(res.data.message);
 
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1800);
-            }
-        } catch (error) {
-            console.error("Error updating status:", error);
-            toast.error("Failed to update status.");
+          setTimeout(() => {
+            window.location.reload();
+          }, 1800);
         }
+      } catch (error) {
+        console.error("Error updating status:", error);
+        toast.error("Failed to update status.");
+      }
     } else {
-        toast.info("Action canceled");
+      toast.info("Action canceled");
     }
-};
+  };
 
 
-const downloadAsExcel = () => {
-  if (!filteredData || filteredData.length === 0) {
-    console.error("No data available to export");
-    return;
-  }
-  console.log("filteredData",filteredData)
-  // Create a new worksheet from the filtered data
-  const worksheet = XLSX.utils.json_to_sheet(filteredData.map((row) => ({
-  
-    Name: row.name,
-    Email: row.email,
-    Phone: row.phone,
-    ReferedBy: row.referred_by,
-    Reference_id: row.reference_id,
-    DateOfJoining: new Date(row.DateOfJoining).toLocaleDateString()||'N/A', // Formatting the date
-    MarketHiringFor: row.MarketHiringFor||'N/A',
-    TrainingAt: row.TrainingAt||'N/A',
-    CompensationType: row.compensation_type||'N/A',
-    Payment: row.payment||'N/A',
-    Payroll: row.payroll||'N/A',
-    NoOfDays: row.noOFDays||'N/A',
-    OffDays: row.offDays || 'N/A', // Handle null
-    Status: row.status,
-    NTIDCreated: row.ntidCreated || 'N/A', // Handle null
-    NTIDCreatedDate: row.ntidCreatedDate ? new Date(row.ntidCreatedDate).toLocaleDateString() : 'N/A',
-    AddedToSchedule: row.addedToSchedule || 'N/A', // Handle null
-    ContractDisclosed: row.contractDisclosed || 'N/A',
-     // Handle null
-  })));
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants Data");
-  XLSX.writeFile(workbook, `FilteredData.xlsx`);
-};
+  const downloadAsExcel = () => {
+    if (!filteredData || filteredData.length === 0) {
+      console.error("No data available to export");
+      return;
+    }
+    console.log("filteredData", filteredData)
+    // Create a new worksheet from the filtered data
+    const worksheet = XLSX.utils.json_to_sheet(filteredData.map((row) => ({
+
+      Name: row.name,
+      Email: row.email,
+      Phone: row.phone,
+      ReferedBy: row.referred_by,
+      Reference_id: row.reference_id,
+      DateOfJoining: new Date(row.DateOfJoining).toLocaleDateString() || 'N/A', // Formatting the date
+      MarketHiringFor: row.MarketHiringFor || 'N/A',
+      TrainingAt: row.TrainingAt || 'N/A',
+      CompensationType: row.compensation_type || 'N/A',
+      Payment: row.payment || 'N/A',
+      Payroll: row.payroll || 'N/A',
+      NoOfDays: row.noOFDays || 'N/A',
+      OffDays: row.offDays || 'N/A', // Handle null
+      Status: row.status,
+      NTIDCreated: row.ntidCreated || 'N/A', // Handle null
+      NTIDCreatedDate: row.ntidCreatedDate ? new Date(row.ntidCreatedDate).toLocaleDateString() : 'N/A',
+      AddedToSchedule: row.addedToSchedule || 'N/A', // Handle null
+      ContractDisclosed: row.contractDisclosed || 'N/A',
+      // Handle null
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants Data");
+    XLSX.writeFile(workbook, `FilteredData.xlsx`);
+  };
 
 
 
@@ -281,7 +317,7 @@ const downloadAsExcel = () => {
             setMarketFilter={setMarketFilter}
             text={"Select Market"}
           />
-          <Button className='btn btn-success mb-2' onClick={()=>downloadAsExcel()}>Download In Excel</Button>
+          <Button className='btn btn-success mb-2' onClick={() => downloadAsExcel()}>Download In Excel</Button>
         </Col>
         <Col className='col-md-6'></Col>
         <Col className='col-md-4'>
@@ -320,7 +356,7 @@ const downloadAsExcel = () => {
             <TableHead>
               <TableRow style={{ headerStyle }}>
                 {['SINo', 'CandidateDetails', 'Market Hiring For', 'Training Hiring For', 'DOJ',
-                  'Payroll/Compensation Type', 'Payment', 'work Hours/No.Of Days&&OffDays', 'Back Out', 'Contract Disclosed',
+                  'Payroll/Compensation Type', 'Payment', 'work Hours/No.Of Days&OffDays', 'Back Out', 'Contract Disclosed',
                   'Added to Schedule', 'NTID Created', 'NTID Created Date', 'NTID',
                   'Mark As Assigned'].map(header => (
                     // Conditionally render the 'Back Out' column based on filteredData
@@ -436,7 +472,7 @@ const downloadAsExcel = () => {
 
                   <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
                     {row.noOFDays || 'N/A'}
-                    {row.offDays?.length>0&&<span>
+                    {row.offDays?.length > 0 && <span>
                       <br />
                       OffDays:
                       {
@@ -447,18 +483,18 @@ const downloadAsExcel = () => {
 
                   </TableCell>
                   {
-                    (row.status !== 'mark_assigned'&&row.status!=='backOut') &&
-                     <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
-                      <button className='btn' style={{ padding: '2px 4px', fontSize: '0.7rem', color:'white',backgroundColor:'#ff0000' }}
-                      onClick={()=>confirmAction(row.applicant_uuid,'backOut',row.name)}>Back Out</button>
+                    (row.status !== 'mark_assigned' && row.status !== 'backOut') &&
+                    <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
+                      <button className='btn' style={{ padding: '2px 4px', fontSize: '0.7rem', color: 'white', backgroundColor: '#ff0000' }}
+                        onClick={() => confirmAction(row.applicant_uuid, 'backOut', row.name)}>Back Out</button>
                     </TableCell>
 
                   }
                   {
-                    row.status==='backOut'&&
+                    row.status === 'backOut' &&
                     <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
-                      <button className='btn' style={{ padding: '2px 4px', fontSize: '0.7rem', color:'white',backgroundColor:'green' }}
-                      onClick={()=>confirmAction(row.applicant_uuid,'selected at Hr')}>call back</button>
+                      <button className='btn' style={{ padding: '2px 4px', fontSize: '0.7rem', color: 'white', backgroundColor: 'green' }}
+                        onClick={() => confirmAction(row.applicant_uuid, 'selected at Hr')}>call back</button>
                     </TableCell>
 
                   }
@@ -471,13 +507,13 @@ const downloadAsExcel = () => {
                   </TableCell>
 
 
-                 
+
 
                   <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
                     <Checkbox
                       checked={row.addedToSchedule}
                       onChange={e => handleInputChange(index, 'addedToSchedule', e.target.checked)}
-                      disabled={row.status === 'mark_assigned'||row.status==='backOut'}
+                      disabled={row.status === 'mark_assigned' || row.status === 'backOut'}
                       sx={{
                         color: row.status === 'mark_assigned' ? '#46aba2' : undefined,
                         '&.Mui-checked': {
@@ -496,7 +532,7 @@ const downloadAsExcel = () => {
                     <Checkbox
                       checked={row.ntidCreated}
                       onChange={e => handleInputChange(index, 'ntidCreated', e.target.checked)}
-                      disabled={row.status === 'mark_assigned' || row.status==='backOut'}
+                      disabled={row.status === 'mark_assigned' || row.status === 'backOut'}
                       sx={{
                         color: row.status === 'mark_assigned' ? '#46aba2' : undefined,
                         '&.Mui-checked': {
@@ -523,9 +559,9 @@ const downloadAsExcel = () => {
                           variant="outlined"
                           size="small"
                           fullWidth
-                          InputProps={{ readOnly: row.status === 'mark_assigned'}}
-                          sx={{ width: '120px' }} 
-                          disabled={row.status==='backOut'}// Adjusted width
+                          InputProps={{ readOnly: row.status === 'mark_assigned' }}
+                          sx={{ width: '120px' }}
+                          disabled={row.status === 'backOut'}// Adjusted width
                         />
                       ) : (
                         <IconButton onClick={() => setShowDateInput(true)} size="small">
@@ -548,27 +584,41 @@ const downloadAsExcel = () => {
                       InputProps={{
                         readOnly: row.status === 'mark_assigned',
                       }}
-                      disabled={row.status==='backOut'}
+                      disabled={row.status === 'backOut'}
                     />
                   </TableCell>
 
 
 
                   <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
-                    <IconButton onClick={() => handleIconClick(index)} disabled={clickedIndexes.has(index)}>
-                      <CheckCircleIcon style={{ color: clickedIndexes.has(index) ? '#46aba2' : '#3f51b5' }} />
-                    </IconButton>
+                  {row.status === 'mark_assigned' || row.status === 'backOut' ? (
+                      <IconButton disabled>
+                        <CheckCircleIcon
+  style={{
+    color: row.status === 'backOut' ? '#f44336' : '#46aba2', // red for 'backOut', green otherwise
+  }}
+/>
+                      </IconButton>
+                    ) : (
+                      <IconButton onClick={() => handleIconClick(index)} disabled={clickedIndexes.has(index)}>
+                        <CheckCircleIcon
+                          style={{
+                            color: '#3f51b5'
+                          }}
+                        />
+                      </IconButton>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <ToastContainer/>
+          <ToastContainer />
         </TableContainer>
-         
+
       )}
     </LocalizationProvider>
-  
+
 
 
   );

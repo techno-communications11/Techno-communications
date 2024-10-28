@@ -57,11 +57,11 @@ const DetailedView = () => {
         "Roshan Screening",
         "Roshan Shaikh",
         "Bilal Interview",
-        "EL Paso Market",
+        // "EL Paso Market",
         "Qamar Shahzad",
         "Shafaque Qureshi",
         "Sultan Interview",
-        "Shah Noor Butt",
+        // "Shah Noor Butt",
         "Shoaib",
         "Kamaran Mohammed",
     ];
@@ -320,6 +320,7 @@ const DetailedView = () => {
         (profileStats["no show at Interview"] || 0) +
         (profileStats["no show at Hr"] || 0) +
         (profileStats["Not Recommended For Hiring"] || 0) +
+        (profileStats["backOut"] || 0) +
         (profileStats["rejected at Hr"] || 0);
     const atscreening = (profileStats["pending at Screening"] || 0);
     const firstRoundPendingTotal =
@@ -384,7 +385,8 @@ const DetailedView = () => {
             "no show at Interview",
             "no show at Hr",
             "Not Recommended For Hiring",
-            "rejected at Hr"
+            "backOut",
+            "rejected at Hr",
         ],
         "pending at Screening": ["pending at Screening",],
         "1st Round - Pending": [

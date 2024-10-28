@@ -8,7 +8,7 @@ import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRo
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 function StatsTicketView() {
-    const [selectedProfiles, setSelectedProfiles] = useState(JSON.parse(localStorage.getItem('selectedProfiles')) || []); // Initialize with data from localStorage if available
+    const [selectedProfiles, setSelectedProfiles] = useState(JSON.parse(localStorage.getItem('selectedProfiles')) || []);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const profilesPerPage = 25;
@@ -17,7 +17,6 @@ function StatsTicketView() {
     const { markets, captureStatus, captureDate } = myContext;
 
     useEffect(() => {
-        // Initialize values from localStorage on mount
         const storedMarkets = JSON.parse(localStorage.getItem('markets'));
         const storedCaptureStatus = localStorage.getItem('captureStatus');
         const storedCaptureDate = JSON.parse(localStorage.getItem('captureDate'));
@@ -29,7 +28,6 @@ function StatsTicketView() {
         }
     }, []);
 
-    // Set values to localStorage when markets, captureStatus, or captureDate change
     useEffect(() => {
         if (markets) localStorage.setItem('markets', JSON.stringify(markets));
         if (captureStatus) localStorage.setItem('captureStatus', captureStatus);
@@ -37,6 +35,28 @@ function StatsTicketView() {
     }, [markets, captureStatus, captureDate]);
 
     const statusMap = {
+        "Total": ["pending at Screening",
+            "moved to Interview",
+            "put on hold at Interview",
+            "selected at Interview",
+            "Recommended For Hiring",
+            "Sent for Evaluation",
+            "need second opinion at Interview",
+            "Applicant will think about It",
+            "Moved to HR",
+            "selected at Hr",
+            'Store Evaluation',
+            'Spanish Evaluation',
+            "rejected at Screening",
+            "no show at Screening",
+            "Not Interested at screening",
+            "rejected at Interview",
+            "no show at Interview",
+            "no show at Hr",
+            "Not Recommended For Hiring",
+            "rejected at Hr",
+            "backOut",
+            "mark_assigned"],
         "Pending": [
             "pending at Screening",
             "moved to Interview",
@@ -59,6 +79,7 @@ function StatsTicketView() {
             "no show at Interview",
             "no show at Hr",
             "Not Recommended For Hiring",
+            "backOut",
             "rejected at Hr"
         ],
         "1st Round - Pending": [
@@ -80,7 +101,6 @@ function StatsTicketView() {
         "NTID Created": ["mark_assigned"]
     };
 
-    // Fetch profiles from API or from localStorage
     const fetchProfiles = async (markets = [], captureStatus = '', captureDate = []) => {
         setLoading(true);
         try {
@@ -95,18 +115,17 @@ function StatsTicketView() {
             const response = await axios.get(url, { params });
             if (response.status === 200) {
                 setSelectedProfiles(response.data.status_counts || []);
-                localStorage.setItem('selectedProfiles', JSON.stringify(response.data.status_counts || [])); // Save to localStorage
+                localStorage.setItem('selectedProfiles', JSON.stringify(response.data.status_counts || []));
             } else {
                 console.error('Error fetching profiles:', response);
             }
         } catch (error) {
             console.error('API Error:', error.message);
         } finally {
-            setLoading(false); // Hide spinner after loading
+            setLoading(false);
         }
     };
 
-    // Safely map over the selectedProfiles and filter
     const filteredProfiles = selectedProfiles.map((currentStatus) => {
         const filteredData = {
             applicant_names: [],
@@ -153,9 +172,8 @@ function StatsTicketView() {
         });
 
         return filteredData;
-    }).filter(data => data.applicant_names.length > 0); // Remove empty results
+    }).filter(data => data.applicant_names.length > 0);
 
-    // Flatten profiles logic based on unique applicants
     const flattenedProfiles = filteredProfiles.flatMap(status => {
         return status.applicant_names.map((name, index) => ({
             applicant_name: name,
@@ -180,7 +198,6 @@ function StatsTicketView() {
         index === self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
     );
 
-    // Pagination logic
     const indexOfLastProfile = currentPage * profilesPerPage;
     const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
     const currentProfiles = uniqueFlattenedProfiles.slice(indexOfFirstProfile, indexOfLastProfile);
@@ -190,7 +207,6 @@ function StatsTicketView() {
         setCurrentPage(value);
     };
 
-    // Excel download function
     const handleDownloadExcel = (profiles) => {
         const worksheetData = profiles.map(profile => ({
             "Created At": dayjs(profile.created_at_date).format('YYYY-MM-DD HH:mm:ss'),
