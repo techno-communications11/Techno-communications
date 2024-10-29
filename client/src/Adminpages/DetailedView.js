@@ -11,7 +11,7 @@ import * as XLSX from 'xlsx';
 import { Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import Select from 'react-select';
-
+import { Dropdown, ButtonGroup } from 'react-bootstrap';
 const DetailedView = () => {
     const [selectedMarkets, setSelectedMarkets] = useState([]); // Change to handle multiple markets
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -26,9 +26,11 @@ const DetailedView = () => {
     const [selectedGroupStatus, setSelectedGroupStatus] = useState("");
     const [isFilterApplied, setIsFilterApplied] = useState(false); // To check if filters are applied
     const [selectAll, setSelectAll] = useState(false); // New state to handle 'Select All'
-
+    const [selectedMarket, setSelectedMarket] = useState([]);
+    const [isAllSelected, setIsAllSelected] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const locations = [
-        { id: 0, name: 'Select All' },
+
         // { id: 1, name: 'test' },
         { id: 4, name: 'ARIZONA' },
         { id: 5, name: 'Bay Area' },
@@ -65,6 +67,21 @@ const DetailedView = () => {
         "Shoaib",
         "Kamaran Mohammed",
     ];
+    const filteredMarkets = locations.filter((market) =>
+        market.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    const handleSelectAllChange = (event) => {
+        const { checked } = event.target;
+        setIsAllSelected(checked);
+
+        if (checked) {
+            // Select all markets
+            setSelectedMarkets(locations.map((location) => location.name));
+        } else {
+            // Deselect all markets
+            setSelectedMarkets([]);
+        }
+    };
 
     useEffect(() => {
         fetchProfiles();
@@ -101,24 +118,23 @@ const DetailedView = () => {
     };
 
 
-    const handleLocationChange = (selectedOptions) => {
-        const allLocations = locations.map((loc) => ({ value: loc.name, label: loc.name }));
-        const selectAllOption = selectedOptions.find((option) => option.value === 'Select All');
+    const handleLocationChange = (event) => {
 
-        if (selectAllOption) {
-            if (!selectAll) {
-                setSelectedMarkets(allLocations); // Select all options
-                setSelectAll(true); // Set 'Select All' to true
-            } else {
-                setSelectedMarkets([]); // Deselect all options
-                setSelectAll(false); // Set 'Select All' to false
-            }
+        const { value, checked } = event.target;
+        console.log("cheking", value, checked)
+        if (checked) {
+            setSelectedMarkets((prevSelected) => {
+                return [...prevSelected, value]; // Add the selected market
+            });
         } else {
-            setSelectedMarkets(selectedOptions);
-            setSelectAll(false);
+            setSelectedMarkets((prevSelected) => {
+                return prevSelected.filter((market) => market !== value); // Remove the unselected market
+            });
         }
-    };
 
+        // When an individual checkbox is changed, uncheck "Select All"
+        setIsAllSelected(false);
+    };
     const getPlaceholderText = () => {
         if (selectAll) {
             return "All Markets Selected";
@@ -134,15 +150,18 @@ const DetailedView = () => {
     const handleCategoryChange = (e) => {
         setSelectedCategory(e.target.value);
     };
+    const handleUserChange = (event, user) => {
+        const { checked } = event.target;
 
-    const handleUserChange = (selectedOptions) => {
-        if (selectedOptions.length < 1) {
-            SetcardShow(false); // Hide the card if no user is selected
+        if (checked) {
+            // Add the selected user
+            setSelectedUsers((prevSelected) => [...prevSelected, { value: user, label: user }]);
         } else {
-            SetcardShow(true);  // Show the card when one or more users are selected
+            // Remove the unselected user
+            setSelectedUsers((prevSelected) => prevSelected.filter((selected) => selected.value !== user));
         }
-        setSelectedUsers(selectedOptions); // Update state with multiple users
     };
+
 
     const handleFilterApply = (status) => {
         setSelectedGroupStatus(status);
@@ -191,12 +210,15 @@ const DetailedView = () => {
         };
 
         currentStatus.applicant_names.forEach((_, index) => {
+            // Check if the current profile's work location matches any of the selected markets
             const inMarket = selectedMarkets.length > 0
-                ? selectedMarkets.some((market) => currentStatus.work_location_names[index] === market.value)
+                ? selectedMarkets.some((market) =>
+                    currentStatus.work_location_names[index]?.trim().toLowerCase() === market.toLowerCase())
                 : true;
 
             const inUsers = selectedUsers.length > 0
-                ? selectedUsers.some((user) => [currentStatus.screening_manager_names[index], currentStatus.interviewer_names[index], currentStatus.hr_names[index]].includes(user.value))
+                ? selectedUsers.some((user) =>
+                    [currentStatus.screening_manager_names[index], currentStatus.interviewer_names[index], currentStatus.hr_names[index]].includes(user.value))
                 : true;
 
             const createdDate = dayjs(currentStatus.created_at_dates[index]);
@@ -208,13 +230,14 @@ const DetailedView = () => {
                 ? selectedStatus.includes(currentStatus.status)
                 : true;
 
+            // If all conditions pass, include the current profile data
             if (inMarket && inUsers && inDateRange && filteredByStatus) {
                 filteredData.applicant_names.push(currentStatus.applicant_names[index]);
                 filteredData.phone.push(currentStatus.phone[index]);
                 filteredData.applicant_emails.push(currentStatus.applicant_emails[index]);
                 filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by[index]);
                 filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids[index]);
-                filteredData.applicant_uuids.push(currentStatus.applicant_uuids[index]); // Added phone filter logic
+                filteredData.applicant_uuids.push(currentStatus.applicant_uuids[index]);
                 filteredData.created_at_dates.push(currentStatus.created_at_dates[index]);
                 filteredData.work_location_names.push(currentStatus.work_location_names[index]);
                 filteredData.screening_manager_names.push(currentStatus.screening_manager_names[index]);
@@ -226,6 +249,8 @@ const DetailedView = () => {
 
         return filteredData;
     }).filter(data => data.applicant_names.length > 0); // Remove empty results
+
+
 
 
     const statusOrder = [
@@ -440,51 +465,81 @@ const DetailedView = () => {
         <Box p={3}>
             {/* Filter Controls */}
             <Box display="flex" gap={2} mb={3} sx={{ width: '100%', flexWrap: 'wrap' }}>
-                {/* Market Selector with extra space */}
-                <Form.Group controlId="marketSelector" style={{ flex: 2 }}>
-                    <Select
-                        isMulti
-                        value={selectAll ? [] : selectedMarkets} // Clear actual selections when all are selected
-                        options={locations.map(loc => ({ value: loc.name, label: loc.name }))}
-                        onChange={handleLocationChange}
-                        placeholder={getPlaceholderText()} // Dynamic placeholder
-                        styles={{
-                            control: (provided) => ({
-                                ...provided,
-                                padding: '8px',
-                                fontSize: '14px',
-                                borderRadius: '8px',
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                                borderColor: '#007bff',
-                            }),
-                            multiValue: (provided) => ({
-                                ...provided,
-                                backgroundColor: '#007bff',
-                                color: 'white',
-                                borderRadius: '4px',
-                                padding: '2px',
-                            }),
-                            multiValueLabel: (provided) => ({
-                                ...provided,
-                                color: 'white',
-                            }),
-                        }}
-                    />
+                {/* Market Selector */}
+                <Col md={2}>
+                    <Form.Group controlId="marketSelector">
+                        <Dropdown as={ButtonGroup}>
+                            <Dropdown.Toggle variant="light" id="dropdown-basic" style={{
+                                borderRadius: '10px',
+                                padding: '10px',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                backgroundColor: '#f8f9fa',
+                                border: '1px solid #ddd',
+                                width: '320px',
+                                height: "56px",
+                                textAlign: 'left',
+                            }}>
+                                {selectedMarkets.length > 0 ? `${selectedMarkets.length} Market(s) Selected` : 'Select Markets'}
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu style={{ maxHeight: '350px', overflowY: 'auto', width: '100%', padding: "10px", backgroundColor: '#f8f9fa', }}>
+                                <Form.Check
+                                    type="checkbox"
+                                    label="Select All"
+                                    checked={isAllSelected}
+                                    onChange={handleSelectAllChange}
+                                    style={{ marginLeft: '20px', fontWeight: 'bold', padding: '0 10px' }}
+                                />
+                                {filteredMarkets.map((location) => (
+                                    <Form.Check
+                                        key={location.id}
+                                        type="checkbox"
+                                        label={location.name}
+                                        value={location.name}
+                                        checked={selectedMarkets.includes(location.name)} // Ensure it reflects the state
+                                        onChange={handleLocationChange}
+                                        style={{ marginLeft: '20px', padding: '0 10px' }}
+                                    />
+                                ))}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Form.Group>
+                </Col>
+
+                {/* Status Selector */}
+               
+
+                {/* User Selector */}
+                <Form.Group controlId="userSelector" style={{ flex: 2 }}>
+                    <Dropdown as={ButtonGroup}>
+                        <Dropdown.Toggle variant="light" id="dropdown-basic" style={{
+                            borderRadius: '10px',
+                            padding: '10px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            backgroundColor: '#f8f9fa',
+                            border: '1px solid #ddd',
+                            width: '320px',
+                            height: '56px',
+                            textAlign: 'left',
+                        }}>
+                            {selectedUsers.length > 0 ? `${selectedUsers.length} User(s) Selected` : 'Select One or More Users'}
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu style={{ maxHeight: '350px', overflowY: 'auto', width: '100%', padding: "10px", backgroundColor: '#f8f9fa', }}>
+                            {users.map((user) => (
+                                <Form.Check
+                                    key={user}
+                                    type="checkbox"
+                                    label={user}
+                                    value={user}
+                                    checked={selectedUsers.some(selected => selected.value === user)} // Ensure it reflects the state
+                                    onChange={(e) => handleUserChange(e, user)}
+                                    style={{ marginLeft: '20px', padding: '0 10px' }}
+                                />
+                            ))}
+                        </Dropdown.Menu>
+                    </Dropdown>
                 </Form.Group>
-
-
-                {/* Category Selector with reduced size */}
-                {/* <Form.Group controlId="categorySelector" style={{ flex: 1 }}>
-                    <Form.Select value={selectedCategory} onChange={handleCategoryChange} style={smallerFormStyles}>
-                        <option value=""> CATEGORIES</option>
-                        <option value="Screening">Screening</option>
-                        <option value="Interview">Interview</option>
-                        <option value="HR">HR</option>
-                    </Form.Select>
-                </Form.Group> */}
-
-                {/* Status Selector with reduced size */}
-
                 <Form.Group controlId="statusSelector" style={{ flex: 1 }}>
                     <Form.Select
                         value={selectedGroupStatus}
@@ -500,41 +555,7 @@ const DetailedView = () => {
                     </Form.Select>
                 </Form.Group>
 
-
-                <Form.Group controlId="userSelector" style={{ flex: 2 }}>
-                    <Select
-                        isMulti
-                        value={selectedUsers}
-                        options={users.map(user => ({ value: user, label: user }))} // Assuming 'users' is your user data
-                        onChange={handleUserChange}
-                        placeholder="Select One or More Users"
-                        styles={{
-                            control: (provided) => ({
-                                ...provided,
-                                padding: '8px',
-                                fontSize: '14px',
-                                borderRadius: '8px',
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                                borderColor: '#007bff',
-                            }),
-                            multiValue: (provided) => ({
-                                ...provided,
-                                backgroundColor: '#007bff',
-                                color: 'white',
-                                borderRadius: '4px',
-                                padding: '2px',
-                            }),
-                            multiValueLabel: (provided) => ({
-                                ...provided,
-                                color: 'white',
-                            }),
-                        }}
-                    />
-                </Form.Group>
-
-
-
-                {/* Date Range Picker with reduced size */}
+                {/* Date Range Picker */}
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DateRangePicker
                         startText="Start Date"
@@ -554,6 +575,7 @@ const DetailedView = () => {
                     />
                 </LocalizationProvider>
             </Box>
+
 
 
             {/* Total Count Card */}
@@ -733,7 +755,7 @@ const formStyles = {
 
 // Styling for the Table header
 const headerStyle = {
-    backgroundColor: '#3f51b5',
+    backgroundColor: '#E10174',
     color: '#ffffff',
 };
 

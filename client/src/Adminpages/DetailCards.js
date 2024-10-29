@@ -355,13 +355,13 @@ const DetailCards = () => {
 
                     <Col md={3}>
                         {showCards && Object.keys(statusCounts).length > 0 ? (
-                            <div style={{ height: '400px' ,}}>
+                            <div style={{ height: '400px', }}>
                                 <CanvasJSChart
                                     options={{
                                         animationEnabled: true,
                                         exportEnabled: true,
                                         theme: "light1",
-                                        title: { text: "Status Distribution",color:"#E10174" },
+                                        title: { text: "Status Distribution", color: "#E10174" },
                                         data: [{
                                             type: "pie",
                                             indexLabel: "{label}: {y}",
