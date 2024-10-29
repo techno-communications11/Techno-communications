@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import { CanvasJSChart } from 'canvasjs-react-charts';
 import { MyContext } from '../pages/MyContext';
 import { useNavigate } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 
 const DetailCards = () => {
     const [statusCounts, setStatusCounts] = useState({});
@@ -18,8 +19,8 @@ const DetailCards = () => {
     const [isAllSelected, setIsAllSelected] = useState(false); // State to track Select All
     const { setCaptureStatus, setCaptureDate, setMarkets } = useContext(MyContext);
     const [searchQuery, setSearchQuery] = useState('');
-    // const [IsAllSelected,setIsAllSelected]=useState(false)
-    const  navigate=useNavigate()
+    const [showCards, setShowCards] = useState(false); // Tracks if markets are selected and cards should be shown
+    const navigate = useNavigate();
 
     const locations = [
         { id: 4, name: 'ARIZONA' },
@@ -42,20 +43,26 @@ const DetailCards = () => {
         { id: 23, name: 'DirectHiring' },
     ];
 
+    // Debounced market search filtering
+    const debouncedSearchQuery = debounce((query) => {
+        setSearchQuery(query);
+    }, 300);
 
     const filteredMarkets = locations.filter((market) =>
         market.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     useEffect(() => {
-        fetchStatusCounts();
+        if (selectedMarket.length > 0) {
+            fetchStatusCounts();
+        }
     }, [selectedMarket, dateRange]);
 
     // Fetch data based on selected markets and date range
     const fetchStatusCounts = async () => {
         setLoading(true);
         try {
-            const url = `${process.env.REACT_APP_API}/Detailstatus`;
+            const url = `${process.env.REACT_APP_API}/getStatusCountsByLocation`;
             const params = {
                 market: selectedMarket,
                 startDate: dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : null,
@@ -78,41 +85,38 @@ const DetailCards = () => {
 
     // Handle "Select All" and individual market selections
     const handleSelectAllChange = (event) => {
-            const { checked } = event.target;
-            setIsAllSelected(checked);
-            if (checked) {
-              setMarkets(locations.map(location => location.name))
-              // If checked, select all markets
-              setSelectedMarket(locations.map((location) => location.name));
-            } else {
-              // If unchecked, deselect all markets
-              setSelectedMarket([]);
-              setMarkets([]);
-            }
-          };
-        
-        
-        
-          const handleLocationChange = (event) => {
-            const { value, checked } = event.target;
-          
-            if (checked) {
-              // Add the selected market to both selectedMarket and setMarkets
-              setSelectedMarket((prevSelected) => {
-                const updatedMarkets = [...prevSelected, value];
-                setMarkets(updatedMarkets); // Update setMarkets here
-                return updatedMarkets;
-              });
-            } else {
-              // Remove the deselected market from both selectedMarket and setMarkets
-              setSelectedMarket((prevSelected) => {
-                const updatedMarkets = prevSelected.filter((market) => market !== value);
-                setMarkets(updatedMarkets); // Update setMarkets here
-                return updatedMarkets;
-              });
-            }
-            setIsAllSelected(false); // Uncheck "Select All" when individual changes happen
-          };
+        const { checked } = event.target;
+        setIsAllSelected(checked);
+        if (checked) {
+            setMarkets(locations.map(location => location.name));
+            setSelectedMarket(locations.map((location) => location.name));
+            setShowCards(true); // Show cards once a selection is made
+        } else {
+            setSelectedMarket([]);
+            setMarkets([]);
+            setShowCards(false); // Hide cards if no market is selected
+        }
+    };
+
+    const handleLocationChange = (event) => {
+        const { value, checked } = event.target;
+        if (checked) {
+            setSelectedMarket((prevSelected) => {
+                const updatedMarkets = [...prevSelected, value];
+                setMarkets(updatedMarkets); // Update setMarkets here
+                setShowCards(true); // Show cards when market is selected
+                return updatedMarkets;
+            });
+        } else {
+            setSelectedMarket((prevSelected) => {
+                const updatedMarkets = prevSelected.filter((market) => market !== value);
+                setMarkets(updatedMarkets); // Update setMarkets here
+                if (updatedMarkets.length === 0) setShowCards(false); // Hide cards if no markets selected
+                return updatedMarkets;
+            });
+        }
+        setIsAllSelected(false); // Uncheck "Select All" when individual changes happen
+    };
 
     // Flatten and filter the profiles based on the selected markets and date range
     const flattenProfiles = (profiles) => {
@@ -183,9 +187,9 @@ const DetailCards = () => {
             (profileStats["Not Recommended For Hiring"] || 0) +
             (profileStats["backOut"] || 0) +
             (profileStats["rejected at Hr"] || 0);
+        const pendingAtScreening = (profileStats["pending at Screening"] || 0);
 
         const firstRoundPendingTotal =
-            (profileStats["pending at Screening"] || 0) +
             (profileStats["moved to Interview"] || 0) +
             (profileStats["put on hold at Interview"] || 0);
 
@@ -207,12 +211,14 @@ const DetailCards = () => {
             "Total": Object.values(profileStats).reduce((acc, val) => acc + val, 0),
             "Rejected": rejectedTotal,
             "Pending": pendingTotal,
+            "Pending At Screening": pendingAtScreening,
             "1st Round - Pending": firstRoundPendingTotal,
             "HR Round - Pending": hrRoundPendingTotal,
             "Pending at NTID": pendingAtNITDSTotal,
             "NTID Created": ntidCreatedTotal,
         };
     };
+
     const handleDataView = (status) => {
         setCaptureStatus(status);
         setCaptureDate(dateRange);
@@ -285,7 +291,7 @@ const DetailCards = () => {
                                     onChange={handleSelectAllChange}
                                     style={{ marginBottom: '8px', fontWeight: 'bold' }}
                                 />
-                                {locations.map((location) => (
+                                {filteredMarkets.map((location) => (
                                     <Form.Check
                                         key={location.id}
                                         type="checkbox"
@@ -299,55 +305,63 @@ const DetailCards = () => {
                             </div>
                         </Form.Group>
                     </Col>
-                    <Col md={7}>
-                        <Row className='mt-3'>
-                            {Object.keys(statusCounts).length > 0 ? (
-                                Object.keys(statusCounts).map((status) => (
-                                    <Col key={status} md={4} className="mb-4">
-                                        <Card onClick={() => handleDataView(status)}
-                                            style={{
-                                                height: "140px",
-                                                padding: "10px",
-                                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                                backgroundColor: '#ffffff',
-                                                borderRadius: '15px',
-                                                textAlign: 'center',
-                                                transition: 'transform 0.3s',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                justifyContent: 'center',
-                                                cursor: 'pointer'
-                                            }}
-                                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                        >
-                                            <Card.Body>
-                                                <Card.Title style={{ fontSize: '1.1rem', color: '#333', fontWeight: 'bold' }}>
-                                                    {status}
-                                                </Card.Title>
-                                                <Card.Text style={{ fontSize: '1.6rem', color: '#007bff', fontWeight: 'bold' }}>
-                                                    {statusCounts[status]}
-                                                </Card.Text>
-                                            </Card.Body>
-                                        </Card>
-                                    </Col>
-                                ))
-                            ) : (
-                                <div style={{ textAlign: 'center', width: '100%', paddingTop: '50px' }}>
-                                    <h4>Select one or more markets to view detailed information</h4>
-                                </div>
-                            )}
-                        </Row>
-                    </Col>
+
+                    {showCards ? (
+                        <Col md={7}>
+                            <Row className='mt-3'>
+                                {Object.keys(statusCounts).length > 0 ? (
+                                    Object.keys(statusCounts).map((status) => (
+                                        <Col key={status} md={4} className="mb-4">
+                                            <Card onClick={() => handleDataView(status)}
+                                                style={{
+                                                    height: "140px",
+                                                    padding: "10px",
+                                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                                    backgroundColor: '#ffffff',
+                                                    borderRadius: '15px',
+                                                    textAlign: 'center',
+                                                    transition: 'transform 0.3s',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    justifyContent: 'center',
+                                                    cursor: 'pointer'
+                                                }}
+                                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                            >
+                                                <Card.Body>
+                                                    <Card.Title style={{ fontSize: '1.1rem', color: '#E10174', fontWeight: 'bold' }}>
+                                                        {status}
+                                                    </Card.Title>
+                                                    <Card.Text style={{ fontSize: '1.6rem', color: 'Black', fontWeight: 'bold' }}>
+                                                        {statusCounts[status]}
+                                                    </Card.Text>
+                                                </Card.Body>
+                                            </Card>
+                                        </Col>
+                                    ))
+                                ) : (
+                                    <div style={{ textAlign: 'center', width: '100%', paddingTop: '50px' }}>
+                                        <h4>Select one or more markets to view detailed information</h4>
+                                    </div>
+                                )}
+                            </Row>
+                        </Col>
+                    ) : (
+                        <Col md={7} style={{ textAlign: 'center', paddingTop: '50px' }}>
+                            <h4>Please select one or more markets to see results.</h4>
+                        </Col>
+                    )}
+
                     <Col md={3}>
-                        {Object.keys(statusCounts).length > 0 ? (
-                            <div style={{ height: '400px' }}>
+                        {showCards && Object.keys(statusCounts).length > 0 ? (
+                            <div style={{ height: '400px' ,}}>
                                 <CanvasJSChart
                                     options={{
                                         animationEnabled: true,
                                         exportEnabled: true,
                                         theme: "light1",
-                                        title: { text: "Status Distribution" },
+                                        title: { text: "Status Distribution",color:"#E10174" },
                                         data: [{
                                             type: "pie",
                                             indexLabel: "{label}: {y}",

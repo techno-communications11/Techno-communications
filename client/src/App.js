@@ -47,6 +47,7 @@ import HrInterviewd from './HrRound/HrInterviewd';
 import AdminTabs from './Adminpages/Admintabs';
 import AdminHrEdit from './Adminpages/AdminHrEdit';
 import StatsTicketView from './Adminpages/StatsTicketView';
+import JobInfo from './Adminpages/JobInfo';
 function App() {
   return (
     <Router>
@@ -94,6 +95,7 @@ function AppComponent() {
             {role === 'admin' && (
               <>
                 <Route path="/work" element={<Individual_performance />} />
+                <Route path="/jobinfo" element={<JobInfo />} />
                 <Route path="/adminTabs" element={<AdminTabs />} />
                 <Route path="/AdminHrEdit" element={<AdminHrEdit />} />
                 <Route path="/detailacrds" element={<DetailCards />} />
@@ -162,6 +164,7 @@ function AppComponent() {
               <>
                 <Route path="/markethome" element={<Markethome />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
+                <Route path="/selectedathr" element={<SelectedAtHr/>} />
               </>
             )}
             <Route path="/" element={<Public />} />

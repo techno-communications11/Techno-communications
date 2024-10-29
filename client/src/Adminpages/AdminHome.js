@@ -135,15 +135,18 @@ function AdminHome() {
                     <Grid item xs={12} sm={12}>
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             {/* <Button variant="contained" color="primary" component={Link} to="/admindetailedview"> */}
-                            <Button variant="contained" color="primary" component={Link} to="/detail">
+                            <Button variant="contained" color="primary" component={Link} to="/detail" style={{ backgroundColor: "#E10174", color: "white" }}>
                                 {/* <Button variant="contained" color="primary" component={Link} to="/admindetailedview"> */}
                                 Detailed View
                             </Button>
                             {/* <Button variant="contained" color="primary" component={Link} to="/work">
                                 Individual Progress
                             </Button> */}
-                            <Button variant="contained" color="primary" component={Link} to="/selectedathr">
+                            <Button variant="contained" color="primary" component={Link} to="/selectedathr" style={{ backgroundColor: "#E10174", color: "white" }}>
                                 HIRED APPLICANTS
+                            </Button>
+                            <Button variant="contained" color="primary" component={Link} to="/jobinfo" style={{ backgroundColor: "#E10174", color: "white" }}>
+                                JOB Openings
                             </Button>
                         </Box>
                     </Grid>

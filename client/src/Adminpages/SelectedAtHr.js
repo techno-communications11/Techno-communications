@@ -21,7 +21,7 @@ import Tooltip from '@mui/material/Tooltip'; // Import Tooltip
 import Swal from 'sweetalert2';
 import { Button } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
-
+import decodeToken from '../decodedDetails';
 function SelectedAtHr() {
   const apiurl = process.env.REACT_APP_API;
   const [data, setData] = useState([]);
@@ -40,7 +40,24 @@ function SelectedAtHr() {
   const [selectedMarket2, setSelectedMarket2] = useState([])
   // const [isAllSelected2, setIsAllSelected2] = useState(false);
   const [marketFilter2, setMarketFilter2] = useState([]);
-
+  const userData = decodeToken()?.name;
+  const role = decodeToken()?.role;
+  console.log(userData, "ud")
+  const userMarket = {
+    "Ali Khan": "ARIZONA",
+    "Rahim Nasir Khan": "BAY AREA",
+    "Shah Noor Butt": "COLORADO",
+    "Nazim Sundrani": "DALLAS",
+    "Afzal Muhammad": "El Paso",
+    "Adnan Barri": "HOUSTON",
+    "Maaz Khan": "LOS ANGELES",
+    "Mohamad Elayan": "MEMPHIS/NASHVILLE / FLORIDA",
+    "Uzair Uddin": "NORTH CAROL",
+    "Faizan Jiwani": "SACRAMENTO",
+    "Hassan Saleem": "SAN DEIGIO",
+    "Kamaran Mohammed": "SAN FRANCISCO"
+  };
+  const tokenMarket = userMarket[userData]?.toLowerCase();
 
   console.log(selectedMarket, selectedMarket1, selectedMarket2)
   const handleClick = (event) => {
@@ -90,34 +107,63 @@ function SelectedAtHr() {
   useEffect(() => {
     let updatedData = [...data];
 
-    // First filter: `marketFilter` on `MarketHiringFor`
-    if (marketFilter.length > 0) {
-      const lowerCaseMarketFilter = marketFilter.map(market => market.toLowerCase().trim());
+    // If `tokenMarket` is present, filter based on `tokenMarket` in either `MarketHiringFor` or `TrainingAt`
+    if (tokenMarket) {
+      const lowerCaseTokenMarket = tokenMarket.toLowerCase().trim();
+
       updatedData = updatedData.filter(row => {
         const marketValue = row.MarketHiringFor?.toLowerCase().trim() || '';
-        return lowerCaseMarketFilter.includes(marketValue);
-      });
-      console.log('After First Market Filter (MarketHiringFor):', updatedData);
-    }
-
-    // Second filter: `marketFilter1` on `MarketHiringFor`
-    if (marketFilter1.length > 0) {
-      const lowerCaseMarketFilter1 = marketFilter1.map(market => market.toLowerCase().trim());
-      updatedData = updatedData.filter(row => {
-        const marketValue = row.MarketHiringFor?.toLowerCase().trim() || '';
-        return lowerCaseMarketFilter1.includes(marketValue);
-      });
-      console.log('After Second Market Filter (MarketHiringFor):', updatedData);
-    }
-
-    // Third filter: `marketFilter2` on `TrainingAt`
-    if (marketFilter2.length > 0) {
-      const lowerCaseMarketFilter2 = marketFilter2.map(market => market.toLowerCase().trim());
-      updatedData = updatedData.filter(row => {
         const trainingValue = row.TrainingAt?.toLowerCase().trim() || '';
-        return lowerCaseMarketFilter2.includes(trainingValue);
+
+        // Check if either `MarketHiringFor` or `TrainingAt` matches `tokenMarket`
+        return marketValue.includes(lowerCaseTokenMarket) || trainingValue.includes(lowerCaseTokenMarket);
       });
-      console.log('After Third Market Filter (TrainingAt):', updatedData);
+
+      console.log('Filtered by tokenMarket (MarketHiringFor or TrainingAt):', updatedData);
+    } else {
+      // First filter: `marketFilter` on `MarketHiringFor` and `TrainingAt`
+      if (marketFilter.length > 0) {
+        const lowerCaseMarketFilter = marketFilter.map(market => market.toLowerCase().trim());
+
+        updatedData = updatedData.filter(row => {
+          const marketValue = row.MarketHiringFor?.toLowerCase().trim() || '';
+          const trainingValue = row.TrainingAt?.toLowerCase().trim() || '';
+
+          // Match against `marketFilter` for either field
+          return lowerCaseMarketFilter.some(filter => marketValue.includes(filter) || trainingValue.includes(filter));
+        });
+
+        console.log('After First Market Filter (MarketHiringFor and TrainingAt):', updatedData);
+      }
+
+      // Second filter: `marketFilter1` on `MarketHiringFor` and `TrainingAt`
+      if (marketFilter1.length > 0) {
+        const lowerCaseMarketFilter1 = marketFilter1.map(market => market.toLowerCase().trim());
+
+        updatedData = updatedData.filter(row => {
+          const marketValue = row.MarketHiringFor?.toLowerCase().trim() || '';
+          const trainingValue = row.TrainingAt?.toLowerCase().trim() || '';
+
+          // Match against `marketFilter1` for either field
+          return lowerCaseMarketFilter1.some(filter => marketValue.includes(filter) || trainingValue.includes(filter));
+        });
+
+        console.log('After Second Market Filter (MarketHiringFor and TrainingAt):', updatedData);
+      }
+
+      // Third filter: `marketFilter2` on `TrainingAt` only
+      if (marketFilter2.length > 0) {
+        const lowerCaseMarketFilter2 = marketFilter2.map(market => market.toLowerCase().trim());
+
+        updatedData = updatedData.filter(row => {
+          const trainingValue = row.TrainingAt?.toLowerCase().trim() || '';
+
+          // Match against `marketFilter2` for `TrainingAt`
+          return lowerCaseMarketFilter2.some(filter => trainingValue.includes(filter));
+        });
+
+        console.log('After Third Market Filter (TrainingAt):', updatedData);
+      }
     }
 
     // Date filter on `DateOfJoining`
@@ -136,14 +182,14 @@ function SelectedAtHr() {
         case 0: return row.status === 'selected at Hr';
         case 1: return row.status === 'mark_assigned';
         case 2: return row.status === 'backOut';
-        default: return true;  // If `selectedTab` doesn't match, don't filter by status
+        default: return true;
       }
     });
 
-    console.log(updatedData, "vbackourt")
+    console.log('Final Filtered Data:', updatedData);
 
     setFilteredData(updatedData);
-  }, [marketFilter, marketFilter1, marketFilter2, joiningDateFilter, data, selectedTab]);
+  }, [marketFilter, marketFilter1, marketFilter2, joiningDateFilter, data, selectedTab, tokenMarket]);
 
 
 
@@ -277,6 +323,7 @@ function SelectedAtHr() {
       Phone: row.phone,
       ReferedBy: row.referred_by,
       Reference_id: row.reference_id,
+      created_at: row.created_at,
       DateOfJoining: new Date(row.DateOfJoining).toLocaleDateString() || 'N/A', // Formatting the date
       MarketHiringFor: row.MarketHiringFor || 'N/A',
       TrainingAt: row.TrainingAt || 'N/A',
@@ -297,8 +344,42 @@ function SelectedAtHr() {
     XLSX.writeFile(workbook, `FilteredData.xlsx`);
   };
 
+  function getDifferenceInDays(created_at, updatedDate) {
+    if (!updatedDate) {
+      return 0;
+    }
+    // Parse the input date strings
+    const inputDate = new Date(created_at);
+    const currentDate = new Date(updatedDate);
+
+    // Check if both dates are valid
+    if (isNaN(inputDate.getTime()) || isNaN(currentDate.getTime())) {
+      return 0; // Return 0 if either date is invalid
+    }
+
+    // Calculate the absolute difference in milliseconds
+    const differenceInMilliseconds = Math.abs(currentDate - inputDate);
+
+    // Convert milliseconds to days
+    const differenceInDays = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+    return differenceInDays;
+  }
+
+  const uniqdata = filteredData
+    .filter((profile, index, self) =>
+      index === self.findIndex((p) => (
+        p.applicant_uuid === profile.applicant_uuid
+        // Uncomment these lines if you want to add additional criteria for uniqueness
+        // p.created_at_date === profile.created_at_date &&
+        // p.work_location_name === profile.work_location_name &&
+        // p.screening_manager_name === profile.screening_manager_name
+      ))
+    )
+    .sort((a, b) => new Date(a.DateOfJoining) - new Date(b.DateOfJoining));
 
 
+  console.log("uniqdata >>", uniqdata)
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Tabs value={selectedTab} onChange={handleTabChange} centered>
@@ -309,14 +390,15 @@ function SelectedAtHr() {
 
       <Row className="d-flex justify-content-between mt-4">
         <Col className='col-md-2'>
-          <MarketSelector
+          {role !== 'market_manager' && <MarketSelector
             selectedMarket={selectedMarket}
             setSelectedMarket={setSelectedMarket}
             isAllSelected={isAllSelected}
             setIsAllSelected={setIsAllSelected}
             setMarketFilter={setMarketFilter}
             text={"Select Market"}
-          />
+          />}
+
           <Button className='btn btn-success mb-2' onClick={() => downloadAsExcel()}>Download In Excel</Button>
         </Col>
         <Col className='col-md-6'></Col>
@@ -328,7 +410,7 @@ function SelectedAtHr() {
         </Col>
       </Row>
 
-      {filteredData.length === 0 ? (
+      {uniqdata.length === 0 ? (
         <Card
           style={{
             padding: '30px', // Adjusted padding
@@ -355,13 +437,13 @@ function SelectedAtHr() {
           <Table stickyHeader style={{ tableLayout: 'auto', fontSize: '0.6rem', }}> {/* Reduced font size */}
             <TableHead>
               <TableRow style={{ headerStyle }}>
-                {['SINo', 'CandidateDetails', 'Market Hiring For', 'Training Hiring For', 'DOJ',
-                  'Payroll/Compensation Type', 'Payment', 'work Hours/No.Of Days&OffDays', 'Back Out', 'Contract Disclosed',
+                {['SINo', 'CandidateDetails', 'Market Hiring For', 'Training Hiring For', 'Duration', 'DOJ',
+                  'Payroll/Compensation Type', 'Payment', 'work Hours/No.Of Days & Off-Days', 'Back Out', 'Contract Disclosed',
                   'Added to Schedule', 'NTID Created', 'NTID Created Date', 'NTID',
                   'Mark As Assigned'].map(header => (
-                    // Conditionally render the 'Back Out' column based on filteredData
+                    // Conditionally render the 'Back Out' column based on uniqdata
                     header === 'Back Out' ? (
-                      filteredData.some(row => row.status !== 'mark_assigned') && (
+                      uniqdata.some(row => row.status !== 'mark_assigned') && (
                         <TableCell key={header} style={headerStyle} className='text-center text-capitalize'>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Typography variant="body4" style={{ marginRight: '1px' }}>{header}</Typography>
@@ -414,7 +496,7 @@ function SelectedAtHr() {
 
 
             <TableBody>
-              {filteredData.map((row, index) => (
+              {uniqdata.map((row, index) => (
                 <TableRow
                   key={index}
                   style={{
@@ -448,12 +530,36 @@ function SelectedAtHr() {
 
                   <TableCell className='text-capitalize text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>{row.MarketHiringFor?.toLowerCase()}</TableCell>
                   <TableCell className='text-capitalize text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>{row.TrainingAt?.toLowerCase() || 'N/A'}</TableCell>
-
                   <TableCell className='text-center' style={{ padding: '1px 2px', fontSize: '0.6rem' }}>
                     <Typography style={{ fontSize: '0.7rem' }}>
-                      {new Date(row.DateOfJoining).toLocaleDateString()}
+                      {getDifferenceInDays(row.created_at, row.updatedDate) || 0} days
                     </Typography>
                   </TableCell>
+
+                  <TableCell className='text-center' style={{ padding: '1px 2px', fontSize: '0.6rem' }}>
+                    {(row.status === 'mark_assigned' || row.status === 'backOut') ? (
+                      <Typography
+                        style={{
+                          fontSize: '0.7rem',
+                          color: 'inherit'  // No red color if status is 'mark_assigned' or 'backOut'
+                        }}
+                      >
+                        {new Date(row.DateOfJoining).toLocaleDateString()}
+                      </Typography>
+                    ) : (
+                      <Typography
+                        style={{
+                          fontSize: '0.7rem',
+                          color: new Date(row.DateOfJoining) < new Date() ? 'red' : 'inherit'  // Set color to red if the date has passed and status is not 'mark_assigned' or 'backOut'
+                        }}
+                      >
+                        {new Date(row.DateOfJoining).toLocaleDateString()} {/* Display the DateOfJoining */}
+                      </Typography>
+                    )}
+
+                  </TableCell>
+
+
 
 
                   <TableCell style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
@@ -467,7 +573,7 @@ function SelectedAtHr() {
 
                   <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
 
-                    {row.payment > 0 ? (<span style={{ marginRight: '2px' }}>$</span> && row.payment) : "N/A"}
+                    {row.payment > 0 ? (`$ ${row.payment}`) : "N/A"}
                   </TableCell>
 
                   <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
@@ -591,13 +697,13 @@ function SelectedAtHr() {
 
 
                   <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
-                  {row.status === 'mark_assigned' || row.status === 'backOut' ? (
+                    {row.status === 'mark_assigned' || row.status === 'backOut' ? (
                       <IconButton disabled>
                         <CheckCircleIcon
-  style={{
-    color: row.status === 'backOut' ? '#f44336' : '#46aba2', // red for 'backOut', green otherwise
-  }}
-/>
+                          style={{
+                            color: row.status === 'backOut' ? '#f44336' : '#46aba2', // red for 'backOut', green otherwise
+                          }}
+                        />
                       </IconButton>
                     ) : (
                       <IconButton onClick={() => handleIconClick(index)} disabled={clickedIndexes.has(index)}>

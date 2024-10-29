@@ -94,7 +94,7 @@ module.exports = (io) => {
   //route for detailstatus
   router.get('/Detailstatus', getStatusDetailCounts)
   //route for getStatusCountsByLocation
-  router.get('/getStatusCountsByLocation/:location_id', getStatusCountsByLocation)
+  router.get('/getStatusCountsByLocation', getStatusCountsByLocation)
 
   // upadting staus at each level
   router.post('/updatestatus', statusupdate)

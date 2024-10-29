@@ -108,7 +108,19 @@ function AppNavbar() {
                   List Profile
                 </Nav.Link>
               )}
+              {
+                (role === 'market_manager') && <Nav.Link as={Link} to="/markethome" className='fw-bolder nav-link-custom'>
+                 Job Posting
+                </Nav.Link>
 
+              }
+              {
+                (role === 'market_manager') && <Nav.Link as={Link} to="/selectedathr" className='fw-bolder nav-link-custom'>
+                  Hired_applicants
+                </Nav.Link>
+
+              }
+              
               {role === 'admin' && (
                 <Nav.Link as={Link} to="/adminTabs" className='fw-bolder nav-link-custom'>
                   HR Profile

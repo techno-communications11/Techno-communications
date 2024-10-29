@@ -66,38 +66,42 @@ const getSelectedAtHr = async (req, res) => {
         // Query to select relevant data from hrevaluation, applicant_referrals, and ntids tables
         const [applicants] = await db.query(
             `SELECT 
-                hrevaluation.market AS MarketHiringFor, 
-                hrevaluation.training_location AS TrainingAt, 
-                hrevaluation.joining_date AS DateOfJoining,
-                 hrevaluation.payroll AS payroll,
-                  hrevaluation.offered_salary AS payment,
-                   hrevaluation.work_hours_days AS noOFDays,
-                   hrevaluation.Contract_disclosed AS contractDisclosed,
-                     hrevaluation.compensation_type AS compensation_type,
-                      hrevaluation.offDays AS offDays,
-                applicant_referrals.applicant_uuid AS applicant_uuid,
-                 applicant_referrals.reference_id AS reference_id,
-                  applicant_referrals.referred_by AS referred_by,
-                applicant_referrals.phone AS phone,
-                applicant_referrals.email AS email,
-                applicant_referrals.name AS name,
-                applicant_referrals.status AS status,
-                ntids.ntid_created AS ntidCreated,
-                ntids.ntid_created_date AS ntidCreatedDate,
-                ntids.ntid AS ntid,
-                ntids.added_to_schedule AS addedToSchedule
-            FROM 
-                hrevaluation
-            INNER JOIN 
-                applicant_referrals 
-            ON 
-                hrevaluation.applicant_id = applicant_referrals.applicant_uuid
-            LEFT JOIN 
-                ntids 
-            ON 
-                applicant_referrals.applicant_uuid = ntids.applicant_uuid
-            WHERE 
-                applicant_referrals.status COLLATE utf8mb4_unicode_ci IN ("selected at Hr", "mark_assigned","backOut");`
+    hrinterview.updated_at AS updatedDate,
+    hrevaluation.market AS MarketHiringFor, 
+    hrevaluation.training_location AS TrainingAt, 
+    hrevaluation.joining_date AS DateOfJoining,
+    hrevaluation.payroll AS payroll,
+    hrevaluation.offered_salary AS payment,
+    hrevaluation.work_hours_days AS noOFDays,
+    hrevaluation.Contract_disclosed AS contractDisclosed,
+    hrevaluation.compensation_type AS compensation_type,
+    hrevaluation.offDays AS offDays,
+    applicant_referrals.applicant_uuid AS applicant_uuid,
+    applicant_referrals.reference_id AS reference_id,
+    applicant_referrals.referred_by AS referred_by,
+    applicant_referrals.phone AS phone,
+    applicant_referrals.email AS email,
+    applicant_referrals.name AS name,
+    applicant_referrals.created_at AS created_at,
+    applicant_referrals.status AS status,
+    ntids.ntid_created AS ntidCreated,
+    ntids.ntid_created_date AS ntidCreatedDate,
+    ntids.ntid AS ntid,
+    ntids.added_to_schedule AS addedToSchedule
+FROM 
+    hrevaluation
+INNER JOIN 
+    applicant_referrals 
+    ON hrevaluation.applicant_id = applicant_referrals.applicant_uuid
+LEFT JOIN 
+    ntids 
+    ON applicant_referrals.applicant_uuid = ntids.applicant_uuid
+LEFT JOIN 
+    hrinterview -- Adding hrinterview table join
+    ON applicant_referrals.applicant_uuid = hrinterview.applicant_uuid -- Assuming the applicant_uuid links hrinterview to applicant_referrals
+WHERE 
+    applicant_referrals.status COLLATE utf8mb4_unicode_ci IN ("selected at Hr", "mark_assigned", "backOut");
+`
         );
 
         if (applicants.length === 0) {

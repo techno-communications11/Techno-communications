@@ -82,6 +82,9 @@ function StatsTicketView() {
             "backOut",
             "rejected at Hr"
         ],
+        "Pending At Screening": [
+            "pending at Screening",
+        ],
         "1st Round - Pending": [
             "pending at Screening",
             "moved to Interview",
@@ -270,7 +273,8 @@ function StatsTicketView() {
                                     <TableRow>
                                         <TableCell style={headerStyle}>S.No</TableCell>
                                         <TableCell style={headerStyle}>Created At</TableCell>
-                                        <TableCell style={headerStyle}>Applicant Name</TableCell>
+                                        <TableCell style={headerStyle}>Applicant Details</TableCell>
+
                                         <TableCell style={headerStyle}>Referred_by</TableCell>
                                         <TableCell style={headerStyle}>Reference ID</TableCell>
                                         <TableCell style={headerStyle}>Work Location</TableCell>
@@ -286,7 +290,18 @@ function StatsTicketView() {
                                         <TableRow key={index}>
                                             <TableCell>{indexOfFirstProfile + index + 1}</TableCell>
                                             <TableCell>{profile.created_at_date || 'N/A'}</TableCell>
-                                            <TableCell>{profile.applicant_name || 'N/A'}</TableCell>
+                                            <TableCell>
+
+                                                <Box display="flex" alignItems="center">
+
+                                                    <Box ml={2}>
+                                                        <Typography variant="body1" style={{ fontWeight: 'bold' }}> {profile.applicant_name || 'N/A'}</Typography>
+
+                                                        <Typography variant="body1" color="textSecondary">{profile.applicant_phone}</Typography>
+
+                                                    </Box>
+                                                </Box>
+                                            </TableCell>
                                             <TableCell>{profile.applicant_referred_by || 'N/A'}</TableCell>
                                             <TableCell>{profile.applicant_reference_id || 'N/A'}</TableCell>
                                             <TableCell>{profile.work_location_name || 'N/A'}</TableCell>
