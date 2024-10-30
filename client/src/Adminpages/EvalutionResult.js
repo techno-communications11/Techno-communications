@@ -24,6 +24,7 @@ function EvalutionResult({ setTrainerCount }) {
                 });
 
                 if (response.status === 200) {
+                    console.log(">>", response.data)
                     setProfiles(response.data);
                     setTrainerCount(response.data.length); // Pass count back to HrTabs
                 }
@@ -75,6 +76,7 @@ function EvalutionResult({ setTrainerCount }) {
                             <th>Applicant UUID</th>
                             <th>HR Name</th>
                             <th>Current Status</th>
+                            <th>Response Period</th>
                             <th>Final Action</th>
                         </tr>
                     </thead>
@@ -86,6 +88,10 @@ function EvalutionResult({ setTrainerCount }) {
                                 <td>{profile.applicant_uuid}</td>
                                 <td>{profile.hr_name}</td>
                                 <td>{profile.applicant_status}</td>
+                                <td>
+                                    {Math.floor((new Date() - new Date(profile.updated_at)) / (1000 * 60 * 60 * 24)) + 1} Day's
+                                </td>
+
                                 <td>
                                     <MuiButton
                                         variant="contained"

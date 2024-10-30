@@ -254,6 +254,7 @@ const getAllTrainerFeedbackApplicants = (io) => async (req, res) => {
             `SELECT 
                 hrinterview.applicant_uuid,
                 hrinterview.hr_id,
+             	hrinterview.updated_at,
                 hrinterview.time_of_hrinterview,
                 applicant_referrals.status AS applicant_status,
                 applicant_referrals.name AS applicant_name,

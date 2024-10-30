@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 
 export const DirectDash = () => {
     const userData = decodeToken();
-    const selectedUser = userData?.username || "Qamar Shahzad"; // Get the user name from token or fallback
+    const selectedUser = userData.name ; // Get the user name from token or fallback
     console.log("selectedUser", selectedUser);
 
     const [selectedProfiles, setSelectedProfiles] = useState([]);

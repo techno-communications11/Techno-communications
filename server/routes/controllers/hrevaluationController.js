@@ -78,7 +78,13 @@ const addHREvaluation = async (req, res) => {
         );
 
         console.log("HR evaluation inserted successfully. Result:", result);
-
+        const [dateUpdate] = await db.query(
+            `UPDATE hrinterview
+             SET updated_at = NOW()
+             WHERE applicant_uuid = ?`,
+            [applicantId]
+        );
+        console.log(`updated_at  is for ${applicantId}`)
         // Update applicant_referrals table with recommendation
         const valuesForUpdate = [recommend_hiring, applicantId];
         const [updateResult] = await db.query(

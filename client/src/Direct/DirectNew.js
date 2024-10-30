@@ -33,7 +33,7 @@ function DirectNew() {
                     headers: getAuthHeaders(),
                 });
                 setProfiles(response.data);
-                toast.success('Profiles fetched successfully!');
+                // toast.success('Profiles fetched successfully!');
             } catch (error) {
                 setError('No Avilable Profiles.');
                 // toast.error('Failed to fetch profiles.');
@@ -56,6 +56,10 @@ function DirectNew() {
     });
 
     const sortedProfiles = [...filteredProfiles].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const uniqueApplicants = sortedProfiles.filter((applicant, index, self) =>
+        index === self.findIndex(a => a.applicant_uuid === applicant.applicant_uuid)
+    );
+
 
     const handleShowModal = (profile) => {
         setSelectedProfile(profile);
@@ -184,8 +188,8 @@ function DirectNew() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {sortedProfiles.length > 0 ? (
-                                    sortedProfiles.map((profile, index) => (
+                                {uniqueApplicants.length > 0 ? (
+                                    uniqueApplicants.map((profile, index) => (
                                         <tr key={index}>
                                             <td>{index + 1}</td>
                                             <td>{profile.applicant_name}</td>

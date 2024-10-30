@@ -133,7 +133,7 @@ function HrPrendings() {
                     onToggle={handleChangeScrenningToggle}
                   >
                     <Dropdown.Toggle className="w-100 bg-primary text-white border-secondary" id="dropdown-basic">
-                      <Assignment /> Change Assign To
+                      <Assignment /> Change Assign To me
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="w-auto">
                       {hrs
