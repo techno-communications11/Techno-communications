@@ -86,7 +86,7 @@ function StatsTicketView() {
             "pending at Screening",
         ],
         "1st Round - Pending": [
-            "pending at Screening",
+            
             "moved to Interview",
             "put on hold at Interview"
         ],
