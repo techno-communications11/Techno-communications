@@ -77,7 +77,7 @@ function AppComponent() {
   }
 
   const location = useLocation();
-  const showNavbar = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/Memphis';
+  const showNavbar = location.pathname !== '/' && location.pathname !== '/login' && location.pathname.toLowerCase() !== '/memphis';
 
   return (
     <div className="App">
@@ -88,7 +88,7 @@ function AppComponent() {
 
             <Route path="/" element={<Public />} />
             
-            <Route path="/Memphis" element={<PublicFixedLocation />} />
+            <Route path="/memphis" element={<PublicFixedLocation />} />
             <Route path="/login" element={<Login />} />
             {role === 'screening_manager' || role === 'hr' || role === 'interviewer' ? (
               <Route path="/new" element={<New />} />

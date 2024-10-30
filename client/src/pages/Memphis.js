@@ -9,13 +9,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Button } from '@mui/material';
 import Swal from 'sweetalert2';
-
+import { useLocation } from 'react-router-dom';
 function PublicFixedLocation() {
     const apiUrl = process.env.REACT_APP_API;
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
-
+    const location = useLocation();
     // State to track invalid fields
     const [invalidFields, setInvalidFields] = useState({
         name: false,
@@ -102,6 +102,7 @@ function PublicFixedLocation() {
 
     const handleLoginModalShow = () => setShowLoginModal(true);
     const handleLoginModalClose = () => setShowLoginModal(false);
+    console.log(location.pathname);
 const Memphis = "MEMPHIS"
     return (
         <Container fluid>
