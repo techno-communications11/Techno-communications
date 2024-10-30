@@ -38,7 +38,7 @@ import DetailedView from './Adminpages/DetailedView'
 
 import DetailCards from './Adminpages/DetailCards';
 import DirectHiring from './Direct/DirectHiring';
-import { DirectDash}  from './Direct/DirectDash';
+import { DirectDash } from './Direct/DirectDash';
 import DirectForm from './Direct/DirectForm';
 import DirectNew from './Direct/DirectNew';
 import Edit from './HrRound/Edit';
@@ -48,6 +48,7 @@ import AdminTabs from './Adminpages/Admintabs';
 import AdminHrEdit from './Adminpages/AdminHrEdit';
 import StatsTicketView from './Adminpages/StatsTicketView';
 import JobInfo from './Adminpages/JobInfo';
+import PublicFixedLocation from './pages/Memphis';
 function App() {
   return (
     <Router>
@@ -76,7 +77,7 @@ function AppComponent() {
   }
 
   const location = useLocation();
-  const showNavbar = location.pathname !== '/' && location.pathname !== '/login';
+  const showNavbar = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/Memphis';
 
   return (
     <div className="App">
@@ -84,7 +85,10 @@ function AppComponent() {
       <Routes>
         {!token ? (
           <>
+
             <Route path="/" element={<Public />} />
+            
+            <Route path="/Memphis" element={<PublicFixedLocation />} />
             <Route path="/login" element={<Login />} />
             {role === 'screening_manager' || role === 'hr' || role === 'interviewer' ? (
               <Route path="/new" element={<New />} />
@@ -92,6 +96,7 @@ function AppComponent() {
           </>
         ) : (
           <>
+          
             {role === 'admin' && (
               <>
                 <Route path="/work" element={<Individual_performance />} />
@@ -122,16 +127,16 @@ function AppComponent() {
                 <Route path="/TrainerRes" element={<TrainerRes />} />
               </>
             )}
-            
+
             {role === 'trainer' && (
               <>
                 <Route path="/trainerhome" element={<TrainerHome />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
               </>
             )}
-             {role === 'direct_hiring' && (
+            {role === 'direct_hiring' && (
               <>
-              
+
                 <Route path="/directHiring" element={<DirectDash />} />
                 {/* <Route path="/directdash" element={<DirectDash />} /> */}
                 <Route path="/directform" element={<DirectForm />} />
@@ -164,13 +169,14 @@ function AppComponent() {
               <>
                 <Route path="/markethome" element={<Markethome />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
-                <Route path="/selectedathr" element={<SelectedAtHr/>} />
+                <Route path="/selectedathr" element={<SelectedAtHr />} />
               </>
             )}
             <Route path="/" element={<Public />} />
           </>
         )}
         <Route path="*" element={<Navigate to={'/'} />} />
+      
       </Routes>
 
     </div>
