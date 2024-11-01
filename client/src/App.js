@@ -77,7 +77,10 @@ function AppComponent() {
   }
 
   const location = useLocation();
-  const showNavbar = location.pathname !== '/' && location.pathname.toLowerCase() !== '/memphis' && location.pathname !== '/login'  ;
+  const normalizedPath = location.pathname.trim().toLowerCase();
+  const showNavbar = normalizedPath !== '/' && normalizedPath !== '/memphis' && normalizedPath !== '/login';
+
+
 
   return (
     <div className="App">
@@ -87,18 +90,20 @@ function AppComponent() {
           <>
 
             <Route path="/" element={<Public />} />
-            
-            <Route path="/Memphis" element={<PublicFixedLocation />} />
+
+
             <Route path="/login" element={<Login />} />
+
             {role === 'screening_manager' || role === 'hr' || role === 'interviewer' ? (
               <Route path="/new" element={<New />} />
             ) : null}
           </>
         ) : (
           <>
-          
+
             {role === 'admin' && (
               <>
+
                 <Route path="/work" element={<Individual_performance />} />
                 <Route path="/jobinfo" element={<JobInfo />} />
                 <Route path="/adminTabs" element={<AdminTabs />} />
@@ -176,7 +181,7 @@ function AppComponent() {
           </>
         )}
         <Route path="*" element={<Navigate to={'/'} />} />
-      
+        <Route path="/memphis" element={<PublicFixedLocation />} />
       </Routes>
 
     </div>

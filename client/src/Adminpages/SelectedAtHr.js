@@ -25,6 +25,7 @@ import decodeToken from '../decodedDetails';
 function SelectedAtHr() {
   const apiurl = process.env.REACT_APP_API;
   const [data, setData] = useState([]);
+  const [showDateInput, setShowDateInput] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
   const [clickedIndexes, setClickedIndexes] = useState(new Set());
   const [selectedTab, setSelectedTab] = useState(0);
@@ -193,26 +194,20 @@ function SelectedAtHr() {
 
 
 
-  const handleInputChange = (index, field, value) => {
-    const updatedFilteredData = [...filteredData];
-    updatedFilteredData[index] = {
-      ...updatedFilteredData[index],
-      [field]: value
-    };
-
-
-    setFilteredData(updatedFilteredData);
-    const mainDataIndex = data.findIndex(item => item.applicant_uuid === updatedFilteredData[index].applicant_uuid);
-
-    if (mainDataIndex > -1) {
-      const updatedMainData = [...data];
-      updatedMainData[mainDataIndex] = {
-        ...updatedMainData[mainDataIndex],
-        [field]: value
-      };
-      setData(updatedMainData);
-    }
-  }; const [showDateInput, setShowDateInput] = useState(false);
+  const handleInputChange = (uuid, field, value) => {
+    setFilteredData(prevFilteredData => 
+      prevFilteredData.map(row =>
+        row.applicant_uuid === uuid ? { ...row, [field]: value } : row
+      )
+    );
+  
+    setData(prevData => 
+      prevData.map(row =>
+        row.applicant_uuid === uuid ? { ...row, [field]: value } : row
+      )
+    );
+  };
+  
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -618,7 +613,8 @@ function SelectedAtHr() {
                   <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
                     <Checkbox
                       checked={row.addedToSchedule}
-                      onChange={e => handleInputChange(index, 'addedToSchedule', e.target.checked)}
+                      onChange={e => handleInputChange(row.applicant_uuid, 'addedToSchedule', e.target.checked)}
+
                       disabled={row.status === 'mark_assigned' || row.status === 'backOut'}
                       sx={{
                         color: row.status === 'mark_assigned' ? '#46aba2' : undefined,
@@ -637,7 +633,7 @@ function SelectedAtHr() {
                   <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
                     <Checkbox
                       checked={row.ntidCreated}
-                      onChange={e => handleInputChange(index, 'ntidCreated', e.target.checked)}
+                      onChange={e => handleInputChange(row.applicant_uuid, 'ntidCreated', e.target.checked)}
                       disabled={row.status === 'mark_assigned' || row.status === 'backOut'}
                       sx={{
                         color: row.status === 'mark_assigned' ? '#46aba2' : undefined,
@@ -661,7 +657,7 @@ function SelectedAtHr() {
                         <TextField
                           type="date"
                           value={row.ntidCreatedDate || ''}
-                          onChange={e => handleInputChange(index, 'ntidCreatedDate', e.target.value)}
+                          onChange={e => handleInputChange(row.applicant_uuid, 'ntidCreatedDate', e.target.value)}
                           variant="outlined"
                           size="small"
                           fullWidth
@@ -680,7 +676,7 @@ function SelectedAtHr() {
                   <TableCell className='text-center' style={{ padding: '2px 4px', fontSize: '0.7rem' }}>
                     <TextField
                       value={row.ntid || ''}
-                      onChange={e => handleInputChange(index, 'ntid', e.target.value)}
+                      onChange={e => handleInputChange(row.applicant_uuid, 'ntid', e.target.value)}
                       variant="outlined"
                       size="small"  // Adjusted size to small
                       sx={{
@@ -706,7 +702,7 @@ function SelectedAtHr() {
                         />
                       </IconButton>
                     ) : (
-                      <IconButton onClick={() => handleIconClick(index)} disabled={clickedIndexes.has(index)}>
+                      <IconButton onClick={() => handleIconClick(row.applicant_uuid)} disabled={clickedIndexes.has(index)}>
                         <CheckCircleIcon
                           style={{
                             color: '#3f51b5'
