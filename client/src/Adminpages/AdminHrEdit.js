@@ -31,8 +31,12 @@ function AdminHrEdit() {
                 // Validate the response structure
                 if (response.status === 200) {
                     if (Array.isArray(response.data.rows)) {
-                        setProfiles(response.data.rows);
-                        console.log("Profiles fetched:", response.data.rows);
+                        // Filter out duplicate applicant_uuid entries
+                        const uniqueProfiles = response.data.rows.filter((profile, index, self) =>
+                            index === self.findIndex((p) => p.applicant_id === profile.applicant_id)
+                        );
+                        setProfiles(uniqueProfiles);
+                        console.log("Unique profiles fetched:", uniqueProfiles);
                     } else {
                         console.error("Unexpected data format:", response.data);
                         toast.error("Unexpected data format from server.");
@@ -60,7 +64,7 @@ function AdminHrEdit() {
     }, []);
 
     const handleEdit = (profile) => {
-        setapplicant_uuid(profile.applicant_uuid); // If this is required
+        setapplicant_uuid(profile.applicant_id); // If this is required
         navigate("/edit", { state: { profile } }); // Pass the full profile object in state
     };
 
@@ -96,7 +100,7 @@ function AdminHrEdit() {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="5">No profiles found</td>
+                                <td colSpan="6">No profiles found</td>
                             </tr>
                         )}
                     </tbody>
