@@ -6,7 +6,6 @@ const userRoutes = require('./routes/userRoutes');
 const authMiddleware = require('./middleware/authMiddleware');
 // const testConnection = require('./testConnection');
 const cors = require('cors');
-const socketIO = require('socket.io');
 const http = require('http'); // HTTP server for socket.io integration
 const dotenv = require("dotenv");
 const socketIo = require('socket.io'); // Import socket.io
@@ -19,7 +18,7 @@ const server = http.createServer(app);
 // const io = socketIO(server);
 const io = socketIo(server, { // Initialize Socket.IO with server and CORS settings
   cors: {
-    origin: 'https://hiring.techno-communications.com/', // Replace with your frontend URL
+    origin: '/', // Replace with your frontend URL
     methods: ['GET', 'POST']
   }
 });
@@ -44,7 +43,7 @@ io.on('connection', (socket) => {
 
 // Routes
 app.get('/', (req, res) => {
-  res.send('Techno-communication server running');
+  res.send('Techno-communications server running');
 });
 app.use('/api', userRoutes(io));
 app.use('/api', authMiddleware, userRoutes);

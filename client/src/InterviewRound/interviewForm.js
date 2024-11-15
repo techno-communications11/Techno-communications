@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { Form, Row, Col, Button, Container, Modal } from 'react-bootstrap';
-import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
-import { useNavigate } from 'react-router';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
-import Rating from '@mui/material/Rating';
-import Stack from '@mui/material/Stack';
+import React, { useState } from "react";
+import { Form, Row, Col, Button, Container, Modal } from "react-bootstrap";
+import { getAuthHeaders } from "../Authrosization/getAuthHeaders";
+import { useNavigate } from "react-router";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
-const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) => {
+const ApplicantForm = ({
+  applicant_uuidProps,
+  applicantEmail,
+  applicantPhone,
+}) => {
   const navigate = useNavigate();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -17,64 +19,63 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
 
   const handleConfirm = () => {
     // Show the toast message upon confirmation
-    toast.success('Action confirmed!');
+    toast.success("Action confirmed!");
     setShowConfirmation(false);
     setTimeout(() => {
-      navigate("/interviewhome")
-    }, 1800)
+      navigate("/interviewhome");
+    }, 1800);
   };
 
   const naviagte = useNavigate();
   const [formData, setFormData] = useState({
     applicant_uuid: applicant_uuidProps,
-    applicants_age: '',
-    applicants_gender: '',
+    applicants_age: "",
+    applicants_gender: "",
     email_on_file: applicantEmail,
-    country: '',
-    city: '',
+    country: "",
+    city: "",
     interviewed_before: false,
-    visa_category: '',
-    education_level: '',
-    major_in: '',
-    currently_studying: '',
-    university_name: '',
-    course_type: '',
-    semester: '',
-    had_car: '',
-    family_operate_ti: '',
-    cellphone_carrier: '',
+    visa_category: "",
+    education_level: "",
+    major_in: "",
+    currently_studying: "",
+    university_name: "",
+    course_type: "",
+    semester: "",
+    had_car: "",
+    family_operate_ti: "",
+    cellphone_carrier: "",
     worked_before: false,
     currently_employed: false,
-    current_company: '',
+    current_company: "",
     current_job_in_ti: false,
-    hours_of_daily_work: '',
-    daily_wage: '',
-    compensation_type: '',
-    reason_to_leave: '',
-    cellular_experience: '',
-    name_tele_company_name: '',
-    experience_of_tele: '',
-    type_of_work_doing: '',
-    other_employment_exp: '',
-    foreign_work_exp: '',
-    mention_line_exp: '',
-    appearance: '',
-    personality: '',
-    confidence: '',
-    communication_skills: '',
-    pitch: '',
-    overcoming_objections: '',
-    negotiations: '',
-    applicant_strength: '',
-    applicants_weakness: '',
-
-    contract_sign: '',
-    evaluation: '',
-    recommend_hiring: '',
-    course_type_selection: '',
-
-    current_city: '',
-    current_country: '',
+    hours_of_daily_work: "",
+    daily_wage: "",
+    compensation_type: "",
+    reason_to_leave: "",
+    cellular_experience: "",
+    name_tele_company_name: "",
+    experience_of_tele: "",
+    type_of_work_doing: "",
+    other_employment_exp: "",
+    foreign_work_exp: "",
+    mention_line_exp: "",
+    appearance: "",
+    personality: "",
+    confidence: "",
+    communication_skills: "",
+    pitch: "",
+    overcoming_objections: "",
+    negotiations: "",
+    applicant_strength: "",
+    applicants_weakness: "",
+    comments: "",
+    contract_sign: "",
+    evaluation: "",
+    recommend_hiring: "",
+    current_city: "",
+    current_country: "",
+    
   });
 
   const [errors, setErrors] = useState({});
@@ -83,37 +84,72 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
     const errors = {};
 
     const fields = [
-      'applicant_uuid', 'applicants_age', 'applicants_gender', 'email_on_file',
-      'country', 'city', 'visa_category', 'education_level', 'major_in',
-      'university_name', 'course_type', 'semester', 'current_company',
-      'hours_of_daily_work', 'daily_wage', 'compensation_type', 'reason_to_leave',
-      'cellular_experience', 'name_tele_company_name', 'experience_of_tele',
-      'type_of_work_doing', 'foreign_work_exp', 'mention_line_exp', 'appearance',
-      'personality', 'confidence', 'communication_skills', 'pitch',
-      'overcoming_objections', 'negotiations', 'applicant_strength',
-      'applicants_weakness', 'contract_sign', 'evaluation',
-      'recommend_hiring',
-      'current_city', 'current_country'
+      "applicant_uuid",
+      "applicants_age",
+      "applicants_gender",
+      "email_on_file",
+      "country",
+      "city",
+      "visa_category",
+      "education_level",
+      "major_in",
+      "university_name",
+      "course_type",
+      "semester",
+      "current_company",
+      "hours_of_daily_work",
+      "daily_wage",
+      "compensation_type",
+      "reason_to_leave",
+      "cellular_experience",
+      "name_tele_company_name",
+      "experience_of_tele",
+      "type_of_work_doing",
+      "foreign_work_exp",
+      "mention_line_exp",
+      "appearance",
+      "personality",
+      "confidence",
+      "communication_skills",
+      "pitch",
+      "overcoming_objections",
+      "negotiations",
+      "applicant_strength",
+      "applicants_weakness",
+      "comments",
+      "contract_sign",
+      "evaluation",
+      "recommend_hiring",
+      
+      "current_city",
+      "current_country",
+      
     ];
 
-    fields.forEach(field => {
+    fields.forEach((field) => {
       const value = formData[field];
 
       if (value === undefined || value === null) {
-        errors[field] = `${field.replace(/_/g, ' ')} is required.`;
+        errors[field] = `${field.replace(/_/g, " ")} is required.`;
       }
     });
 
     // Handle boolean fields separately
     const booleanFields = [
-      'interviewed_before', 'currently_studying', 'had_car',
-      'family_operate_ti', 'other_employment_exp', 'cellphone_carrier',
-      'worked_before', 'currently_employed', 'current_job_in_ti'
+      "interviewed_before",
+      "currently_studying",
+      "had_car",
+      "family_operate_ti",
+      "other_employment_exp",
+      "cellphone_carrier",
+      "worked_before",
+      "currently_employed",
+      "current_job_in_ti",
     ];
 
-    booleanFields.forEach(field => {
+    booleanFields.forEach((field) => {
       if (formData[field] === undefined || formData[field] === null) {
-        errors[field] = `${field.replace(/_/g, ' ')} is required.`;
+        errors[field] = `${field.replace(/_/g, " ")} is required.`;
       }
     });
 
@@ -122,51 +158,43 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: type === 'radio' ? value : (type === 'checkbox' ? checked : value)
+      [name]: type === "radio" ? value : type === "checkbox" ? checked : value,
     }));
   };
 
-
   const handleSubmit = async (event) => {
-    console.log("cliked", applicantEmail)
+    console.log("cliked", applicantEmail);
     event.preventDefault();
 
     const validationErrors = validateForm();
     setErrors(validationErrors);
-
-    // if (Object.keys(validationErrors).length > 0) {
-
-    //   toast.error("All fields must be filled");
-    //   // Don't submit the form if there are validation errors
-    //   return;
-    // }
-
+ console.log(formData,'fmd')
 
     try {
-
-      const response = await axios.post(`${process.env.REACT_APP_API}/add-evaluation`, formData, {
-        headers: getAuthHeaders(),
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API}/add-evaluation`,
+        formData,
+        {
+          headers: getAuthHeaders(),
+        }
+      );
 
       if (response.status === 200) {
         toast.success("response submitted successfully!");
-        console.log(formData)
+        console.log(formData);
         setTimeout(() => {
           // setShowToast(true);
-          naviagte('/interviewhome')
+          naviagte("/interviewhome");
           // Reload the page after the toast disappears
         }, 1800);
-
       }
-
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
       toast.error("Failed submit response.");
     } finally {
       // setShowToast(false);
-
     }
   };
   const noshowatinterview = async (applicant_uuid) => {
@@ -177,11 +205,13 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
       applicant_uuid: applicant_uuid,
       action: "no show at Interview",
       // Include other data if needed, such as a comment
-
     };
     console.log("status....", applicant_uuid, payload.action);
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
+      const res = await axios.post(
+        `${process.env.REACT_APP_API}/updatestatus`,
+        payload
+      );
 
       if (res.status === 200) {
         // Show success message
@@ -189,7 +219,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
 
         // Reload the page after a short delay
         setTimeout(() => {
-          naviagte("/interviewhome")
+          naviagte("/interviewhome");
         }, 1800);
       }
     } catch (error) {
@@ -199,12 +229,13 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
     }
   };
 
-
-
-
   return (
     <Container className="d-flex justify-content-center align-items-center">
-      <Col lg={8} className='border px-5 mt-5' style={{ fontFamily: 'Roboto, sans-serif' }}>
+      <Col
+        lg={8}
+        className="border px-5 mt-5"
+        style={{ fontFamily: "Roboto, sans-serif" }}
+      >
         {/* Flex container to align button to the right */}
         <div className="d-flex justify-content-end">
           <Button
@@ -216,8 +247,9 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
           </Button>
         </div>
 
-
-        <h1 className="m-4">{applicant_uuidProps} Applicant Information Form</h1>
+        <h1 className="m-4">
+          {applicant_uuidProps} Applicant Information Form
+        </h1>
         <Form>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
@@ -226,14 +258,13 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
             <Col sm={6}>
               <Form.Control
                 type="text"
-                name='applicant_uuid'
+                name="applicant_uuid"
                 placeholder={applicant_uuidProps}
                 value={formData.applicant_uuid}
                 onChange={handleChange}
-                // isInvalid={!!errors.applicant_uuid} 
+                // isInvalid={!!errors.applicant_uuid}
                 readOnly
-              >
-              </Form.Control>
+              ></Form.Control>
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
@@ -247,7 +278,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 value={formData.applicants_age} // Bind value to state
                 placeholder="Enter age"
                 onChange={handleChange}
-                isInvalid={!!errors.applicants_age}  // Handle changes with a change handler
+                isInvalid={!!errors.applicants_age} // Handle changes with a change handler
               />
             </Col>
           </Form.Group>
@@ -263,7 +294,9 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 onChange={handleChange}
                 isInvalid={!!errors.applicants_gender} // Handle changes with a change handler
               >
-                <option value="" disabled>Select Gender </option>
+                <option value="" disabled>
+                  Select Gender{" "}
+                </option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
@@ -288,7 +321,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              5.  APPLICANT'S MOBILE NUM ON FILE.
+              5. APPLICANT'S MOBILE NUM ON FILE.
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -314,13 +347,16 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 onChange={handleChange}
                 isInvalid={!!errors.current_country}
               >
-                <option value={formData.current_country}>{!formData.current_country ? 'Select a country' : formData.current_country}</option>
+                <option value={formData.current_country}>
+                  {!formData.current_country
+                    ? "Select a country"
+                    : formData.current_country}
+                </option>
                 <option value="USA">USA</option>
                 <option value="Canada">Canada</option>
                 <option value="UK">UK</option>
                 <option value="India">India</option>
               </Form.Control>
-
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
@@ -336,7 +372,6 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 onChange={handleChange}
                 isInvalid={!!errors.current_city}
               />
-
             </Col>
           </Form.Group>
 
@@ -346,15 +381,13 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
             </Form.Label>
             <Col sm={6}>
               <Form.Control
-                type='text'
+                type="text"
                 name="country" // Add name attribute for the state
                 value={formData.country}
-                placeholder='Enter Home Country'// Bind selected value to formData
+                placeholder="Enter Home Country" // Bind selected value to formData
                 onChange={handleChange}
                 isInvalid={!!errors.country} // Handle changes with a change handler
-              >
-
-              </Form.Control>
+              ></Form.Control>
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
@@ -368,7 +401,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 placeholder="Enter  Home city"
                 value={formData.city} // Bind value to formData
                 onChange={handleChange}
-                isInvalid={!!errors.city}  // Handle changes with a change handler
+                isInvalid={!!errors.city} // Handle changes with a change handler
               />
             </Col>
           </Form.Group>
@@ -382,7 +415,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 name="interviewed_before"
                 checked={formData.interviewed_before} // Bind the checked attribute to formData
                 onChange={handleChange}
-                isInvalid={!!errors.interviewed_before}  // Handle changes with a change handler
+                isInvalid={!!errors.interviewed_before} // Handle changes with a change handler
               />
             </Col>
           </Form.Group>
@@ -393,11 +426,11 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
             </Form.Label>
             <Col sm={6}>
               <Form.Control
-                type="text"  // Change 'as="select"' to 'type="text"'
+                type="text" // Change 'as="select"' to 'type="text"'
                 name="visa_category" // Add name attribute
                 value={formData.visa_category} // Bind value attribute to formData
                 onChange={handleChange} // Handle changes with a change handler
-                isInvalid={!!errors.visa_category}  // Display validation error if needed
+                isInvalid={!!errors.visa_category} // Display validation error if needed
               />
               <Form.Control.Feedback type="invalid">
                 {errors.visa_category} {/* Display error message */}
@@ -436,7 +469,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 value={formData.major_in} // Bind value attribute to formData
                 placeholder="Enter major"
                 onChange={handleChange}
-                isInvalid={!!errors.major_in}  // Handle changes with a change handler
+                isInvalid={!!errors.major_in} // Handle changes with a change handler
               />
             </Col>
           </Form.Group>
@@ -449,7 +482,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="radio"
                 label="Yes"
                 name="currently_studying"
-                value={formData.currently_studying === 'Yes'}
+                value={formData.currently_studying === "Yes"}
                 onChange={handleChange}
                 isInvalid={!!errors.currently_studying}
               />
@@ -457,7 +490,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="radio"
                 label="No"
                 name="currently_studying"
-                value={formData.currently_studying === 'No'}
+                value={formData.currently_studying === "No"}
                 onChange={handleChange}
                 isInvalid={!!errors.currently_studying}
               />
@@ -482,7 +515,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
             <Form.Label column sm={6} className="text-start">
               16. COURSE TYPE
             </Form.Label>
-            <Col sm={6} className='text-start'    >
+            <Col sm={6} className="text-start">
               <Form.Check
                 type="radio"
                 label="Online"
@@ -544,7 +577,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 id="hasCarYes"
                 name="had_car"
                 label="Yes"
-                value={formData.had_car === 'Yes'}
+                value={formData.had_car === "Yes"}
                 onChange={handleChange}
                 isInvalid={!!errors.had_car}
               />
@@ -553,7 +586,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 id="hasCarNo"
                 name="had_car"
                 label="No"
-                value={formData.had_car === 'No'}
+                value={formData.had_car === "No"}
                 onChange={handleChange}
                 isInvalid={!!errors.had_car}
               />
@@ -561,7 +594,8 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              19. DOES APPLICANT'S FRIENDS/FAMILY WORK/OPERATE IN THE TELECOMMUNICATION INDUSTRY? (OWN STORES)
+              19. DOES APPLICANT'S FRIENDS/FAMILY WORK/OPERATE IN THE
+              TELECOMMUNICATION INDUSTRY? (OWN STORES)
             </Form.Label>
             <Col sm={6}>
               <Form.Check
@@ -569,7 +603,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 id="friendsFamilyYes"
                 name="family_operate_ti"
                 label="Yes"
-                value={formData.family_operate_ti === 'Yes'}
+                value={formData.family_operate_ti === "Yes"}
                 onChange={handleChange}
                 isInvalid={!!errors.family_operate_ti}
               />
@@ -578,13 +612,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 id="friendsFamilyNo"
                 name="family_operate_ti"
                 label="No"
-                value={formData.family_operate_ti === 'No'}
+                value={formData.family_operate_ti === "No"}
                 onChange={handleChange}
                 isInvalid={!!errors.family_operate_ti}
               />
             </Col>
           </Form.Group>
-
 
           {/* Cellphone Carrier */}
           <Form.Group as={Row} className="mb-3">
@@ -596,13 +629,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="text"
                 name="cellphone_carrier"
                 placeholder="Enter cellphone carrier"
-                value={formData.cellphone_carrier || ''}
+                value={formData.cellphone_carrier || ""}
                 onChange={handleChange}
                 isInvalid={!!errors.cellphone_carrier}
               />
             </Col>
           </Form.Group>
-
 
           {/* Worked in US */}
           <Form.Group as={Row} className="mb-3">
@@ -614,7 +646,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="radio"
                 name="worked_before"
                 label="Yes"
-                value={formData.worked_before === 'Yes'}
+                value={formData.worked_before === "Yes"}
                 onChange={handleChange}
                 isInvalid={!!errors.worked_before}
               />
@@ -629,7 +661,6 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
             </Col>
           </Form.Group>
 
-
           {/* Current Employment */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
@@ -640,7 +671,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="radio"
                 name="currently_employed"
                 label="Yes"
-                value={formData.currently_employed === 'Yes'}
+                value={formData.currently_employed === "Yes"}
                 onChange={handleChange}
                 isInvalid={!!errors.currently_employed}
               />
@@ -648,13 +679,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="radio"
                 name="currently_employed"
                 label="No"
-                value={formData.currently_employed === 'No'}
+                value={formData.currently_employed === "No"}
                 onChange={handleChange}
                 isInvalid={!!errors.currently_employed}
               />
             </Col>
           </Form.Group>
-
 
           {/* Company Name */}
           <Form.Group as={Row} className="mb-3">
@@ -666,13 +696,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="text"
                 name="current_company"
                 placeholder="Enter company name"
-                value={formData.current_company || ''}
+                value={formData.current_company || ""}
                 onChange={handleChange}
                 isInvalid={!!errors.current_company}
               />
             </Col>
           </Form.Group>
-
 
           {/* Job in Telecom */}
           <Form.Group as={Row} className="mb-3">
@@ -709,7 +738,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="number"
                 placeholder="Enter hours per week"
                 name="hours_of_daily_work"
-                value={formData.hours_of_daily_work || ''}
+                value={formData.hours_of_daily_work || ""}
                 onChange={handleChange}
                 isInvalid={!!errors.hours_of_daily_work}
               />
@@ -726,13 +755,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="text"
                 placeholder="Enter salary"
                 name="daily_wage"
-                value={formData.daily_wage || ''}
+                value={formData.daily_wage || ""}
                 onChange={handleChange}
                 isInvalid={!!errors.daily_wage}
               />
             </Col>
           </Form.Group>
-
 
           {/* Type of Compensation */}
           <Form.Group as={Row} className="mb-3">
@@ -745,7 +773,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 name="compensation_type"
                 onChange={handleChange}
                 isInvalid={!!errors.compensation_type}
-                value={formData.compensation_type || ''}
+                value={formData.compensation_type || ""}
               >
                 <option value="">Select an option</option>
                 <option value="Salary">Salary</option>
@@ -756,7 +784,6 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
               </Form.Control>
             </Col>
           </Form.Group>
-
 
           {/* Reason for Leaving */}
           <Form.Group as={Row} className="mb-3">
@@ -769,17 +796,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 rows={3}
                 placeholder="Enter reason"
                 name="reason_to_leave"
-                value={formData.reason_to_leave || ''}
+                value={formData.reason_to_leave || ""}
                 onChange={handleChange}
                 isInvalid={!!errors.reason_to_leave}
               />
             </Col>
           </Form.Group>
-
-
-
-
-
 
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
@@ -791,7 +813,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Yes"
                 name="cellular_experience"
                 value="YES"
-                checked={formData.cellular_experience === 'YES'}
+                checked={formData.cellular_experience === "YES"}
                 onChange={handleChange}
                 isInvalid={!!errors.cellular_experience}
               />
@@ -800,7 +822,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="No"
                 name="cellular_experience"
                 value="NO"
-                checked={formData.cellular_experience === 'NO'}
+                checked={formData.cellular_experience === "NO"}
                 onChange={handleChange}
                 isInvalid={!!errors.cellular_experience}
               />
@@ -809,10 +831,6 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
               </Form.Control.Feedback>
             </Col>
           </Form.Group>
-
-
-
-
 
           {/* Previous Telecom Work */}
           <Form.Group as={Row} className="mb-3">
@@ -824,13 +842,12 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="text"
                 placeholder="Enter company name"
                 name="name_tele_company_name"
-                value={formData.name_tele_company_name || ''}
+                value={formData.name_tele_company_name || ""}
                 onChange={handleChange}
                 isInvalid={!!errors.name_tele_company_name}
               />
             </Col>
           </Form.Group>
-
 
           {/* Duration of Telecom Work */}
           <Form.Group as={Row} className="mb-3">
@@ -842,7 +859,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="text"
                 placeholder="Enter duration"
                 name="experience_of_tele"
-                value={formData.experience_of_tele || ''}
+                value={formData.experience_of_tele || ""}
                 onChange={handleChange}
                 isInvalid={!!errors.experience_of_tele}
               />
@@ -857,7 +874,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="text"
                 placeholder="Enter current work"
                 name="type_of_work_doing"
-                value={formData.type_of_work_doing || ''}
+                value={formData.type_of_work_doing || ""}
                 onChange={handleChange}
                 isInvalid={!!errors.type_of_work_doing}
               />
@@ -873,7 +890,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 rows={5}
                 placeholder="Enter other employment experience"
                 name="other_employment_exp"
-                value={formData.other_employment_exp || ''}
+                value={formData.other_employment_exp || ""}
                 onChange={handleChange}
                 isInvalid={!!errors.other_employment_exp}
               />
@@ -888,7 +905,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="radio"
                 label="Yes"
                 name="foreign_work_exp"
-                value={formData.foreign_work_exp === 'Yes'}
+                value={formData.foreign_work_exp === "Yes"}
                 onChange={handleChange}
                 isInvalid={!!errors.foreign_work_exp}
               />
@@ -896,7 +913,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="radio"
                 label="No"
                 name="foreign_work_exp"
-                value={formData.foreign_work_exp === 'No'}
+                value={formData.foreign_work_exp === "No"}
                 onChange={handleChange}
                 isInvalid={!!errors.foreign_work_exp}
               />
@@ -928,7 +945,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Poor"
                 name="appearance"
                 value="poor"
-                checked={formData.appearance === 'poor'}
+                checked={formData.appearance === "poor"}
                 onChange={handleChange}
                 inline
               />
@@ -937,7 +954,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Good"
                 name="appearance"
                 value="good"
-                checked={formData.appearance === 'good'}
+                checked={formData.appearance === "good"}
                 onChange={handleChange}
                 inline
               />
@@ -946,7 +963,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Excellent"
                 name="appearance"
                 value="excellent"
-                checked={formData.appearance === 'excellent'}
+                checked={formData.appearance === "excellent"}
                 onChange={handleChange}
                 inline
               />
@@ -963,7 +980,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Poor"
                 name="personality"
                 value="poor"
-                checked={formData.personality === 'poor'}
+                checked={formData.personality === "poor"}
                 onChange={handleChange}
                 inline
               />
@@ -972,7 +989,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Good"
                 name="personality"
                 value="good"
-                checked={formData.personality === 'good'}
+                checked={formData.personality === "good"}
                 onChange={handleChange}
                 inline
               />
@@ -981,7 +998,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Excellent"
                 name="personality"
                 value="excellent"
-                checked={formData.personality === 'excellent'}
+                checked={formData.personality === "excellent"}
                 onChange={handleChange}
                 inline
               />
@@ -998,7 +1015,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Poor"
                 name="confidence"
                 value="poor"
-                checked={formData.confidence === 'poor'}
+                checked={formData.confidence === "poor"}
                 onChange={handleChange}
                 inline
               />
@@ -1007,7 +1024,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Good"
                 name="confidence"
                 value="good"
-                checked={formData.confidence === 'good'}
+                checked={formData.confidence === "good"}
                 onChange={handleChange}
                 inline
               />
@@ -1016,7 +1033,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Excellent"
                 name="confidence"
                 value="excellent"
-                checked={formData.confidence === 'excellent'}
+                checked={formData.confidence === "excellent"}
                 onChange={handleChange}
                 inline
               />
@@ -1033,7 +1050,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Poor"
                 name="communication_skills"
                 value="poor"
-                checked={formData.communication_skills === 'poor'}
+                checked={formData.communication_skills === "poor"}
                 onChange={handleChange}
                 inline
               />
@@ -1042,7 +1059,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Good"
                 name="communication_skills"
                 value="good"
-                checked={formData.communication_skills === 'good'}
+                checked={formData.communication_skills === "good"}
                 onChange={handleChange}
                 inline
               />
@@ -1051,7 +1068,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Excellent"
                 name="communication_skills"
                 value="excellent"
-                checked={formData.communication_skills === 'excellent'}
+                checked={formData.communication_skills === "excellent"}
                 onChange={handleChange}
                 inline
               />
@@ -1068,7 +1085,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Poor"
                 name="pitch"
                 value="poor"
-                checked={formData.pitch === 'poor'}
+                checked={formData.pitch === "poor"}
                 onChange={handleChange}
                 inline
               />
@@ -1077,7 +1094,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Good"
                 name="pitch"
                 value="good"
-                checked={formData.pitch === 'good'}
+                checked={formData.pitch === "good"}
                 onChange={handleChange}
                 inline
               />
@@ -1086,7 +1103,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Excellent"
                 name="pitch"
                 value="excellent"
-                checked={formData.pitch === 'excellent'}
+                checked={formData.pitch === "excellent"}
                 onChange={handleChange}
                 inline
               />
@@ -1103,7 +1120,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Poor"
                 name="overcoming_objections"
                 value="poor"
-                checked={formData.overcoming_objections === 'poor'}
+                checked={formData.overcoming_objections === "poor"}
                 onChange={handleChange}
                 inline
               />
@@ -1112,7 +1129,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Good"
                 name="overcoming_objections"
                 value="good"
-                checked={formData.overcoming_objections === 'good'}
+                checked={formData.overcoming_objections === "good"}
                 onChange={handleChange}
                 inline
               />
@@ -1121,7 +1138,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Excellent"
                 name="overcoming_objections"
                 value="excellent"
-                checked={formData.overcoming_objections === 'excellent'}
+                checked={formData.overcoming_objections === "excellent"}
                 onChange={handleChange}
                 inline
               />
@@ -1138,7 +1155,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Poor"
                 name="negotiations"
                 value="poor"
-                checked={formData.negotiations === 'poor'}
+                checked={formData.negotiations === "poor"}
                 onChange={handleChange}
                 inline
               />
@@ -1147,7 +1164,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Good"
                 name="negotiations"
                 value="good"
-                checked={formData.negotiations === 'good'}
+                checked={formData.negotiations === "good"}
                 onChange={handleChange}
                 inline
               />
@@ -1156,7 +1173,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Excellent"
                 name="negotiations"
                 value="excellent"
-                checked={formData.negotiations === 'excellent'}
+                checked={formData.negotiations === "excellent"}
                 onChange={handleChange}
                 inline
               />
@@ -1195,22 +1212,7 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
               />
             </Col>
           </Form.Group>
-          {/* <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              42. ADDITIONAL NOTES & COMMENTS
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                placeholder="Enter additional notes"
-                name="comments"
-                value={formData.comments}
-                onChange={handleChange}
-                isInvalid={!!errors.comments}
-              />
-            </Col>
-          </Form.Group> */}
+          
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               44. HOW LONG OF A CONTRACT CAN THE APPLICANT SIGN IF GIVEN JOB
@@ -1251,8 +1253,8 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="radio"
                 label="Yes"
                 name="recommend_hiring"
-                value="selected at interview"  // Updated to send 'selected at interview' as the value
-                checked={formData.recommend_hiring === 'selected at interview'}
+                value="selected at interview" // Updated to send 'selected at interview' as the value
+                checked={formData.recommend_hiring === "selected at interview"}
                 onChange={handleChange}
                 isInvalid={!!errors.recommend_hiring}
               />
@@ -1260,8 +1262,8 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 type="radio"
                 label="No"
                 name="recommend_hiring"
-                value="rejected at interview"  // Updated to send 'rejected at interview' as the value
-                checked={formData.recommend_hiring === 'rejected at interview'}
+                value="rejected at interview" // Updated to send 'rejected at interview' as the value
+                checked={formData.recommend_hiring === "rejected at interview"}
                 onChange={handleChange}
                 isInvalid={!!errors.recommend_hiring}
               />
@@ -1270,7 +1272,9 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Put on Hold at Interview"
                 name="recommend_hiring"
                 value="put on hold at interview"
-                checked={formData.recommend_hiring === 'put on hold at interview'}
+                checked={
+                  formData.recommend_hiring === "put on hold at interview"
+                }
                 onChange={handleChange}
                 isInvalid={!!errors.recommend_hiring}
               />
@@ -1279,45 +1283,39 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
                 label="Need Second Opinion at Interview"
                 name="recommend_hiring"
                 value="need second opinion at interview"
-                checked={formData.recommend_hiring === 'need second opinion at interview'}
+                checked={
+                  formData.recommend_hiring ===
+                  "need second opinion at interview"
+                }
                 onChange={handleChange}
                 isInvalid={!!errors.recommend_hiring}
               />
             </Col>
           </Form.Group>
 
-          {/* <Form.Group as={Row} className="mb-3">
+          
+           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              46. PLEASE SELECT THE COURSE TYPE
+              47. ADDITIONAL NOTES & COMMENTS
             </Form.Label>
             <Col sm={6}>
-              <Form.Control as="select" name="course_type_selection"
-                value={formData.course_type_selection}
-                isInvalid={!!errors.course_type_selection}
-                onChange={handleChange}>
-                <option value="">Select a course type</option>
-                <option value="Online">Online</option>
-                <option value="In-Person">In-Person</option>
-                <option value="Hybrid">Hybrid</option>
-              </Form.Control>
-            </Col>
-          </Form.Group> */}
-          {/* <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
-              47. ROSHAN'S INTERVIEW RESCHEDULER
-            </Form.Label>
-            <Col sm={6}>
-              <Form.Control type="text" placeholder="Enter rescheduler"
-                name="current_residence" value={formData.current_residence}
+              <Form.Control
+                as="textarea"
+                rows={5}
+                placeholder="Enter additional notes"
+                name="comments"
+                value={formData.comments}
                 onChange={handleChange}
-                isInvalid={!!errors.current_residence}
+                isInvalid={!!errors.comments}
               />
             </Col>
-          </Form.Group> */}
+          </Form.Group> 
 
           <Form.Group as={Row} className="mb-3">
             <Col sm={{ span: 6, offset: 6 }}>
-              <Button type="submit" onClick={handleSubmit}>Submit Details</Button>
+              <Button type="submit" onClick={handleSubmit}>
+                Submit Details
+              </Button>
             </Col>
           </Form.Group>
         </Form>
@@ -1341,6 +1339,5 @@ const ApplicantForm = ({ applicant_uuidProps, applicantEmail, applicantPhone }) 
     </Container>
   );
 };
-
 
 export default ApplicantForm;

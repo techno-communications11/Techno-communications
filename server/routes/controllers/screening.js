@@ -33,7 +33,15 @@ const getApplicantsofScreening = async (req, res) => {
         console.log(locationIds)
         // Step 2: Get Applicants for These Locations
         const [applicantsResult] = await db.query(
-            `SELECT ar.id AS applicant_id, ar.applicant_uuid, ar.name AS applicant_name, ar.email AS applicant_email, ar.phone AS applicant_phone, ar.referred_by, ar.created_at, ar.status
+            `SELECT 
+            ar.id AS applicant_id,
+             ar.applicant_uuid,
+              ar.name AS applicant_name,
+              ar.email AS applicant_email,
+               ar.phone AS applicant_phone,
+                ar.referred_by, 
+                ar.created_at,
+                 ar.status
              FROM applicant_referrals ar
              WHERE ar.work_location IN (?)`,
             [locationIds]

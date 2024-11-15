@@ -152,16 +152,23 @@ function New() {
   };
 
   const handleConfirm = async () => {
+    if (!comment.trim()) {
+      return toast.error('Please enter a comment');
+    }
+
     setShowConfirm(false);
 
     if (!selectedProfile) return;
+    
+    
+    
 
     const payload = {
       applicant_uuid: selectedProfile,
       action: actionToPerform,
-      comment: comment
+      comments: comment
     };
-
+ console.log(payload,"payload")
     try {
       const response = await axios.post(`${apiurl}/updatestatus`, payload, {
         headers: getAuthHeaders(),

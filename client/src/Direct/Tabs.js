@@ -4,14 +4,12 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Container, Row } from 'react-bootstrap';
-import HrNew from './HrNew';
-import TrainerRes from './TrainerRes';
 import decodeToken from '../decodedDetails';
 import axios from 'axios';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
-import Badge from '@mui/material/Badge';
-import HrInterviewd from './HrInterviewd';
-
+import DetailedView from './DetailedView'
+import Hired from './Hired'
+import Pending from './Pending';
 function TabPanel(props) {
 
     
@@ -69,52 +67,34 @@ export default function HrTabs() {
         assignedToInterviewer();
     }, [apiurl, userData.id]);
 
-    // Uncomment and use this if socket logic is needed
-    // useEffect(() => {
-    //     const socket = io('http://localhost:5000'); // Replace with your backend URL
-    //     socket.on('trainerfeedbackcount', (data) => {
-    //         setTrainerCount(data); // Update state with new counts from server
-    //     });
-
-    //     // Cleanup the event listener on component unmount
-    //     return () => {
-    //         socket.off('trainerfeedbackcount');
-    //     };
-    // }, []);
+    
 
     return (
         <Container className="mt-4">
             <Row>
                 <Tabs
                     value={value}
-                    onChange={handleChange}
+                    onChange={handleChange} 
                     aria-label="centered tabs"
                 >
-                    <Tab label="Interview Profiles" {...a11yProps(0)} />
-                    <Tab label="Interviewed Profiles" {...a11yProps(1)} />
-                    <Tab
-                        className="gap-2"
-                        label={
-                            <Badge badgeContent={trainerCount} color="error" overlap="rectangular">
-                                HR Pending Updates
-                            </Badge>
-                        }
-                        {...a11yProps(2)}
-                    />
+                    <Tab label="Interviewed Applicants    " {...a11yProps(0)} />
+                    <Tab label="Pending Applicants" {...a11yProps(1)} />
+                    <Tab label="Hired Applicants" {...a11yProps(2)} />
+                    
                 </Tabs>
             </Row>
 
             <TabPanel value={value} index={0}>
-                <HrNew />
+                <DetailedView />
             </TabPanel>
-
             <TabPanel value={value} index={1}>
-                <HrInterviewd />
+                <Pending />
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+                <Hired />
             </TabPanel>
 
-            <TabPanel value={value} index={2}>
-                <TrainerRes />
-            </TabPanel>
+           
         </Container>
     );
 }

@@ -19,11 +19,15 @@ const { trackingWork } = require("./controllers/tracking")
 const { getAllUsers } = require("./controllers/getroles")
 const { createUser } = require("./controllers/createUser")
 const { createNtid, getSelectedAtHr } = require("./controllers/ntids")
-const { DirectReferal, getApplicantsForDirect } = require('./controllers/Direct');
+const { DirectReferal, getApplicantsForDirect,getWorkForLocDirect } = require('./controllers/Direct');
 const { formdetails, updateform ,formDetailsForAllHRs} = require('./controllers/Edit');
+const { updateComment }= require('./controllers/status');
+const {getAllusersOFDirectHiring}=require('./controllers/Direct')
+
 module.exports = (io) => {
  
   router.put('/hrevalution/:applicant_id', updateform)
+  router.put('/update-comment', updateComment)
 
   // Route to get all selected applicants at HR stage
   router.get('/applicants/selected-at-hr', getSelectedAtHr);
@@ -95,6 +99,7 @@ module.exports = (io) => {
   router.get('/Detailstatus', getStatusDetailCounts)
   //route for getStatusCountsByLocation
   router.get('/getStatusCountsByLocation', getStatusCountsByLocation)
+  router.post('/getdirecthiringdetails',getAllusersOFDirectHiring )
 
   // upadting staus at each level
   router.post('/updatestatus', statusupdate)
@@ -139,7 +144,7 @@ module.exports = (io) => {
   router.get("/datadowload", downloadApplicantsData)
   //getApplicantsForDirect 
   router.get("/getApplicantsForDirect/:userId", getApplicantsForDirect)
-
+  router.get("/directapplicants", getWorkForLocDirect);
   // Another test route (if needed)
   router.get('/test', (req, res) => {
     res.send('Test route is working!');

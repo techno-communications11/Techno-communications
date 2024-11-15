@@ -10,7 +10,6 @@ import Stack from '@mui/material/Stack';
 import * as XLSX from 'xlsx';
 import { Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import Select from 'react-select';
 import { Dropdown, ButtonGroup } from 'react-bootstrap';
 const DetailedView = () => {
     const [selectedMarkets, setSelectedMarkets] = useState([]); // Change to handle multiple markets
@@ -25,8 +24,8 @@ const DetailedView = () => {
     const profilesPerPage = 25; // Number of profiles to show per page
     const [selectedGroupStatus, setSelectedGroupStatus] = useState("");
     const [isFilterApplied, setIsFilterApplied] = useState(false); // To check if filters are applied
-    const [selectAll, setSelectAll] = useState(false); // New state to handle 'Select All'
-    const [selectedMarket, setSelectedMarket] = useState([]);
+    // const [selectAll, setSelectAll] = useState(false); // New state to handle 'Select All'
+    // const [selectedMarket, setSelectedMarket] = useState([]);
     const [isAllSelected, setIsAllSelected] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const locations = [
@@ -119,7 +118,6 @@ const DetailedView = () => {
 
 
     const handleLocationChange = (event) => {
-
         const { value, checked } = event.target;
         console.log("cheking", value, checked)
         if (checked) {
@@ -131,33 +129,17 @@ const DetailedView = () => {
                 return prevSelected.filter((market) => market !== value); // Remove the unselected market
             });
         }
-
-        // When an individual checkbox is changed, uncheck "Select All"
         setIsAllSelected(false);
     };
-    const getPlaceholderText = () => {
-        if (selectAll) {
-            return "All Markets Selected";
-        }
-        if (selectedMarkets.length > 0) {
-            return selectedMarkets.some(option => option.value === "Select All")
-                ? "All Markets Selected"
-                : selectedMarkets.map((market) => market.label).join(', ');
-        }
-        return "Select One or More Markets";
-    };
+    
 
-    const handleCategoryChange = (e) => {
-        setSelectedCategory(e.target.value);
-    };
+    
     const handleUserChange = (event, user) => {
         const { checked } = event.target;
 
         if (checked) {
-            // Add the selected user
             setSelectedUsers((prevSelected) => [...prevSelected, { value: user, label: user }]);
         } else {
-            // Remove the unselected user
             setSelectedUsers((prevSelected) => prevSelected.filter((selected) => selected.value !== user));
         }
     };
@@ -249,8 +231,6 @@ const DetailedView = () => {
 
         return filteredData;
     }).filter(data => data.applicant_names.length > 0); // Remove empty results
-
-
 
 
     const statusOrder = [

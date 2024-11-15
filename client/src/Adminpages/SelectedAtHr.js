@@ -219,48 +219,70 @@ function SelectedAtHr() {
   }
 
   const isValidRow = (row) => {
-    return row.ntidCreated && row.ntidCreatedDate && row.ntid && row.addedToSchedule;
+    // Ensure row is not null or undefined
+    if (!row) return false;
+
+    // Check the properties if row is valid
+    return (
+      row.ntidCreated && row.ntidCreatedDate && row.ntid && row.addedToSchedule
+    );
   };
 
-  const handleIconClick = async (index) => {
+  const handleIconClick = async (applicant_uuid) => {
+    console.log('Icon clicked for applicant_uuid:', applicant_uuid);
+  
     const newClickedIndexes = new Set(clickedIndexes);
-
-    if (newClickedIndexes.has(index)) {
-      newClickedIndexes.delete(index);
+  
+    // Log the clickedIndexes set to ensure it contains the correct uuid
+    console.log('Previous clicked indexes:', clickedIndexes);
+  
+    if (newClickedIndexes.has(applicant_uuid)) {
+      newClickedIndexes.delete(applicant_uuid);
     } else {
-      const rowData = filteredData[index];
-
+      // Find rowData using applicant_uuid directly
+      const rowData = filteredData.find((row) => row.applicant_uuid === applicant_uuid);
+      
+      if (!rowData) {
+        console.error('No row data found for applicant_uuid:', applicant_uuid);
+        return;  // Exit early if no data exists for this uuid
+      }
+  
+      console.log('Row Data:', rowData);
+  
       if (isValidRow(rowData)) {
-        newClickedIndexes.add(index);
-        const { ntidCreated, ntidCreatedDate, ntid, addedToSchedule, applicant_uuid } = rowData;
-
-        const dataToSend = {
-          ntidCreated,
-          ntidCreatedDate,
-          ntid,
-          addedToSchedule,
-          markAsAssigned: true,
-          applicant_uuid
-        };
-
+        newClickedIndexes.add(applicant_uuid);
+  
+        const { ntidCreated, ntidCreatedDate, ntid, addedToSchedule } = rowData;
+        console.log('Data to send:', { ntidCreated, ntidCreatedDate, ntid, addedToSchedule });
+  
         try {
-          const response = await axios.post(`${apiurl}/ntids`, dataToSend);
+          const response = await axios.post(`${apiurl}/ntids`, {
+            ntidCreated,
+            ntidCreatedDate,
+            ntid,
+            addedToSchedule,
+            markAsAssigned: true,
+            applicant_uuid,
+          });
+  
           if (response.status === 201) {
-            toast.success('NTID entry created successfully!');
+            toast.success("NTID entry created successfully!");
             setClickedIndexes(newClickedIndexes);
             setTimeout(() => {
-              window.location.reload();
-            }, 1800);
-          }
+              window.location.reload(); // Corrected to 'window.location.reload()'
+            }, 2000); // 2000 milliseconds = 2 seconds
+            
+          } 
         } catch (error) {
-          console.error('API error:', error);
-          toast.error('Error creating NTID entry: ' + error.message);
+          console.error("API error:", error);
+          toast.error("Error creating NTID entry: " + error.message);
         }
       } else {
-        toast.error('Please fill all required fields before submitting!');
+        toast.error("Please fill all required fields before submitting!");
       }
     }
-
+  
+    // Update clicked indexes after operation
     setClickedIndexes(newClickedIndexes);
   };
 
@@ -355,7 +377,6 @@ function SelectedAtHr() {
     // Calculate the absolute difference in milliseconds
     const differenceInMilliseconds = Math.abs(currentDate - inputDate);
 
-    // Convert milliseconds to days
     const differenceInDays = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
     return differenceInDays;
@@ -365,10 +386,7 @@ function SelectedAtHr() {
     .filter((profile, index, self) =>
       index === self.findIndex((p) => (
         p.applicant_uuid === profile.applicant_uuid
-        // Uncomment these lines if you want to add additional criteria for uniqueness
-        // p.created_at_date === profile.created_at_date &&
-        // p.work_location_name === profile.work_location_name &&
-        // p.screening_manager_name === profile.screening_manager_name
+       
       ))
     )
     .sort((a, b) => new Date(a.DateOfJoining) - new Date(b.DateOfJoining));

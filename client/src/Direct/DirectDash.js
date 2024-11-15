@@ -8,7 +8,7 @@ export const DirectDash = () => {
     const userData = decodeToken();
     const selectedUser = userData.name ; // Get the user name from token or fallback
     console.log("selectedUser", selectedUser);
-
+ console.log(userData.id,"direct hirinf")
     const [selectedProfiles, setSelectedProfiles] = useState([]);
     const [loading, setLoading] = useState(false);
 

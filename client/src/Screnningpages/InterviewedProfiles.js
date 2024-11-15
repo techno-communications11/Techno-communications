@@ -63,7 +63,6 @@ export default function InterviewedProfiles() {
                     headers: getAuthHeaders(),
                 });
 
-
                 setProfiles(response.data);
                 console.log(response.data)
                 setFilteredProfiles(response.data);

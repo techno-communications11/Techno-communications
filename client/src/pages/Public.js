@@ -66,6 +66,27 @@ function Public() {
     // Check if any field is invalid
     const isFormValid = Object.values(newInvalidFields).every(field => !field);
 
+    function sanitizePhoneNumber(phoneNumber) {
+      // Remove all non-digit characters (spaces, symbols, letters, etc.)
+      const sanitized = phoneNumber.replace(/[^\d]/g, '');
+      
+      // Ensure we only keep the last 10 digits (if country code exists, it will be removed)
+      const phoneWithoutCountryCode = sanitized.length > 10 ? sanitized.slice(-10) : sanitized;
+      
+      // If the sanitized number has exactly 10 digits, return it, otherwise return an empty string
+      return phoneWithoutCountryCode.length === 10 ? phoneWithoutCountryCode : '';
+    }
+  
+    // Get the phone number value from the input field and sanitize it
+    const phoneNumber = sanitizePhoneNumber(phoneRef.current.value);
+  
+    // If phone number is invalid, show error and prevent submission
+    if (!phoneNumber) {
+      setError("Please enter a valid phone number with exactly 10 digits.");
+      setLoading(false);
+      return;
+    }
+
     if (!isFormValid) {
         setError('Please fill out all fields correctly.');
         setLoading(false);
@@ -78,12 +99,12 @@ function Public() {
         const formData = {
             name: nameRef.current.value,
             // email: emailRef.current.value,
-            phone: phoneRef.current.value,
+            phone: phoneNumber,
             work_location: selectedMarket,
             referred_by: referredByRef.current.value,
             reference_id: referenceNtidRef.current.value,
         };
-        console.log(formData);
+        console.log(formData,'ffffffffeeeeeeeeeee');
 
         const response = await axios.post(`${apiUrl}/submit`, formData);
 

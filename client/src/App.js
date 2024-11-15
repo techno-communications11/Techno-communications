@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'r
 import AdminHome from './Adminpages/AdminHome';
 import HrHome from './HrRound/HrHome';
 import TrainerHome from './TrainerPages/TrainerHome';
-import Home from './Screnningpages/screeningAplicantSubmission';
 import InterviewHome from './InterviewRound/Interviewnew';
 import Login from './pages/Login';
 import Public from './pages/Public';
@@ -12,7 +11,6 @@ import Navbar from './pages/Navbar';
 import Register from './Adminpages/Register';
 import New from './Screnningpages/New';
 import Listprofile from './Screnningpages/Screening';
-import Profile from './pages/Profile';
 import { jwtDecode } from 'jwt-decode'; // Fixed the import
 import Hrinterview from './HrRound/Hrinterview';
 import ApplicantForm from './InterviewRound/interviewForm';
@@ -27,28 +25,25 @@ import TrainerRes from './HrRound/TrainerRes';
 import AdminDetailedView from "./Adminpages/AdminDetailedView";
 import { MyProvider } from './pages/MyContext';
 import InterviewerDashboard from "./InterviewRound/interviewerDashboard";
-import { ToastContainer } from 'react-toastify';
 import MarketJobOpenings from './Markets/markets';
 import Markethome from './Markets/markethome';
 import Individual_performance from './Adminpages/Work';
 import UpdatePassword from './pages/UpdatePassword';
-import { selectClasses } from '@mui/material';
 import SelectedAtHr from './Adminpages/SelectedAtHr';
 import DetailedView from './Adminpages/DetailedView'
 
 import DetailCards from './Adminpages/DetailCards';
-import DirectHiring from './Direct/DirectHiring';
 import { DirectDash } from './Direct/DirectDash';
 import DirectForm from './Direct/DirectForm';
 import DirectNew from './Direct/DirectNew';
 import Edit from './HrRound/Edit';
-import HrPrendings from './Adminpages/HrPrendings';
 import HrInterviewd from './HrRound/HrInterviewd';
 import AdminTabs from './Adminpages/Admintabs';
 import AdminHrEdit from './Adminpages/AdminHrEdit';
 import StatsTicketView from './Adminpages/StatsTicketView';
 import JobInfo from './Adminpages/JobInfo';
-import PublicFixedLocation from './pages/Memphis';
+import Tabls from './Direct/Tabs'
+import Memphis from '../src/pages/Memphis'
 function App() {
   return (
     <Router>
@@ -143,7 +138,8 @@ function AppComponent() {
               <>
 
                 <Route path="/directHiring" element={<DirectDash />} />
-                {/* <Route path="/directdash" element={<DirectDash />} /> */}
+                <Route path="/directtabs" element={<Tabls />} />
+                {/* <Route path="/viewall" element={<ViewAll />} /> */}
                 <Route path="/directform" element={<DirectForm />} />
                 <Route path="/directnew" element={<DirectNew />} />
                 <Route path="/hrinterview" element={<Hrinterview />} />
@@ -181,7 +177,7 @@ function AppComponent() {
           </>
         )}
         <Route path="*" element={<Navigate to={'/'} />} />
-        <Route path="/memphis" element={<PublicFixedLocation />} />
+        <Route path="/memphis" element={<Memphis />} />
       </Routes>
 
     </div>
