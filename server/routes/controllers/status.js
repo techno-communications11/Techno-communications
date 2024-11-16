@@ -328,19 +328,32 @@ const updateComment = async (req, res) => {
     let updateParams = [comment, applicant_uuid];
 
     // Check the status and construct the query accordingly
-    if (["Pending at Screening", "Rejected at Screening", "No Show at Screening", "Not Interested at Screening"].includes(status)) {
+    if (["Pending at Screening",
+       "Rejected at Screening", 
+       "No Show at Screening", 
+       "Not Interested at Screening","Moved to Interview"].includes(status)) {
       updateQuery = `
         UPDATE applicant_referrals 
         SET comments = ?
         WHERE applicant_uuid = ?
       `;
-    } else if (["Moved to Interview", "Put on Hold at Interview", "Selected at Interview", "Moved to HR"].includes(status)) {
+    } else if (["rejected at Interview",
+       "Put on Hold at Interview", "no show at Interview",
+       "Selected at Interview", 
+       "Moved to HR"].includes(status)) {
       updateQuery = `
         UPDATE first_round_evaluation 
         SET comments = ?
         WHERE applicant_uuid = ?
       `;
-    } else if (["Recommended for Hiring", "Sent for Evaluation", "mark_assigned"].includes(status)) {
+    } else if (["Recommended for Hiring", 
+      "Sent for Evaluation",
+      "Spanish Evaluation",
+      "rejected at Hr",
+       "Applicant will think about It",
+       "mark_assigned",
+       "selected at Hr",
+       "Store Evaluation"].includes(status)) {
       updateQuery = `
         UPDATE hrevaluation 
         SET notes = ?
