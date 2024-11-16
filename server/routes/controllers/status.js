@@ -340,7 +340,12 @@ const updateComment = async (req, res) => {
         SET comments = ?
         WHERE applicant_uuid = ?
       `;
-    } else if (["Recommended for Hiring", "Sent for Evaluation", "mark_assigned"].includes(status)) {
+    } else if (["Recommended for Hiring", "Sent for Evaluation", 
+      "mark_assigned",
+      "selected at Hr",
+      "Store Evaluation",
+      "Spanish Evaluation",
+      "Applicant will think about It"].includes(status)) {
       updateQuery = `
         UPDATE hrevaluation 
         SET notes = ?
