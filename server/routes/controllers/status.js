@@ -152,9 +152,9 @@ GROUP BY ar.status;
         GROUP_CONCAT(COALESCE(wl.location_name, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS work_location_names,
         GROUP_CONCAT(DATE_FORMAT(ar.created_at, '%Y-%m-%dT%H:%i:%sZ') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS created_at_dates,
         -- Adding notes from hrevaluation
-        GROUP_CONCAT(COALESCE(he.notes, '') ORDER BY ar.applicant_uuid ASC SEPARATOR '|') AS notes,
-        GROUP_CONCAT(COALESCE(fre.comments, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS first_round_comments,
-        GROUP_CONCAT(COALESCE(ar.comments, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_referrals_comments
+        GROUP_CONCAT(COALESCE(he.notes, '') ORDER BY ar.applicant_uuid ASC SEPARATOR 'ॠ') AS notes,
+        GROUP_CONCAT(COALESCE(fre.comments, '') ORDER BY ar.applicant_uuid ASC SEPARATOR 'ॠ') AS first_round_comments,
+        GROUP_CONCAT(COALESCE(ar.comments, '') ORDER BY ar.applicant_uuid ASC SEPARATOR 'ॠ') AS applicant_referrals_comments
       FROM applicant_referrals ar
       JOIN (SELECT COUNT(*) AS total_count FROM applicant_referrals) AS total ON 1=1
       LEFT JOIN hrevaluation he ON ar.applicant_uuid = he.applicant_id  
@@ -188,12 +188,21 @@ GROUP BY ar.status;
         applicant_reference_ids: row.applicant_reference_ids ? row.applicant_reference_ids.split(',') : [],
         work_location_names: row.work_location_names ? row.work_location_names.split(',') : [],
         created_at_dates: row.created_at_dates ? row.created_at_dates.split(',') : [],
-        notes: row.notes ? row.notes.split('|') : [],
-        first_round_comments: row.first_round_comments ? row.first_round_comments.split(',') : [],
-        applicant_referrals_comments: row.applicant_referrals_comments ? row.applicant_referrals_comments.split(',') : []  // Added applicant_referrals_comments
+        notes: row.notes ? row.notes.split('ॠ') : [],
+        first_round_comments: row.first_round_comments ? row.first_round_comments.split('ॠ') : [],
+        applicant_referrals_comments: row.applicant_referrals_comments ? row.applicant_referrals_comments.split('ॠ') : []  // Added applicant_referrals_comments
       }));
       rows.forEach(row => {
         console.log(row.notes);
+        
+      });
+      rows.forEach(row => {
+        console.log(row.applicant_referrals_comments);
+        
+      });
+      rows.forEach(row => {
+        console.log(row.first_round_comments);
+        
       });
       // console.log(response.notes,'resssssssppp')
 
@@ -328,26 +337,27 @@ const updateComment = async (req, res) => {
     let updateParams = [comment, applicant_uuid];
 
     // Check the status and construct the query accordingly
-    if (["Pending at Screening",
-       "Rejected at Screening", 
-       "No Show at Screening", 
-       "Not Interested at Screening","Moved to Interview"].includes(status)) {
+    if (["pending at Screening",
+       "rejected at Screening", 
+       "no show at Screening", 
+       "Not Interested at screening","moved to Interview"].includes(status)) {
       updateQuery = `
         UPDATE applicant_referrals 
         SET comments = ?
         WHERE applicant_uuid = ?
       `;
     } else if (["rejected at Interview",
-       "Put on Hold at Interview", "no show at Interview",
-       "Selected at Interview", 
+       "put on hold at Interview", "no show at Interview",
+       "selected at Interview", 
        "Moved to HR"].includes(status)) {
       updateQuery = `
         UPDATE first_round_evaluation 
         SET comments = ?
         WHERE applicant_uuid = ?
       `;
-    } else if (["Recommended for Hiring", 
+    } else if (["Recommended For Hiring","Not Recommended For Hiring",
       "Sent for Evaluation",
+      "backOut",
       "Spanish Evaluation",
       "rejected at Hr",
        "Applicant will think about It",

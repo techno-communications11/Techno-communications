@@ -576,33 +576,30 @@ function StatsTicketView() {
                         overlay={
                           <Tooltip>
                             {[
-                              "Pending at Screening",
-                              "Rejected at Screening",
-                              "No Show at Screening",
-                              "Not Interested at Screening",
+                              "pending at Screening",
+                              "rejected at Screening",
+                              "no show at Screening",
+                              "Not Interested at screening","moved to Interview"
                             ].includes(profile.status)
                               ? profile.applicant_referrals_comments
                               : [
-                                  "Moved to Interview",
-                                  "Put on Hold at Interview",
-                                  "Selected at Interview",
-                                  "Need Second Opinion at Interview",
-                                  "Rejected at Interview",
-                                  "No Show at Interview",
+                                  "put on hold at Interview","Moved to HR",
+                                  "selected at Interview",
+                                  "need second opinion at Interview",
+                                  "rejected at Interview",
+                                  "no show at Interview",
                                 ].includes(profile.status)
                               ? profile.first_round_comments
                               : [
-                                  "Recommended for Hiring",
+                                  "Recommended For Hiring",
                                   "Sent for Evaluation",
-                                  "Applicant Will Think About It",
-                                  "Moved to HR",
+                                  "Applicant will think about It",
                                   "selected at Hr",
                                   "Store Evaluation",
                                   "Spanish Evaluation",
-                                  "No Show at HR",
-                                  "Not Recommended for Hiring",
+                                  "Not Recommended For Hiring",
                                   "rejected at Hr",
-                                  "Backout",
+                                  "backOut",
                                   "mark_assigned",
                                 ].includes(profile.status)
                               ? profile.notes
@@ -613,35 +610,32 @@ function StatsTicketView() {
                         {
                           // Check if the comment data is "N/A" or not, to conditionally render the text
                           [
-                            "Pending at Screening",
-                            "Rejected at Screening",
-                            "No Show at Screening",
-                            "Not Interested at Screening",
+                            "pending at Screening",
+                            "rejected at Screening",
+                            "no show at Screening",
+                            "Not Interested at screening","moved to Interview"
                           ].includes(profile.status) &&
                           profile.applicant_referrals_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : [
-                              "Moved to Interview",
-                              "Put on Hold at Interview",
-                              "Selected at Interview",
-                              "Need Second Opinion at Interview",
-                              "Rejected at Interview",
-                              "No Show at Interview",
+                              "put on hold at Interview","Moved to HR",
+                                  "selected at Interview",
+                                  "need second opinion at Interview",
+                                  "rejected at Interview",
+                                  "no show at Interview",
                             ].includes(profile.status) &&
                             profile.first_round_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : [
-                              "Recommended for Hiring",
+                              "Recommended For Hiring",
                               "Sent for Evaluation",
-                              "Applicant Will Think About It",
-                              "Moved to HR",
+                              "Applicant will think about It",
                               "selected at Hr",
                               "Store Evaluation",
                               "Spanish Evaluation",
-                              "No Show at HR",
-                              "Not Recommended for Hiring",
+                              "Not Recommended For Hiring",
                               "rejected at Hr",
-                              "Backout",
+                              "backOut",
                               "mark_assigned",
                             ].includes(profile.status) &&
                             profile.notes !== "N/A" ? (
