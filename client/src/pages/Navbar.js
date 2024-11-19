@@ -100,7 +100,7 @@ function AppNavbar() {
             height="34"
             className="d-inline-block align-top"
           />{" "}
-          TECHNO COMMUNICATION LLC
+          TECHNO COMMUNICATIONS LLC
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarSupportedContent" />
         <Navbar.Collapse id="navbarSupportedContent">
