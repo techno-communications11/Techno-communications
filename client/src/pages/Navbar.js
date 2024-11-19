@@ -96,8 +96,8 @@ function AppNavbar() {
           <img
             src="/logo.png"
             alt="Logo"
-            width="24"
-            height="24"
+            width="44"
+            height="34"
             className="d-inline-block align-top"
           />{" "}
           TECHNO COMMUNICATION LLC
