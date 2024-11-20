@@ -23,7 +23,7 @@ import {
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { Container } from "react-bootstrap";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
-function StatsTicketView() {
+function ViewDetais() {
   const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,104 +33,26 @@ function StatsTicketView() {
   const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =
     useState("");
   const [commentprofilestatus, setCommentprofileStatus] = useState("");
-
   const myContext = useContext(MyContext);
-  const { markets, captureStatus, captureDate } = myContext;
-  console.log(captureStatus,"caps")
+  const { captureStatus } = myContext;  
 
+  // Apply transformation after destructuring
+  // Access captureStatus from context
+  
   useEffect(() => {
-    // First, use context values
-    const { markets, captureStatus, captureDate } = myContext;
-
-    // Check if the context values are set (non-empty) or fall back to localStorage
-    let parsedMarkets = markets && markets.length > 0 ? markets : [];
-    let parsedCaptureStatus = captureStatus || "";
-    let parsedCaptureDate =
-      captureDate && captureDate.length > 0 ? captureDate : [];
-
-    // If context values are not available, get them from localStorage
-    if (
-      parsedMarkets.length === 0 ||
-      !parsedCaptureStatus ||
-      parsedCaptureDate.length === 0
-    ) {
-      const storedMarkets = localStorage.getItem("marketsData");
-      const storedCaptureStatus = localStorage.getItem("captureStatusData");
-      const storedCaptureDate = localStorage.getItem("captureDateData");
-
-      try {
-        if (storedMarkets) {
-          parsedMarkets = JSON.parse(storedMarkets);
-        }
-        if (storedCaptureStatus) {
-          parsedCaptureStatus = JSON.parse(storedCaptureStatus);
-        }
-        if (storedCaptureDate) {
-          parsedCaptureDate = JSON.parse(storedCaptureDate);
-        }
-      } catch (error) {
-        console.error("Error parsing data from localStorage:", error);
-        // Optionally, clear invalid data in localStorage
-        localStorage.removeItem("marketsData");
-        localStorage.removeItem("captureStatusData");
-        localStorage.removeItem("captureDateData");
-      }
-    }
-
-    // If data exists, update context and localStorage
-    if (
-      parsedMarkets.length > 0 &&
-      parsedCaptureStatus &&
-      parsedCaptureDate.length > 0
-    ) {
-      // Update context values
-      myContext.setMarkets(parsedMarkets);
-      myContext.setCaptureStatus(parsedCaptureStatus);
-      myContext.setCaptureDate(parsedCaptureDate);
-
-      // Store in localStorage for future use
-      localStorage.setItem("marketsData", JSON.stringify(parsedMarkets));
-      localStorage.setItem(
-        "captureStatusData",
-        JSON.stringify(parsedCaptureStatus)
-      );
-      localStorage.setItem(
-        "captureDateData",
-        JSON.stringify(parsedCaptureDate)
-      );
-    }
-
-    // Fetch profiles after loading data
-    fetchProfiles(parsedMarkets, parsedCaptureStatus, parsedCaptureDate);
-  }, [myContext]); // Dependency on myContext
-
-  const fetchProfiles = async (
-    markets = [],
-    captureStatus = "",
-    captureDate = []
-  ) => {
+    fetchProfiles();
+  }, [myContext]);  // Effect will run when myContext changes
+  
+  const fetchProfiles = async () => {
     setLoading(true);
     try {
-      const url = `${process.env.REACT_APP_API}/Detailstatus`;
-      const params = {
-        market: markets,
-        status: statusMap[captureStatus], // Ensure that the `statusMap` exists
-        startDate:
-          captureDate.length > 0
-            ? dayjs(captureDate[0]).format("YYYY-MM-DD")
-            : null,
-        endDate:
-          captureDate.length > 0
-            ? dayjs(captureDate[1]).format("YYYY-MM-DD")
-            : null,
-      };
-
-      const response = await axios.get(url, { params });
-
+      const url = `${process.env.REACT_APP_API}/viewdetails`;
+      const response = await axios.get(url);
+  
       if (response.status === 200) {
         const profilesData = response.data.status_counts || [];
         setSelectedProfiles(profilesData); // Set state to update the UI
-        // Update localStorage with the latest selected profiles data
+        console.log(profilesData, "data is dipped");
         localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
       } else {
         console.error("Error fetching profiles:", response);
@@ -141,194 +63,141 @@ function StatsTicketView() {
       setLoading(false);
     }
   };
-
+  
+  // console.log(setSelectedProfiles,'selecp')
+  
   const statusMap = {
-    Total: [
+    "Total1": [
       "pending at Screening",
+      "Not Interested at screening",
       "moved to Interview",
+      "rejected at Screening",
+      "no show at Screening"
+    ],
+    "Total2": [
       "put on hold at Interview",
       "selected at Interview",
-      "Recommended For Hiring",
-      "Sent for Evaluation",
       "need second opinion at Interview",
-      "Applicant will think about It",
-      "Moved to HR",
-      "selected at Hr",
-      "Store Evaluation",
-      "Spanish Evaluation",
-      "rejected at Screening",
-      "no show at Screening",
-      "Not Interested at screening",
       "rejected at Interview",
       "no show at Interview",
-      "no show at Hr",
-      "Not Recommended For Hiring",
-      "rejected at Hr",
-      "backOut",
-      "mark_assigned",
-    ],
-    Pending: [
-      "pending at Screening",
-      "moved to Interview",
-      "put on hold at Interview",
-      "selected at Interview",
-      "Recommended For Hiring",
-      "Sent for Evaluation",
-      "need second opinion at Interview",
-      "Applicant will think about It",
       "Moved to HR",
+    ],
+    "Total3": [
+      "Sent for Evaluation",
+      "Applicant will think about It",
       "selected at Hr",
-      "Store Evaluation",
-      "Spanish Evaluation",
-    ],
-    Rejected: [
-      "rejected at Screening",
-      "no show at Screening",
-      "Not Interested at screening",
-      "rejected at Interview",
-      "no show at Interview",
       "no show at Hr",
-      "Not Recommended For Hiring",
-      "backOut",
       "rejected at Hr",
-    ],
-    "Pending At Screening": ["pending at Screening"],
-    "1st Round - Pending": ["moved to Interview", "put on hold at Interview"],
-    "HR Round - Pending": [
-      "selected at Interview",
-      "Sent for Evaluation",
-      "need second opinion at Interview",
-      "Applicant will think about It",
-      "Moved to HR",
-      "Recommended For Hiring",
-      "Store Evaluation",
+      'mark_assigned',
       "Spanish Evaluation",
+      "backOut",
+      "Not Recommended For Hiring",
+      "Store Evaluation",
     ],
-    "Pending at NTID": ["selected at Hr"],
-    "NTID Created": ["mark_assigned"],
+    // Flattened individual statuses
+    'pending at Screening': ["pending at Screening"],
+    'No Response At Screening': ["No Response At Screening"],
+    'Not Interested at screening': ["Not Interested at screening"],
+    'moved to Interview': ["moved to Interview"],
+    'rejected at Screening': ["rejected at Screening"],
+    "no show at Screening": ["no show at Screening"],
+    
+    'put on hold at Interview': ["put on hold at Interview"],
+    'selected at Interview': ["selected at Interview"],
+    'need second opinion at Interview': ["need second opinion at Interview"],
+    'rejected at Interview': ["rejected at Interview"],
+    'no show at Interview': ["no show at Interview"],
+    'Moved to HR': ["Moved to HR"],
+  
+    'Sent for Evaluation': ["Sent for Evaluation"],
+    'Applicant will think about It': ["Applicant will think about It"],
+    'selected at Hr': ["selected at Hr"],
+    'no show at Hr': ["no show at Hr"],
+    'rejected at Hr': ["rejected at Hr"],
+    'mark_assigned':['mark_assigned'],
+    "Spanish Evaluation":["Spanish for Evaluation"],
+    "backOut":["backOut"],"Not recommeneded for Hiring":["Not recommeneded for Hiring"],"Store Evaluation":["Store Evaluation"]
   };
+  
 
+ 
+  
   const filteredProfiles = selectedProfiles
-    .map((currentStatus) => {
-      const filteredData = {
-        applicant_names: [],
-        phone: [],
-        applicant_emails: [],
-        applicant_referred_by: [],
-        applicant_reference_ids: [],
-        applicant_uuids: [],
-        created_at_dates: [],
-        work_location_names: [],
-        screening_manager_names: [],
-        interviewer_names: [],
-        hr_names: [],
-        joining_dates: [],
-        status: currentStatus.status,
-        notes: [],
-        first_round_comments: [],
-        applicant_referrals_comments: [],
-      };
+  .map((currentStatus) => {
+    const filteredData = {
+      applicant_names: [],
+      phone: [],
+      applicant_emails: [],
+      applicant_referred_by: [],
+      applicant_reference_ids: [],
+      applicant_uuids: [],
+      created_at_dates: [],
+      work_location_names: [],
+      screening_manager_names: [],
+      interviewer_names: [],
+      hr_names: [],
+      joining_dates: [],
+      status: currentStatus.status,
+      notes: [],
+      first_round_comments: [],
+      applicant_referrals_comments: [],
+    };
 
-      if (
-        currentStatus.applicant_names &&
-        currentStatus.applicant_names.forEach
-      ) {
-        currentStatus.applicant_names.forEach((_, index) => {
-          const inMarket =
-            markets.length > 0
-              ? markets.some(
-                  (market) =>
-                    currentStatus.work_location_names?.[index] === market
-                )
-              : true;
+    if (currentStatus.applicant_names && currentStatus.applicant_names.forEach) {
+      currentStatus.applicant_names.forEach((_, index) => {
+        // Only status filter applied here
+        const filteredByStatus = statusMap[captureStatus]?.includes(currentStatus.status);
 
-          const createdDate = dayjs(currentStatus.created_at_dates?.[index]);
-          const inDateRange =
-            captureDate[0] && captureDate[1]
-              ? createdDate.isAfter(dayjs(captureDate[0]).startOf("day")) &&
-                createdDate.isBefore(dayjs(captureDate[1]).endOf("day"))
-              : true;
+        if (filteredByStatus) {
+          filteredData.applicant_names.push(currentStatus.applicant_names?.[index] || "");
+          filteredData.phone.push(currentStatus.phone?.[index] || "");
+          filteredData.applicant_emails.push(currentStatus.applicant_emails?.[index] || "");
+          filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by?.[index] || "");
+          filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids?.[index] || "");
+          filteredData.applicant_uuids.push(currentStatus.applicant_uuids?.[index] || "");
+          filteredData.created_at_dates.push(currentStatus.created_at_dates?.[index] || "");
+          filteredData.work_location_names.push(currentStatus.work_location_names?.[index] || "");
+          filteredData.screening_manager_names.push(currentStatus.screening_manager_names?.[index] || "N/A");
+          filteredData.interviewer_names.push(currentStatus.interviewer_names?.[index] || "N/A");
+          filteredData.hr_names.push(currentStatus.hr_names?.[index] || "N/A");
+          filteredData.joining_dates.push(currentStatus.joining_dates?.[index] || "N/A");
+          filteredData.notes.push((currentStatus.notes || [])[index] || "N/A");
+          filteredData.first_round_comments.push((currentStatus.first_round_comments || [])[index] || "N/A");
+          filteredData.applicant_referrals_comments.push((currentStatus.applicant_referrals_comments || [])[index] || "N/A");
+        }
+      });
+    }
 
-          const filteredByStatus = statusMap[captureStatus]?.includes(
-            currentStatus.status
-          );
+    return filteredData;
+  })
+  .filter((data) => data.applicant_names.length > 0); // Ensures that we have filtered data
 
-          if (inMarket && inDateRange && filteredByStatus) {
-            filteredData.applicant_names.push(
-              currentStatus.applicant_names?.[index] || ""
-            );
-            filteredData.phone.push(currentStatus.phone?.[index] || "");
-            filteredData.applicant_emails.push(
-              currentStatus.applicant_emails?.[index] || ""
-            );
-            filteredData.applicant_referred_by.push(
-              currentStatus.applicant_referred_by?.[index] || ""
-            );
-            filteredData.applicant_reference_ids.push(
-              currentStatus.applicant_reference_ids?.[index] || ""
-            );
-            filteredData.applicant_uuids.push(
-              currentStatus.applicant_uuids?.[index] || ""
-            );
-            filteredData.created_at_dates.push(
-              currentStatus.created_at_dates?.[index] || ""
-            );
-            filteredData.work_location_names.push(
-              currentStatus.work_location_names?.[index] || ""
-            );
-            filteredData.screening_manager_names.push(
-              currentStatus.screening_manager_names?.[index] || "N/A"
-            );
-            filteredData.interviewer_names.push(
-              currentStatus.interviewer_names?.[index] || "N/A"
-            );
-            filteredData.hr_names.push(
-              currentStatus.hr_names?.[index] || "N/A"
-            );
-            filteredData.joining_dates.push(
-              currentStatus.joining_dates?.[index] || "N/A"
-            );
-            filteredData.notes.push(
-              (currentStatus.notes || [])[index] || "N/A"
-            );
-            filteredData.first_round_comments.push(
-              (currentStatus.first_round_comments || [])[index] || "N/A"
-            );
-            filteredData.applicant_referrals_comments.push(
-              (currentStatus.applicant_referrals_comments || [])[index] || "N/A"
-            );
-          }
-        });
-      }
-
-      return filteredData;
-    })
-    .filter((data) => data.applicant_names.length > 0);
+const flattenedProfiles = filteredProfiles.flatMap((status) => {
+  return status.applicant_names.map((name, index) => ({
+    applicant_name: name,
+    applicant_phone: status.phone[index],
+    applicant_email: status.applicant_emails[index],
+    applicant_referred_by: status.applicant_referred_by[index],
+    applicant_reference_id: status.applicant_reference_ids[index],
+    applicant_uuid: status.applicant_uuids[index],
+    created_at_date: status.created_at_dates[index],
+    work_location_name: status.work_location_names[index],
+    screening_manager_name: status.screening_manager_names[index],
+    interviewer_name: status.interviewer_names[index],
+    hr_name: status.hr_names[index],
+    notes: status.notes[index],
+    applicant_referrals_comments: status.applicant_referrals_comments[index],
+    first_round_comments: status.first_round_comments[index],
+    status: status.status,
+    joining_date:
+      status.joining_dates[index] !== "0000-00-00"
+        ? dayjs(status.joining_dates[index]).format("YYYY-MM-DD")
+        : "N/A",
+  }));
+});
 
 
-  const flattenedProfiles = filteredProfiles.flatMap((status) => {
-    return status.applicant_names.map((name, index) => ({
-      applicant_name: name,
-      applicant_phone: status.phone[index],
-      applicant_email: status.applicant_emails[index],
-      applicant_referred_by: status.applicant_referred_by[index],
-      applicant_reference_id: status.applicant_reference_ids[index],
-      applicant_uuid: status.applicant_uuids[index],
-      created_at_date: status.created_at_dates[index],
-      work_location_name: status.work_location_names[index],
-      screening_manager_name: status.screening_manager_names[index],
-      interviewer_name: status.interviewer_names[index],
-      hr_name: status.hr_names[index],
-      notes: status.notes[index],
-      applicant_referrals_comments: status.applicant_referrals_comments[index],
-      first_round_comments: status.first_round_comments[index],
-      status: status.status,
-      joining_date:
-        status.joining_dates[index] !== "0000-00-00"
-          ? dayjs(status.joining_dates[index]).format("YYYY-MM-DD")
-          : "N/A",
-    }));
-  });
+  
 
   const uniqueFlattenedProfiles = flattenedProfiles.filter(
     (profile, index, self) =>
@@ -710,4 +579,4 @@ function StatsTicketView() {
   );
 }
 
-export default StatsTicketView;
+export default ViewDetais;

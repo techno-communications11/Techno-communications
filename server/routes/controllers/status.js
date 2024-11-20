@@ -25,6 +25,28 @@ const statusupdate = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while updating the status and comments.' });
   }
 };
+const ContractSign = async (req, res) => {
+  const { applicant_uuid } = req.body;
+
+  try {
+    // Assuming you're using a MySQL database connection (mysql2/promise)
+    const [result] = await db.query(
+      'UPDATE hrevaluation SET contract_sined = ? WHERE applicant_id = ?',
+      [1, applicant_uuid]  // Set contract_sined to 1 (true)
+    );
+
+    // Check if any rows were updated
+    if (result.affectedRows > 0) {
+      res.status(200).json({ message: 'Contract signed updated successfully.' });
+    } else {
+      res.status(404).json({ error: 'Applicant not found.' });
+    }
+  } catch (err) {
+    console.error('Error updating contract signed:', err);
+    res.status(500).json({ error: 'An error occurred while updating the contract signed status.' });
+  }
+};
+
 
 const getStatusCounts = async (req, res) => {
   try {
@@ -217,6 +239,77 @@ GROUP BY ar.status;
   };
 
 
+  const Viewdetails = async (req, res) => {
+    try {
+      const query =`SELECT 
+      ar.status, 
+      COUNT(*) AS count, 
+      total.total_count,
+      GROUP_CONCAT(ar.applicant_uuid ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_uuids,
+      GROUP_CONCAT(COALESCE(ar.name, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_names,
+      GROUP_CONCAT(COALESCE(ar.email, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_emails,
+      GROUP_CONCAT(COALESCE(ar.phone, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS phone,
+      GROUP_CONCAT(COALESCE(ar.referred_by, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_referred_by,
+      GROUP_CONCAT(COALESCE(sm.name, 'No Screening Manager') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS screening_manager_names,
+      GROUP_CONCAT(COALESCE(intv.name, 'No Interviewer') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS interviewer_names,
+      GROUP_CONCAT(COALESCE(hr.name, 'No HR') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS hr_names,
+      GROUP_CONCAT(COALESCE(ar.sourced_by, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_sourced_by,
+      GROUP_CONCAT(COALESCE(ar.reference_id, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS applicant_reference_ids,
+      GROUP_CONCAT(COALESCE(wl.location_name, '') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS work_location_names,
+      GROUP_CONCAT(DATE_FORMAT(ar.created_at, '%Y-%m-%dT%H:%i:%sZ') ORDER BY ar.applicant_uuid ASC SEPARATOR ',') AS created_at_dates,
+      -- Adding notes from hrevaluation
+      GROUP_CONCAT(COALESCE(he.notes, '') ORDER BY ar.applicant_uuid ASC SEPARATOR 'ॠ') AS notes,
+      GROUP_CONCAT(COALESCE(fre.comments, '') ORDER BY ar.applicant_uuid ASC SEPARATOR 'ॠ') AS first_round_comments,
+      GROUP_CONCAT(COALESCE(ar.comments, '') ORDER BY ar.applicant_uuid ASC SEPARATOR 'ॠ') AS applicant_referrals_comments
+FROM applicant_referrals ar
+JOIN (SELECT COUNT(*) AS total_count FROM applicant_referrals) AS total ON 1=1
+LEFT JOIN hrevaluation he ON ar.applicant_uuid = he.applicant_id  
+LEFT JOIN interviews i ON ar.applicant_uuid = i.applicant_uuid  
+LEFT JOIN users intv ON i.interviewer_id = intv.id  
+LEFT JOIN hrinterview hrint ON ar.applicant_uuid = hrint.applicant_uuid  
+LEFT JOIN users hr ON hrint.hr_id = hr.id  
+LEFT JOIN users sm ON ar.assigned_user_id = sm.id  
+LEFT JOIN work_locations wl ON ar.work_location = wl.id  
+LEFT JOIN first_round_evaluation fre ON ar.applicant_uuid = fre.applicant_uuid
+GROUP BY ar.status`;
+
+
+      const [rows] = await db.query(query);
+
+      const total_count = rows.length > 0 ? rows[0].total_count : 0;
+
+      const response = rows.map(row => ({
+        status: row.status,
+        count: row.count,
+        applicant_uuids: row.applicant_uuids ? row.applicant_uuids.split(',') : [],
+        joining_dates: row.joining_dates ? row.joining_dates.split(',') : [],
+        applicant_names: row.applicant_names ? row.applicant_names.split(',') : [],
+        applicant_emails: row.applicant_emails ? row.applicant_emails.split(',') : [],
+        phone: row.phone ? row.phone.split(',') : [],
+        applicant_referred_by: row.applicant_referred_by ? row.applicant_referred_by.split(',') : [],
+        screening_manager_names: row.screening_manager_names ? row.screening_manager_names.split(',') : [],
+        interviewer_names: row.interviewer_names ? row.interviewer_names.split(',') : [],
+        hr_names: row.hr_names ? row.hr_names.split(',') : [],
+        applicant_sourced_by: row.applicant_sourced_by ? row.applicant_sourced_by.split(',') : [],
+        applicant_reference_ids: row.applicant_reference_ids ? row.applicant_reference_ids.split(',') : [],
+        work_location_names: row.work_location_names ? row.work_location_names.split(',') : [],
+        created_at_dates: row.created_at_dates ? row.created_at_dates.split(',') : [],
+        notes: row.notes ? row.notes.split('ॠ') : [],
+        first_round_comments: row.first_round_comments ? row.first_round_comments.split('ॠ') : [],
+        applicant_referrals_comments: row.applicant_referrals_comments ? row.applicant_referrals_comments.split('ॠ') : []  // Added applicant_referrals_comments
+      }));
+      
+      console.log(response,'donieee')
+
+     
+      
+
+      res.status(200).json({ total_count, status_counts: response });
+    } catch (error) {
+      console.error('SQL Error:', error.message);
+      res.status(500).json({ error: error.message });
+    }
+  };
 
 
 const getStatusCountsByWorkLocation = async (req, res) => {
@@ -410,5 +503,5 @@ const updateComment = async (req, res) => {
 
 
 
-module.exports = { getStatusCounts, getStatusCountss, getStatusCountsByLocation, statusupdate, getStatusDetailCounts, getStatusCountsByWorkLocation,updateComment };
+module.exports = {Viewdetails,ContractSign, getStatusCounts, getStatusCountss, getStatusCountsByLocation, statusupdate, getStatusDetailCounts, getStatusCountsByWorkLocation,updateComment };
 

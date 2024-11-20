@@ -24,8 +24,6 @@ const DetailedView = () => {
     const profilesPerPage = 25; // Number of profiles to show per page
     const [selectedGroupStatus, setSelectedGroupStatus] = useState("");
     const [isFilterApplied, setIsFilterApplied] = useState(false); // To check if filters are applied
-    // const [selectAll, setSelectAll] = useState(false); // New state to handle 'Select All'
-    // const [selectedMarket, setSelectedMarket] = useState([]);
     const [isAllSelected, setIsAllSelected] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const locations = [

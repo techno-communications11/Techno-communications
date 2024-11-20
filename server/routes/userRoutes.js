@@ -9,7 +9,7 @@ const { createApplicantReferral, updatemail } = require('./controllers/applicant
 const { getmarkets } = require('./controllers/Markets');
 const { addFirstRoundEvaluation, getHREvaluationById } = require('./controllers/interviewevaluation');
 const { addHREvaluation } = require('./controllers/hrevaluationController');
-const { getStatusCounts, getStatusCountss, statusupdate, getStatusCountsByLocation, getStatusDetailCounts, getStatusCountsByWorkLocation } = require('./controllers/status')
+const {ContractSign, getStatusCounts, getStatusCountss, statusupdate, getStatusCountsByLocation, getStatusDetailCounts, getStatusCountsByWorkLocation, Viewdetails } = require('./controllers/status')
 const assigningapplications = require('./controllers/assignapplicants');
 const { getApplicantDetailsByMobile } = require('./controllers/statusbypfone')
 const { downloadApplicantsData } = require('./controllers/downloadApplicantsData')
@@ -23,6 +23,7 @@ const { DirectReferal, getApplicantsForDirect,getWorkForLocDirect } = require('.
 const { formdetails, updateform ,formDetailsForAllHRs} = require('./controllers/Edit');
 const { updateComment }= require('./controllers/status');
 const {getAllusersOFDirectHiring}=require('./controllers/Direct')
+// const {ContractSign}=require('/./controllers/')
 
 module.exports = (io) => {
  
@@ -97,12 +98,14 @@ module.exports = (io) => {
   router.get('/statuslocation', getStatusCountsByWorkLocation)
   //route for detailstatus
   router.get('/Detailstatus', getStatusDetailCounts)
+  router.get('/viewdetails', Viewdetails)
   //route for getStatusCountsByLocation
   router.get('/getStatusCountsByLocation', getStatusCountsByLocation)
   router.post('/getdirecthiringdetails',getAllusersOFDirectHiring )
 
   // upadting staus at each level
   router.post('/updatestatus', statusupdate)
+  router.post('/contractsign', ContractSign)
 
   // Route to get markets
   router.get('/markets', getmarkets);
