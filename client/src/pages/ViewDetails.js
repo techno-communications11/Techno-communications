@@ -5,7 +5,10 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import { Modal, Form } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
+import '../Adminpages/ModalStyles.css'
 import Pagination from "@mui/material/Pagination";
+import { IoIosArrowDown } from "react-icons/io";
+
 import {
   Button,
   Table,
@@ -30,18 +33,27 @@ function ViewDetais() {
   const profilesPerPage = 30;
   const [showModal, setShowModal] = useState(false);
   const [updatedComment, setUpdatedComment] = useState("");
-  const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =
-    useState("");
+  const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =useState("");
   const [commentprofilestatus, setCommentprofileStatus] = useState("");
   const myContext = useContext(MyContext);
-  const { captureStatus } = myContext;  
+const { captureStatus } = myContext;
+const [selectedLocations, setSelectedLocations] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+ 
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+const captureStatusFromStorage = captureStatus || localStorage.getItem("captureStatuss");  // Fallback to a default value if null
 
-  // Apply transformation after destructuring
-  // Access captureStatus from context
-  
-  useEffect(() => {
-    fetchProfiles();
-  }, [myContext]);  // Effect will run when myContext changes
+useEffect(() => {
+  if (captureStatus) {
+    localStorage.setItem("captureStatuss", captureStatus);
+  }
+}, [captureStatus]);
+
+useEffect(() => {
+  fetchProfiles();
+}, [myContext]);  // Effect will run when myContext changes
+  // Effect will run when myContext changes
   
   const fetchProfiles = async () => {
     setLoading(true);
@@ -63,7 +75,14 @@ function ViewDetais() {
       setLoading(false);
     }
   };
-  
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+
+  // Handle end date change
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
+  };
   // console.log(setSelectedProfiles,'selecp')
   
   const statusMap = {
@@ -94,6 +113,7 @@ function ViewDetais() {
       "Not Recommended For Hiring",
       "Store Evaluation",
     ],
+   
     // Flattened individual statuses
     'pending at Screening': ["pending at Screening"],
     'No Response At Screening': ["No Response At Screening"],
@@ -119,58 +139,133 @@ function ViewDetais() {
     "backOut":["backOut"],"Not recommeneded for Hiring":["Not recommeneded for Hiring"],"Store Evaluation":["Store Evaluation"]
   };
   
-
+  const locations = [
+    { id: 4, name: "ARIZONA" },
+    { id: 5, name: "Bay Area" },
+    { id: 6, name: "COLORADO" },
+    { id: 7, name: "DALLAS" },
+    { id: 8, name: "El Paso" },
+    { id: 9, name: "FLORIDA" },
+    { id: 10, name: "HOUSTON" },
+    { id: 11, name: "LOS ANGELES" },
+    { id: 12, name: "MEMPHIS" },
+    { id: 13, name: "NASHVILLE" },
+    { id: 14, name: "NORTH CAROL" },
+    { id: 15, name: "SACRAMENTO" },
+    { id: 16, name: "SAN DEIGIO" },
+    { id: 17, name: "SAN FRANCISCO" },
+    { id: 18, name: "SAN JOSE" },
+    { id: 19, name: "SANTA ROSA" },
+    { id: 21, name: "relocation" },
+    { id: 23, name: "DirectHiring" },
+  ];
  
   
-  const filteredProfiles = selectedProfiles
-  .map((currentStatus) => {
-    const filteredData = {
-      applicant_names: [],
-      phone: [],
-      applicant_emails: [],
-      applicant_referred_by: [],
-      applicant_reference_ids: [],
-      applicant_uuids: [],
-      created_at_dates: [],
-      work_location_names: [],
-      screening_manager_names: [],
-      interviewer_names: [],
-      hr_names: [],
-      joining_dates: [],
-      status: currentStatus.status,
-      notes: [],
-      first_round_comments: [],
-      applicant_referrals_comments: [],
+     // Handle checkbox change
+     const handleCheckboxChange = (event) => {
+      const { value, checked } = event.target;
+      if (checked) {
+        setSelectedLocations([...selectedLocations, value]);
+      } else {
+        setSelectedLocations(selectedLocations.filter((name) => name !== value));
+      }
     };
-
-    if (currentStatus.applicant_names && currentStatus.applicant_names.forEach) {
-      currentStatus.applicant_names.forEach((_, index) => {
-        // Only status filter applied here
-        const filteredByStatus = statusMap[captureStatus]?.includes(currentStatus.status);
-
-        if (filteredByStatus) {
-          filteredData.applicant_names.push(currentStatus.applicant_names?.[index] || "");
-          filteredData.phone.push(currentStatus.phone?.[index] || "");
-          filteredData.applicant_emails.push(currentStatus.applicant_emails?.[index] || "");
-          filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by?.[index] || "");
-          filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids?.[index] || "");
-          filteredData.applicant_uuids.push(currentStatus.applicant_uuids?.[index] || "");
-          filteredData.created_at_dates.push(currentStatus.created_at_dates?.[index] || "");
-          filteredData.work_location_names.push(currentStatus.work_location_names?.[index] || "");
-          filteredData.screening_manager_names.push(currentStatus.screening_manager_names?.[index] || "N/A");
-          filteredData.interviewer_names.push(currentStatus.interviewer_names?.[index] || "N/A");
-          filteredData.hr_names.push(currentStatus.hr_names?.[index] || "N/A");
-          filteredData.joining_dates.push(currentStatus.joining_dates?.[index] || "N/A");
-          filteredData.notes.push((currentStatus.notes || [])[index] || "N/A");
-          filteredData.first_round_comments.push((currentStatus.first_round_comments || [])[index] || "N/A");
-          filteredData.applicant_referrals_comments.push((currentStatus.applicant_referrals_comments || [])[index] || "N/A");
+  
+    // Handle dropdown toggle
+    const toggleDropdown = () => {
+      setIsDropdownOpen(!isDropdownOpen);
+    };
+  
+    // Handle "Select All" functionality
+    const handleSelectAllChange = (event) => {
+      const { checked } = event.target;
+      if (checked) {
+        setSelectedLocations(locations.map((loc) => loc.name.toString()));
+      } else {
+        setSelectedLocations([]);
+      }
+    };
+    console.log(selectedLocations,'selec')
+ 
+  
+    const filteredProfiles = selectedProfiles
+    .map((currentStatus) => {
+      const filteredData = {
+        applicant_names: [],
+        phone: [],
+        applicant_emails: [],
+        applicant_referred_by: [],
+        applicant_reference_ids: [],
+        applicant_uuids: [],
+        created_at_dates: [],
+        work_location_names: [],
+        screening_manager_names: [],
+        interviewer_names: [],
+        hr_names: [],
+        joining_dates: [],
+        status: currentStatus.status,
+        notes: [],
+        first_round_comments: [],
+        applicant_referrals_comments: [],
+      };
+  
+      // Apply filtering only if both startDate and endDate are selected
+      const isDateInRange = (date) => {
+        if (startDate && endDate) {
+          const dateToCheck = new Date(date);
+          return dateToCheck >= new Date(startDate) && dateToCheck <= new Date(endDate);
         }
-      });
-    }
-
-    return filteredData;
-  })
-  .filter((data) => data.applicant_names.length > 0); // Ensures that we have filtered data
+        return true; // No date filtering if either date is missing
+      };
+  
+      // Apply location filter only if a market/location is selected
+      
+      
+  
+      if (currentStatus.applicant_names && currentStatus.applicant_names.forEach) {
+        currentStatus.applicant_names.forEach((_, index) => {
+          // Default filter: status is applied first
+          const filteredByStatus = statusMap[captureStatusFromStorage]?.includes(currentStatus.status);
+  
+          // Apply date filter only if both start and end dates are selected
+          const isInDateRange = isDateInRange(currentStatus.created_at_dates?.[index]);
+  
+          // Apply location filter if a location is selected
+          const inMarket =
+            selectedLocations.length > 0
+              ? selectedLocations.some(
+                  (market) =>
+                    currentStatus.work_location_names?.[index] === market
+                )
+              : true;
+  
+          // Only include data that matches status, date range, and location (if applicable)
+          if (filteredByStatus && inMarket && (startDate && endDate ? isInDateRange : true)) {
+            filteredData.applicant_names.push(currentStatus.applicant_names?.[index] || "");
+            filteredData.phone.push(currentStatus.phone?.[index] || "");
+            filteredData.applicant_emails.push(currentStatus.applicant_emails?.[index] || "");
+            filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by?.[index] || "");
+            filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids?.[index] || "");
+            filteredData.applicant_uuids.push(currentStatus.applicant_uuids?.[index] || "");
+            filteredData.created_at_dates.push(currentStatus.created_at_dates?.[index] || "");
+            filteredData.work_location_names.push(currentStatus.work_location_names?.[index] || "");
+            filteredData.screening_manager_names.push(currentStatus.screening_manager_names?.[index] || "N/A");
+            filteredData.interviewer_names.push(currentStatus.interviewer_names?.[index] || "N/A");
+            filteredData.hr_names.push(currentStatus.hr_names?.[index] || "N/A");
+            filteredData.joining_dates.push(currentStatus.joining_dates?.[index] || "N/A");
+            filteredData.notes.push((currentStatus.notes || [])[index] || "N/A");
+            filteredData.first_round_comments.push((currentStatus.first_round_comments || [])[index] || "N/A");
+            filteredData.applicant_referrals_comments.push((currentStatus.applicant_referrals_comments || [])[index] || "N/A");
+          }
+        });
+      }
+  
+      return filteredData;
+    })
+    .filter((data) => data.applicant_names.length > 0); // Filter out profiles with no names
+   // Filter out profiles with no names
+   // Filter out profiles with no names
+   // Ensures that we have filtered data
 
 const flattenedProfiles = filteredProfiles.flatMap((status) => {
   return status.applicant_names.map((name, index) => ({
@@ -332,6 +427,61 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
             <h3 style={{ color: "#E10174" }}>
               Total: {uniqueFlattenedProfiles.length}
             </h3>
+            <div className="dropdown-container">
+      {/* Dropdown Button */}
+      <div className="dropdown-button" onClick={toggleDropdown}>
+        <span>Select Market</span>
+        <span className="dropdown-arrow"><IoIosArrowDown /></span>
+      </div>
+
+      {/* Dropdown content (checkboxes) */}
+      {isDropdownOpen && (
+        <div className="checkbox-dropdown">
+          <div className="checkbox-item">
+            <input
+              type="checkbox"
+              id="select-all"
+              checked={selectedLocations.length === locations.length}
+              onChange={handleSelectAllChange}
+            />
+            <label htmlFor="select-all">Select All</label>
+          </div>
+
+          {locations.map((location) => (
+            <div key={location.name} className="checkbox-item">
+              <input
+                type="checkbox"
+                id={`location-${location.name}`}
+                value={location.name}
+                checked={selectedLocations.includes(location.name.toString())}
+                onChange={handleCheckboxChange}
+              />
+              <label htmlFor={`location-${location.name}`}>{location.name}</label>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+    <div className="date-picker">
+        <label htmlFor="start-date">Start Date:</label>
+        <input
+          type="date"
+          id="start-date"
+          value={startDate}
+          onChange={handleStartDateChange}
+        />
+      </div>
+
+      {/* End Date Picker */}
+      <div className="date-picker">
+        <label htmlFor="end-date">End Date:</label>
+        <input
+          type="date"
+          id="end-date"
+          value={endDate}
+          onChange={handleEndDateChange}
+        />
+      </div>
             <Button
               variant="outlined"
               color="success"
@@ -375,7 +525,7 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                     <TableCell
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
-                      {profile.created_at_date || "N/A"}
+                      {profile.created_at_date.slice(0,10) || "N/A"}
                     </TableCell>
                     <TableCell
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
