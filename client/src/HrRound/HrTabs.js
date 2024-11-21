@@ -69,18 +69,7 @@ export default function HrTabs() {
         assignedToInterviewer();
     }, [apiurl, userData.id]);
 
-    // Uncomment and use this if socket logic is needed
-    // useEffect(() => {
-    //     const socket = io('http://localhost:5000'); // Replace with your backend URL
-    //     socket.on('trainerfeedbackcount', (data) => {
-    //         setTrainerCount(data); // Update state with new counts from server
-    //     });
-
-    //     // Cleanup the event listener on component unmount
-    //     return () => {
-    //         socket.off('trainerfeedbackcount');
-    //     };
-    // }, []);
+   
 
     return (
         <Container className="mt-4">

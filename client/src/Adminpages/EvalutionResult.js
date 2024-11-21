@@ -71,13 +71,13 @@ function EvalutionResult({ setTrainerCount }) {
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th>S.No</th>
-                            <th>Applicant Name</th>
-                            <th>Applicant UUID</th>
-                            <th>HR Name</th>
-                            <th>Current Status</th>
-                            <th>Response Period</th>
-                            <th>Final Action</th>
+                            <th style={{backgroundColor:"#E10174"}}>S.No</th>
+                            <th style={{backgroundColor:"#E10174"}}>Applicant Name</th>
+                            <th style={{backgroundColor:"#E10174"}}>Applicant UUID</th>
+                            <th style={{backgroundColor:"#E10174"}}>HR Name</th>
+                            <th style={{backgroundColor:"#E10174"}}>Current Status</th>
+                            <th style={{backgroundColor:"#E10174"}}>Response Period</th>
+                            <th style={{backgroundColor:"#E10174"}}>Final Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -94,15 +94,14 @@ function EvalutionResult({ setTrainerCount }) {
 
                                 <td>
                                     <MuiButton
-                                        variant="contained"
-                                        color="primary"
+                                        style={{backgroundColor:"#E10174",color:'white'}} className='border-0'
                                         onClick={() => handleActionClick(profile, 'Selected')}
                                     >
                                         Select
                                     </MuiButton>
                                     <MuiButton
                                         variant="contained"
-                                        color="secondary"
+                                        color="primary"
                                         style={{ marginLeft: '10px' }}
                                         onClick={() => handleActionClick(profile, 'Rejected')}
                                     >

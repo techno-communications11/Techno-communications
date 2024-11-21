@@ -93,12 +93,12 @@ function HrNew() {
         <table className="table table-striped">
           <thead>
             <tr>
-              <th>S.No</th>
-              <th>Applicant Name</th>
-              <th>Applicant UUID</th>
-              <th>Time Of Interview</th>
-              <th>Action</th>
-              <th>Assign New HR</th>
+              <th style={{backgroundColor:'#E10174'}}>S.No</th>
+              <th style={{backgroundColor:'#E10174'}}>Applicant Name</th>
+              <th  style={{backgroundColor:'#E10174'}}>Applicant UUID</th>
+              <th style={{backgroundColor:'#E10174'}}>Time Of Interview</th>
+              <th style={{backgroundColor:'#E10174'}}>Action</th>
+              <th style={{backgroundColor:'#E10174'}}>Assign New HR</th>
             </tr>
           </thead>
           <tbody>
@@ -110,7 +110,8 @@ function HrNew() {
                 <td>{new Date(profile.time_of_hrinterview).toLocaleString('en-US', { hour12: true })}</td>
                 <td>
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary border-0"
+                     style={{backgroundColor:'#E10174'}}
                     onClick={() => handleInterviewClick(profile)}
                   >
                     Start Interview
@@ -120,7 +121,7 @@ function HrNew() {
                   <Dropdown
                     onSelect={(eventKey) => handleSelect(eventKey, profile)} // Pass HR ID and profile to handleSelect
                   >
-                    <Dropdown.Toggle className="w-100 bg-primary text-white border-secondary" id="dropdown-basic">
+                    <Dropdown.Toggle className="w-100 bg-primary text-white border-0" id="dropdown-basic">
                       <Assignment /> Change Assign To
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="w-auto">

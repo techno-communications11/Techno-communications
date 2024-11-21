@@ -9,6 +9,7 @@ import { MyContext } from '../pages/MyContext';
 import { useNavigate } from 'react-router-dom';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { IoIosArrowForward } from "react-icons/io";
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -77,9 +78,13 @@ function ScreeningHome() {
         <h2 className='text-start fw-bolder'>{`Screening Dashboard`}</h2>
         <h2 className='ms-auto fw-bolder'>{userData.name}</h2>
       </div>
-      <Link to='/marketjobopenings' style={{ textDecoration: 'none' }}>
-        <h5 className='text-end mb-4'>Click here to view Market Job Openings</h5>
-      </Link>
+
+  
+  <Link to='/marketjobopenings' className='d-flex justify-content-end mb-2' style={{ textDecoration: 'none' }}>
+  <h5 className='mb-0'>Market Job Openings </h5>
+     <IoIosArrowForward size={24} ms={2} />
+  </Link>
+
 
       <Row className='mb-4'>
         {/* Cards Section (Right) */}

@@ -74,12 +74,12 @@ function AdminHrEdit() {
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th>S.No</th>
-                            <th>Applicant UUID</th>
-                            <th>Applicant Name</th>
-                            <th>Phone</th>
-                            <th>HR Name</th>
-                            <th>Action</th>
+                            <th style={{backgroundColor:"#E10174"}}>S.No</th>
+                            <th style={{backgroundColor:"#E10174"}}>Applicant UUID</th>
+                            <th style={{backgroundColor:"#E10174"}}>Applicant Name</th>
+                            <th style={{backgroundColor:"#E10174"}}>Phone</th>
+                            <th style={{backgroundColor:"#E10174"}}>HR Name</th>
+                            <th style={{backgroundColor:"#E10174"}}>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -92,7 +92,7 @@ function AdminHrEdit() {
                                     <td>{profile.applicant_phone}</td>
                                     <td>{profile.hr_name}</td>
                                     <td>
-                                        <Button variant="primary" onClick={() => handleEdit(profile)}>
+                                        <Button style={{backgroundColor:"#E10174"}} className='border-0' onClick={() => handleEdit(profile)}>
                                             Edit Record
                                         </Button>
                                     </td>

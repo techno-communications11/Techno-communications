@@ -135,12 +135,14 @@ function InterViewHome({ setApplicant_uuid, setApplicantEmail, setApplicantPhone
                 {format(new Date(profile.time_of_interview), 'MM/dd/yyyy hh:mm a')}
               </td>
               <td>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleInterviewClick(profile)}
-                >
-                  Start Interview
-                </button>
+              <button
+  className="btn btn-primary"
+  style={{ fontSize: '14px', whiteSpace: 'nowrap' }}
+  onClick={() => handleInterviewClick(profile)}
+>
+  Start Interview
+</button>
+
               </td>
               <td>
                 <Dropdown

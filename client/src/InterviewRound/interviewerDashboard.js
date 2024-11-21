@@ -91,8 +91,8 @@ function InterviewerDashboard() {
         <Col xs={12} sm={6} md={6} lg={8}>
           <Row className="mb-4">
             {/* Total Count Card */}
-            <Col xs={12} sm={6} md={4} lg={4} className="mb-4">
-              <Card className="shadow-sm card-style h-100" style={{ cursor: "pointer", backgroundColor: "#F0F0F0" }} onClick={() => handleData("Total2")}>
+            <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+              <Card className="shadow-sm card-style  " style={{ cursor: "pointer", backgroundColor: "#F0F0F0", height:'150px' }} onClick={() => handleData("Total2")}>
                 <Card.Body className="d-flex flex-column justify-content-center">
                   <Card.Title className="fw-bold" style={{
                     textTransform: 'capitalize',
@@ -109,12 +109,12 @@ function InterviewerDashboard() {
             {filteredStatuses.map(({ status, bgColor }) => {
               const stat = stats.find(stat => stat.status === status) || { count: 0 };
               return (
-                <Col key={status} xs={12} sm={6} md={4} lg={4} className="mb-4">
+                <Col key={status} xs={12} sm={6} md={4} lg={3} className="mb-4">
                   <Card
-                    className="shadow-sm card-style h-100"
-                    style={{ cursor: "pointer", backgroundColor: bgColor }} onClick={() => handleData(status)}
+                    className="shadow-sm  card-style "
+                    style={{ cursor: "pointer", backgroundColor: bgColor , height:'150px'}} onClick={() => handleData(status)}
                   >
-                    <Card.Body className="d-flex flex-column justify-content-center">
+                    <Card.Body className="d-flex  flex-column justify-content-center">
                       <Card.Title className="fw-bold" style={{
                         textTransform: 'capitalize',
                         fontFamily: 'Roboto, sans-serif',

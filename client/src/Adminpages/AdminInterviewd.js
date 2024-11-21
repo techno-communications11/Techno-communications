@@ -98,12 +98,12 @@ function AdminInterviewd() {
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th>S.No</th>
-                            <th>Applicant Name</th>
-                            <th>Applicant UUID</th>
-                            <th>Time Of Interview</th>
-                            <th>HR Name</th>
-                            <th>Assign New HR</th>
+                            <th style={{backgroundColor:"#E10174"}}>S.No</th>
+                            <th style={{backgroundColor:"#E10174"}}>Applicant Name</th>
+                            <th style={{backgroundColor:"#E10174"}}>Applicant UUID</th>
+                            <th style={{backgroundColor:"#E10174"}}>Time Of Interview</th>
+                            <th style={{backgroundColor:"#E10174"}}>HR Name</th>
+                            <th style={{backgroundColor:"#E10174"}}>Assign New HR</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -123,7 +123,7 @@ function AdminInterviewd() {
                                         show={activeDropdownRow === index} // Show dropdown only for the active row
                                         onToggle={(isOpen) => handleChangeScrenningToggle(isOpen, index)} // Track the row's dropdown toggle state
                                     >
-                                        <Dropdown.Toggle className="w-100 bg-primary text-white border-secondary" id="dropdown-basic">
+                                        <Dropdown.Toggle style={{backgroundColor:"#E10174"}} className="w-100 border-0  text-white border-secondary" id="dropdown-basic">
                                             <Assignment /> Change Assign To 
                                         </Dropdown.Toggle>
                                         <Dropdown.Menu className="w-auto">

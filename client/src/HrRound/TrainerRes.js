@@ -70,11 +70,11 @@ function TrainerRes({ setTrainerCount }) {
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th>S.No</th>
-                            <th>Applicant Name</th>
-                            <th>Applicant UUID</th>
-                            <th>Trainer Feedback</th>
-                            <th>Final Action</th>
+                            <th style={{backgroundColor:'#E10174'}}>S.No</th>
+                            <th style={{backgroundColor:'#E10174'}}>Applicant Name</th>
+                            <th style={{backgroundColor:'#E10174'}}>Applicant UUID</th>
+                            <th style={{backgroundColor:'#E10174'}}>Trainer Feedback</th>
+                            <th style={{backgroundColor:'#E10174'}}>Final Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,16 +86,13 @@ function TrainerRes({ setTrainerCount }) {
                                 <td>{profile.applicant_status}</td>
                                 <td>
                                     <MuiButton
-                                        variant="contained"
-                                        color="primary"
+                                        style={{backgroundColor:'#E10174'}} className='text-white'
                                         onClick={() => handleActionClick(profile, 'Selected')}
                                     >
                                         Select
                                     </MuiButton>
                                     <MuiButton
-                                        variant="contained"
-                                        color="secondary"
-                                        style={{ marginLeft: '10px' }}
+                                        style={{marginLeft: '10px'}} className=' bg-primary text-white'
                                         onClick={() => handleActionClick(profile, 'Rejected')}
                                     >
                                         Reject

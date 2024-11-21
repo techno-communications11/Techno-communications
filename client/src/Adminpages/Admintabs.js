@@ -60,7 +60,6 @@ export default function AdminTabs() {
                     headers: getAuthHeaders()
                 });
                 if (response.status === 200) {
-                    // Assuming the response contains a field `count` for trainer feedback applicants
                     setTrainerCount(response.data.count || 0); 
                 }
             } catch (err) {
@@ -70,18 +69,7 @@ export default function AdminTabs() {
         assignedToInterviewer();
     }, [apiurl, userData.id]);
 
-    // Uncomment and use this if socket logic is needed
-    // useEffect(() => {
-    //     const socket = io('http://localhost:5000'); // Replace with your backend URL
-    //     socket.on('trainerfeedbackcount', (data) => {
-    //         setTrainerCount(data); // Update state with new counts from server
-    //     });
-
-    //     // Cleanup the event listener on component unmount
-    //     return () => {
-    //         socket.off('trainerfeedbackcount');
-    //     };
-    // }, []);
+    
 
     return (
         <Container className="mt-4">

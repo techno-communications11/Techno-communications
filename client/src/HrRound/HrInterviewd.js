@@ -53,12 +53,12 @@ function HrInterviewd() {
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th>S.No</th>
+                            <th style={{backgroundColor:'#E10174'}}>S.No</th>
                             
-                            <th>Applicant UUID</th>
-                            <th>Applicant Name</th>
-                            <th>Phone</th>
-                            <th>Action</th>
+                            <th style={{backgroundColor:'#E10174'}}>Applicant UUID</th>
+                            <th style={{backgroundColor:'#E10174'}}>Applicant Name</th>
+                            <th style={{backgroundColor:'#E10174'}}>Phone</th>
+                            <th style={{backgroundColor:'#E10174'}}>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -72,7 +72,7 @@ function HrInterviewd() {
                                     <td>{profile.phone}</td>
                                   
                                     <td>
-                                        <Button variant="primary" onClick={() => handleEdit(profile)}>
+                                        <Button  style={{backgroundColor:'#E10174'}} className='text-white border-0' onClick={() => handleEdit(profile)}>
                                             Edit Record
                                         </Button>
                                     </td>

@@ -40,16 +40,20 @@ function HrHome() {
   };
 
   const filteredStatuses = [
-    { status: "selected at Hr", bgColor: '#70B8E7' },  // Sky Blue
-    { status: "rejected at Hr", bgColor: '#FF4F58' },  // Coral Red
-    { status: "Sent for Evaluation", bgColor: '#FFBF47' },  // Golden Orange
-    { status: "Applicant will think about It", bgColor: '#8E9A3D' },  // Olive Drab
-    { status: "mark_assigned", bgColor: '#98C7E6' },  // Light Steel Blue
-    { status: "Not Recommended For Hiring", bgColor: '#FF6347' },  // Tomato Red
-    { status: "Store Evaluation", bgColor: '#6B8E23' },  // Olive Green
-    { status: "Spanish Evaluation", bgColor: '#D4A5A5' },  // Salmon Pink
-    { status: "backOut", bgColor: '#B0BEC5' }   // Silver Grey
+    { status: "selected at Hr", bgColor: '#FF69B4' },  // Hot Pink
+    { status: "rejected at Hr", bgColor: '#FF4500' },  // Orange Red
+    { status: "Sent for Evaluation", bgColor: '#FFD700' },  // Gold
+    { status: "Applicant will think about It", bgColor: '#32CD32' },  // Lime Green
+    { status: "mark_assigned", bgColor: '#1E90FF' },  // Dodger Blue
+    { status: "Not Recommended For Hiring", bgColor: '#DC143C' },  // Crimson Red
+    { status: "Store Evaluation", bgColor: '#8A2BE2' },  // Blue Violet
+    { status: "Spanish Evaluation", bgColor: '#FF7F50' },  // Coral
+    { status: "backOut", bgColor: '#20B2AA' }  // Light Sea Green
   ];
+  
+  
+  
+  console.log(filteredStatuses);
   
   
 
@@ -81,13 +85,13 @@ function HrHome() {
           <h2 className="ms-auto fw-bolder">{userData.name}</h2>
         </div>
 
-        <Row>
+        <Row className='d-flex justify-content-between'>
           {/* Cards Column */}
-          <Col xs={12} sm={6} md={8}>
+          <Col xs={12} sm={6} md={6}>
             <Row>
               {/* Total Count Card */}
-              <Col xs={12} sm={6} md={4} lg={2} className="mb-4">
-                <Card className="shadow-sm card-style h-100" style={{ cursor: "pointer" }}>
+              <Col xs={12} sm={6} md={4} lg={3} className="mb-2">
+                <Card className="shadow-sm" style={{ cursor: "pointer", width:'140px',height:'150px' }}>
                   <Card.Body className="d-flex flex-column justify-content-center" onClick={() => handleData("Total3")}>
                     <Card.Title className="fw-bold" style={{ textTransform: 'capitalize', fontFamily: 'Roboto, sans-serif' }}>
                       {TotalCount}
@@ -101,14 +105,14 @@ function HrHome() {
               {filteredStatuses.map(({ status, bgColor }) => {
                 const stat = stats.find(stat => stat.status === status);
                 return (
-                  <Col key={status} xs={12} sm={6} md={4} lg={2} className="mb-4">
-                    <Card className="shadow-sm card-style h-100" style={{ cursor: "pointer", backgroundColor: bgColor }}>
+                  <Col key={status} xs={12} sm={6} md={4} lg={3} className="mb-2 gap-2">
+                    <Card className="shadow-sm " style={{ cursor: "pointer", backgroundColor: bgColor,width:'140px',height:'150px' }}>
                       <Card.Body className="d-flex flex-column justify-content-center" onClick={() => handleData(status)}>
-                        <Card.Title className="fw-bold" style={{ textTransform: 'capitalize', fontFamily: 'Roboto, sans-serif' }}>
+                        <Card.Title className="fw-bold" style={{ textTransform: 'capitalize', fontFamily: 'Roboto, sans-serif',color:'white' }}>
                           {stat ? stat.count : 0}
                         </Card.Title>
-                        <Card.Text className="fs-6 fw-bold" style={{ textTransform: 'capitalize' }}>
-                          {status}
+                        <Card.Text className="fs-6 fw-bold" style={{ textTransform: 'capitalize',color:'white' }}>
+                          {status!=="mark_assigned"?status:"mark assigned"}
                         </Card.Text>
                       </Card.Body>
                     </Card>
