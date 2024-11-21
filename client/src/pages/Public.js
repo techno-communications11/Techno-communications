@@ -6,7 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
 import { Container, Row, Col } from 'react-bootstrap';
 import Login from './Login';
-import job from './images/4882404.jpg';
+import job from './images/logo.png';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Button } from '@mui/material';
@@ -186,7 +186,7 @@ function Public() {
             src={job}
             alt="jobs"
             className="img-fluid d-none d-md-block"
-            style={{ height: "100vh" }}
+            style={{ height: "50vh" }}
           />
         </Col>
 
@@ -305,7 +305,7 @@ function Public() {
           <div className="text-center mt-4">
             <Button
 
-              style={{ width: "100%", backgroundColor: "#ffc55a", color: "black", outline: "none" }}
+              style={{ width: "100%", backgroundColor: "#E10174", color: "white", outline: "none" }}
               onClick={handleLoginModalShow}
             >
               Login to Application
