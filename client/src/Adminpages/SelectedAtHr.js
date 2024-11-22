@@ -200,12 +200,23 @@ function SelectedAtHr() {
     // Date filter on `DateOfJoining`
     const [startDate, endDate] = joiningDateFilter;
     if (startDate && endDate) {
+      // Adjust startDate to the start of the day (to ensure precise filtering)
+      const adjustedStartDate = new Date(startDate);
+      adjustedStartDate.setHours(0, 0, 0, 0);
+    
+      // Adjust endDate to include the entire day
+      const adjustedEndDate = new Date(endDate);
+      adjustedEndDate.setHours(23, 59, 59, 999);
+    
       updatedData = updatedData.filter((row) => {
         const joiningDate = new Date(row.created_at);
-        return joiningDate >= startDate && joiningDate <= endDate;
+        return joiningDate >= adjustedStartDate && joiningDate <= adjustedEndDate;
       });
+    
       console.log("After Date Filter:", updatedData);
     }
+    
+    
 
     // Status filter based on `selectedTab`
     updatedData = updatedData.filter((row) => {
