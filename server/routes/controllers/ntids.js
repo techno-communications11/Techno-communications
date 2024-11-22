@@ -99,7 +99,7 @@ LEFT JOIN
     ON applicant_referrals.applicant_uuid = ntids.applicant_uuid
 LEFT JOIN 
     hrinterview -- Adding hrinterview table join
-    ON applicant_referrals.applicant_uuid = hrinterview.applicant_uuid -- Assuming the applicant_uuid links hrinterview to applicant_referrals
+    ON applicant_referrals.applicant_uuid = hrinterview.applicant_uuid 
 WHERE 
     applicant_referrals.status COLLATE utf8mb4_unicode_ci IN ("selected at Hr", "mark_assigned", "backOut");
 `

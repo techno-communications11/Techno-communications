@@ -46,14 +46,11 @@ function SelectedAtHr() {
   const [candidateFilter, setCandidateFilter] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedMarket1, setSelectedMarket1] = useState([]);
-  // const [isAllSelected1, setIsAllSelected1] = useState(false);
   const [marketFilter1, setMarketFilter1] = useState([]);
   const [selectedMarket2, setSelectedMarket2] = useState([]);
-  // const [isAllSelected2, setIsAllSelected2] = useState(false);
   const [marketFilter2, setMarketFilter2] = useState([]);
   const userData = decodeToken()?.name;
   const role = decodeToken()?.role;
-  console.log(userData, "ud");
   const userMarket = {
     "Ali Khan": "ARIZONA",
     "Rahim Nasir Khan": "BAY AREA",
@@ -69,7 +66,6 @@ function SelectedAtHr() {
     "Kamaran Mohammed": "SAN FRANCISCO",
   };
   const tokenMarket = userMarket[userData]?.toLowerCase();
-
   console.log(selectedMarket, selectedMarket1, selectedMarket2);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -205,7 +201,7 @@ function SelectedAtHr() {
     const [startDate, endDate] = joiningDateFilter;
     if (startDate && endDate) {
       updatedData = updatedData.filter((row) => {
-        const joiningDate = new Date(row.DateOfJoining);
+        const joiningDate = new Date(row.created_at);
         return joiningDate >= startDate && joiningDate <= endDate;
       });
       console.log("After Date Filter:", updatedData);
@@ -393,7 +389,7 @@ function SelectedAtHr() {
       const payload = {
         applicant_uuid: applicant_uuid,
       };
-      console.log(payload, "payload");
+      // console.log(payload, "payload");
 
       try {
         const res = await axios.post(
@@ -422,7 +418,6 @@ function SelectedAtHr() {
       console.error("No data available to export");
       return;
     }
-    console.log("filteredData", filteredData);
     // Create a new worksheet from the filtered data
     const worksheet = XLSX.utils.json_to_sheet(
       filteredData.map((row) => ({
@@ -487,7 +482,6 @@ function SelectedAtHr() {
     )
     .sort((a, b) => new Date(a.DateOfJoining) - new Date(b.DateOfJoining));
 
-  console.log("uniqdata >>", uniqdata);
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Tabs value={selectedTab} onChange={handleTabChange} centered>

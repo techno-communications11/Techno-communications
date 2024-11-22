@@ -43,11 +43,11 @@ const DetailCards = () => {
     { id: 21, name: "relocation" },
     { id: 23, name: "DirectHiring" },
   ];
-
+ 
   useEffect(() => {
     fetchStatusCounts();
+    
   }, []);
-
   // Fetch data when filters change
   useEffect(() => {
     if (selectedMarket.length > 0 || dateRange) {
@@ -59,16 +59,11 @@ const DetailCards = () => {
     setLoading(true);
     try {
       const url = `${process.env.REACT_APP_API}/getStatusCountsByLocation`;
-      const params = {
-        market: selectedMarket,
-        startDate: dateRange[0]
-          ? dayjs(dateRange[0]).format("YYYY-MM-DD")
-          : null,
-        endDate: dateRange[1] ? dayjs(dateRange[1]).format("YYYY-MM-DD") : null,
-      };
-      const response = await axios.get(url, { params });
+      
+      const response = await axios.get(url);
       if (response.status === 200) {
         const details = response.data.status_counts;
+        console.log(details,'dts')
         setStatusCounts(deriveProfileStats(details));
       } else {
         console.error("Error fetching profiles:", response);
@@ -95,6 +90,7 @@ const handleSelectAllChange = (event) => {
     setMarkets([]); // Clear markets
   }
 };
+// console.log(dateRange[0].format('YYYY-MM-DD'),dateRange[1].format('YYYY-MM-DD'),"dtrange")
 
 // Set initial state for "Select All" and default selected markets on mount
 useEffect(() => {
@@ -138,20 +134,45 @@ useEffect(() => {
         }));
       })
       .filter((profile) => {
+        // Filter by market (If selectedMarket exists and has length)
         const inMarket =
           selectedMarket?.length > 0
-            ? selectedMarket?.includes(profile.work_location_name)
+            ? selectedMarket.includes(profile.work_location_name)
             : true;
-        const createdDate = dayjs(profile.created_at_date);
+  
+        // Get the created_at_date (use native JavaScript Date)
+        const createdDate = new Date(profile.created_at_date);
+        console.log("Created Date:", createdDate); // Debugging log for created date
+  
+        // Get the start and end date from the dateRange filter
+        const [startDate, endDate] = dateRange;
+        console.log("Start Date:", startDate, "End Date:", endDate); // Debugging log for date range
+  
+        // Convert startDate and endDate to Date objects
+        const startDateObj = new Date(startDate);
+        const endDateObj = new Date(endDate);
+  
+        console.log("Start Date Obj:", startDateObj);
+        console.log("End Date Obj:", endDateObj);
+  
+        // Filter by date range (including start and end dates)
         const inDateRange =
-          dateRange[0] && dateRange[1]
-            ? createdDate.isAfter(dayjs(dateRange[0]).startOf("day")) &&
-              createdDate.isBefore(dayjs(dateRange[1]).endOf("day"))
+          startDate && endDate
+            ? createdDate >= startDateObj && createdDate <= endDateObj // Native JavaScript comparison
             : true;
-
+  
+        console.log("In Date Range:", inDateRange); // Debugging log for date range check
+  
+        // Return profiles that match both market and date range filters
         return inMarket && inDateRange;
       });
   };
+  
+  
+  
+  
+  
+  
 
   // Derive profile statistics based on the flattened profiles
   const deriveProfileStats = (profiles) => {

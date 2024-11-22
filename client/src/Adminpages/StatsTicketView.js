@@ -209,101 +209,82 @@ function StatsTicketView() {
   };
 
   const filteredProfiles = selectedProfiles
-    .map((currentStatus) => {
-      const filteredData = {
-        applicant_names: [],
-        phone: [],
-        applicant_emails: [],
-        applicant_referred_by: [],
-        applicant_reference_ids: [],
-        applicant_uuids: [],
-        created_at_dates: [],
-        work_location_names: [],
-        screening_manager_names: [],
-        interviewer_names: [],
-        hr_names: [],
-        joining_dates: [],
-        status: currentStatus.status,
-        notes: [],
-        first_round_comments: [],
-        applicant_referrals_comments: [],
-      };
+  .map((currentStatus) => {
+    const filteredData = {
+      applicant_names: [],
+      phone: [],
+      applicant_emails: [],
+      applicant_referred_by: [],
+      applicant_reference_ids: [],
+      applicant_uuids: [],
+      created_at_dates: [],
+      work_location_names: [],
+      screening_manager_names: [],
+      interviewer_names: [],
+      hr_names: [],
+      joining_dates: [],
+      status: currentStatus.status,
+      notes: [],
+      first_round_comments: [],
+      applicant_referrals_comments: [],
+    };
 
-      if (
-        currentStatus.applicant_names &&
-        currentStatus.applicant_names.forEach
-      ) {
-        currentStatus.applicant_names.forEach((_, index) => {
-          const inMarket =
-            markets.length > 0
-              ? markets.some(
-                  (market) =>
-                    currentStatus.work_location_names?.[index] === market
-                )
-              : true;
+    if (currentStatus.applicant_names && currentStatus.applicant_names.forEach) {
+      currentStatus.applicant_names.forEach((_, index) => {
+        // Market filter
+        const inMarket =
+          markets.length > 0
+            ? markets.some(
+                (market) => currentStatus.work_location_names?.[index] === market
+              )
+            : true;
 
-          const createdDate = dayjs(currentStatus.created_at_dates?.[index]);
-          const inDateRange =
-            captureDate[0] && captureDate[1]
-              ? createdDate.isAfter(dayjs(captureDate[0]).startOf("day")) &&
-                createdDate.isBefore(dayjs(captureDate[1]).endOf("day"))
-              : true;
+        // Get created date from profile and convert to native JavaScript Date
+        const createdDate = new Date(currentStatus.created_at_dates?.[index]);
 
-          const filteredByStatus = statusMap[captureStatus]?.includes(
-            currentStatus.status
+        // Get start and end dates from captureDate (if defined)
+        const [startDate, endDate] = captureDate;
+
+        // Adjust the startDate and endDate to ensure inclusive range (start of day and end of day)
+        const startDateObj = startDate ? new Date(startDate) : null;
+        const endDateObj = endDate ? new Date(endDate) : null;
+
+        // Date range filter (using JavaScript Date comparison)
+        const inDateRange =
+          startDateObj && endDateObj
+            ? createdDate >= startDateObj && createdDate <= endDateObj
+            : true; // If no date range is set, include all
+
+        // Status filter
+        const filteredByStatus = statusMap[captureStatus]?.includes(currentStatus.status);
+
+        // Only add profile data if it matches the filters
+        if (inMarket && inDateRange && filteredByStatus) {
+          filteredData.applicant_names.push(currentStatus.applicant_names?.[index] || "");
+          filteredData.phone.push(currentStatus.phone?.[index] || "");
+          filteredData.applicant_emails.push(currentStatus.applicant_emails?.[index] || "");
+          filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by?.[index] || "");
+          filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids?.[index] || "");
+          filteredData.applicant_uuids.push(currentStatus.applicant_uuids?.[index] || "");
+          filteredData.created_at_dates.push(currentStatus.created_at_dates?.[index] || "");
+          filteredData.work_location_names.push(currentStatus.work_location_names?.[index] || "");
+          filteredData.screening_manager_names.push(currentStatus.screening_manager_names?.[index] || "N/A");
+          filteredData.interviewer_names.push(currentStatus.interviewer_names?.[index] || "N/A");
+          filteredData.hr_names.push(currentStatus.hr_names?.[index] || "N/A");
+          filteredData.joining_dates.push(currentStatus.joining_dates?.[index] || "N/A");
+          filteredData.notes.push((currentStatus.notes || [])[index] || "N/A");
+          filteredData.first_round_comments.push((currentStatus.first_round_comments || [])[index] || "N/A");
+          filteredData.applicant_referrals_comments.push(
+            (currentStatus.applicant_referrals_comments || [])[index] || "N/A"
           );
+        }
+      });
+    }
 
-          if (inMarket && inDateRange && filteredByStatus) {
-            filteredData.applicant_names.push(
-              currentStatus.applicant_names?.[index] || ""
-            );
-            filteredData.phone.push(currentStatus.phone?.[index] || "");
-            filteredData.applicant_emails.push(
-              currentStatus.applicant_emails?.[index] || ""
-            );
-            filteredData.applicant_referred_by.push(
-              currentStatus.applicant_referred_by?.[index] || ""
-            );
-            filteredData.applicant_reference_ids.push(
-              currentStatus.applicant_reference_ids?.[index] || ""
-            );
-            filteredData.applicant_uuids.push(
-              currentStatus.applicant_uuids?.[index] || ""
-            );
-            filteredData.created_at_dates.push(
-              currentStatus.created_at_dates?.[index] || ""
-            );
-            filteredData.work_location_names.push(
-              currentStatus.work_location_names?.[index] || ""
-            );
-            filteredData.screening_manager_names.push(
-              currentStatus.screening_manager_names?.[index] || "N/A"
-            );
-            filteredData.interviewer_names.push(
-              currentStatus.interviewer_names?.[index] || "N/A"
-            );
-            filteredData.hr_names.push(
-              currentStatus.hr_names?.[index] || "N/A"
-            );
-            filteredData.joining_dates.push(
-              currentStatus.joining_dates?.[index] || "N/A"
-            );
-            filteredData.notes.push(
-              (currentStatus.notes || [])[index] || "N/A"
-            );
-            filteredData.first_round_comments.push(
-              (currentStatus.first_round_comments || [])[index] || "N/A"
-            );
-            filteredData.applicant_referrals_comments.push(
-              (currentStatus.applicant_referrals_comments || [])[index] || "N/A"
-            );
-          }
-        });
-      }
+    return filteredData;
+  })
+  .filter((data) => data.applicant_names.length > 0);
 
-      return filteredData;
-    })
-    .filter((data) => data.applicant_names.length > 0);
 
 
   const flattenedProfiles = filteredProfiles.flatMap((status) => {
