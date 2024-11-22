@@ -118,12 +118,12 @@ function SelectedAtHr() {
 
       updatedData = updatedData.filter((row) => {
         const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-        const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
+        // const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
 
         // Check if either `MarketHiringFor` or `TrainingAt` matches `tokenMarket`
         return (
-          marketValue.includes(lowerCaseTokenMarket) ||
-          trainingValue.includes(lowerCaseTokenMarket)
+          marketValue.includes(lowerCaseTokenMarket) 
+          // trainingValue.includes(lowerCaseTokenMarket)
         );
       });
 
@@ -140,12 +140,12 @@ function SelectedAtHr() {
 
         updatedData = updatedData.filter((row) => {
           const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-          const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
+          // const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
 
           // Match against `marketFilter` for either field
           return lowerCaseMarketFilter.some(
             (filter) =>
-              marketValue.includes(filter) || trainingValue.includes(filter)
+              marketValue.includes(filter) 
           );
         });
 
@@ -163,12 +163,12 @@ function SelectedAtHr() {
 
         updatedData = updatedData.filter((row) => {
           const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-          const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
+          // const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
 
           // Match against `marketFilter1` for either field
           return lowerCaseMarketFilter1.some(
             (filter) =>
-              marketValue.includes(filter) || trainingValue.includes(filter)
+              marketValue.includes(filter)
           );
         });
 
@@ -179,22 +179,22 @@ function SelectedAtHr() {
       }
 
       // Third filter: `marketFilter2` on `TrainingAt` only
-      if (marketFilter2.length > 0) {
-        const lowerCaseMarketFilter2 = marketFilter2.map((market) =>
-          market.toLowerCase().trim()
-        );
+      // if (marketFilter2.length > 0) {
+      //   const lowerCaseMarketFilter2 = marketFilter2.map((market) =>
+      //     market.toLowerCase().trim()
+      //   );
 
-        updatedData = updatedData.filter((row) => {
-          const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
+      //   updatedData = updatedData.filter((row) => {
+      //     const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
 
-          // Match against `marketFilter2` for `TrainingAt`
-          return lowerCaseMarketFilter2.some((filter) =>
-            trainingValue.includes(filter)
-          );
-        });
+      //     // Match against `marketFilter2` for `TrainingAt`
+      //     return lowerCaseMarketFilter2.some((filter) =>
+      //       trainingValue.includes(filter)
+      //     );
+      //   });
 
-        console.log("After Third Market Filter (TrainingAt):", updatedData);
-      }
+      //   console.log("After Third Market Filter (TrainingAt):", updatedData);
+      // }
     }
 
     // Date filter on `DateOfJoining`
