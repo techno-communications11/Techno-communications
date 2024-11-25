@@ -492,6 +492,22 @@ function SelectedAtHr() {
         self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
     )
     .sort((a, b) => new Date(a.DateOfJoining) - new Date(b.DateOfJoining));
+    function formatDateToCST(dateString) {
+      const date = new Date(dateString);
+    
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Chicago',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+    
+      const formattedDate = formatter.format(date);
+      return formattedDate;
+    }
+    
+   
+    
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -766,7 +782,8 @@ function SelectedAtHr() {
                           color: "inherit", // No red color if status is 'mark_assigned' or 'backOut'
                         }}
                       >
-                        {new Date(row.DateOfJoining).toLocaleDateString()}
+                       {formatDateToCST(row.DateOfJoining)}
+
                       </Typography>
                     ) : (
                       <Typography
@@ -778,7 +795,8 @@ function SelectedAtHr() {
                               : "inherit", // Set color to red if the date has passed and status is not 'mark_assigned' or 'backOut'
                         }}
                       >
-                        {new Date(row.DateOfJoining).toLocaleDateString()}{" "}
+                        {formatDateToCST(row.DateOfJoining)}
+
                         {/* Display the DateOfJoining */}
                       </Typography>
                     )}
