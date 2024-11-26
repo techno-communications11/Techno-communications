@@ -239,21 +239,45 @@ function StatsTicketView() {
               )
             : true;
 
-        // Get created date from profile and convert to native JavaScript Date
-        const createdDate = new Date(currentStatus.created_at_dates?.[index]);
+            const createdDate = new Date(currentStatus.created_at_dates?.[index]);
 
-        // Get start and end dates from captureDate (if defined)
-        const [startDate, endDate] = captureDate;
-
-        // Adjust the startDate and endDate to ensure inclusive range (start of day and end of day)
-        const startDateObj = startDate ? new Date(startDate) : null;
-        const endDateObj = endDate ? new Date(endDate) : null;
+            // Get start and end dates from captureDate (if defined)
+            const [startDate, endDate] = captureDate;
+            
+            // Convert start and end dates to Date objects, if they exist
+            const startDateObj = startDate ? new Date(startDate) : null;
+            const endDateObj = endDate ? new Date(endDate) : null;
+            
+            if (startDateObj && endDateObj) {
+                if (startDateObj.toDateString() === endDateObj.toDateString()) {
+                    // Same day: Adjust time to include the full day
+                    startDateObj.setHours(0, 0, 0, 0); // Local start of the day
+                    endDateObj.setHours(23, 59, 59, 999); // Local end of the day
+                } else {
+                    // Different days: Normalize both start and end dates to UTC
+                    startDateObj.setUTCHours(0, 0, 0, 0); // UTC start of the start day
+                    endDateObj.setUTCHours(23, 59, 59, 999); // UTC end of the end day
+                }
+            }
+            
+            // Compare timestamps to check if createdDate falls within the range
+            const inDateRange = startDateObj && endDateObj
+                ? createdDate >= startDateObj && createdDate <= endDateObj
+                : true; // Default to true if no date range is provided
+            
+            // Debugging output
+            console.log("Created Date:", createdDate.toISOString());
+            console.log("Start Date:", startDateObj?.toISOString());
+            console.log("End Date:", endDateObj?.toISOString());
+            console.log("In date range:", inDateRange);
+            
+            
 
         // Date range filter (using JavaScript Date comparison)
-        const inDateRange =
-          startDateObj && endDateObj
-            ? createdDate >= startDateObj && createdDate <= endDateObj
-            : true; // If no date range is set, include all
+        // const inDateRange =
+        //   startDateObj && endDateObj
+        //     ? createdDate >= startDateObj && createdDate <= endDateObj
+        //     : true; // If no date range is set, include all
 
         // Status filter
         const filteredByStatus = statusMap[captureStatus]?.includes(currentStatus.status);
@@ -487,7 +511,7 @@ function StatsTicketView() {
                     <TableCell
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
-                      {profile.created_at_date || "N/A"}
+                      {profile.created_at_date.slice(0,10) || "N/A"}
                     </TableCell>
                     <TableCell
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}

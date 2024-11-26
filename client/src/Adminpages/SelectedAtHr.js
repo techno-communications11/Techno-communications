@@ -111,113 +111,76 @@ function SelectedAtHr() {
 
   useEffect(() => {
     let updatedData = [...data];
-
-    // If `tokenMarket` is present, filter based on `tokenMarket` in either `MarketHiringFor` or `TrainingAt`
+  
+    // If `tokenMarket` is present, filter based on `tokenMarket` in either `MarketHiringFor`
     if (tokenMarket) {
       const lowerCaseTokenMarket = tokenMarket.toLowerCase().trim();
-
       updatedData = updatedData.filter((row) => {
         const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-        // const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
-
-        // Check if either `MarketHiringFor` or `TrainingAt` matches `tokenMarket`
-        return (
-          marketValue.includes(lowerCaseTokenMarket) 
-          // trainingValue.includes(lowerCaseTokenMarket)
-        );
+        return marketValue.includes(lowerCaseTokenMarket);
       });
-
-      console.log(
-        "Filtered by tokenMarket (MarketHiringFor or TrainingAt):",
-        updatedData
-      );
+  
+      console.log("Filtered by tokenMarket (MarketHiringFor):", updatedData);
     } else {
-      // First filter: `marketFilter` on `MarketHiringFor` and `TrainingAt`
+      // First filter: `marketFilter` on `MarketHiringFor`
       if (marketFilter.length > 0) {
-        const lowerCaseMarketFilter = marketFilter.map((market) =>
-          market.toLowerCase().trim()
-        );
-
+        const lowerCaseMarketFilter = marketFilter.map((market) => market.toLowerCase().trim());
         updatedData = updatedData.filter((row) => {
           const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-          // const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
-
-          // Match against `marketFilter` for either field
-          return lowerCaseMarketFilter.some(
-            (filter) =>
-              marketValue.includes(filter) 
-          );
+          return lowerCaseMarketFilter.some((filter) => marketValue.includes(filter));
         });
-
-        console.log(
-          "After First Market Filter (MarketHiringFor and TrainingAt):",
-          updatedData
-        );
+  
+        console.log("After First Market Filter (MarketHiringFor):", updatedData);
       }
-
-      // Second filter: `marketFilter1` on `MarketHiringFor` and `TrainingAt`
+  
+      // Second filter: `marketFilter1` on `MarketHiringFor`
       if (marketFilter1.length > 0) {
-        const lowerCaseMarketFilter1 = marketFilter1.map((market) =>
-          market.toLowerCase().trim()
-        );
-
+        const lowerCaseMarketFilter1 = marketFilter1.map((market) => market.toLowerCase().trim());
         updatedData = updatedData.filter((row) => {
           const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-          // const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
-
-          // Match against `marketFilter1` for either field
-          return lowerCaseMarketFilter1.some(
-            (filter) =>
-              marketValue.includes(filter)
-          );
+          return lowerCaseMarketFilter1.some((filter) => marketValue.includes(filter));
         });
-
-        console.log(
-          "After Second Market Filter (MarketHiringFor and TrainingAt):",
-          updatedData
-        );
+  
+        console.log("After Second Market Filter (MarketHiringFor):", updatedData);
       }
-
-      // Third filter: `marketFilter2` on `TrainingAt` only
-      // if (marketFilter2.length > 0) {
-      //   const lowerCaseMarketFilter2 = marketFilter2.map((market) =>
-      //     market.toLowerCase().trim()
-      //   );
-
-      //   updatedData = updatedData.filter((row) => {
-      //     const trainingValue = row.TrainingAt?.toLowerCase().trim() || "";
-
-      //     // Match against `marketFilter2` for `TrainingAt`
-      //     return lowerCaseMarketFilter2.some((filter) =>
-      //       trainingValue.includes(filter)
-      //     );
-      //   });
-
-      //   console.log("After Third Market Filter (TrainingAt):", updatedData);
-      // }
     }
-
-    // Date filter on `DateOfJoining`
+  
+    // Date filtering
     const [startDate, endDate] = joiningDateFilter;
-    if (startDate && endDate) {
-      // Adjust startDate to the start of the day (to ensure precise filtering)
-      const adjustedStartDate = new Date(startDate);
-      adjustedStartDate.setHours(0, 0, 0, 0);
-    
-      // Adjust endDate to include the entire day
-      const adjustedEndDate = new Date(endDate);
-      adjustedEndDate.setHours(23, 59, 59, 999);
-    
-      updatedData = updatedData.filter((row) => {
-        const joiningDate = new Date(row.created_at);
-        return joiningDate >= adjustedStartDate && joiningDate <= adjustedEndDate;
-      });
-    
-      console.log("After Date Filter:", updatedData);
-    }
-    
+
+// Convert startDate and endDate to Date objects (local timezone)
+const startDateObj = new Date(startDate);  
+const endDateObj = new Date(endDate);
+
+
+if (startDateObj && endDateObj) {
+  // Adjust the start date to the beginning of the day in local time (00:00:00)
+  const adjustedStartDate = new Date(startDateObj);
+  adjustedStartDate.setHours(0, 0, 0, 0); // Start of the day in local time
+  
+  // Adjust the end date to the end of the day in local time (23:59:59.999)
+  const adjustedEndDate = new Date(endDateObj);
+  adjustedEndDate.setHours(23, 59, 59, 999); // End of the day in local time
+
+  // Convert the local adjusted dates to UTC for filtering
+  const adjustedStartDateUTC = new Date(adjustedStartDate).toISOString();
+  const adjustedEndDateUTC = new Date(adjustedEndDate).toISOString();
+   // Debugging: End of day in UTC
+
+  // Filter rows by checking if the joining date (in UTC) is within the range
+  updatedData = updatedData.filter((row) => {
+    // Assuming row.created_at is in UTC format, which is best practice
+    const joiningDate = new Date(row.created_at);  // The row's created_at should be in UTC
     
 
+    // Compare joiningDate with adjustedStartDate and adjustedEndDate (both in UTC)
+    return joiningDate >= new Date(adjustedStartDateUTC) && joiningDate <= new Date(adjustedEndDateUTC);
+  });
+
+  console.log("After Date Filter:", updatedData);  // Debugging: Filtered results
+}
+
+  
     // Status filter based on `selectedTab`
     updatedData = updatedData.filter((row) => {
       switch (selectedTab) {
@@ -231,19 +194,20 @@ function SelectedAtHr() {
           return true;
       }
     });
-
+  
     console.log("Final Filtered Data:", updatedData);
-
+  
+    // Update filtered data state
     setFilteredData(updatedData);
   }, [
     marketFilter,
     marketFilter1,
-    marketFilter2,
     joiningDateFilter,
     data,
     selectedTab,
     tokenMarket,
   ]);
+  
 
   const handleInputChange = (uuid, field, value) => {
     setFilteredData((prevFilteredData) =>
@@ -492,22 +456,19 @@ function SelectedAtHr() {
         self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
     )
     .sort((a, b) => new Date(a.DateOfJoining) - new Date(b.DateOfJoining));
-    // function formatDateToCST(dateString) {
-    //   const date = new Date(dateString);
-    //   date.setHours(0, 0, 0, 0);
+
+    function formatDateToCST(dateString) {
+      // Parse the date string into a Date object
+      const date = new Date(dateString);
     
-    //   const formatter = new Intl.DateTimeFormat('en-US', {
-    //     timeZone: 'America/Chicago',
-    //     year: 'numeric',
-    //     month: '2-digit',
-    //     day: '2-digit',
-    //   });
+      // Extract the components of the date
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+      const day = String(date.getDate()).padStart(2, "0");
+      const year = date.getFullYear();
     
-    //   const formattedDate = formatter.format(date);
-    //   return formattedDate;
-    // }
-    
-   
+      // Return the date in MM-DD-YYYY format
+      return `${month}-${day}-${year}`;
+    }
     
 
   return (
@@ -783,8 +744,7 @@ function SelectedAtHr() {
                           color: "inherit", // No red color if status is 'mark_assigned' or 'backOut'
                         }}
                       >
-                       {row.DateOfJoining.slice(0,10)}
-
+                        {formatDateToCST(row.DateOfJoining)}
                       </Typography>
                     ) : (
                       <Typography
@@ -796,8 +756,7 @@ function SelectedAtHr() {
                               : "inherit", // Set color to red if the date has passed and status is not 'mark_assigned' or 'backOut'
                         }}
                       >
-                        {row.DateOfJoining.slice(0,10)}
-
+                        {formatDateToCST(row.DateOfJoining)}{" "}
                         {/* Display the DateOfJoining */}
                       </Typography>
                     )}

@@ -122,51 +122,69 @@ useEffect(() => {
 
   const flattenProfiles = (profiles) => {
     return profiles
-      .flatMap((profile) => {
-        return profile.applicant_names.map((name, index) => ({
-          applicant_name: name,
-          applicant_phone: profile.phone[index],
-          applicant_email: profile.applicant_emails[index],
-          applicant_uuid: profile.applicant_uuids[index],
-          work_location_name: profile.work_location_names[index],
-          created_at_date: profile.created_at_dates[index],
-          status: profile.status,
-        }));
-      })
-      .filter((profile) => {
-        // Filter by market (If selectedMarket exists and has length)
-        const inMarket =
-          selectedMarket?.length > 0
-            ? selectedMarket.includes(profile.work_location_name)
-            : true;
-  
-        // Get the created_at_date (use native JavaScript Date)
-        const createdDate = new Date(profile.created_at_date);
-        console.log("Created Date:", createdDate); // Debugging log for created date
-  
-        // Get the start and end date from the dateRange filter
-        const [startDate, endDate] = dateRange;
-        console.log("Start Date:", startDate, "End Date:", endDate); // Debugging log for date range
-  
-        // Convert startDate and endDate to Date objects
-        const startDateObj = new Date(startDate);
-        const endDateObj = new Date(endDate);
-  
-        console.log("Start Date Obj:", startDateObj);
-        console.log("End Date Obj:", endDateObj);
-  
-        // Filter by date range (including start and end dates)
-        const inDateRange =
-          startDate && endDate
-            ? createdDate >= startDateObj && createdDate <= endDateObj // Native JavaScript comparison
-            : true;
-  
-        console.log("In Date Range:", inDateRange); // Debugging log for date range check
-  
-        // Return profiles that match both market and date range filters
-        return inMarket && inDateRange;
-      });
-  };
+        .flatMap((profile) => {
+            return profile.applicant_names.map((name, index) => ({
+                applicant_name: name,
+                applicant_phone: profile.phone[index],
+                applicant_email: profile.applicant_emails[index],
+                applicant_uuid: profile.applicant_uuids[index],
+                work_location_name: profile.work_location_names[index],
+                created_at_date: profile.created_at_dates[index],
+                status: profile.status,
+            }));
+        })
+        .filter((profile) => {
+            // Filter by market
+            const inMarket = selectedMarket?.length > 0
+                ? selectedMarket.includes(profile.work_location_name)
+                : true;
+
+            // Parse created_at_date into a Date object
+            const createdDate = new Date(profile.created_at_date);
+
+            // Parse dateRange
+            const [startDate, endDate] = dateRange;
+            
+            // Convert start and end dates to Date objects, if they exist
+            const startDateObj = startDate ? new Date(startDate) : null;
+            const endDateObj = endDate ? new Date(endDate) : null;
+            
+            if (startDateObj && endDateObj) {
+                if (startDateObj.toDateString() === endDateObj.toDateString()) {
+                    // For the same day: Adjust time to cover the entire day in local time
+                    startDateObj.setHours(0, 0, 0, 0); // Local start of the day
+                    endDateObj.setHours(23, 59, 59, 999); // Local end of the day
+                } else {
+                    // For different days: Adjust to cover entire day ranges in UTC
+                    startDateObj.setUTCHours(0, 0, 0, 0); // UTC start of the start day
+                    endDateObj.setUTCHours(23, 59, 59, 999); // UTC end of the end day
+                }
+            }
+            
+            // Convert to timestamps for comparison
+            const startTimestamp = startDateObj ? startDateObj.getTime() : null;
+            const endTimestamp = endDateObj ? endDateObj.getTime() : null;
+            const createdTimestamp = createdDate.getTime();
+            
+            // Filter by date range (inclusive)
+            const inDateRange =
+                startTimestamp && endTimestamp
+                    ? createdTimestamp >= startTimestamp && createdTimestamp <= endTimestamp
+                    : true; // Default to true if no date range is provided
+            
+            // Debugging output
+            console.log("Created Date:", createdDate.toISOString());
+            console.log("Start Date Obj:", startDateObj?.toISOString());
+            console.log("End Date Obj:", endDateObj?.toISOString());
+            console.log("In Date Range:", inDateRange);
+            
+
+            // Return profiles matching both filters
+            return inMarket && inDateRange;
+        });
+};
+
+
   
   
   

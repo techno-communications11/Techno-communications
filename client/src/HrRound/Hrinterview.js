@@ -205,9 +205,6 @@ const Hrinterview = () => {
     }
   };
 
-
-
-
   const handleSubmit = async (event) => {
     console.log("hi>>>")
     event.preventDefault();

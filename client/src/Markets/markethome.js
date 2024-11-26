@@ -1,202 +1,257 @@
-import React, { useState, useEffect } from 'react';
-import { Box, TextField, Button, Typography, Grid, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
-import axios from 'axios';
-import decodeToken from '../decodedDetails';
-import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify'; // Ensure you have react-toastify installed
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Alert,
+  Card,
+  CardContent,
+  Grid,
+} from "@mui/material";
+import { toast, ToastContainer } from "react-toastify";
+import axios from "axios";
+import decodeToken from "../decodedDetails";
+import { Spinner } from "react-bootstrap"; // Add the import here
 
 const Markethome = () => {
-    const apiurl = process.env.REACT_APP_API;
-    const navigate = useNavigate();
-    const userData = decodeToken();
-    const [markets, setMarkets] = useState([]);
-    console.log("userData", userData);
+  const apiurl = process.env.REACT_APP_API;
+  const userData = decodeToken();
+  const [markets, setMarkets] = useState([]);
+  const [isMonthlyLimitReached, setIsMonthlyLimitReached] = useState(false);
+  const [loading, setLoading] = useState(true); // Default to loading true
 
-    const userMarket = {
-        "Ali Khan": "ARIZONA",
-        "Rahim Nasir Khan": "BAY AREA",
-        "Shah Noor Butt": "COLORADO",
-        "Nazim Sundrani": "DALLAS",
-        "Afzal Muhammad": "El Paso",
-        "Adnan Barri": "HOUSTON",
-        "Maaz Khan": "LOS ANGELES",
-        "Mohamad Elayan": "MEMPHIS/NASHVILLE / FLORIDA",
-        "Uzair Uddin": "NORTH CAROL",
-        "Faizan Jiwani": "SACRAMENTO",
-        "Hassan Saleem": "SAN DEIGIO",
-        "Kamaran Mohammed": "SAN FRANCISCO"
-    };
+  const userMarket = {
+    "Ali Khan": "ARIZONA",
+    "Rahim Nasir Khan": "BAY AREA",
+    "Shah Noor Butt": "COLORADO",
+    "Nazim Sundrani": "DALLAS",
+    "Afzal Muhammad": "El Paso",
+    "Adnan Barri": "HOUSTON",
+    "Maaz Khan": "LOS ANGELES",
+    "Mohamad Elayan": "MEMPHIS/NASHVILLE / FLORIDA",
+    "Uzair Uddin": "NORTH CAROL",
+    "Faizan Jiwani": "SACRAMENTO",
+    "Hassan Saleem": "SAN DIEGO",
+    "Kamaran Mohammed": "SAN FRANCISCO",
+  };
 
-    // Fetch the user's market based on their name
-    const userMarketLocation = userMarket[userData.name];
-    console.log("userMarketLocation", userMarketLocation);
+  const userMarketLocation = userMarket[userData.name];
 
-    useEffect(() => {
-        // Fetch data from the API
-        const fetchMarketJobs = async () => {
-            try {
-                const response = await axios.get(`${apiurl}/getmarketjobs`);
-                const data = response.data;
-                const filteredData = data.filter(val => val.name === userMarketLocation);
-                setMarkets(filteredData);
-                console.log(filteredData, "filteredData");
-            } catch (error) {
-                console.error('Error fetching market job openings:', error);
-            }
-        };
+  const [jobDetails, setJobDetails] = useState({
+    location: userMarketLocation,
+    openings: "",
+    comments: "",
+    deadline: "",
+    posted_by: userData.name,
+  });
 
-        fetchMarketJobs();
-    }, [userMarketLocation]);
-
-    const [jobDetails, setJobDetails] = useState({
-        location: userMarketLocation,
-        openings: '',
-        deadline: '',
-        posted_by: userData.name
+  const handleChange = (e) => {
+    setJobDetails({
+      ...jobDetails,
+      [e.target.name]: e.target.value,
     });
+  };
 
-    const handleChange = (e) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isMonthlyLimitReached) {
+      toast.error("You can only post one job per month.");
+      return;
+    }
+
+    try {
+      console.log(jobDetails, "jbs");
+      const response = await axios.post(`${apiurl}/post-job`, jobDetails);
+      if (response.status === 200) {
+        toast.success(response.data.message);
         setJobDetails({
-            ...jobDetails,
-            [e.target.name]: e.target.value,
+          location: userMarketLocation,
+          openings: "",
+          commentss: "",
+          deadline: "",
+          posted_by: userData.name,
         });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1300);
+      }
+    } catch (err) {
+      console.error("Error posting job:", err);
+      toast.error("Failed to post job");
+    }
+  };
+
+  useEffect(() => {
+    const fetchMarketJobs = async () => {
+      try {
+        const response = await axios.get(`${apiurl}/getmarketjobs`);
+        const data = response.data;
+        const filteredData = data.filter((val) => val.name === userMarketLocation);
+        setMarkets(filteredData);
+
+        const currentMonth = new Date().getMonth();
+        const isPostedThisMonth = filteredData.some(
+          (job) => new Date(job.created_at).getMonth() === currentMonth
+        );
+        setIsMonthlyLimitReached(isPostedThisMonth);
+        setLoading(false); // Set loading to false after data is fetched
+      } catch (error) {
+        console.error("Error fetching market job openings:", error);
+        setLoading(false); // Ensure loading is stopped even if there's an error
+      }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    fetchMarketJobs();
+  }, [userMarketLocation]);
 
-        try {
-            const response = await axios.post(`${apiurl}/post-job`, jobDetails);
-            console.log(jobDetails, "jobDetails");
-            if (response.status === 200) {
-                toast.success(response.data.message);
+  return (
+    <Box sx={{ padding: 2, backgroundColor: "#f7f9fc", minHeight: "100vh" }}>
+      <Typography variant="h4" sx={{ mb: 1, textAlign: "center", fontWeight: 600 }}>
+        Market Job Listings
+      </Typography>
 
-                setJobDetails({
-                    location: userMarketLocation,
-                    openings: '',
-                    deadline: '',
-                    posted_by: userData.name
-                });
+      <Alert severity="info" sx={{ mb: 1 }}>
+        You can post only once in a month. Ensure all details are accurate.
+      </Alert>
 
-                // Delay the page reload by 1300 ms
-                setTimeout(() => {
-                    window.location.reload(); // Reload the page
-                }, 1300);
-            }
-        } catch (err) {
-            console.error('Error posting job:', err);
-            toast.error('Failed to post job');
-        }
-    };
+      <Grid container spacing={1}>
+        {/* Form Section */}
+        <Grid item xs={12} md={6}>
+          <Card elevation={4}>
+            <CardContent>
+              <Typography variant="h5" sx={{ textAlign: "center" }}>
+                Post a Job
+              </Typography>
+              <form onSubmit={handleSubmit}>
+                <TextField
+                  label="Market"
+                  name="location"
+                  value={jobDetails.location}
+                  fullWidth
+                  margin="normal"
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+                <TextField
+                  label="Number of Openings"
+                  name="openings"
+                  type="number"
+                  value={jobDetails.openings}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                  variant="outlined"
+                  required
+                />
+                <TextField
+                  label="Comments"
+                  name="comments"
+                  value={jobDetails.comments}
+                  onChange={handleChange}
+                  fullWidth
+                  multiline
+                  rows={2}
+                  margin="normal"
+                  variant="outlined"
+                  required
+                />
+                <TextField
+                  label="Application Deadline"
+                  name="deadline"
+                  type="date"
+                  value={jobDetails.deadline}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                  variant="outlined"
+                  InputLabelProps={{ shrink: true }}
+                  required
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{
+                    mt: 2,
+                    py: 1.5,
+                    fontWeight: "bold",
+                    backgroundColor: isMonthlyLimitReached ? "grey" : "#1976d2",
+                  }}
+                  disabled={isMonthlyLimitReached}
+                >
+                  Post Job
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </Grid>
 
-
-    return (
-        <Box sx={{ flexGrow: 1, mt: 4 }}>
-            <Grid container spacing={2}>
-                <Grid md={1}></Grid>
-                <Grid item md={10}>
-                    {/* Form */}
-                    <Box
-                        component="form"
-                        onSubmit={handleSubmit}
-                        sx={{
-                            padding: 3,
-                            boxShadow: 3,
-                            borderRadius: 2,
-                            backgroundColor: '#fff',
-                            mb: 4,
-                        }}
-                    >
-                        <Typography variant="h4" align="center" gutterBottom>
-                            Post a New Job
-                        </Typography>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Market"
-                                    name="location"
-                                    value={jobDetails.location}
-                                    fullWidth
-                                    required
-                                    margin="normal"
-                                    variant="outlined"
-                                    InputProps={{
-                                        readOnly: true,
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={3}>
-                                <TextField
-                                    label="Number of Openings"
-                                    name="openings"
-                                    type="number"
-                                    value={jobDetails.openings}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                    margin="normal"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={3}>
-                                <TextField
-                                    label="Application Deadline"
-                                    name="deadline"
-                                    type="date"
-                                    value={jobDetails.deadline}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                    margin="normal"
-                                    variant="outlined"
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                />
-                            </Grid>
-                        </Grid>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                            fullWidth
-                            sx={{ mt: 3 }}
+        {/* Table Section */}
+        <Grid item xs={12} md={6}>
+          <TableContainer component={Paper} elevation={4}>
+            <h4 className="p-2 text-capitalize">Previously Listed Jobs</h4>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: "#E10174" }}>
+                  {["Market", "Openings", "Posted By", "Comments", "Created At", "Deadline"].map((head) => (
+                    <TableCell key={head} sx={{ color: "#fff", fontWeight: "bold" }}>
+                      {head}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {markets.length > 0 ? (
+                  markets.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).map((market) => (
+                    <TableRow key={market.id} hover>
+                      <TableCell>{market.name}</TableCell>
+                      <TableCell>{market.openings}</TableCell>
+                      <TableCell>{market.posted_by}</TableCell>
+                      <TableCell className="text-center">{market.comments ? market.comments : '-'}</TableCell>
+                      <TableCell>{new Date(market.created_at).toLocaleDateString("en-US")}</TableCell>
+                      <TableCell>{new Date(market.deadline).toLocaleDateString("en-US")}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      {loading ? (
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            padding: "20px",
+                          }}
                         >
-                            Post Job
-                        </Button>
-                    </Box>
-
-                    {/* Table for displaying jobs */}
-                    <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
-                        <Table>
-                            <TableHead>
-                                <TableRow sx={{ backgroundColor: '#E10174' }}>
-                                    <TableCell><strong style={{ color: '#fff' }}>Market</strong></TableCell>
-                                    <TableCell><strong style={{ color: '#fff' }}>Openings</strong></TableCell>
-                                    <TableCell><strong style={{ color: '#fff' }}>Posted By</strong></TableCell>
-                                    <TableCell><strong style={{ color: '#fff' }}>Created At</strong></TableCell>
-                                    <TableCell><strong style={{ color: '#fff' }}>Deadline</strong></TableCell>
-                                </TableRow>
-                            </TableHead>
-
-                            <TableBody>
-                                {markets.map((market) => (
-                                    <TableRow key={market.id}>
-                                        <TableCell>{market.name}</TableCell>
-                                        <TableCell>{market.openings}</TableCell>
-                                        <TableCell>{market.posted_by}</TableCell>
-                                        <TableCell>{new Date(market.created_at).toLocaleDateString('en-US')}</TableCell>
-                                        <TableCell>{new Date(market.deadline).toLocaleDateString('en-US')}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Grid>
-            </Grid>
-            <ToastContainer />
-        </Box>
-    );
+                          <Spinner animation="border" role="status" style={{ width: "3rem", height: "3rem" }}>
+                            <span className="visually-hidden">Loading...</span>
+                          </Spinner>
+                        </div>
+                      ) : (
+                        "No jobs available"
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+      </Grid>
+      <ToastContainer />
+    </Box>
+  );
 };
 
 export default Markethome;
