@@ -156,8 +156,8 @@ useEffect(() => {
                     endDateObj.setHours(23, 59, 59, 999); // Local end of the day
                 } else {
                     // For different days: Adjust to cover entire day ranges in UTC
-                    startDateObj.setUTCHours(0, 0, 0, 0); // UTC start of the start day
-                    endDateObj.setUTCHours(23, 59, 59, 999); // UTC end of the end day
+                    startDateObj.setHours(0, 0, 0, 0); // UTC start of the start day
+                    endDateObj.setHours(23, 59, 59, 999); // UTC end of the end day
                 }
             }
             

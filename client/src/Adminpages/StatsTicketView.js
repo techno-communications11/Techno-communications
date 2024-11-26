@@ -255,8 +255,8 @@ function StatsTicketView() {
                     endDateObj.setHours(23, 59, 59, 999); // Local end of the day
                 } else {
                     // Different days: Normalize both start and end dates to UTC
-                    startDateObj.setUTCHours(0, 0, 0, 0); // UTC start of the start day
-                    endDateObj.setUTCHours(23, 59, 59, 999); // UTC end of the end day
+                    startDateObj.setHours(0, 0, 0, 0); // UTC start of the start day
+                    endDateObj.setHours(23, 59, 59, 999); // UTC end of the end day
                 }
             }
             
@@ -265,11 +265,7 @@ function StatsTicketView() {
                 ? createdDate >= startDateObj && createdDate <= endDateObj
                 : true; // Default to true if no date range is provided
             
-            // Debugging output
-            console.log("Created Date:", createdDate.toISOString());
-            console.log("Start Date:", startDateObj?.toISOString());
-            console.log("End Date:", endDateObj?.toISOString());
-            console.log("In date range:", inDateRange);
+         
             
             
 
