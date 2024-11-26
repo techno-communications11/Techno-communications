@@ -462,16 +462,10 @@ function SelectedAtHr() {
     .sort((a, b) => new Date(a.DateOfJoining) - new Date(b.DateOfJoining));
 
     function formatDateToCST(dateString) {
-      // Parse the date string into a Date object
-      const date = new Date(dateString);
-    
-      // Extract the components of the date
-      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
-      const day = String(date.getDate()).padStart(2, "0");
-      const year = date.getFullYear();
-    
-      // Return the date in MM-DD-YYYY format
-      return `${month}-${day}-${year}`;
+     const x=dateString.slice(0,4)
+     const y=dateString.slice(5,)
+     return y+"-"+x;  
+     
     }
 
   return (
@@ -747,7 +741,7 @@ function SelectedAtHr() {
                           color: "inherit", // No red color if status is 'mark_assigned' or 'backOut'
                         }}
                       >
-                        {formatDateToCST(row.DateOfJoining)}
+                        {formatDateToCST(row.DateOfJoining.slice(0,10))}
                       </Typography>
                     ) : (
                       <Typography
@@ -759,7 +753,7 @@ function SelectedAtHr() {
                               : "inherit", // Set color to red if the date has passed and status is not 'mark_assigned' or 'backOut'
                         }}
                       >
-                        {formatDateToCST(row.DateOfJoining)}
+                        {formatDateToCST(row.DateOfJoining.slice(0,10))}
                         {/* Display the DateOfJoining */}
                       </Typography>
                     )}
