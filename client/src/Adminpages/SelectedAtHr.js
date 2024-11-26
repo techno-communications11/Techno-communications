@@ -112,74 +112,77 @@ function SelectedAtHr() {
   useEffect(() => {
     let updatedData = [...data];
   
-    // If `tokenMarket` is present, filter based on `tokenMarket` in either `MarketHiringFor`
+    // If `tokenMarket` is present, filter based on `tokenMarket` in either `MarketHiringFor` or `TrainingAt`
     if (tokenMarket) {
       const lowerCaseTokenMarket = tokenMarket.toLowerCase().trim();
       updatedData = updatedData.filter((row) => {
         const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
+        // Check if either `MarketHiringFor` or `TrainingAt` matches `tokenMarket`
         return marketValue.includes(lowerCaseTokenMarket);
       });
-  
-      console.log("Filtered by tokenMarket (MarketHiringFor):", updatedData);
+      console.log("Filtered by tokenMarket (MarketHiringFor or TrainingAt):", updatedData);
     } else {
-      // First filter: `marketFilter` on `MarketHiringFor`
+      // First filter: `marketFilter` on `MarketHiringFor` and `TrainingAt`
       if (marketFilter.length > 0) {
-        const lowerCaseMarketFilter = marketFilter.map((market) => market.toLowerCase().trim());
+        const lowerCaseMarketFilter = marketFilter.map((market) =>
+          market.toLowerCase().trim()
+        );
         updatedData = updatedData.filter((row) => {
           const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-          return lowerCaseMarketFilter.some((filter) => marketValue.includes(filter));
+          return lowerCaseMarketFilter.some(
+            (filter) => marketValue.includes(filter)
+          );
         });
-  
-        console.log("After First Market Filter (MarketHiringFor):", updatedData);
+        console.log("After First Market Filter (MarketHiringFor and TrainingAt):", updatedData);
       }
   
-      // Second filter: `marketFilter1` on `MarketHiringFor`
+      // Second filter: `marketFilter1` on `MarketHiringFor` and `TrainingAt`
       if (marketFilter1.length > 0) {
-        const lowerCaseMarketFilter1 = marketFilter1.map((market) => market.toLowerCase().trim());
+        const lowerCaseMarketFilter1 = marketFilter1.map((market) =>
+          market.toLowerCase().trim()
+        );
         updatedData = updatedData.filter((row) => {
           const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-          return lowerCaseMarketFilter1.some((filter) => marketValue.includes(filter));
+          return lowerCaseMarketFilter1.some(
+            (filter) => marketValue.includes(filter)
+          );
         });
-  
-        console.log("After Second Market Filter (MarketHiringFor):", updatedData);
+        console.log("After Second Market Filter (MarketHiringFor and TrainingAt):", updatedData);
       }
     }
   
-    // Date filtering
+    // Date filter on `DateOfJoining`
     const [startDate, endDate] = joiningDateFilter;
-
-// Convert startDate and endDate to Date objects (local timezone)
-const startDateObj = new Date(startDate);  
-const endDateObj = new Date(endDate);
-
-
-if (startDateObj && endDateObj) {
-  // Adjust the start date to the beginning of the day in local time (00:00:00)
-  const adjustedStartDate = new Date(startDateObj);
-  adjustedStartDate.setHours(0, 0, 0, 0); // Start of the day in local time
+    if (startDate && endDate) {
+      // Convert startDate and endDate to Date objects (local timezone)
+      const startDateObj = new Date(startDate);
+      const endDateObj = new Date(endDate);
   
-  // Adjust the end date to the end of the day in local time (23:59:59.999)
-  const adjustedEndDate = new Date(endDateObj);
-  adjustedEndDate.setHours(23, 59, 59, 999); // End of the day in local time
-
-  // Convert the local adjusted dates to UTC for filtering
-  const adjustedStartDateUTC = new Date(adjustedStartDate).toISOString();
-  const adjustedEndDateUTC = new Date(adjustedEndDate).toISOString();
-   // Debugging: End of day in UTC
-
-  // Filter rows by checking if the joining date (in UTC) is within the range
-  updatedData = updatedData.filter((row) => {
-    // Assuming row.created_at is in UTC format, which is best practice
-    const joiningDate = new Date(row.created_at);  // The row's created_at should be in UTC
-    
-
-    // Compare joiningDate with adjustedStartDate and adjustedEndDate (both in UTC)
-    return joiningDate >= new Date(adjustedStartDateUTC) && joiningDate <= new Date(adjustedEndDateUTC);
-  });
-
-  console.log("After Date Filter:", updatedData);  // Debugging: Filtered results
-}
-
+      if (startDateObj && endDateObj) {
+        // Adjust the start date to the beginning of the day (00:00:00) in local time
+        const adjustedStartDate = new Date(startDateObj);
+        adjustedStartDate.setHours(0, 0, 0, 0);
+  
+        // Adjust the end date to the end of the day (23:59:59.999) in local time
+        const adjustedEndDate = new Date(endDateObj);
+        adjustedEndDate.setHours(23, 59, 59, 999);
+  
+        // Convert the local adjusted dates to UTC for filtering
+        const adjustedStartDateUTC = new Date(adjustedStartDate).toISOString();
+        const adjustedEndDateUTC = new Date(adjustedEndDate).toISOString();
+  
+        // Filter rows by checking if the joining date (in UTC) is within the range
+        updatedData = updatedData.filter((row) => {
+          // Assuming row.created_at is in UTC format
+          const joiningDate = new Date(row.created_at);  // The row's created_at should be in UTC
+  
+          // Compare joiningDate with adjustedStartDate and adjustedEndDate (both in UTC)
+          return joiningDate >= new Date(adjustedStartDateUTC) && joiningDate <= new Date(adjustedEndDateUTC);
+        });
+  
+        console.log("After Date Filter:", updatedData);
+      }
+    }
   
     // Status filter based on `selectedTab`
     updatedData = updatedData.filter((row) => {
@@ -199,6 +202,7 @@ if (startDateObj && endDateObj) {
   
     // Update filtered data state
     setFilteredData(updatedData);
+  
   }, [
     marketFilter,
     marketFilter1,
@@ -469,7 +473,6 @@ if (startDateObj && endDateObj) {
       // Return the date in MM-DD-YYYY format
       return `${month}-${day}-${year}`;
     }
-    
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -756,7 +759,7 @@ if (startDateObj && endDateObj) {
                               : "inherit", // Set color to red if the date has passed and status is not 'mark_assigned' or 'backOut'
                         }}
                       >
-                        {formatDateToCST(row.DateOfJoining)}{" "}
+                        {formatDateToCST(row.DateOfJoining)}
                         {/* Display the DateOfJoining */}
                       </Typography>
                     )}
