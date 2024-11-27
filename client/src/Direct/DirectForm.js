@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Button } from '@mui/material';
 import Form from 'react-bootstrap/Form';
-import Dropdown from 'react-bootstrap/Dropdown';
+// import Dropdown from 'react-bootstrap/Dropdown';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import decodeToken from '../decodedDetails';
@@ -73,9 +73,9 @@ function DirectForm() {
     }
   };
 
-  const handleSelectMarket = (eventKey) => {
-    setSelectedMarket(eventKey);
-  };
+  // const handleSelectMarket = (eventKey) => {
+  //   setSelectedMarket(eventKey);
+  // };
 
   useEffect(() => {
     const fetchMarkets = async () => {
@@ -90,9 +90,9 @@ function DirectForm() {
     fetchMarkets();
   }, []);
 
-  const sortedMarkets = useMemo(() => {
-    return markets.sort((a, b) => (a.markets || "").localeCompare(b.markets || ""));
-  }, [markets]);
+  // const sortedMarkets = useMemo(() => {
+  //   return markets.sort((a, b) => (a.markets || "").localeCompare(b.markets || ""));
+  // }, [markets]);
 
   return (
     <div className='container-fluid d-flex justify-content-center align-items-center mt-4'>

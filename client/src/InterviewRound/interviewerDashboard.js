@@ -24,7 +24,7 @@ function InterviewerDashboard() {
       try {
         const data = await getStatusCounts();
         setStats(data);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.error("Error fetching status counts:", error);
       }
@@ -43,7 +43,7 @@ function InterviewerDashboard() {
 
   const handleData = (status) => {
     try {
-      console.log(status);
+      // console.log(status);
       setCaptureStatus(status);
       navigate('/detailview');
     } catch (error) {

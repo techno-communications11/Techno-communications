@@ -64,7 +64,7 @@ useEffect(() => {
       if (response.status === 200) {
         const profilesData = response.data.status_counts || [];
         setSelectedProfiles(profilesData); // Set state to update the UI
-        console.log(profilesData, "data is dipped");
+        // console.log(profilesData, "data is dipped");
         localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
       } else {
         console.error("Error fetching profiles:", response);
@@ -185,7 +185,7 @@ useEffect(() => {
         setSelectedLocations([]);
       }
     };
-    console.log(selectedLocations,'selec')
+    // console.log(selectedLocations,'selec')
  
   
     const filteredProfiles = selectedProfiles
@@ -383,7 +383,7 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
 
       // Log the server's response to understand what's going wrong
       const responseData = await response.json();
-      console.log("Server Response:", responseData);
+      // console.log("Server Response:", responseData);
 
       if (response.ok) {
         handleCloseModal();

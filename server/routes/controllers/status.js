@@ -4,7 +4,7 @@ const db = require("../config/db")
 const statusupdate = async (req, res) => {
   const { applicant_uuid, action, comments } = req.body;
 
-  console.log("Status update request received for applicant:", applicant_uuid, "with action:", action, "comments:", comments);
+  // console.log("Status update request received for applicant:", applicant_uuid, "with action:", action, "comments:", comments);
 
   try {
     // Assuming you're using a MySQL database connection (mysql2/promise)
@@ -16,7 +16,7 @@ const statusupdate = async (req, res) => {
     // Check if any rows were updated
     if (result.affectedRows > 0) {
       res.status(200).json({ message: 'Status and comments updated successfully.' });
-      console.log("Status and comments updated successfully.");
+      // console.log("Status and comments updated successfully.");
     } else {
       res.status(404).json({ error: 'Applicant not found.' });
     }
@@ -71,7 +71,7 @@ const getStatusCounts = async (req, res) => {
     res.status(200).json(rows);
   } catch (error) {
     // Handle any errors
-    console.error('SQL Error:', error.message);
+    // console.error('SQL Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -147,7 +147,7 @@ GROUP BY ar.status;
     // Send the response
     res.status(200).json({ total_count, status_counts: response });
   } catch (error) {
-    console.error('SQL Error:', error.message);
+    // console.error('SQL Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -214,18 +214,18 @@ GROUP BY ar.status;
         first_round_comments: row.first_round_comments ? row.first_round_comments.split('ॠ') : [],
         applicant_referrals_comments: row.applicant_referrals_comments ? row.applicant_referrals_comments.split('ॠ') : []  // Added applicant_referrals_comments
       }));
-      rows.forEach(row => {
-        console.log(row.notes);
+      // rows.forEach(row => {
+      //   console.log(row.notes);
         
-      });
-      rows.forEach(row => {
-        console.log(row.applicant_referrals_comments);
+      // });
+      // rows.forEach(row => {
+      //   console.log(row.applicant_referrals_comments);
         
-      });
-      rows.forEach(row => {
-        console.log(row.first_round_comments);
+      // });
+      // rows.forEach(row => {
+      //   console.log(row.first_round_comments);
         
-      });
+      // });
       // console.log(response.notes,'resssssssppp')
 
      
@@ -299,7 +299,7 @@ GROUP BY ar.status`;
         applicant_referrals_comments: row.applicant_referrals_comments ? row.applicant_referrals_comments.split('ॠ') : []  // Added applicant_referrals_comments
       }));
       
-      console.log(response,'donieee')
+      // console.log(response,'donieee')
 
      
       
@@ -420,7 +420,7 @@ const getStatusCountss = async (req, res) => {
 const updateComment = async (req, res) => {
   try {
     const { applicant_uuid, status, comment } = req.body;
-    console.log("Request Body:", req.body);
+    // console.log("Request Body:", req.body);
 
     if (!applicant_uuid || !status || !comment) {
       return res.status(400).json({ error: "Missing required fields." });
@@ -468,20 +468,20 @@ const updateComment = async (req, res) => {
     
 
     // Log the query and parameters to debug
-    console.log("Executing SQL Query:", updateQuery);
-    console.log("Query Params:", updateParams);
+    // console.log("Executing SQL Query:", updateQuery);
+    // console.log("Query Params:", updateParams);
 
     // Execute the update query
     const [result] = await db.query(updateQuery, updateParams);
 
     // Check if the query updated any rows
     if (result.affectedRows === 0) {
-      console.log("No rows updated. This may mean no applicant matched the provided UUID and status.");
+      // console.log("No rows updated. This may mean no applicant matched the provided UUID and status.");
       return res.status(404).json({ error: "No matching applicant found to update." });
     }
 
     // Return success response
-    console.log("Comment updated successfully.");
+    // console.log("Comment updated successfully.");
     res.status(200).json({ message: "Comment updated successfully." });
 
   } catch (error) {

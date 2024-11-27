@@ -41,6 +41,7 @@ const Markethome = () => {
     "Faizan Jiwani": "SACRAMENTO",
     "Hassan Saleem": "SAN DIEGO",
     "Kamaran Mohammed": "SAN FRANCISCO",
+    "EL Paso Market ":"EL Paso"
   };
 
   const userMarketLocation = userMarket[userData.name];
@@ -69,7 +70,7 @@ const Markethome = () => {
     }
 
     try {
-      console.log(jobDetails, "jbs");
+      // console.log(jobDetails, "jbs");
       const response = await axios.post(`${apiurl}/post-job`, jobDetails);
       if (response.status === 200) {
         toast.success(response.data.message);
@@ -95,6 +96,7 @@ const Markethome = () => {
       try {
         const response = await axios.get(`${apiurl}/getmarketjobs`);
         const data = response.data;
+        // console.log(data,"data of jobs")
         const filteredData = data.filter((val) => val.name === userMarketLocation);
         setMarkets(filteredData);
 

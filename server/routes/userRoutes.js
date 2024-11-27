@@ -13,7 +13,7 @@ const {ContractSign, getStatusCounts, getStatusCountss, statusupdate, getStatusC
 const assigningapplications = require('./controllers/assignapplicants');
 const { getApplicantDetailsByMobile } = require('./controllers/statusbypfone')
 const { downloadApplicantsData } = require('./controllers/downloadApplicantsData')
-const { getMarkets, postJob } = require("./controllers/marketController")
+const { getMarkets, postJob, getJobId, updateJobChosen } = require("./controllers/marketController")
 const { updatePassword } = require("./controllers/updatepass")
 const { trackingWork } = require("./controllers/tracking")
 const { getAllUsers } = require("./controllers/getroles")
@@ -61,6 +61,8 @@ module.exports = (io) => {
   router.get('/screening', getAllScreening);
   //Route to post job
   router.post('/post-job', postJob);
+  router.get('/get_jobId', getJobId);
+  router.put('/update_jobId', updateJobChosen);
   //Route to get all marketjobs
   router.get('/getmarketjobs', getMarkets)
 

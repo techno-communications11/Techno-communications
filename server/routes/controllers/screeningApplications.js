@@ -5,7 +5,7 @@ const getApplicantsForScreening = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        console.log('Fetching work locations for user:', userId);
+        // console.log('Fetching work locations for user:', userId);
 
         // Step 1: Get Work Locations for the User
         const [locationsResult] = await db.query(
@@ -37,7 +37,7 @@ const getApplicantsForScreening = async (req, res) => {
 
         // Extract unique user IDs
         const userIds = [...new Set(usersResult.map(user => user.user_id))];
-        console.log('User IDs:', userIds);
+        // console.log('User IDs:', userIds);
 
         if (userIds.length === 0) {
             return res.status(404).json({ message: 'No user IDs available for assignment.' });
@@ -100,7 +100,7 @@ const getApplicantsForScreening = async (req, res) => {
 
 const assignApplicantToUser = async (req, res) => {
     const { applicantId, newUserId } = req.body;  // Extract from request body
-    console.log(">>>>>>", applicantId, newUserId)
+    // console.log(">>>>>>", applicantId, newUserId)
     try {
         // Step 1: Check if the applicant exists
         const [applicantResult] = await db.query(
@@ -140,7 +140,7 @@ const assignApplicantToUser = async (req, res) => {
 
 const assignnewHr= async (req, res) => {
     const { applicantId, newUserId } = req.body;  // Extract from request body
-    console.log(">>>>>>", applicantId, newUserId)
+    // console.log(">>>>>>", applicantId, newUserId)
     try {
         // Step 1: Check if the applicant exists
         const [applicantResult] = await db.query(
@@ -180,7 +180,7 @@ const assignnewHr= async (req, res) => {
 
 const assignnewInterviewer = async (req, res) => {
     const { applicantId, newUserId } = req.body;  // Extract from request body
-    console.log(">>>>>>", applicantId, newUserId)
+    // console.log(">>>>>>", applicantId, newUserId)
     try {
         // Step 1: Check if the applicant exists
         const [applicantResult] = await db.query(

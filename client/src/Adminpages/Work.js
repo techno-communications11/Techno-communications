@@ -20,7 +20,7 @@ function IndividualPerformance() {
       try {
         const response = await axios.get(`${apiurl}/getAllUsers`);
         setUsers(response.data);
-        console.log(response.data);
+        // console.log(response.data);
       } catch (error) {
         console.error('Failed to fetch users:', error);
       }
@@ -33,12 +33,12 @@ function IndividualPerformance() {
     try {
       const startDate = dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : '';
       const endDate = dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : '';
-      console.log(`Selected User ID: ${selectedUserId}, Start Date: ${startDate}, End Date: ${endDate}`);
+      // console.log(`Selected User ID: ${selectedUserId}, Start Date: ${startDate}, End Date: ${endDate}`);
 
       const response = await axios.get(`${apiurl}/tracking/${startDate}/${endDate}/${selectedUserId}`);
       setPerformanceData(response.data.data);
       setCount(response.data.count);
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error) {
       console.error('Failed to fetch performance data:', error);
     }

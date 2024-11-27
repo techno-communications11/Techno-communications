@@ -63,7 +63,7 @@ const DetailCards = () => {
       const response = await axios.get(url);
       if (response.status === 200) {
         const details = response.data.status_counts;
-        console.log(details,'dts')
+        // console.log(details,'dts')
         setStatusCounts(deriveProfileStats(details));
       } else {
         console.error("Error fetching profiles:", response);
@@ -173,10 +173,10 @@ useEffect(() => {
                     : true; // Default to true if no date range is provided
             
             // Debugging output
-            console.log("Created Date:", createdDate.toISOString());
-            console.log("Start Date Obj:", startDateObj?.toISOString());
-            console.log("End Date Obj:", endDateObj?.toISOString());
-            console.log("In Date Range:", inDateRange);
+            // console.log("Created Date:", createdDate.toISOString());
+            // console.log("Start Date Obj:", startDateObj?.toISOString());
+            // console.log("End Date Obj:", endDateObj?.toISOString());
+            // console.log("In Date Range:", inDateRange);
             
 
             // Return profiles matching both filters

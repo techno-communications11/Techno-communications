@@ -27,7 +27,7 @@ function HrInterviewd() {
                 if (response.status === 200 && Array.isArray(response.data.rows)) {
                     // Assuming your array is inside response.data.rows
                     setProfiles(response.data.rows);
-                    console.log(response.data.rows)
+                    // console.log(response.data.rows)
                 } else {
                     console.error("Unexpected response structure:", response.data);
                     toast.error("Unexpected data format from server.");

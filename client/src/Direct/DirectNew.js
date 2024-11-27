@@ -71,7 +71,7 @@ function DirectNew() {
             const response = await fetch(`${apiurl}/getstatusnyphone/${mobileNumber}`);
             const data = await response.json();
             setApplicantDetails(data);
-            console.log('data', data);
+            // console.log('data', data);
         } catch (error) {
             console.error('Error fetching applicant details:', error);
         }
@@ -79,14 +79,14 @@ function DirectNew() {
 
     const handleProceed = (profileId) => {
         // Logic for proceeding the applicant, e.g., updating status
-        console.log('Proceed clicked for profile ID:', profileId);
+        // console.log('Proceed clicked for profile ID:', profileId);
         setapplicant_uuid(profileId)
         navigate("/hrinterview");
         // You can make an API call here to update the applicant status to 'Proceed'
     };
 
     const handleReject = async (applicant_uuid) => {
-        console.log("Rejecting applicant with UUID:", applicant_uuid);
+        // console.log("Rejecting applicant with UUID:", applicant_uuid);
         const action = "rejected at Screening";
 
         const payload = {
@@ -94,7 +94,7 @@ function DirectNew() {
             action,
         };
 
-        console.log("Payload for rejection:", payload);
+        // console.log("Payload for rejection:", payload);
         try {
             const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
 

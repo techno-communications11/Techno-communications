@@ -48,7 +48,7 @@ function SelectedAtHr() {
   const [selectedMarket1, setSelectedMarket1] = useState([]);
   const [marketFilter1, setMarketFilter1] = useState([]);
   const [selectedMarket2, setSelectedMarket2] = useState([]);
-  const [marketFilter2, setMarketFilter2] = useState([]);
+  // const [marketFilter2, setMarketFilter2] = useState([]);
   const userData = decodeToken()?.name;
   const role = decodeToken()?.role;
   const userMarket = {
@@ -66,7 +66,7 @@ function SelectedAtHr() {
     "Kamaran Mohammed": "SAN FRANCISCO",
   };
   const tokenMarket = userMarket[userData]?.toLowerCase();
-  console.log(selectedMarket, selectedMarket1, selectedMarket2);
+  // console.log(selectedMarket, selectedMarket1, selectedMarket2);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -81,7 +81,7 @@ function SelectedAtHr() {
     const fetchApplicantsData = async () => {
       try {
         const response = await axios.get(`${apiurl}/applicants/selected-at-hr`);
-        console.log(response.data.data, "redd");
+        // console.log(response.data.data, "redd");
         if (response.status === 200) {
           setData(response.data.data);
           setFilteredData(response.data.data);
@@ -120,7 +120,7 @@ function SelectedAtHr() {
         // Check if either `MarketHiringFor` or `TrainingAt` matches `tokenMarket`
         return marketValue.includes(lowerCaseTokenMarket);
       });
-      console.log("Filtered by tokenMarket (MarketHiringFor or TrainingAt):", updatedData);
+      // console.log("Filtered by tokenMarket (MarketHiringFor or TrainingAt):", updatedData);
     } else {
       // First filter: `marketFilter` on `MarketHiringFor` and `TrainingAt`
       if (marketFilter.length > 0) {
@@ -133,7 +133,7 @@ function SelectedAtHr() {
             (filter) => marketValue.includes(filter)
           );
         });
-        console.log("After First Market Filter (MarketHiringFor and TrainingAt):", updatedData);
+        // console.log("After First Market Filter (MarketHiringFor and TrainingAt):", updatedData);
       }
   
       // Second filter: `marketFilter1` on `MarketHiringFor` and `TrainingAt`
@@ -147,7 +147,7 @@ function SelectedAtHr() {
             (filter) => marketValue.includes(filter)
           );
         });
-        console.log("After Second Market Filter (MarketHiringFor and TrainingAt):", updatedData);
+        // console.log("After Second Market Filter (MarketHiringFor and TrainingAt):", updatedData);
       }
     }
   
@@ -180,7 +180,7 @@ function SelectedAtHr() {
           return joiningDate >= new Date(adjustedStartDateUTC) && joiningDate <= new Date(adjustedEndDateUTC);
         });
   
-        console.log("After Date Filter:", updatedData);
+        // console.log("After Date Filter:", updatedData);
       }
     }
   
@@ -198,7 +198,7 @@ function SelectedAtHr() {
       }
     });
   
-    console.log("Final Filtered Data:", updatedData);
+    // console.log("Final Filtered Data:", updatedData);
   
     // Update filtered data state
     setFilteredData(updatedData);
@@ -247,12 +247,12 @@ function SelectedAtHr() {
   };
 
   const handleIconClick = async (applicant_uuid) => {
-    console.log("Icon clicked for applicant_uuid:", applicant_uuid);
+    // console.log("Icon clicked for applicant_uuid:", applicant_uuid);
 
     const newClickedIndexes = new Set(clickedIndexes);
 
     // Log the clickedIndexes set to ensure it contains the correct uuid
-    console.log("Previous clicked indexes:", clickedIndexes);
+    // console.log("Previous clicked indexes:", clickedIndexes);
 
     if (newClickedIndexes.has(applicant_uuid)) {
       newClickedIndexes.delete(applicant_uuid);
@@ -267,18 +267,18 @@ function SelectedAtHr() {
         return; // Exit early if no data exists for this uuid
       }
 
-      console.log("Row Data:", rowData);
+      // console.log("Row Data:", rowData);
 
       if (isValidRow(rowData)) {
         newClickedIndexes.add(applicant_uuid);
 
         const { ntidCreated, ntidCreatedDate, ntid, addedToSchedule } = rowData;
-        console.log("Data to send:", {
-          ntidCreated,
-          ntidCreatedDate,
-          ntid,
-          addedToSchedule,
-        });
+        // console.log("Data to send:", {
+        //   ntidCreated,
+        //   ntidCreatedDate,
+        //   ntid,
+        //   addedToSchedule,
+        // });
 
         try {
           const response = await axios.post(`${apiurl}/ntids`, {
@@ -328,7 +328,7 @@ function SelectedAtHr() {
         applicant_uuid: applicant_uuid,
         action,
       };
-      console.log(payload, "payload");
+      // console.log(payload, "payload");
 
       try {
         const res = await axios.post(

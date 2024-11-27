@@ -99,7 +99,7 @@ const DetailedView = () => {
             const response = await axios.get(url, { params });
             if (response.status === 200) {
                 const details = response.data.status_counts;
-                console.log("details", details)
+                // console.log("details", details)
                 setSelectedProfiles(details || []);
                 setIsFilterApplied(
                     selectedMarkets.length > 0 || selectedCategory || selectedStatus.length > 0 || selectedUsers.length > 0 || (dateRange[0] && dateRange[1])
@@ -117,7 +117,7 @@ const DetailedView = () => {
 
     const handleLocationChange = (event) => {
         const { value, checked } = event.target;
-        console.log("cheking", value, checked)
+        // console.log("cheking", value, checked)
         if (checked) {
             setSelectedMarkets((prevSelected) => {
                 return [...prevSelected, value]; // Add the selected market
@@ -296,7 +296,7 @@ const DetailedView = () => {
         boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
         borderColor: '#007bff',
     };
-    console.log("uniqueFlattenedProfiles", uniqueFlattenedProfiles)
+    // console.log("uniqueFlattenedProfiles", uniqueFlattenedProfiles)
     const profileStats = uniqueFlattenedProfiles.reduce((acc, profile) => {
         acc[profile.status] = (acc[profile.status] || 0) + 1;
         return acc;

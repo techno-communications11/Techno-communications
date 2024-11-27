@@ -44,12 +44,12 @@ function New() {
   // const [selectedProfile, setSelectedProfile] = useState(null);
 
   const newcount = profiles.length
-  console.log("newcount", newcount)
+  // console.log("newcount", newcount)
 
   localStorage.setItem("newcount", newcount)
 
   const apiurl = process.env.REACT_APP_API;
-  const HrData = decodeToken();
+  // const HrData = decodeToken();
 
   const fetchData = async (url, setData, errorMessage) => {
     try {
@@ -91,7 +91,7 @@ function New() {
         });
 
         setProfiles(response.data)
-        console.log(profiles, "profoilesssssssssssssssssssssssssssswfhwbfh")
+        // console.log(profiles, "profoilesssssssssssssssssssssssssssswfhwbfh")
 
       } catch (error) {
         setError('Failed to fetch profiles. Please try again later.', error);
@@ -113,7 +113,7 @@ function New() {
   };
 
   const handleShowModal = (profile) => {
-    console.log("profile>>>>", profile);
+    // console.log("profile>>>>", profile);
     setSelectedProfile(profile);
 
     // Check if the email is null, undefined, or an empty string
@@ -127,10 +127,10 @@ function New() {
   };
 
 
-  const handleShowNext = () => {
-    setShowDateModel(true);
-    setShowCalendlyModal(false);
-  }
+  // const handleShowNext = () => {
+  //   setShowDateModel(true);
+  //   setShowCalendlyModal(false);
+  // }
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -168,7 +168,7 @@ function New() {
       action: actionToPerform,
       comments: comment
     };
- console.log(payload,"payload")
+//  console.log(payload,"payload")
     try {
       const response = await axios.post(`${apiurl}/updatestatus`, payload, {
         headers: getAuthHeaders(),
@@ -206,9 +206,9 @@ function New() {
 
     if (selected) {
       const newUserId = selected.id;
-      console.log(newUserId, "<<<<<<<<<<newUserId", applicant_uuid)
+      // console.log(newUserId, "<<<<<<<<<<newUserId", applicant_uuid)
       try {
-        console.log("apiurl>>>>>>", apiurl)
+        // console.log("apiurl>>>>>>", apiurl)
         const response = await axios.post(`${apiurl}/assignapplicanttoUser`, {
           newUserId: newUserId,
           applicantId: applicant_uuid
@@ -246,7 +246,7 @@ function New() {
       });
 
       if (response.status === 200) {
-        console.log(formData);
+        // console.log(formData);
         console.log("Message from server:", response.data.message); // Access message from response.data
         toast.success(response.data.message);
         setSelectedDateTime("")// Display the message from server
@@ -312,7 +312,7 @@ function New() {
       return; // Stop execution if the email is invalid
     }
 
-    console.log(payload, "update email");
+    // console.log(payload, "update email");
 
     try {
       const response = await axios.post(`${apiurl}/updateemail`, payload, {

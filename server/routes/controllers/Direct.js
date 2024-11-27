@@ -23,15 +23,15 @@ const DirectReferal = async (req, res) => {
     const currentYear = new Date().getFullYear();
     const uuid = generateShortID(name, phone, currentYear);
 
-    console.log(
-      "Submitting applicant referral:",
-      name,
-      email,
-      phone,
-      referred_by,
-      reference_id,
-      assign_to
-    );
+    // console.log(
+    //   "Submitting applicant referral:",
+    //   name,
+    //   email,
+    //   phone,
+    //   referred_by,
+    //   reference_id,
+    //   assign_to
+    // );
 
     // Insert the applicant details into the applicant_referrals table
     const result = await db.query(
@@ -65,7 +65,7 @@ const getApplicantsForDirect = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    console.log("Fetching applicants for user:", userId);
+    // console.log("Fetching applicants for user:", userId);
 
     // Step 1: Fetch Applicants assigned to the user by assigned_user_id
     const [directApplicants] = await db.query(
@@ -89,9 +89,9 @@ const getApplicantsForDirect = async (req, res) => {
     );
 
     // Step 2: Fetch Work Locations for the user
-    console.log(
-      "No applicants directly assigned, falling back to work location logic."
-    );
+    // console.log(
+    //   "No applicants directly assigned, falling back to work location logic."
+    // );
 
     const [locationsResult] = await db.query(
       `SELECT wl.id AS work_location_id
@@ -192,7 +192,7 @@ const getApplicantsForDirect = async (req, res) => {
 const getWorkForLocDirect = async (req, res) => {
     try {
       const workLocation = 'Los Angeles'; // Directly assigning the work location value
-      console.log("Fetching applicants for work location:", workLocation);
+      // console.log("Fetching applicants for work location:", workLocation);
   
       // Fetch Applicants assigned to the specified work location
       const [directApplicants] = await db.query(
@@ -211,20 +211,20 @@ const getWorkForLocDirect = async (req, res) => {
                   work_location= ?`,
         [workLocation] // Use workLocation variable directly here
       );
-      console.log("Database Query Result:", directApplicants);
+      // console.log("Database Query Result:", directApplicants);
 
       if (!directApplicants || directApplicants.length === 0) {
-          console.log('No applicants found for work location:', workLocation);
+          // console.log('No applicants found for work location:', workLocation);
           return res.status(200).json([]); // Return empty array if no applicants found
       }
 
       // Log and return the list of applicants
-      console.log(directApplicants, 'Fetched applicants successfully');
+      // console.log(directApplicants, 'Fetched applicants successfully');
   
      
   
       // Log and return the list of applicants
-      console.log(directApplicants,'ddddddddddd');
+      // console.log(directApplicants,'ddddddddddd');
       return res.status(200).json(directApplicants);
     } catch (error) {
       console.error("Error fetching applicants:", error);
@@ -235,14 +235,14 @@ const getWorkForLocDirect = async (req, res) => {
   const getAllusersOFDirectHiring = async (req, res) => {
     try {
       const { assigned_user_id } = req.body; // Retrieve assigned_user_id from the client
-      console.log(req.body, "data taken from client as id");
+      // console.log(req.body, "data taken from client as id");
   
       if (!assigned_user_id) {
         console.error("assigned_user_id is required but not provided");
         return res.status(400).json({ error: "assigned_user_id is required" });
       }
   
-      console.log("Fetching applicants for assigned_user_id:", assigned_user_id);
+      // console.log("Fetching applicants for assigned_user_id:", assigned_user_id);
   
       // Step 1: Query to get applicant_uuid from applicant_referrals using assigned_user_id
       const [applicantReferralsData] = await db.query(
@@ -258,7 +258,7 @@ const getWorkForLocDirect = async (req, res) => {
   
       // If no applicant data is found for this assigned_user_id
       if (!applicantReferralsData || applicantReferralsData.length === 0) {
-        console.log("No applicants found for assigned_user_id:", assigned_user_id);
+        // console.log("No applicants found for assigned_user_id:", assigned_user_id);
         return res.status(200).json([]); // Return empty array if no applicants found
       }
   
@@ -288,7 +288,7 @@ const getWorkForLocDirect = async (req, res) => {
         return { ...applicant, hrevaluationData: relatedEvaluationData };
       });
   
-      console.log("Fetched applicants and evaluations successfully:", combinedData);
+      // console.log("Fetched applicants and evaluations successfully:", combinedData);
       return res.status(200).json(combinedData);
   
     } catch (error) {

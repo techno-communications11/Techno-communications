@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, TextField, Grid, Select, MenuItem, InputLabel, FormControl, OutlinedInput, Checkbox, ListItemText, Typography } from '@mui/material';
+import { Box, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody,  Grid, Select, MenuItem, InputLabel, FormControl, OutlinedInput, Checkbox, ListItemText, Typography } from '@mui/material';
 import axios from 'axios';
 
 const JobInfo = () => {
@@ -33,6 +33,7 @@ const JobInfo = () => {
             try {
                 const response = await axios.get(`${apiurl}/getmarketjobs`);
                 const data = response.data;
+                // console.log(data,'id of jobs for market');
                 setMarkets(data);
                 setFilteredMarkets(data); 
             } catch (error) {
@@ -167,21 +168,7 @@ const JobInfo = () => {
                         </FormControl>
                     </Grid>
 
-                    {/* <Grid item xs={12} sm={4}>
-                        <TextField
-                            label="Deadline"
-                            name="deadline"
-                            type="date"
-                            value={filters.deadline}
-                            onChange={handleFilterChange}
-                            fullWidth
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            sx={{ height: 40 }}
-                            size="small"
-                        />
-                    </Grid> */}
+                
                 </Grid>
 
                 {/* Table */}
@@ -189,21 +176,29 @@ const JobInfo = () => {
                     <Table>
                         <TableHead>
                             <TableRow sx={{ backgroundColor: '#E10174' }}>
-                                <TableCell><strong style={{ color: '#fff' }}>Market</strong></TableCell>
-                                <TableCell><strong style={{ color: '#fff' }}>Openings</strong></TableCell>
-                                <TableCell><strong style={{ color: '#fff' }}>Posted By</strong></TableCell>
-                                <TableCell><strong style={{ color: '#fff' }}>Created At</strong></TableCell>
-                                <TableCell><strong style={{ color: '#fff' }}>Deadline</strong></TableCell>
+                            <TableCell><strong style={{ color: '#fff' }}>SI No</strong></TableCell>
+                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Market</strong></TableCell>
+                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Openings</strong></TableCell>
+                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Posted By</strong></TableCell>
+                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Comments</strong></TableCell>
+                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Created At</strong></TableCell>
+                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Deadline</strong></TableCell>
+                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Filled</strong></TableCell>
+                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Need to be Filled</strong></TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {filteredMarkets.map((market) => (
+                            {filteredMarkets.map((market,index) => (
                                 <TableRow key={market.id}>
-                                    <TableCell>{market.name}</TableCell>
-                                    <TableCell>{market.openings}</TableCell>
-                                    <TableCell>{market.posted_by}</TableCell>
-                                    <TableCell>{new Date(market.created_at).toLocaleDateString('en-US')}</TableCell>
-                                    <TableCell>{new Date(market.deadline).toLocaleDateString('en-US')}</TableCell>
+                                     <TableCell className='text-center'>{index+1}</TableCell>
+                                    <TableCell className='text-center'>{market.name}</TableCell>
+                                    <TableCell className='text-center'>{market.openings}</TableCell>
+                                    <TableCell className='text-center'>{market.posted_by}</TableCell>
+                                    <TableCell className='text-center'>{market.comments||'-'}</TableCell>
+                                    <TableCell className='text-center'>{new Date(market.created_at).toLocaleDateString('en-US')}</TableCell>
+                                    <TableCell className='text-center'>{new Date(market.deadline).toLocaleDateString('en-US')}</TableCell>
+                                    <TableCell className='text-center'>{market.comments||'-'}</TableCell>
+                                    <TableCell className='text-center'>{market.comments||'-'}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

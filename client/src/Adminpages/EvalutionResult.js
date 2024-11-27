@@ -24,7 +24,7 @@ function EvalutionResult({ setTrainerCount }) {
                 });
 
                 if (response.status === 200) {
-                    console.log(">>", response.data)
+                    // console.log(">>", response.data)
                     setProfiles(response.data);
                     setTrainerCount(response.data.length); // Pass count back to HrTabs
                 }

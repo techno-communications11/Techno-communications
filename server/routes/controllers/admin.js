@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 
 const getAllUsersStatus = async (req, res) => {
-    console.log("Trying to get users status");
+    // console.log("Trying to get users status");
 
     try {
         const [rows] = await db.query(

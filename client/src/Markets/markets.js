@@ -13,7 +13,7 @@ const MarketJobOpenings = () => {
             try {
                 const response = await axios.get(`${apiurl}/getmarketjobs`);
                 const data = response.data;
-                console.log("data>>>", data)
+                // console.log("data>>>", data)
                 setMarkets(data);
             } catch (error) {
                 console.error('Error fetching market job openings:', error);

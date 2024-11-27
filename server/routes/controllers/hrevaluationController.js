@@ -21,6 +21,7 @@ const addHREvaluation = async (req, res) => {
         recommend_hiring,
         selectedEvalution,
         evaluationDate,
+        Job_id,
         offDays // Adding offDays to the body
     } = req.body;
 
@@ -53,8 +54,9 @@ const addHREvaluation = async (req, res) => {
                 reason_back_out,
                 selectedEvalution,
                 evaluationDate,
+                Job_id,
                 offDays  -- Include the new offDays column
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             [
                 applicantId,
                 market,
@@ -73,18 +75,19 @@ const addHREvaluation = async (req, res) => {
                 reasonBackOut,
                 selectedEvalution,
                 evaluationDate,
+                Job_id,
                 offDaysString // Save offDays as a comma-separated string
             ]
         );
 
-        console.log("HR evaluation inserted successfully. Result:", result);
+        // console.log("HR evaluation inserted successfully. Result:", result);
         const [dateUpdate] = await db.query(
             `UPDATE hrinterview
              SET updated_at = NOW()
              WHERE applicant_uuid = ?`,
             [applicantId]
         );
-        console.log(`updated_at  is for ${applicantId}`)
+        // console.log(`updated_at  is for ${applicantId}`)
         // Update applicant_referrals table with recommendation
         const valuesForUpdate = [recommend_hiring, applicantId];
         const [updateResult] = await db.query(
@@ -94,7 +97,7 @@ const addHREvaluation = async (req, res) => {
             valuesForUpdate
         );
 
-        console.log("Applicant referral updated successfully. Update result:", updateResult);
+        // console.log("Applicant referral updated successfully. Update result:", updateResult);
 
         // Check if recommend_hiring is "selected at Hr" and update hrinterview table if true
         if (recommend_hiring === "selected at Hr") {
@@ -106,7 +109,7 @@ const addHREvaluation = async (req, res) => {
                 hrInterviewValues
             );
 
-            console.log("HR interview updated successfully. Update result:", hrUpdateResult);
+            // console.log("HR interview updated successfully. Update result:", hrUpdateResult);
         }
         if (backOut === "Yes") {
             const backOutStatus = "backOut"
@@ -118,7 +121,7 @@ const addHREvaluation = async (req, res) => {
                 hrInterviewValues
             );
 
-            console.log("HR interview updated successfully. Update result:", hrUpdateResult);
+            // console.log("HR interview updated successfully. Update result:", hrUpdateResult);
         }
 
         // Send a success response

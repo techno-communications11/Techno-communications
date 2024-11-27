@@ -4,7 +4,7 @@ const db = require('../config/db');
 const assignApplicanttointerviewer = async (req, res) => {
   const { interviewer_id, applicant_uuid, time_of_interview } = req.body;
 
-  console.log("Assigning applicant to interviewer");
+  // console.log("Assigning applicant to interviewer");
 
   try {
     // Validate input
@@ -57,7 +57,7 @@ const assignApplicanttointerviewer = async (req, res) => {
 const assignApplicanttohr = async (req, res) => {
   const { hr_id, applicant_uuid, time_of_hrinterview } = req.body;
 
-  console.log("Assigning applicant to hr", hr_id, time_of_hrinterview, applicant_uuid);
+  // console.log("Assigning applicant to hr", hr_id, time_of_hrinterview, applicant_uuid);
 
 
 
@@ -109,7 +109,7 @@ const assignApplicanttohr = async (req, res) => {
 
 const assigntoTrainer = async (req, res) => {
   const { trainer_id, applicant_uuid } = req.body;
-  console.log("Trying to assign to trainer...", trainer_id, applicant_uuid);
+  // console.log("Trying to assign to trainer...", trainer_id, applicant_uuid);
 
   try {
     // Validate input

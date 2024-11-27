@@ -2,7 +2,7 @@ const db = require('../config/db'); // Your database configuration file
 
 const getApplicantDetailsByMobile = async (req, res) => {
     let { mobileNumber } = req.params; // Use let for reassignment
-    console.log("Received Mobile Number:", mobileNumber);
+    // console.log("Received Mobile Number:", mobileNumber);
 
     // Validate that the mobile number is provided
     if (!mobileNumber) {

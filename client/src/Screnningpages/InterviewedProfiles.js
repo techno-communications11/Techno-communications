@@ -5,8 +5,8 @@ import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import { Modal, Form, Dropdown } from 'react-bootstrap';
 // import DatePicker from 'react-datepicker';
 import { ToastContainer, toast } from 'react-toastify';
-import { IconButton, Tooltip } from '@mui/material';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import {  Tooltip } from '@mui/material';
+// import FilterListIcon from '@mui/icons-material/FilterList';
 import { DataGrid } from '@mui/x-data-grid';
 import Accordion from 'react-bootstrap/Accordion';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
@@ -64,7 +64,7 @@ export default function InterviewedProfiles() {
                 });
 
                 setProfiles(response.data);
-                console.log(response.data)
+                // console.log(response.data)
                 setFilteredProfiles(response.data);
             } catch (error) {
                 console.log(error);
@@ -107,9 +107,9 @@ export default function InterviewedProfiles() {
         fetchInterviewers();
     }, [apiurl, userData.id]);
 
-    const handleFilterClick = () => {
-        setShowFilterModal(true);
-    };
+    // const handleFilterClick = () => {
+    //     setShowFilterModal(true);
+    // };
 
 
     const fetchingresponse = async (applicantId) => {
@@ -120,7 +120,7 @@ export default function InterviewedProfiles() {
 
             // Check if the response status is 200 and data is an array with at least one element
             if (response.status === 200 && Array.isArray(response.data) && response.data.length > 0) {
-                console.log(response.data[0])
+                // console.log(response.data[0])
                 setFirstRound(response.data[0]);
                 setRow(response.data[0]);
                 setShowMoreModel(true);
@@ -128,7 +128,7 @@ export default function InterviewedProfiles() {
             } else {
                 // If no data found, set a message or handle it accordingly
                 setFirstRound({ message: "No data found" });
-                console.log("No data found");
+                // console.log("No data found");
                 setRow({ message: "null" });
             }
         } catch (err) {
@@ -136,7 +136,7 @@ export default function InterviewedProfiles() {
             if (err.response) {
                 toast.error("no previous records found")
                 // Server responded with a status other than 200
-                console.log("Error response:", err.response.status, err.response.data);
+                // console.log("Error response:", err.response.status, err.response.data);
             } else if (err.request) {
                 // Request was made but no response received
                 console.log("No response received", err.request);
@@ -209,14 +209,14 @@ export default function InterviewedProfiles() {
 
 
 
-    const handleShowNext = () => {
-        setShowDateModel(true);
-        setShowModal(false);
+    // const handleShowNext = () => {
+    //     setShowDateModel(true);
+    //     setShowModal(false);
 
-    };
+    // };
     const handleDateTimeSave = async () => {
-        console.log(selectedHost, 'hosts');
-        console.log(selectedDateTime, selectedProfile.applicant_uuid);
+        // console.log(selectedHost, 'hosts');
+        // console.log(selectedDateTime, selectedProfile.applicant_uuid);
 
         if (!selectedDateTime) {
             toast.error('Please select a date and time.');
@@ -232,7 +232,7 @@ export default function InterviewedProfiles() {
         try {
             const hrNames = hrs.map(hr => hr.name);
 
-            console.log("selectedHost.name..................", selectedHost.name)
+            // console.log("selectedHost.name..................", selectedHost.name)
             const url = hrNames.includes(selectedHost.name)
                 ? `${apiurl}/assigntohr`
                 : `${apiurl}/assign-interviewer`;
@@ -241,20 +241,20 @@ export default function InterviewedProfiles() {
                 applicant_uuid: selectedProfile ? selectedProfile.applicant_uuid : null,
 
             };
-            console.log(hrs, "hrsssssssssssssss....")
+            // console.log(hrs, "hrsssssssssssssss....")
             // Dynamically add hr_id or interviewer_id based on the condition
             if (hrNames.includes(selectedHost.name)) {
-                console.log(hrs, "hrsssssssssssssss....", selectedHost.name);
+                // console.log(hrs, "hrsssssssssssssss....", selectedHost.name);
                 payload.hr_id = selectedHost ? selectedHost.id : null;
                 payload.time_of_hrinterview = selectedDateTime ? selectedDateTime.toISOString() : null;
-                console.log("hrs table payload", payload, url);
-                console.log("payload category", payload, url);
+                // console.log("hrs table payload", payload, url);
+                // console.log("payload category", payload, url);
 
             } else {
                 payload.interviewer_id = selectedHost ? selectedHost.id : null;
                 payload.time_of_interview = selectedDateTime ? selectedDateTime.toISOString() : null
-                console.log("interviewer table paload")
-                console.log("palyed catogory", payload, url)
+                // console.log("interviewer table paload")
+                // console.log("palyed catogory", payload, url)
             }
 
             const response = await axios.post(url, payload, {

@@ -3,12 +3,12 @@ const db = require('../config/db'); // Import database connection
 
 const createUser = async (req, res) => {
 
-    console.log("create user Api called")
+    // console.log("create user Api called")
 
     const { name, email, phone, work_location_id, role } = req.body; // Get user details from the request body
     const salt = await bcrypt.genSalt(10);
     const password = await bcrypt.hash("password123", salt);
-    console.log("userDetails:", name, email, password, role)
+    // console.log("userDetails:", name, email, password, role)
 
     try {
         // Insert user into the database

@@ -1,25 +1,25 @@
 
-import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { MyContext } from '../pages/MyContext';
+// import { MyContext } from '../pages/MyContext';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import decodeToken from '../decodedDetails';
-import { Button, Dropdown } from 'react-bootstrap'; // Using React Bootstrap for dropdown
-import { IconButton } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person'; // Material-UI icon
+import {  Dropdown } from 'react-bootstrap'; // Using React Bootstrap for dropdown
+// import { IconButton } from '@mui/material';
+// import PersonIcon from '@mui/icons-material/Person'; // Material-UI icon
 import { Assignment } from '@mui/icons-material'; // Assignment icon
 import { toast, ToastContainer } from 'react-toastify';
 import { TableCell, Box, Avatar, Typography } from '@mui/material';
 
 function HrPrendings() {
   const apiurl = process.env.REACT_APP_API;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const userData = decodeToken();
   const [profiles, setProfiles] = useState([]);
   const [hrs, setHrs] = useState([]); // State to store HRs
-  const { setapplicant_uuid } = useContext(MyContext);
-  const [selectedProfile, setSelectedProfile] = useState(null);
+  // const { setapplicant_uuid } = useContext(MyContext);
+  // const [selectedProfile, setSelectedProfile] = useState(null);
   const [ChangeScrenningMenu, setChangeScrenningMenu] = useState(false); // Show/Hide Dropdown
 
   // Fetch the applicants assigned for HR interviews
@@ -77,10 +77,10 @@ function HrPrendings() {
     }
   };
 
-  const handleInterviewClick = (profile) => {
-    setapplicant_uuid(profile.applicant_uuid);
-    navigate("/hrinterview");
-  };
+  // const handleInterviewClick = (profile) => {
+  //   setapplicant_uuid(profile.applicant_uuid);
+  //   navigate("/hrinterview");
+  // };
 
   const handleChangeScrenningToggle = (isOpen) => {
     setChangeScrenningMenu(isOpen);
@@ -94,9 +94,6 @@ function HrPrendings() {
             <tr>
               <th>S.No</th>
               <th>Applicant Details</th>
-             
-             
-
               <th>Staus</th>
               <th>HR</th>
               <th>Assign New HR</th>
@@ -106,9 +103,6 @@ function HrPrendings() {
             {profiles.map((profile, index) => (
               <tr key={profile.id}>
                 <td>{index + 1}</td>
-                
-              
-                
                 <TableCell>
                     <Box display="flex" alignItems="center">
                       <Avatar alt={profile.name} sx={{ backgroundColor: profile.avatarColor || '#3f51b5' }} />

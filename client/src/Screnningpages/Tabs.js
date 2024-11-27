@@ -49,11 +49,11 @@ export default function CenteredTabs() {
     const handleSearch = async () => {
         // Replace with the actual API call to fetch applicant details by mobile number
         try {
-            console.log("mobileNumber", mobileNumber)
+            // console.log("mobileNumber", mobileNumber)
             const response = await fetch(`${apiurl}/getstatusnyphone/${mobileNumber}`);
             const data = await response.json();
             setApplicantDetails(data);
-            console.log("data", data)
+            // console.log("data", data)
         } catch (error) {
             console.error('Error fetching applicant details:', error);
         }

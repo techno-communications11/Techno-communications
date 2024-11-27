@@ -22,7 +22,7 @@ const getApplicantsofScreening = async (req, res) => {
 
 
 
-        console.log('Locations Result:', locationsResult); // Debugging statement
+        // console.log('Locations Result:', locationsResult); // Debugging statement
 
         if (locationsResult.length === 0) {
             return res.status(404).json({ message: 'No locations found for the user.' });
@@ -30,7 +30,7 @@ const getApplicantsofScreening = async (req, res) => {
 
         // Extract location IDs
         const locationIds = locationsResult.map(location => location.work_location_id);
-        console.log(locationIds)
+        // console.log(locationIds)
         // Step 2: Get Applicants for These Locations
         const [applicantsResult] = await db.query(
             `SELECT 
@@ -55,7 +55,7 @@ const getApplicantsofScreening = async (req, res) => {
         }));
 
         // Log the formatted results (for debugging)
-        console.log(formattedApplicantsResult);
+        // console.log(formattedApplicantsResult);
 
         // Send the formatted data as the response
         res.status(200).json(formattedApplicantsResult);
@@ -69,7 +69,7 @@ const getApplicantsofScreening = async (req, res) => {
 const getApplicationforinterviewr = async (req, res) => {
 
     const { userId } = req.params;
-    console.log("trying get applicants for interviewer......")
+    // console.log("trying get applicants for interviewer......")
     try {
         // Step 1: Get Work Locations for the User
         const [applicantsResult] = await db.query(
@@ -103,7 +103,7 @@ WHERE
 const getApplicationforhr = async (req, res) => {
 
     const { userId } = req.params;
-    console.log("trying get applicants for hr......11   ")
+    // console.log("trying get applicants for hr......11   ")
     try {
         // Step 1: Get Work Locations for the User
         const [applicantsResult] = await db.query(
@@ -130,7 +130,7 @@ JOIN
 
 };
 const getAllApplicationsForHR = async (req, res) => {
-    console.log("Trying to get applicants for all HRs with HR names...");
+    // console.log("Trying to get applicants for all HRs with HR names...");
 
     try {
         // Step 1: Get applicants for all HRs and include HR name from the users table
@@ -152,7 +152,7 @@ const getAllApplicationsForHR = async (req, res) => {
         );
 
         res.status(200).json(applicantsResult);
-        console.log(applicantsResult);
+        // console.log(applicantsResult);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: error.message });
@@ -191,7 +191,7 @@ JOIN
 const getApplicationforTrainer = (io) => async (req, res) => {
 
     const { userId } = req.params;
-    console.log(`trying get applicants for Trainer......for ${userId}`)
+    // console.log(`trying get applicants for Trainer......for ${userId}`)
     try {
         // Step 1: Get Work Locations for the User
         const [applicantsResult] = await db.query(
@@ -211,7 +211,7 @@ WHERE
         );
 
         res.status(200).json(applicantsResult);
-        console.log(applicantsResult)
+        // console.log(applicantsResult)
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: error.message });
@@ -221,7 +221,7 @@ WHERE
 
 const gertrainerfeedbackapplicants = (io) => async (req, res) => {
     const { userId } = req.params;
-    console.log("Trying to get applicants for HR trained applicants...");
+    // console.log("Trying to get applicants for HR trained applicants...");
 
     try {
         // Step 1: Get applicants based on status and HR ID
@@ -242,10 +242,10 @@ const gertrainerfeedbackapplicants = (io) => async (req, res) => {
         );
 
         const count = applicantsResult.length;
-        console.log(count, "Counting applicants...");
+        // console.log(count, "Counting applicants...");
         io.emit('trainerfeedbackcount', count);
         res.status(200).json(applicantsResult);
-        console.log(applicantsResult);
+        // console.log(applicantsResult);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: error.message });
@@ -254,7 +254,7 @@ const gertrainerfeedbackapplicants = (io) => async (req, res) => {
 
 
 const getAllTrainerFeedbackApplicants = (io) => async (req, res) => {
-    console.log("Trying to get applicants for all HRs with HR names...");
+    // console.log("Trying to get applicants for all HRs with HR names...");
 
     try {
         // Step 1: Get applicants based on status and include HR name from the users table
@@ -278,10 +278,10 @@ const getAllTrainerFeedbackApplicants = (io) => async (req, res) => {
         );
 
         const count = applicantsResult.length;
-        console.log(count, "Counting all HR applicants...");
+        // console.log(count, "Counting all HR applicants...");
         io.emit('allTrainerFeedbackCount', count);  // Emit the count of applicants for all HRs
         res.status(200).json(applicantsResult);
-        console.log(applicantsResult);
+        // console.log(applicantsResult);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: error.message });

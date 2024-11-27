@@ -64,7 +64,7 @@ function ScreeningHome() {
   // Handle click on a card to show detailed information
   const handleShow = (status) => {
     try {
-      console.log(status);
+      // console.log(status);
       setCaptureStatus(status);
       navigate('/detailview');
     } catch (error) {

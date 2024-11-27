@@ -14,7 +14,7 @@ const ApplicantForm = ({
   const navigate = useNavigate();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const handleShow = () => setShowConfirmation(true);
+  // const handleShow = () => setShowConfirmation(true);
   const handleClose = () => setShowConfirmation(false);
 
   const handleConfirm = () => {
@@ -165,12 +165,12 @@ const ApplicantForm = ({
   };
 
   const handleSubmit = async (event) => {
-    console.log("cliked", applicantEmail);
+    // console.log("cliked", applicantEmail);
     event.preventDefault();
 
     const validationErrors = validateForm();
     setErrors(validationErrors);
- console.log(formData,'fmd')
+//  console.log(formData,'fmd')
 
     try {
       const response = await axios.post(
@@ -183,7 +183,7 @@ const ApplicantForm = ({
 
       if (response.status === 200) {
         toast.success("response submitted successfully!");
-        console.log(formData);
+        // console.log(formData);
         setTimeout(() => {
           // setShowToast(true);
           naviagte("/interviewhome");
@@ -198,7 +198,7 @@ const ApplicantForm = ({
     }
   };
   const noshowatinterview = async (applicant_uuid) => {
-    console.log("status....", applicant_uuid);
+    // console.log("status....", applicant_uuid);
 
     // Create the payload object to be sent in the request
     const payload = {
@@ -206,7 +206,7 @@ const ApplicantForm = ({
       action: "no show at Interview",
       // Include other data if needed, such as a comment
     };
-    console.log("status....", applicant_uuid, payload.action);
+    // console.log("status....", applicant_uuid, payload.action);
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API}/updatestatus`,

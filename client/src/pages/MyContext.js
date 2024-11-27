@@ -8,9 +8,9 @@ export const MyProvider = ({ children }) => {
   const [captureDate, setCaptureDate] = useState([dayjs().subtract(7, 'day'), dayjs()]);
   const [markets, setMarkets] = useState([]);
 
-  useEffect(() => {
-    console.log(captureStatus, 'myc'); // Logs only when `captureStatus` changes
-  }, [captureStatus]);
+  // useEffect(() => {
+  //   console.log(captureStatus, 'myc'); // Logs only when `captureStatus` changes
+  // }, [captureStatus]);
 
   localStorage.setItem("markets", markets);
 

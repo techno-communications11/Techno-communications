@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 // Controller to create a new NTID entry
 const createNtid = async (req, res) => {
-    console.log("Trying to create a new NTID entry>>>>>>>");
+    // console.log("Trying to create a new NTID entry>>>>>>>");
 
     // Destructure the data from the request body
     const { ntidCreated, ntidCreatedDate, ntid, addedToSchedule, markAsAssigned, applicant_uuid } = req.body;
@@ -60,7 +60,7 @@ const createNtid = async (req, res) => {
 
 
 const getSelectedAtHr = async (req, res) => {
-    console.log("Trying to get all selected applicants at HR stage");
+    // console.log("Trying to get all selected applicants at HR stage");
 
     try {
         // Query to select relevant data from hrevaluation, applicant_referrals, and ntids tables

@@ -2,7 +2,7 @@ const db = require('../config/db'); // Your database configuration file
 
 
 const trackingWork = async (req, res) => {
-    console.log("hi trackijnf")
+    // console.log("hi trackijnf")
     const { startDate, endDate, userId } = req.params; // Use req.query to extract query parameters
 
     if (!startDate || !endDate || !userId) {

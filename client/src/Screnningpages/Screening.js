@@ -65,7 +65,7 @@ function Screening() {
         reference_id: referenceNtidRef.current.value,
         sourcedBy: userData.name,  // Directly assign the userData.name here
       };
-      console.log(formData);
+      // console.log(formData);
 
       const response = await axios.post(`${apiUrl}/submit`, formData);
 

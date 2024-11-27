@@ -3,7 +3,7 @@ import Form from "react-bootstrap/Form";
 import axios from "axios";
 import { Container, Row, Col } from "react-bootstrap";
 import job from '../pages/images/4882404.jpg'
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "@mui/material";
 import Swal from "sweetalert2";
@@ -61,7 +61,7 @@ function PublicFixedLocation() {
         reference_id: referenceNtidRef.current.value, // No validation on reference_id
       };
   
-      console.log(formData, "Submitting data");
+      // console.log(formData, "Submitting data");
   
       // Send the data to the backend using axios
       const response = await axios.post(`${apiUrl}/submit`, formData);
@@ -106,7 +106,7 @@ function PublicFixedLocation() {
   
 
  
-  console.log(location.pathname);
+  // console.log(location.pathname);
   
   return (
     <Container fluid>

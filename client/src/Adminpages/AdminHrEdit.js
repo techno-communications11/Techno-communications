@@ -26,7 +26,7 @@ function AdminHrEdit() {
                 });
 
                 // Logging the full response
-                console.log("API response:", response);
+                // console.log("API response:", response);
 
                 // Validate the response structure
                 if (response.status === 200) {
@@ -36,13 +36,13 @@ function AdminHrEdit() {
                             index === self.findIndex((p) => p.applicant_id === profile.applicant_id)
                         );
                         setProfiles(uniqueProfiles);
-                        console.log("Unique profiles fetched:", uniqueProfiles);
+                        // console.log("Unique profiles fetched:", uniqueProfiles);
                     } else {
-                        console.error("Unexpected data format:", response.data);
+                        // console.error("Unexpected data format:", response.data);
                         toast.error("Unexpected data format from server.");
                     }
                 } else {
-                    console.error("API responded with status:", response.status);
+                    // console.error("API responded with status:", response.status);
                     toast.error("Failed to fetch profiles. Status: " + response.status);
                 }
             } catch (err) {

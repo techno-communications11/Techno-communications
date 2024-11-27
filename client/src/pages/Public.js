@@ -104,7 +104,7 @@ function Public() {
             referred_by: referredByRef.current.value,
             reference_id: referenceNtidRef.current.value,
         };
-        console.log(formData,'ffffffffeeeeeeeeeee');
+        // console.log(formData,'ffffffffeeeeeeeeeee');
 
         const response = await axios.post(`${apiUrl}/submit`, formData);
 

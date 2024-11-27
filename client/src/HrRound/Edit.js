@@ -1,24 +1,24 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router';
+import {  useLocation } from 'react-router';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import { Form, Row, Col, Button, Container } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Edit = () => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const location = useLocation(); // Used to access the profile passed from navigate()
     const { profile } = location.state || {}; // Accessing profile from passed state
     const apiurl = process.env.REACT_APP_API;
-    useEffect(() => {
-        if (profile) {
-            // Use the profile object, for example, log it or make use of its properties
-            console.log('Received profile:', profile);
-        } else {
-            console.error("No profile found in state");
-        }
-    }, [profile]);
+    // useEffect(() => {
+    //     if (profile) {
+    //         // Use the profile object, for example, log it or make use of its properties
+    //         // console.log('Received profile:', profile);
+    //     } else {
+    //         console.error("No profile found in state");
+    //     }
+    // }, [profile]);
     const [formData, setFormData] = useState({
         applicantId: profile.applicant_id || '',
         market: profile.market || '',

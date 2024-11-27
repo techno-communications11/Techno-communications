@@ -36,7 +36,7 @@ function StatsTicketView() {
 
   const myContext = useContext(MyContext);
   const { markets, captureStatus, captureDate } = myContext;
-  console.log(captureStatus,"caps")
+  // console.log(captureStatus,"caps")
 
   useEffect(() => {
     // First, use context values
@@ -420,7 +420,7 @@ function StatsTicketView() {
 
       // Log the server's response to understand what's going wrong
       const responseData = await response.json();
-      console.log("Server Response:", responseData);
+      // console.log("Server Response:", responseData);
 
       if (response.ok) {
         handleCloseModal();

@@ -21,7 +21,7 @@ function HrHome() {
       try {
         const data = await getStatusCounts();
         setStats(data);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.error("Error fetching status counts:", error);
       }
@@ -31,7 +31,7 @@ function HrHome() {
 
   const handleData = (status) => {
     try {
-      console.log(status);
+      // console.log(status);
       setCaptureStatus(status);
       navigate('/detailview');
     } catch (error) {
@@ -53,7 +53,7 @@ function HrHome() {
   
   
   
-  console.log(filteredStatuses);
+  // console.log(filteredStatuses);
   
   
 

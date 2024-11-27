@@ -12,7 +12,7 @@ const createApplicantReferral = async (req, res) => {
     const { name, email, phone, referred_by, reference_id, sourcedBy, work_location } = req.body;
     const currentYear = new Date().getFullYear();
     const uuid = generateShortID(name, phone, currentYear);
-    console.log("Trying to submit..........", name, email, phone, referred_by, reference_id, work_location);
+    // console.log("Trying to submit..........", name, email, phone, referred_by, reference_id, work_location);
 
     try {
         // Fetch the work location ID based on the location name
@@ -55,7 +55,7 @@ const createApplicantReferral = async (req, res) => {
 const updatemail = async (req, res) => {
     const { applicant_uuid, email } = req.body; // Ensure you receive the unique identifier (like applicant_uuid)
 
-    console.log(email, applicant_uuid);
+    // console.log(email, applicant_uuid);
 
     try {
         // Perform the SQL query to update the email in the applicant_referrals table

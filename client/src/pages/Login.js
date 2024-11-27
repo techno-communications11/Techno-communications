@@ -39,7 +39,7 @@ function Login() {
     // }
 
     setError('');
-    console.log(" api ===>", process.env.REACT_APP_API);
+    // console.log(" api ===>", process.env.REACT_APP_API);
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_API}/login`,
