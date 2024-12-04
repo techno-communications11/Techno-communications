@@ -10,7 +10,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-function NtidDashboard() {
+function Ntidboard() {
   const [selectedMarket, setSelectedMarket] = useState([]);
   const [isAllSelected, setIsAllSelected] = useState(true); // Select all by default
   const [MarketFilter, setMarketFilter] = useState([]);
@@ -261,4 +261,4 @@ function NtidDashboard() {
   );
 }
 
-export default NtidDashboard;
+export default Ntidboard;
