@@ -51,6 +51,8 @@ import JobInfo from "./Adminpages/JobInfo";
 import Tabls from "./Direct/Tabs";
 import Memphis from "../src/pages/Memphis";
 import ViewDetails from "./pages/ViewDetails";
+import NtidDashboard from "./Adminpages/NtidDashboard";
+import NTIDData from "./Adminpages/NTIDData";
 function App() {
   return (
     <Router>
@@ -103,6 +105,8 @@ function AppComponent() {
           <>
             {role === "admin" && (
               <>
+              <Route path="/ntiddata" element={<NTIDData/>}/>
+              <Route path="/ntidDboard" element={<NtidDashboard/>}/>
                 <Route path="/work" element={<Individual_performance />} />
                 <Route path="/jobinfo" element={<JobInfo />} />
                 <Route path="/adminTabs" element={<AdminTabs />} />

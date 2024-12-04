@@ -123,29 +123,37 @@ WHERE
 
 
 
-{/*
-    const getSelectedAtHr = async (req, res) => {
+
+    const getNtidDashboardCounts = async (req, res) => {
     console.log("Trying to get all selected applicants at HR stage");
 
     try {
         // Query to select relevant data from hrevaluation, applicant_referrals, and hrinterview tables
         const [applicants] = await db.query(
             `SELECT 
-                hrevaluation.market AS MarketHiringFor, 
-                hrevaluation.training_location AS TrainingAt, 
-                hrevaluation.joining_date AS DateOfJoining,
-                applicant_referrals.applicant_uuid AS applicant_uuid,
-                applicant_referrals.phone AS phone,
-                applicant_referrals.email AS email,
-                applicant_referrals.name AS name
-            FROM 
-                hrevaluation
-            INNER JOIN 
-                applicant_referrals ON hrevaluation.applicant_id = applicant_referrals.applicant_uuid
-            INNER JOIN 
-                hrinterview ON hrevaluation.applicant_id = hrinterview.applicant_uuid
-            WHERE 
-                hrinterview.status = "selected at Hr";`
+    h.applicant_id,
+    h.joining_date,
+    h.market,
+    h.contract_sined,
+    ar.status,
+    COALESCE(nt.ntid, 'N/A') AS ntid
+FROM 
+    hrevaluation h
+JOIN 
+    applicant_referrals ar 
+    ON h.applicant_id = ar.applicant_uuid
+LEFT JOIN 
+    ntids nt 
+    ON h.applicant_id = nt.applicant_uuid
+WHERE 
+    ar.status IN ('mark_assigned', 'selected at hr')
+GROUP BY 
+    h.applicant_id, 
+    ar.applicant_uuid, 
+    nt.ntid
+ORDER BY 
+    h.applicant_id;
+`
         );
 
         if (applicants.length === 0) {
@@ -162,8 +170,7 @@ WHERE
         return res.status(500).json({ error: error.message });
     }
 };
-*/}
 module.exports = {
     createNtid,
-    getSelectedAtHr
+    getSelectedAtHr,getNtidDashboardCounts
 };

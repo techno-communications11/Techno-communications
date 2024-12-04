@@ -38,6 +38,16 @@ function AdminHome() {
                                 JOB Openings
                             </Button>
                         </Grid>
+                        <Grid item>
+                            <Button
+                                variant="contained"
+                                component={Link}
+                                to="/ntidDboard"
+                                sx={{ backgroundColor: "#E10174", color: "white" }}
+                            >
+                                NTIDs Dashboard 
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Grid>
                 

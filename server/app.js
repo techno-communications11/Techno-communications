@@ -18,7 +18,7 @@ const server = http.createServer(app);
 // const io = socketIO(server);
 const io = socketIo(server, { // Initialize Socket.IO with server and CORS settings
   cors: {
-    origin: 'https://192.168.29.221/', // Replace with your frontend URL
+    origin: 'https://hiring.techno-communications.com/', // Replace with your frontend URL
     methods: ['GET', 'POST']
   }
 });

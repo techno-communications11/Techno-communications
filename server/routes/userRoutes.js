@@ -18,12 +18,13 @@ const { updatePassword } = require("./controllers/updatepass")
 const { trackingWork } = require("./controllers/tracking")
 const { getAllUsers } = require("./controllers/getroles")
 const { createUser } = require("./controllers/createUser")
-const { createNtid, getSelectedAtHr } = require("./controllers/ntids")
+const { createNtid, getSelectedAtHr, getNtidDashboardCounts } = require("./controllers/ntids")
 const { DirectReferal, getApplicantsForDirect,getWorkForLocDirect } = require('./controllers/Direct');
 const { formdetails, updateform ,formDetailsForAllHRs} = require('./controllers/Edit');
 const { updateComment }= require('./controllers/status');
 const {getAllusersOFDirectHiring}=require('./controllers/Direct')
 // const {ContractSign}=require('/./controllers/')
+getNtidDashboardCounts
 
 module.exports = (io) => {
  
@@ -32,6 +33,7 @@ module.exports = (io) => {
 
   // Route to get all selected applicants at HR stage
   router.get('/applicants/selected-at-hr', getSelectedAtHr);
+  router.get('/applicants/ntidDashboardCount', getNtidDashboardCounts);
   //Route to Create ntids
   router.post('/ntids', createNtid)
   router.get('/hrevalution/:hr_id', formdetails)

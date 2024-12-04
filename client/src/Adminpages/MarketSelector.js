@@ -55,11 +55,11 @@ const MarketSelector = ({ selectedMarket, smallerFormStyles,text, setSelectedMar
 
   return (
     <Dropdown>
-      <Dropdown.Toggle variant="transparent" className='bg-transparent text-secondary border-0' id="dropdown-basic">
+      <Dropdown.Toggle className='bg-transparent text-secondary border-0' id="dropdown-basic">
        {text}
       </Dropdown.Toggle>
 
-      <Dropdown.Menu   className="border-0 dropdown-menu"  style={{ ...smallerFormStyles, maxHeight: '300px', overflowY: 'auto',width: '20vw', padding:'2vw',zindex:1}}>
+      <Dropdown.Menu   className="border-1 dropdown-menu  p-1"  style={{ ...smallerFormStyles, maxHeight: '300px', overflowY: 'auto',width: '10vw',zindex:1}}>
         <Form.Control
           type="text"
           placeholder="Search..."
@@ -78,7 +78,7 @@ const MarketSelector = ({ selectedMarket, smallerFormStyles,text, setSelectedMar
           <Form.Check
             key={location.id}
             type="checkbox"
-            className="text-capitalize"
+            className="text-capitalize shadow-sm text-primary"
             label={location.name.toLowerCase()}
             value={location.name}
             checked={selectedMarket?.includes(location.name)}

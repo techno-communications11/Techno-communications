@@ -25,7 +25,7 @@ const Markethome = () => {
   const apiurl = process.env.REACT_APP_API;
   const userData = decodeToken();
   const [markets, setMarkets] = useState([]);
-  const [isMonthlyLimitReached, setIsMonthlyLimitReached] = useState(false);
+  // const [isMonthlyLimitReached, setIsMonthlyLimitReached] = useState(false);
   const [loading, setLoading] = useState(true); // Default to loading true
 
   const userMarket = {
@@ -49,7 +49,7 @@ const Markethome = () => {
   const [jobDetails, setJobDetails] = useState({
     location: userMarketLocation,
     openings: "",
-    comments: "",
+    // comments: "",
     deadline: "",
     posted_by: userData.name,
   });
@@ -64,10 +64,10 @@ const Markethome = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (isMonthlyLimitReached) {
-      toast.error("You can only post one job per month.");
-      return;
-    }
+    // if (isMonthlyLimitReached) {
+    //   toast.error("You can only post one job per month.");
+    //   return;
+    // }
 
     try {
       // console.log(jobDetails, "jbs");
@@ -77,7 +77,7 @@ const Markethome = () => {
         setJobDetails({
           location: userMarketLocation,
           openings: "",
-          commentss: "",
+          // commentss: "",
           deadline: "",
           posted_by: userData.name,
         });
@@ -96,7 +96,6 @@ const Markethome = () => {
       try {
         const response = await axios.get(`${apiurl}/getmarketjobs`);
         const data = response.data;
-        // console.log(data,"data of jobs")
         const filteredData = data.filter((val) => val.name === userMarketLocation);
         setMarkets(filteredData);
 
@@ -104,7 +103,7 @@ const Markethome = () => {
         const isPostedThisMonth = filteredData.some(
           (job) => new Date(job.created_at).getMonth() === currentMonth
         );
-        setIsMonthlyLimitReached(isPostedThisMonth);
+        // setIsMonthlyLimitReached(isPostedThisMonth);
         setLoading(false); // Set loading to false after data is fetched
       } catch (error) {
         console.error("Error fetching market job openings:", error);
@@ -154,7 +153,7 @@ const Markethome = () => {
                   variant="outlined"
                   required
                 />
-                <TextField
+                {/* <TextField
                   label="Comments"
                   name="comments"
                   value={jobDetails.comments}
@@ -165,7 +164,7 @@ const Markethome = () => {
                   margin="normal"
                   variant="outlined"
                   required
-                />
+                /> */}
                 <TextField
                   label="Application Deadline"
                   name="deadline"
@@ -187,9 +186,9 @@ const Markethome = () => {
                     mt: 2,
                     py: 1.5,
                     fontWeight: "bold",
-                    backgroundColor: isMonthlyLimitReached ? "grey" : "#1976d2",
+                    // backgroundColor: isMonthlyLimitReached ? "grey" : "#1976d2",
                   }}
-                  disabled={isMonthlyLimitReached}
+                  // disabled={isMonthlyLimitReached}
                 >
                   Post Job
                 </Button>
@@ -219,7 +218,7 @@ const Markethome = () => {
                       <TableCell>{market.name}</TableCell>
                       <TableCell>{market.openings}</TableCell>
                       <TableCell>{market.posted_by}</TableCell>
-                      <TableCell className="text-center">{market.comments ? market.comments : '-'}</TableCell>
+                      {/* <TableCell className="text-center">{market.comments ? market.comments : '-'}</TableCell> */}
                       <TableCell>{new Date(market.created_at).toLocaleDateString("en-US")}</TableCell>
                       <TableCell>{new Date(market.deadline).toLocaleDateString("en-US")}</TableCell>
                     </TableRow>

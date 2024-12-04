@@ -17,15 +17,9 @@ const Hrinterview = () => {
   const [errors, setErrors] = useState({});
   const [jobId,setJobId]=useState('')
 
-  // const handleShow = () => setShowConfirmation(true);
-  // useEffect(() => {
-  //   if (applicant_uuid && applicant_uuid.length > 0) {
-  //     sessionStorage.setItem("uuid", applicant_uuid);
-  //   }
-  // }, [applicant_uuid]);
+ 
   let applicant_uuidprops = applicant_uuid || sessionStorage.getItem('uuid');
   const role = userData.role
-  // console.log("applicant_uuid1111111111111111111111111", applicant_uuidprops, role)
   const handleClose = () => setShowConfirmation(false);
 
   const handleConfirm = () => {
@@ -111,7 +105,7 @@ const Hrinterview = () => {
     backOut: '',
     disclosed: '',
     reasonBackOut: '',
-    Job_id: '',
+    // Job_id: '',
     recommend_hiring: '',
     evaluationDate: '',
     offDays: [],
@@ -227,19 +221,15 @@ const Hrinterview = () => {
   };
 
   const handleSubmit = async (event) => {
-    // console.log("hi>>>")
     event.preventDefault();
     const formErrors = validateForm();
 
     if (Object.keys(formErrors).length > 0) {
-      // console.log(formErrors, 'hi checking')
       setErrors(formErrors);
       return;
     }
 
-    // console.log("formData", formData)
     try {
-      // console.log("starting...")
       const response = await axios.post(`${apiurl}/add-hrevaluation`, formData);
       setFormData({
         applicantId: '',
@@ -257,12 +247,12 @@ const Hrinterview = () => {
         backOut: '',
         disclosed: '',
         reasonBackOut: '',
-        Job_id:'',
+        // Job_id:'',
         recommend_hiring: '',
         evaluationDate: "",
       });
       // console.log("22starting...")
-      updateChoosen(jobId,"idssssssssss") 
+      // updateChoosen(jobId,"idssssssssss") 
       if (response.status === 200) {
        
         // console.log("api calling...")
@@ -284,32 +274,33 @@ const Hrinterview = () => {
   };
 
   useEffect(() => {
-    if (formData.recommend_hiring === 'selected at Hr' && jobId && formData.Job_id !== jobId) {
+    if (formData.recommend_hiring === 'selected at Hr'
+      //  && jobId
+      //  && formData.Job_id !== jobId
+      ) {
       setFormData(prevFormData => ({
         ...prevFormData,
-        Job_id: jobId,
+        // Job_id: jobId,
       }));
     }
   }, [jobId, formData.recommend_hiring]);
   
   
-  const updateChoosen = async (jobid) => {
-    // console.log(jobid,"idsjobs")
-    try {
-      // Ensure that `jobid` is not undefined or null
-      if (!jobid) {
-        console.error("Job ID is required but not provided.");
-        return;
-      }
+  // const updateChoosen = async (jobid) => {
+  //   try {
+  //     if (!jobid) {
+  //       console.error("Job ID is required but not provided.");
+  //       return;
+  //     }
   
-      const response = await axios.put(`${apiurl}/update_jobId?id=${jobid}`);
-      if (response.status === 200) {
-        console.log("Job chosen field updated");
-      }
-    } catch (error) {
-      console.error("Error fetching job ID:", error); // Log the error for debugging
-    }
-  }
+  //     const response = await axios.put(`${apiurl}/update_jobId?id=${jobid}`);
+  //     if (response.status === 200) {
+  //       console.log("Job chosen field updated");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching job ID:", error); // Log the error for debugging
+  //   }
+  // }
   
 
   useEffect(() => {
@@ -340,16 +331,13 @@ const Hrinterview = () => {
 
 
   const noshowatinterview = async (applicant_uuidprops, action) => {
-    // console.log("status....", applicant_uuidprops);
 
-    // Create the payload object to be sent in the request
     const payload = {
       applicant_uuid: applicant_uuidprops,
       action,
       // Include other data if needed, such as a comment
 
     };
-    // console.log("status....", applicant_uuidprops, payload.action);
     try {
       const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
 
@@ -376,27 +364,17 @@ const Hrinterview = () => {
     }
   };
   const [trainers, setTrainers] = useState([]);
-  const [trainerId, setTrainerId] = useState('');
-  const [selectedTrainerName, setSelectedTrainerName] = useState(null);
   const apiurl = process.env.REACT_APP_API; // Ensure this is set correctly
-  // const [showDropdown, setShowDropdown] = useState(true); // New state for controlling dropdown visibility
-  // const handleTrainerSelect = (eventKey) => {
-  //   const selectedTrainer = trainers.find(trainer => trainer.name === eventKey);
-  //   setSelectedTrainerName(selectedTrainer);
-  //   setTrainerId(selectedTrainer.id)
-    
-  // };
+  
 
   useEffect(() => {
     // Fetch trainers list when component mounts
     const fetchTrainers = async () => {
-      // console.log("trainers.................")
       try {
         const response = await axios.get(`${apiurl}/trainers`, {
           headers: getAuthHeaders(),
         });
         setTrainers(response.data);
-        console.log("traines........", trainers)
       } catch (error) {
         console.error('Error fetching trainers:', error);
       }
@@ -405,38 +383,11 @@ const Hrinterview = () => {
     fetchTrainers();
   }, [apiurl]);
 
-  // const sentForEvaluation = async () => {
-  //   if (!trainerId) {
-  //     alert('Please select a trainer.');
-  //     return;
-  //   }
-  //   console.log(`${applicant_uuidprops} assing to ${trainerId}`)
-  //   const payload = {
-  //     applicant_uuid: applicant_uuidprops,
-  //     trainer_id: trainerId,
-  //   };
-  //   // console.log('Payload of trainer details', payload);
+  
+ 
 
-  //   try {
-  //     const res = await axios.post(`${apiurl}/assign-trainer`, payload, {
-  //       headers: getAuthHeaders(),
-  //     });
 
-  //     if (res.status === 200) {
-  //       if (toast) {
-  //         toast.success(res.data.message);
-  //       } else {
-  //         console.error("Toast is undefined");
-  //       }
-  //       setShowDropdown(false); // Hide the dropdown after successful assignment
-  //       //  formData.recommend_hiring = ""; // Reset recommendation status if needed
-  //     } else {
-  //       alert('Failed to assign trainer.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error assigning trainer:', error);
-  //   }
-  // };
+ 
   const handleTimeTypeChange = (e) => {
     const { value } = e.target;
 
@@ -903,7 +854,7 @@ const Hrinterview = () => {
               />
             </Col>
           </Form.Group>
-          {formData.recommend_hiring === 'selected at Hr' && (
+          {/* {formData.recommend_hiring === 'selected at Hr' && (
   <Form.Group as={Row} className="mb-3">
     <Form.Label column sm={6} className="text-start">
       16. Job Id
@@ -923,7 +874,7 @@ const Hrinterview = () => {
       </Form.Control.Feedback>
     </Col>
   </Form.Group>
-)}
+)} */}
 
           {/* Submit Button */}
           <Form.Group as={Row} className="mb-3">
