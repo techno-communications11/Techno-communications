@@ -152,6 +152,7 @@ function NTIDData() {
             <tr>
               <th style={{ backgroundColor: "#E10174" }}>index</th>
               <th style={{ backgroundColor: "#E10174" }}>Applicant ID</th>
+              <th style={{ backgroundColor: "#E10174" }}>Name</th>
               <th style={{ backgroundColor: "#E10174" }}>Joining Date</th>
               <th style={{ backgroundColor: "#E10174" }}>Market</th>
               <th style={{ backgroundColor: "#E10174" }}>Contract Signed</th>
@@ -164,6 +165,7 @@ function NTIDData() {
               <tr key={item.applicant_id}>
                 <td>{index + 1}</td>
                 <td>{item.applicant_id}</td>
+                <td>{item.name}</td>
                 <td>{new Date(item.joining_date).toLocaleDateString()}</td>
                 <td>{item.market}</td>
                 <td>{item.contract_sined ? "Yes" : "No"}</td>

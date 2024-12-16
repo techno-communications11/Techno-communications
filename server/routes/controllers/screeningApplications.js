@@ -99,8 +99,8 @@ const getApplicantsForScreening = async (req, res) => {
 
 
 const assignApplicantToUser = async (req, res) => {
-    const { applicantId, newUserId } = req.body;  // Extract from request body
-    // console.log(">>>>>>", applicantId, newUserId)
+    const { applicantId, newUserId,comment } = req.body;  // Extract from request body
+    console.log(">>>>>>", applicantId, newUserId,comment)
     try {
         // Step 1: Check if the applicant exists
         const [applicantResult] = await db.query(
@@ -125,9 +125,9 @@ const assignApplicantToUser = async (req, res) => {
         // Step 3: Update the applicant assignment
         await db.query(
             `UPDATE applicant_referrals 
-             SET assigned_user_id = ? 
+             SET assigned_user_id = ? ,comments = ?
              WHERE applicant_uuid = ?`,
-            [newUserId, applicantId]
+            [newUserId, comment, applicantId]
         );
 
         res.status(200).json({ message: 'Applicant successfully assigned to the new user.' });

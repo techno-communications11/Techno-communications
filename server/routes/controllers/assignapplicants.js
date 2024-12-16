@@ -2,7 +2,9 @@
 const db = require('../config/db');
 
 const assignApplicanttointerviewer = async (req, res) => {
-  const { interviewer_id, applicant_uuid, time_of_interview } = req.body;
+  const { interviewer_id, applicant_uuid, time_of_interview,comment } = req.body;
+
+  console.log(req.body,"datattttttttttttttttt")
 
   // console.log("Assigning applicant to interviewer");
 
@@ -29,12 +31,14 @@ const assignApplicanttointerviewer = async (req, res) => {
     // Check if the insert or update was successful
     if (insertOrUpdateResult.affectedRows > 0) {
       // Update applicant status in the applicant_referrals table
-      const updateStatusQuery = `
-        UPDATE applicant_referrals
-        SET status = ?
-        WHERE applicant_uuid = ?
-      `;
-      const [updateStatusResult] = await db.query(updateStatusQuery, ["moved to Interview", applicant_uuid]);
+      // Update applicant status in the applicant_referrals table
+const updateStatusQuery = `
+UPDATE applicant_referrals
+SET status = ?, comments = ?
+WHERE applicant_uuid = ?
+`;
+const [updateStatusResult] = await db.query(updateStatusQuery, ["moved to Interview", comment, applicant_uuid]);
+
 
       if (updateStatusResult.affectedRows > 0) {
         res.status(200).json({ message: "Applicant assigned to interviewer successfully and applicant status updated" });

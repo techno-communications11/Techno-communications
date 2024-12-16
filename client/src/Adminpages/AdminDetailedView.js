@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, Row, Col, Modal, Table, Container,Spinner } from 'react-bootstrap';
+import {  Modal, Container, } from 'react-bootstrap';
 import { jwtDecode } from 'jwt-decode';  // Fix import for jwtDecode
 import AdminFilters from './AdminFilters';
 import AdminStatusCards from './AdminStatusCards';
-import Button from '@mui/material/Button';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+
 import { toast, ToastContainer } from 'react-toastify';
 import CanvasJSReact from '@canvasjs/react-charts';
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
@@ -17,7 +16,6 @@ function AdminDetailedView() {
   const [modalTitle, setModalTitle] = useState('');
   const [profiles, setProfiles] = useState([]);
   const [total, setTotal] = useState(0);
-  const [statusRes, setStatusRes] = useState([]);
   const [showPieModal, setShowPieModal] = useState(false);
   const token = localStorage.getItem('token');
   const [dateRange, setDateRange] = useState([null, null]);

@@ -136,6 +136,7 @@ WHERE
     h.market,
     h.contract_sined,
     ar.status,
+    ar.name,
     COALESCE(nt.ntid, 'N/A') AS ntid
 FROM 
     hrevaluation h

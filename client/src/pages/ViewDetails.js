@@ -522,10 +522,8 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                     >
                       {indexOfFirstProfile + index + 1}
                     </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.created_at_date.slice(0,10) || "N/A"}
+                    <TableCell>
+                      {profile.created_at_date.slice(0,10)}
                     </TableCell>
                     <TableCell
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
