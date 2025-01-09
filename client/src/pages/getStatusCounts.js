@@ -10,7 +10,6 @@ const getStatusCounts = async () => {
 
     if (response.status === 200) {
       return response.data; // Return the data if the request is successful
-      // console.log(response.data,"alll statusss.....")
     }
 
     throw new Error('Unexpected response status'); // Throw an error for unexpected status

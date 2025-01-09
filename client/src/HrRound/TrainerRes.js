@@ -4,7 +4,7 @@ import decodeToken from '../decodedDetails';
 import axios from 'axios';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import { toast, ToastContainer } from 'react-toastify';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button,Table } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button as MuiButton } from '@mui/material';
 
@@ -67,7 +67,7 @@ function TrainerRes({ setTrainerCount }) {
     return (
         <div>
             <div className="col-12 container w-80">
-                <table className="table table-striped">
+                <Table className="table table-striped table-sm">
                     <thead>
                         <tr>
                             <th style={{backgroundColor:'#E10174'}}>S.No</th>
@@ -80,11 +80,11 @@ function TrainerRes({ setTrainerCount }) {
                     <tbody>
                         {profiles.map((profile, index) => (
                             <tr key={profile.id}>
-                                <td>{index + 1}</td>
-                                <td>{profile.applicant_name}</td>
-                                <td>{profile.applicant_uuid}</td>
-                                <td>{profile.applicant_status}</td>
-                                <td>
+                                <td className='p-2'>{index + 1}</td>
+                                <td className='p-2'>{profile.applicant_name}</td>
+                                <td className='p-2'>{profile.applicant_uuid}</td>
+                                <td className='p-2'>{profile.applicant_status}</td>
+                                <td className='p-2'>
                                     <MuiButton
                                         style={{backgroundColor:'#E10174'}} className='text-white'
                                         onClick={() => handleActionClick(profile, 'Selected')}
@@ -101,7 +101,7 @@ function TrainerRes({ setTrainerCount }) {
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </Table>
             </div>
 
             <Modal show={showModal} onHide={() => setShowModal(false)}>

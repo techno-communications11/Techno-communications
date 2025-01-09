@@ -25,7 +25,6 @@ const Markethome = () => {
   const apiurl = process.env.REACT_APP_API;
   const userData = decodeToken();
   const [markets, setMarkets] = useState([]);
-  // const [isMonthlyLimitReached, setIsMonthlyLimitReached] = useState(false);
   const [loading, setLoading] = useState(true); // Default to loading true
 
   const userMarket = {

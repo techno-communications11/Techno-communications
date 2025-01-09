@@ -4,7 +4,7 @@ import axios from 'axios';
 import { MyContext } from '../pages/MyContext';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import decodeToken from '../decodedDetails';
-import { Button, Dropdown ,Modal} from 'react-bootstrap'; // Using React Bootstrap for dropdown
+import { Button, Dropdown ,Modal,Table} from 'react-bootstrap'; // Using React Bootstrap for dropdown
 import { Assignment } from '@mui/icons-material'; // Assignment icon
 import { toast, ToastContainer } from 'react-toastify';
 
@@ -90,7 +90,7 @@ function HrNew() {
   return (
     <div className="container">
       <div className="col-12 container w-80">
-        <table className="table table-striped">
+        <Table className="table table-striped table-sm">
           <thead>
             <tr>
               <th style={{backgroundColor:'#E10174'}}>S.No</th>
@@ -104,11 +104,11 @@ function HrNew() {
           <tbody>
             {profiles.map((profile, index) => (
               <tr key={profile.id}>
-                <td>{index + 1}</td>
-                <td>{profile.applicant_name}</td>
-                <td>{profile.applicant_uuid}</td>
-                <td>{new Date(profile.time_of_hrinterview).toLocaleString('en-US', { hour12: true })}</td>
-                <td>
+                <td className='p-2'>{index + 1}</td>
+                <td className='p-2'>{profile.applicant_name}</td>
+                <td className='p-2'>{profile.applicant_uuid}</td>
+                <td className='p-2'>{new Date(profile.time_of_hrinterview).toLocaleString('en-US', { hour12: true })}</td>
+                <td className='p-2'>
                   <button
                     className="btn btn-primary border-0"
                      style={{backgroundColor:'#E10174'}}
@@ -117,7 +117,7 @@ function HrNew() {
                     Start Interview
                   </button>
                 </td>
-                <td>
+                <td className='p-2'>
                   <Dropdown
                     onSelect={(eventKey) => handleSelect(eventKey, profile)} // Pass HR ID and profile to handleSelect
                   >
@@ -138,7 +138,7 @@ function HrNew() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       </div>
 
       {/* Confirmation Modal */}

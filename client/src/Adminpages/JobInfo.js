@@ -176,15 +176,12 @@ const JobInfo = () => {
                     <Table>
                         <TableHead>
                             <TableRow sx={{ backgroundColor: '#E10174' }}>
-                            <TableCell><strong style={{ color: '#fff' }}>SI No</strong></TableCell>
+                            <TableCell className='text-center'><strong style={{ color: '#fff' }} >SI No</strong></TableCell>
                                 <TableCell className='text-center'><strong style={{ color: '#fff' }}>Market</strong></TableCell>
                                 <TableCell className='text-center'><strong style={{ color: '#fff' }}>Openings</strong></TableCell>
                                 <TableCell className='text-center'><strong style={{ color: '#fff' }}>Posted By</strong></TableCell>
-                                {/* <TableCell className='text-center'><strong style={{ color: '#fff' }}>Comments</strong></TableCell> */}
                                 <TableCell className='text-center'><strong style={{ color: '#fff' }}>Created At</strong></TableCell>
                                 <TableCell className='text-center'><strong style={{ color: '#fff' }}>Deadline</strong></TableCell>
-                                {/* <TableCell className='text-center'><strong style={{ color: '#fff' }}>Filled</strong></TableCell> */}
-                                {/* <TableCell className='text-center'><strong style={{ color: '#fff' }}>Need to be Filled</strong></TableCell> */}
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -194,11 +191,8 @@ const JobInfo = () => {
                                     <TableCell className='text-center'>{market.name}</TableCell>
                                     <TableCell className='text-center'>{market.openings}</TableCell>
                                     <TableCell className='text-center'>{market.posted_by}</TableCell>
-                                    {/* <TableCell className='text-center'>{market.comments||'-'}</TableCell> */}
                                     <TableCell className='text-center'>{new Date(market.created_at).toLocaleDateString('en-US')}</TableCell>
                                     <TableCell className='text-center'>{new Date(market.deadline).toLocaleDateString('en-US')}</TableCell>
-                                    {/* <TableCell className='text-center'>{market.comments||'-'}</TableCell> */}
-                                    {/* <TableCell className='text-center'>{market.comments||'-'}</TableCell> */}
                                 </TableRow>
                             ))}
                         </TableBody>

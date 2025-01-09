@@ -37,7 +37,6 @@ import Individual_performance from "./Adminpages/Work";
 import UpdatePassword from "./pages/UpdatePassword";
 import SelectedAtHr from "./Adminpages/SelectedAtHr";
 import DetailedView from "./Adminpages/DetailedView";
-
 import DetailCards from "./Adminpages/DetailCards";
 import { DirectDash } from "./Direct/DirectDash";
 import DirectForm from "./Direct/DirectForm";

@@ -45,10 +45,7 @@ function SelectedAtHr() {
   const [joiningDateFilter, setJoiningDateFilter] = useState([null, null]);
   const [candidateFilter, setCandidateFilter] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedMarket1, setSelectedMarket1] = useState([]);
   const [marketFilter1, setMarketFilter1] = useState([]);
-  const [selectedMarket2, setSelectedMarket2] = useState([]);
-  // const [marketFilter2, setMarketFilter2] = useState([]);
   const userData = decodeToken()?.name;
   const role = decodeToken()?.role;
   const userMarket = {
@@ -66,7 +63,6 @@ function SelectedAtHr() {
     "Kamaran Mohammed": "SAN FRANCISCO",
   };
   const tokenMarket = userMarket[userData]?.toLowerCase();
-  // console.log(selectedMarket, selectedMarket1, selectedMarket2);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -111,7 +107,7 @@ function SelectedAtHr() {
 
   useEffect(() => {
     let updatedData = [...data];
-  
+
     // If `tokenMarket` is present, filter based on `tokenMarket` in either `MarketHiringFor` or `TrainingAt`
     if (tokenMarket) {
       const lowerCaseTokenMarket = tokenMarket.toLowerCase().trim();
@@ -120,7 +116,6 @@ function SelectedAtHr() {
         // Check if either `MarketHiringFor` or `TrainingAt` matches `tokenMarket`
         return marketValue.includes(lowerCaseTokenMarket);
       });
-      // console.log("Filtered by tokenMarket (MarketHiringFor or TrainingAt):", updatedData);
     } else {
       // First filter: `marketFilter` on `MarketHiringFor` and `TrainingAt`
       if (marketFilter.length > 0) {
@@ -129,13 +124,13 @@ function SelectedAtHr() {
         );
         updatedData = updatedData.filter((row) => {
           const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-          return lowerCaseMarketFilter.some(
-            (filter) => marketValue.includes(filter)
+          return lowerCaseMarketFilter.some((filter) =>
+            marketValue.includes(filter)
           );
         });
         // console.log("After First Market Filter (MarketHiringFor and TrainingAt):", updatedData);
       }
-  
+
       // Second filter: `marketFilter1` on `MarketHiringFor` and `TrainingAt`
       if (marketFilter1.length > 0) {
         const lowerCaseMarketFilter1 = marketFilter1.map((market) =>
@@ -143,47 +138,50 @@ function SelectedAtHr() {
         );
         updatedData = updatedData.filter((row) => {
           const marketValue = row.MarketHiringFor?.toLowerCase().trim() || "";
-          return lowerCaseMarketFilter1.some(
-            (filter) => marketValue.includes(filter)
+          return lowerCaseMarketFilter1.some((filter) =>
+            marketValue.includes(filter)
           );
         });
         // console.log("After Second Market Filter (MarketHiringFor and TrainingAt):", updatedData);
       }
     }
-  
+
     // Date filter on `DateOfJoining`
     const [startDate, endDate] = joiningDateFilter;
     if (startDate && endDate) {
       // Convert startDate and endDate to Date objects (local timezone)
       const startDateObj = new Date(startDate);
       const endDateObj = new Date(endDate);
-  
+
       if (startDateObj && endDateObj) {
         // Adjust the start date to the beginning of the day (00:00:00) in local time
         const adjustedStartDate = new Date(startDateObj);
         adjustedStartDate.setHours(0, 0, 0, 0);
-  
+
         // Adjust the end date to the end of the day (23:59:59.999) in local time
         const adjustedEndDate = new Date(endDateObj);
         adjustedEndDate.setHours(23, 59, 59, 999);
-  
+
         // Convert the local adjusted dates to UTC for filtering
         const adjustedStartDateUTC = new Date(adjustedStartDate).toISOString();
         const adjustedEndDateUTC = new Date(adjustedEndDate).toISOString();
-  
+
         // Filter rows by checking if the joining date (in UTC) is within the range
         updatedData = updatedData.filter((row) => {
           // Assuming row.created_at is in UTC format
-          const joiningDate = new Date(row.created_at);  // The row's created_at should be in UTC
-  
+          const joiningDate = new Date(row.created_at); // The row's created_at should be in UTC
+
           // Compare joiningDate with adjustedStartDate and adjustedEndDate (both in UTC)
-          return joiningDate >= new Date(adjustedStartDateUTC) && joiningDate <= new Date(adjustedEndDateUTC);
+          return (
+            joiningDate >= new Date(adjustedStartDateUTC) &&
+            joiningDate <= new Date(adjustedEndDateUTC)
+          );
         });
-  
+
         // console.log("After Date Filter:", updatedData);
       }
     }
-  
+
     // Status filter based on `selectedTab`
     updatedData = updatedData.filter((row) => {
       switch (selectedTab) {
@@ -197,12 +195,11 @@ function SelectedAtHr() {
           return true;
       }
     });
-  
+
     // console.log("Final Filtered Data:", updatedData);
-  
+
     // Update filtered data state
     setFilteredData(updatedData);
-  
   }, [
     marketFilter,
     marketFilter1,
@@ -211,7 +208,6 @@ function SelectedAtHr() {
     selectedTab,
     tokenMarket,
   ]);
-  
 
   const handleInputChange = (uuid, field, value) => {
     setFilteredData((prevFilteredData) =>
@@ -247,12 +243,7 @@ function SelectedAtHr() {
   };
 
   const handleIconClick = async (applicant_uuid) => {
-    // console.log("Icon clicked for applicant_uuid:", applicant_uuid);
-
     const newClickedIndexes = new Set(clickedIndexes);
-
-    // Log the clickedIndexes set to ensure it contains the correct uuid
-    // console.log("Previous clicked indexes:", clickedIndexes);
 
     if (newClickedIndexes.has(applicant_uuid)) {
       newClickedIndexes.delete(applicant_uuid);
@@ -273,12 +264,6 @@ function SelectedAtHr() {
         newClickedIndexes.add(applicant_uuid);
 
         const { ntidCreated, ntidCreatedDate, ntid, addedToSchedule } = rowData;
-        // console.log("Data to send:", {
-        //   ntidCreated,
-        //   ntidCreatedDate,
-        //   ntid,
-        //   addedToSchedule,
-        // });
 
         try {
           const response = await axios.post(`${apiurl}/ntids`, {
@@ -461,12 +446,11 @@ function SelectedAtHr() {
     )
     .sort((a, b) => new Date(a.DateOfJoining) - new Date(b.DateOfJoining));
 
-    function formatDateToCST(dateString) {
-     const x=dateString.slice(0,4)
-     const y=dateString.slice(5,)
-     return y+"-"+x;  
-     
-    }
+  function formatDateToCST(dateString) {
+    const x = dateString.slice(0, 4);
+    const y = dateString.slice(5);
+    return y + "-" + x;
+  }
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -506,27 +490,12 @@ function SelectedAtHr() {
       </Row>
 
       {uniqdata.length === 0 ? (
-        <Card
-          style={{
-            padding: "30px", // Adjusted padding
-            marginTop: "20px",
-            justifyContent: "center",
-            textAlign: "center",
-            width: "60%",
-            margin: "0 auto",
-            backgroundColor: "#f5f5f5",
-            border: "1px solid #e0e0e0",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            borderRadius: "8px",
-          }}
-        >
-          <Typography
-            variant="h6"
-            style={{ color: "#3f51b5", fontWeight: "bold" }}
+        
+          <div
+            className="spinner-border m-auto"
           >
-            Select Markets to Create NTID Right Now
-          </Typography>
-        </Card>
+            
+          </div>
       ) : (
         <TableContainer
           component={Paper}
@@ -539,121 +508,135 @@ function SelectedAtHr() {
             {" "}
             {/* Reduced font size */}
             <TableHead>
-            <TableRow style={{ headerStyle }}>
-  {[
-    "SINo",
-    "CandidateDetails",
-    "Market Hiring For",
-    "Training Hiring For",
-    "Duration",
-    "DOJ",
-    "Payroll/Compensation Type",
-    "Payment",
-    "work Hours/No.Of Days & Off-Days",
-    "Back Out",
-    "Contract Disclosed",
-    "Added to Schedule",
-    "Contract Signed",
-    "NTID Created",
-    "NTID Created Date",
-    "NTID",
-    "Mark As Assigned",
-  ].map((header) =>
-    // Conditionally render the 'Back Out' column based on uniqdata
-    header === "Back Out" ? (
-      uniqdata.some((row) => row.status !== "mark_assigned") && (
-        <TableCell
-          key={header}
-          style={headerStyle}
-          className="text-center text-capitalize"
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Typography variant="body4" style={{ marginRight: "1px" }}>
-              {header}
-            </Typography>
-          </div>
-        </TableCell>
-      )
-    ) : header === "Contract Signed" ? (
-      uniqdata.some((row) => row.status !== "backOut" && row.status !== "mark_assigned") && (
-        <TableCell
-          key={header}
-          style={headerStyle}
-          className="text-center text-capitalize"
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Typography variant="body4" style={{ marginRight: "1px" }}>
-              {header}
-            </Typography>
-          </div>
-        </TableCell>
-      )
-    ) : (
-      <TableCell
-        key={header}
-        style={headerStyle}
-        className="text-center text-capitalize"
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography variant="body4" style={{ marginRight: "1px" }}>
-            {header}
-          </Typography>
+              <TableRow style={{ headerStyle }}>
+                {[
+                  "SINo",
+                  "CandidateDetails",
+                  "Market Hiring For",
+                  "Training Hiring For",
+                  "Duration",
+                  "DOJ",
+                  "Payroll/Compensation Type",
+                  "Payment",
+                  "work Hours/No.Of Days & Off-Days",
+                  "Back Out",
+                  "Contract Disclosed",
+                  "Added to Schedule",
+                  "Contract Signed",
+                  "NTID Created",
+                  "NTID Created Date",
+                  "NTID",
+                  "Mark As Assigned",
+                ].map((header) =>
+                  // Conditionally render the 'Back Out' column based on uniqdata
+                  header === "Back Out" ? (
+                    uniqdata.some((row) => row.status !== "mark_assigned") && (
+                      <TableCell
+                        key={header}
+                        style={headerStyle}
+                        className="text-center text-capitalize"
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Typography
+                            variant="body4"
+                            style={{ marginRight: "1px" }}
+                          >
+                            {header}
+                          </Typography>
+                        </div>
+                      </TableCell>
+                    )
+                  ) : header === "Contract Signed" ? (
+                    uniqdata.some(
+                      (row) =>
+                        row.status !== "backOut" &&
+                        row.status !== "mark_assigned"
+                    ) && (
+                      <TableCell
+                        key={header}
+                        style={headerStyle}
+                        className="text-center text-capitalize"
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Typography
+                            variant="body4"
+                            style={{ marginRight: "1px" }}
+                          >
+                            {header}
+                          </Typography>
+                        </div>
+                      </TableCell>
+                    )
+                  ) : (
+                    <TableCell
+                      key={header}
+                      style={headerStyle}
+                      className="text-center text-capitalize"
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Typography
+                          variant="body4"
+                          style={{ marginRight: "1px" }}
+                        >
+                          {header}
+                        </Typography>
 
-          {/* CandidateDetails Filter */}
-          {header === "CandidateDetails" && (
-            <>
-              <IconButton onClick={handleClick}>
-                <MdOutlineArrowDropDown className="text-secondary" />
-              </IconButton>
-              <Popover
-                id={id}
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "center",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "center",
-                }}
-              >
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  placeholder="Search Candidate..."
-                  value={candidateFilter}
-                  onChange={(e) => setCandidateFilter(e.target.value)}
-                  style={{ width: "200px" }}
-                />
-              </Popover>
-            </>
-          )}
-        </div>
-      </TableCell>
-    )
-  )}
-</TableRow>
-
+                        {/* CandidateDetails Filter */}
+                        {header === "CandidateDetails" && (
+                          <>
+                            <IconButton onClick={handleClick}>
+                              <MdOutlineArrowDropDown className="text-secondary" />
+                            </IconButton>
+                            <Popover
+                              id={id}
+                              open={open}
+                              anchorEl={anchorEl}
+                              onClose={handleClose}
+                              anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "center",
+                              }}
+                              transformOrigin={{
+                                vertical: "top",
+                                horizontal: "center",
+                              }}
+                            >
+                              <TextField
+                                variant="outlined"
+                                size="small"
+                                placeholder="Search Candidate..."
+                                value={candidateFilter}
+                                onChange={(e) =>
+                                  setCandidateFilter(e.target.value)
+                                }
+                                style={{ width: "200px" }}
+                              />
+                            </Popover>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  )
+                )}
+              </TableRow>
             </TableHead>
             <TableBody>
               {uniqdata.map((row, index) => (
@@ -741,7 +724,7 @@ function SelectedAtHr() {
                           color: "inherit", // No red color if status is 'mark_assigned' or 'backOut'
                         }}
                       >
-                        {formatDateToCST(row.DateOfJoining.slice(0,10))}
+                        {formatDateToCST(row.DateOfJoining.slice(0, 10))}
                       </Typography>
                     ) : (
                       <Typography
@@ -753,7 +736,7 @@ function SelectedAtHr() {
                               : "inherit", // Set color to red if the date has passed and status is not 'mark_assigned' or 'backOut'
                         }}
                       >
-                        {formatDateToCST(row.DateOfJoining.slice(0,10))}
+                        {formatDateToCST(row.DateOfJoining.slice(0, 10))}
                         {/* Display the DateOfJoining */}
                       </Typography>
                     )}
@@ -869,7 +852,8 @@ function SelectedAtHr() {
                         )
                       }
                       disabled={
-                        row.status === "mark_assigned" ||row.contract_sined===0||
+                        row.status === "mark_assigned" ||
+                        row.contract_sined === 0 ||
                         row.status === "backOut"
                       }
                       sx={{
@@ -910,15 +894,14 @@ function SelectedAtHr() {
                             padding: "2px 4px",
                             fontSize: "0.7rem",
                             color: "white",
-                            backgroundColor: row.contract_sined === 0 ? "#ff0000" : "#46ab2f", // Red if not signed, Green if signed
+                            backgroundColor:
+                              row.contract_sined === 0 ? "#ff0000" : "#46ab2f", // Red if not signed, Green if signed
                           }}
                           onClick={() =>
                             confirmContractSign(row.applicant_uuid, row.name)
                           }
                         >
-                          {row.contract_sined===0
-                            ? " Sign "
-                            : "Signed"}
+                          {row.contract_sined === 0 ? " Sign " : "Signed"}
                         </button>
                       </TableCell>
                     )}
@@ -937,7 +920,8 @@ function SelectedAtHr() {
                         )
                       }
                       disabled={
-                        row.status === "mark_assigned" ||row.contract_sined === 0||
+                        row.status === "mark_assigned" ||
+                        row.contract_sined === 0 ||
                         row.status === "backOut"
                       }
                       sx={{
@@ -988,7 +972,9 @@ function SelectedAtHr() {
                           readOnly: row.status === "mark_assigned",
                         }}
                         sx={{ width: "120px" }}
-                        disabled={row.status === "backOut"||row.contract_sined === 0} // Adjusted width
+                        disabled={
+                          row.status === "backOut" || row.contract_sined === 0
+                        } // Adjusted width
                       />
                     ) : (
                       <IconButton
@@ -1025,36 +1011,40 @@ function SelectedAtHr() {
                       InputProps={{
                         readOnly: row.status === "mark_assigned",
                       }}
-                      disabled={row.status === "backOut"|| row.contract_sined === 0}
+                      disabled={
+                        row.status === "backOut" || row.contract_sined === 0
+                      }
                     />
                   </TableCell>
 
                   <TableCell
-  className="text-center"
-  style={{ padding: "2px 4px", fontSize: "0.7rem" }}
->
-  {row.status === "mark_assigned" || row.status === "backOut" || row.contract_sined === 0 ? (
-    <IconButton disabled>
-      <CheckCircleIcon
-        style={{
-          color: row.status === "backOut" ? "#f44336" : "#46aba2", // red for 'backOut', green otherwise
-        }}
-      />
-    </IconButton>
-  ) : (
-    <IconButton
-      onClick={() => handleIconClick(row.applicant_uuid)}
-      disabled={clickedIndexes.has(index)}
-    >
-      <CheckCircleIcon
-        style={{
-          color: "#3f51b5",
-        }}
-      />
-    </IconButton>
-  )}
-</TableCell>
-
+                    className="text-center"
+                    style={{ padding: "2px 4px", fontSize: "0.7rem" }}
+                  >
+                    {row.status === "mark_assigned" ||
+                    row.status === "backOut" ||
+                    row.contract_sined === 0 ? (
+                      <IconButton disabled>
+                        <CheckCircleIcon
+                          style={{
+                            color:
+                              row.status === "backOut" ? "#f44336" : "#46aba2", // red for 'backOut', green otherwise
+                          }}
+                        />
+                      </IconButton>
+                    ) : (
+                      <IconButton
+                        onClick={() => handleIconClick(row.applicant_uuid)}
+                        disabled={clickedIndexes.has(index)}
+                      >
+                        <CheckCircleIcon
+                          style={{
+                            color: "#3f51b5",
+                          }}
+                        />
+                      </IconButton>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

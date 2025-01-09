@@ -1,25 +1,18 @@
 
 import React, { useEffect, useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-// import { MyContext } from '../pages/MyContext';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import decodeToken from '../decodedDetails';
 import {  Dropdown } from 'react-bootstrap'; // Using React Bootstrap for dropdown
-// import { IconButton } from '@mui/material';
-// import PersonIcon from '@mui/icons-material/Person'; // Material-UI icon
 import { Assignment } from '@mui/icons-material'; // Assignment icon
 import { toast, ToastContainer } from 'react-toastify';
 import { TableCell, Box, Avatar, Typography } from '@mui/material';
 
 function HrPrendings() {
   const apiurl = process.env.REACT_APP_API;
-  // const navigate = useNavigate();
   const userData = decodeToken();
   const [profiles, setProfiles] = useState([]);
   const [hrs, setHrs] = useState([]); // State to store HRs
-  // const { setapplicant_uuid } = useContext(MyContext);
-  // const [selectedProfile, setSelectedProfile] = useState(null);
   const [ChangeScrenningMenu, setChangeScrenningMenu] = useState(false); // Show/Hide Dropdown
 
   // Fetch the applicants assigned for HR interviews
@@ -77,10 +70,6 @@ function HrPrendings() {
     }
   };
 
-  // const handleInterviewClick = (profile) => {
-  //   setapplicant_uuid(profile.applicant_uuid);
-  //   navigate("/hrinterview");
-  // };
 
   const handleChangeScrenningToggle = (isOpen) => {
     setChangeScrenningMenu(isOpen);

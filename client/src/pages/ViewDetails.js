@@ -30,7 +30,7 @@ function ViewDetais() {
   const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const profilesPerPage = 30;
+  const profilesPerPage = 100;
   const [showModal, setShowModal] = useState(false);
   const [updatedComment, setUpdatedComment] = useState("");
   const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =useState("");
@@ -263,9 +263,7 @@ useEffect(() => {
       return filteredData;
     })
     .filter((data) => data.applicant_names.length > 0); // Filter out profiles with no names
-   // Filter out profiles with no names
-   // Filter out profiles with no names
-   // Ensures that we have filtered data
+  
 
 const flattenedProfiles = filteredProfiles.flatMap((status) => {
   return status.applicant_names.map((name, index) => ({
@@ -290,7 +288,6 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
         : "N/A",
   }));
 });
-
 
   
 
@@ -337,13 +334,13 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants");
     XLSX.writeFile(workbook, "Applicants_List.xlsx");
   };
-
   const headerStyle = {
     backgroundColor: "#E10174",
     color: "#ffffff",
     padding: "4px 8px",
-    alignItems: "center",
-  };
+    textAlign: "center", // Corrected property name
+};
+
   const handleOpenModal = (profile) => {
     setUpdatedComment(
       profile.status.includes("Screening")
@@ -411,7 +408,7 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
   };
 
   return (
-    <Container className="mt-3">
+    <Container fluid className="mt-3">
       {loading ? (
         <Box
           display="flex"
@@ -493,42 +490,48 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
           </div>
 
           <TableContainer
-            component={Paper}
-            sx={{ width: "100%", boxShadow: 2, borderRadius: 2 }}
+           component={Paper}
+                 sx={{
+                   width: "100%",
+                   boxShadow: 2,
+                   borderRadius: 2,
+                   maxHeight: "600px", // Define height for scrollable content
+                 }}
           >
-            <Table>
+            <Table stickyHeader className="table-sm">
               <TableHead>
                 <TableRow>
                   <TableCell style={headerStyle}>S.No</TableCell>
-                  <TableCell style={headerStyle}>Created At</TableCell>
-                  <TableCell style={headerStyle}>Applicant Details</TableCell>
+                  <TableCell style={headerStyle}>Created_At</TableCell>
+                  <TableCell style={headerStyle}>Applicant_Details</TableCell>
                   <TableCell style={headerStyle}>Referred_by</TableCell>
-                  <TableCell style={headerStyle}>Reference ID</TableCell>
-                  <TableCell style={headerStyle}>Work Location</TableCell>
-                  <TableCell style={headerStyle}>Screening Manager</TableCell>
+                  <TableCell style={headerStyle}>Reference_ID</TableCell>
+                  <TableCell style={headerStyle}>Work_Location</TableCell>
+                  <TableCell style={headerStyle}>Screening_Manager</TableCell>
                   <TableCell style={headerStyle}>Interviewer</TableCell>
-                  <TableCell style={headerStyle}>HR Name</TableCell>
+                  <TableCell style={headerStyle}>HR_Name</TableCell>
                   <TableCell style={headerStyle}>Status</TableCell>
-                  <TableCell style={headerStyle}>Joining Date</TableCell>
+                  <TableCell style={headerStyle}>Joining_Date</TableCell>
                   <TableCell style={headerStyle}>Comments</TableCell>
-                  <TableCell style={headerStyle}>Update Comment</TableCell>
+                  <TableCell style={headerStyle}>Update_Comment</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {currentProfiles.map((profile, index) => (
                   <TableRow key={index}>
                     <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                      style={{ padding: "2px 8px", fontSize: "0.9rem" }}
+                      className="text-center"
                     >
                       {indexOfFirstProfile + index + 1}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       {profile.created_at_date.slice(0,10)}
                     </TableCell>
                     <TableCell
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
-                      <Box display="flex" alignItems="center">
+                      <Box display="flex" >
                         <Box ml={2}>
                           <Typography
                             variant="body1"
@@ -544,47 +547,56 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                       </Box>
                     </TableCell>
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.applicant_referred_by || "N/A"}
                     </TableCell>
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.applicant_reference_id || "N/A"}
                     </TableCell>
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.work_location_name || "N/A"}
                     </TableCell>
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.screening_manager_name || "N/A"}
                     </TableCell>
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.interviewer_name || "N/A"}
                     </TableCell>
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.hr_name || "N/A"}
                     </TableCell>
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.status || "N/A"}
                     </TableCell>
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.joining_date || "N/A"}
                     </TableCell>
 
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       <OverlayTrigger
@@ -664,6 +676,7 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                     </TableCell>
 
                     <TableCell
+                    className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       <Button
@@ -686,6 +699,7 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
               page={currentPage}
               onChange={handlePageChange}
               color="primary"
+              className="d-flex justify-content-center"
             />
           </Stack>
         </>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { MyContext } from "../pages/MyContext";
 import { IoMdDownload } from "react-icons/io";
+import { Table } from "react-bootstrap";
 import * as XLSX from "xlsx";
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -130,8 +131,8 @@ function NTIDData() {
   };
 
   return (
-    <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+    <div className="container mt-1">
+      <div className="d-flex justify-content-between align-items-center mb-1">
         {/* Total Count */}
         <h3 className="text-capitalize" style={{ color: "#E10174" }}>
           Total: {filteredData.length}
@@ -147,7 +148,7 @@ function NTIDData() {
         </button>
       </div>
       {filteredData.length > 0 ? (
-        <table className="table table-bordered table-striped">
+        <Table className="table table-sm table-bordered table-striped">
           <thead>
             <tr>
               <th style={{ backgroundColor: "#E10174" }}>index</th>
@@ -162,19 +163,19 @@ function NTIDData() {
           </thead>
           <tbody>
             {filteredData.map((item, index) => (
-              <tr key={item.applicant_id}>
-                <td>{index + 1}</td>
-                <td>{item.applicant_id}</td>
-                <td>{item.name}</td>
-                <td>{new Date(item.joining_date).toLocaleDateString()}</td>
-                <td>{item.market}</td>
-                <td>{item.contract_sined ? "Yes" : "No"}</td>
-                <td>{item.status}</td>
-                <td>{item.ntid}</td>
+              <tr  key={item.applicant_id}>
+                <td className="p-2" >{index + 1}</td>
+                <td className="p-2">{item.applicant_id}</td>
+                <td className="p-2 text-capitalize">{item.name?.toLowerCase()}</td>
+                <td className="p-2">{new Date(item.joining_date).toLocaleDateString()}</td>
+                <td className="p-2 text-capitalize">{item.market?.toLowerCase()}</td>
+                <td className="p-2">{item.contract_sined ? "Yes" : "No"}</td>
+                <td className="p-2">{item.status}</td>
+                <td className="p-2">{item.ntid}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       ) : (
         <div class="spinner-border text-primary"></div>
       )}

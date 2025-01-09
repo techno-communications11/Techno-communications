@@ -73,9 +73,6 @@ function DirectForm() {
     }
   };
 
-  // const handleSelectMarket = (eventKey) => {
-  //   setSelectedMarket(eventKey);
-  // };
 
   useEffect(() => {
     const fetchMarkets = async () => {
@@ -90,9 +87,7 @@ function DirectForm() {
     fetchMarkets();
   }, []);
 
-  // const sortedMarkets = useMemo(() => {
-  //   return markets.sort((a, b) => (a.markets || "").localeCompare(b.markets || ""));
-  // }, [markets]);
+
 
   return (
     <div className='container-fluid d-flex justify-content-center align-items-center mt-4'>

@@ -251,7 +251,6 @@ const Hrinterview = () => {
         recommend_hiring: '',
         evaluationDate: "",
       });
-      // console.log("22starting...")
       // updateChoosen(jobId,"idssssssssss") 
       if (response.status === 200) {
        
@@ -285,22 +284,6 @@ const Hrinterview = () => {
     }
   }, [jobId, formData.recommend_hiring]);
   
-  
-  // const updateChoosen = async (jobid) => {
-  //   try {
-  //     if (!jobid) {
-  //       console.error("Job ID is required but not provided.");
-  //       return;
-  //     }
-  
-  //     const response = await axios.put(`${apiurl}/update_jobId?id=${jobid}`);
-  //     if (response.status === 200) {
-  //       console.log("Job chosen field updated");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching job ID:", error); // Log the error for debugging
-  //   }
-  // }
   
 
   useEffect(() => {
@@ -854,27 +837,7 @@ const Hrinterview = () => {
               />
             </Col>
           </Form.Group>
-          {/* {formData.recommend_hiring === 'selected at Hr' && (
-  <Form.Group as={Row} className="mb-3">
-    <Form.Label column sm={6} className="text-start">
-      16. Job Id
-    </Form.Label>
-    <Col sm={6}>
-      <Form.Control
-        type="text"
-        name="jobId"
-        placeholder={jobId}
-        value={formData.recommend_hiring === 'selected at Hr'?formData.Job_id : '-'}
-        isInvalid={!!errors.jobId}
-        onChange={handleChange}
-        readOnly
-      />
-      <Form.Control.Feedback type="invalid">
-        {errors.jobId}
-      </Form.Control.Feedback>
-    </Col>
-  </Form.Group>
-)} */}
+          
 
           {/* Submit Button */}
           <Form.Group as={Row} className="mb-3">

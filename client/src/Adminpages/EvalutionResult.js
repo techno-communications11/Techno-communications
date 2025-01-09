@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import decodeToken from '../decodedDetails';
 import axios from 'axios';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import { toast, ToastContainer } from 'react-toastify';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button,Table } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button as MuiButton } from '@mui/material';
 
@@ -68,7 +67,7 @@ function EvalutionResult({ setTrainerCount }) {
     return (
         <div>
             <div className="col-12 container w-80">
-                <table className="table table-striped">
+                <Table className="table table-striped table-sm">
                     <thead>
                         <tr>
                             <th style={{backgroundColor:"#E10174"}}>S.No</th>
@@ -82,17 +81,17 @@ function EvalutionResult({ setTrainerCount }) {
                     </thead>
                     <tbody>
                         {profiles.map((profile, index) => (
-                            <tr key={profile.id}>
-                                <td>{index + 1}</td>
-                                <td>{profile.applicant_name}</td>
-                                <td>{profile.applicant_uuid}</td>
-                                <td>{profile.hr_name}</td>
-                                <td>{profile.applicant_status}</td>
-                                <td>
-                                    {Math.floor((new Date() - new Date(profile.updated_at)) / (1000 * 60 * 60 * 24)) + 1} Day's
+                            <tr className='p-2' key={profile.id}>
+                                <td className='p-2'>{index + 1}</td>
+                                <td className='p-2'>{profile.applicant_name}</td>
+                                <td className='p-2'>{profile.applicant_uuid}</td>
+                                <td className='p-2'>{profile.hr_name}</td>
+                                <td className='p-2'>{profile.applicant_status}</td>
+                                <td className='p-2'>
+                                {`${Math.floor((new Date() - new Date(profile.updated_at)) / (1000 * 60 * 60 * 24)) + 1} ${Math.floor((new Date() - new Date(profile.updated_at)) / (1000 * 60 * 60 * 24)) + 1 > 1 ? 'Days' : 'Day'}`}
                                 </td>
 
-                                <td>
+                                <td className='p-2'>
                                     <MuiButton
                                         style={{backgroundColor:"#E10174",color:'white'}} className='border-0'
                                         onClick={() => handleActionClick(profile, 'Selected')}
@@ -111,7 +110,7 @@ function EvalutionResult({ setTrainerCount }) {
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </Table>
             </div>
 
             <Modal show={showModal} onHide={() => setShowModal(false)}>

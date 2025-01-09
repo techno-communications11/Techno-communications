@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Row, Col, Form, Card, Spinner, Container } from "react-bootstrap";
-import { Alert, TextField } from "@mui/material";
+import { Row, Col, Form, Card, Spinner } from "react-bootstrap";
+import {  TextField } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
@@ -90,7 +90,6 @@ const handleSelectAllChange = (event) => {
     setMarkets([]); // Clear markets
   }
 };
-// console.log(dateRange[0].format('YYYY-MM-DD'),dateRange[1].format('YYYY-MM-DD'),"dtrange")
 
 // Set initial state for "Select All" and default selected markets on mount
 useEffect(() => {
@@ -171,13 +170,6 @@ useEffect(() => {
                 startTimestamp && endTimestamp
                     ? createdTimestamp >= startTimestamp && createdTimestamp <= endTimestamp
                     : true; // Default to true if no date range is provided
-            
-            // Debugging output
-            // console.log("Created Date:", createdDate.toISOString());
-            // console.log("Start Date Obj:", startDateObj?.toISOString());
-            // console.log("End Date Obj:", endDateObj?.toISOString());
-            // console.log("In Date Range:", inDateRange);
-            
 
             // Return profiles matching both filters
             return inMarket && inDateRange;

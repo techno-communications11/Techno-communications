@@ -18,7 +18,7 @@ const server = http.createServer(app);
 // const io = socketIO(server);
 const io = socketIo(server, { // Initialize Socket.IO with server and CORS settings
   cors: {
-    origin: 'https://hiring.techno-communications.com/', // Replace with your frontend URL
+    origin: 'https://hiring.techno-communications.com', // Replace with your frontend URL
     methods: ['GET', 'POST']
   }
 });
@@ -30,16 +30,7 @@ app.use(cors({
   credentials: true  // Allow cookies and other credentials
 }));
 
-// Socket.IO setup
-// io.on('connection', (socket) => {
-//   // console.log('Client connected:', socket.id);
 
-//   socket.emit('message', 'Welcome to real-time updates');
-
-//   socket.on('disconnect', () => {
-//     console.log('Client disconnected:', socket.id);
-//   });
-// });
 
 // Routes
 app.get('/', (req, res) => {

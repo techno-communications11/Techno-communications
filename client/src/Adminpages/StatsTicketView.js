@@ -27,7 +27,7 @@ function StatsTicketView() {
   const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const profilesPerPage = 30;
+  const profilesPerPage = 100;
   const [showModal, setShowModal] = useState(false);
   const [updatedComment, setUpdatedComment] = useState("");
   const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =
@@ -131,6 +131,7 @@ function StatsTicketView() {
         const profilesData = response.data.status_counts || [];
         setSelectedProfiles(profilesData); // Set state to update the UI
         // Update localStorage with the latest selected profiles data
+        console.log(profilesData,"ffffff")
         localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
       } else {
         console.error("Error fetching profiles:", response);
@@ -209,103 +210,124 @@ function StatsTicketView() {
   };
 
   const filteredProfiles = selectedProfiles
-  .map((currentStatus) => {
-    const filteredData = {
-      applicant_names: [],
-      phone: [],
-      applicant_emails: [],
-      applicant_referred_by: [],
-      applicant_reference_ids: [],
-      applicant_uuids: [],
-      created_at_dates: [],
-      work_location_names: [],
-      screening_manager_names: [],
-      interviewer_names: [],
-      hr_names: [],
-      joining_dates: [],
-      status: currentStatus.status,
-      notes: [],
-      first_round_comments: [],
-      applicant_referrals_comments: [],
-    };
+    .map((currentStatus) => {
+      const filteredData = {
+        applicant_names: [],
+        phone: [],
+        applicant_emails: [],
+        applicant_referred_by: [],
+        applicant_reference_ids: [],
+        applicant_uuids: [],
+        created_at_dates: [],
+        work_location_names: [],
+        screening_manager_names: [],
+        interviewer_names: [],
+        hr_names: [],
+        joining_dates: [],
+        status: currentStatus.status,
+        notes: [],
+        first_round_comments: [],
+        applicant_referrals_comments: [],
+      };
 
-    if (currentStatus.applicant_names && currentStatus.applicant_names.forEach) {
-      currentStatus.applicant_names.forEach((_, index) => {
-        // Market filter
-        const inMarket =
-          markets.length > 0
-            ? markets.some(
-                (market) => currentStatus.work_location_names?.[index] === market
-              )
-            : true;
+      if (
+        currentStatus.applicant_names &&
+        currentStatus.applicant_names.forEach
+      ) {
+        currentStatus.applicant_names.forEach((_, index) => {
+          // Market filter
+          const inMarket =
+            markets.length > 0
+              ? markets.some(
+                  (market) =>
+                    currentStatus.work_location_names?.[index] === market
+                )
+              : true;
 
-            const createdDate = new Date(currentStatus.created_at_dates?.[index]);
+          const createdDate = new Date(currentStatus.created_at_dates?.[index]);
 
-            // Get start and end dates from captureDate (if defined)
-            const [startDate, endDate] = captureDate;
-            
-            // Convert start and end dates to Date objects, if they exist
-            const startDateObj = startDate ? new Date(startDate) : null;
-            const endDateObj = endDate ? new Date(endDate) : null;
-            
-            if (startDateObj && endDateObj) {
-                if (startDateObj.toDateString() === endDateObj.toDateString()) {
-                    // Same day: Adjust time to include the full day
-                    startDateObj.setHours(0, 0, 0, 0); // Local start of the day
-                    endDateObj.setHours(23, 59, 59, 999); // Local end of the day
-                } else {
-                    // Different days: Normalize both start and end dates to UTC
-                    startDateObj.setHours(0, 0, 0, 0); // UTC start of the start day
-                    endDateObj.setHours(23, 59, 59, 999); // UTC end of the end day
-                }
+          // Get start and end dates from captureDate (if defined)
+          const [startDate, endDate] = captureDate;
+
+          // Convert start and end dates to Date objects, if they exist
+          const startDateObj = startDate ? new Date(startDate) : null;
+          const endDateObj = endDate ? new Date(endDate) : null;
+
+          if (startDateObj && endDateObj) {
+            if (startDateObj.toDateString() === endDateObj.toDateString()) {
+              // Same day: Adjust time to include the full day
+              startDateObj.setHours(0, 0, 0, 0); // Local start of the day
+              endDateObj.setHours(23, 59, 59, 999); // Local end of the day
+            } else {
+              // Different days: Normalize both start and end dates to UTC
+              startDateObj.setHours(0, 0, 0, 0); // UTC start of the start day
+              endDateObj.setHours(23, 59, 59, 999); // UTC end of the end day
             }
-            
-            // Compare timestamps to check if createdDate falls within the range
-            const inDateRange = startDateObj && endDateObj
-                ? createdDate >= startDateObj && createdDate <= endDateObj
-                : true; // Default to true if no date range is provided
-            
-         
-            
-            
+          }
 
-        // Date range filter (using JavaScript Date comparison)
-        // const inDateRange =
-        //   startDateObj && endDateObj
-        //     ? createdDate >= startDateObj && createdDate <= endDateObj
-        //     : true; // If no date range is set, include all
+          // Compare timestamps to check if createdDate falls within the range
+          const inDateRange =
+            startDateObj && endDateObj
+              ? createdDate >= startDateObj && createdDate <= endDateObj
+              : true; // Default to true if no date range is provided
 
-        // Status filter
-        const filteredByStatus = statusMap[captureStatus]?.includes(currentStatus.status);
-
-        // Only add profile data if it matches the filters
-        if (inMarket && inDateRange && filteredByStatus) {
-          filteredData.applicant_names.push(currentStatus.applicant_names?.[index] || "");
-          filteredData.phone.push(currentStatus.phone?.[index] || "");
-          filteredData.applicant_emails.push(currentStatus.applicant_emails?.[index] || "");
-          filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by?.[index] || "");
-          filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids?.[index] || "");
-          filteredData.applicant_uuids.push(currentStatus.applicant_uuids?.[index] || "");
-          filteredData.created_at_dates.push(currentStatus.created_at_dates?.[index] || "");
-          filteredData.work_location_names.push(currentStatus.work_location_names?.[index] || "");
-          filteredData.screening_manager_names.push(currentStatus.screening_manager_names?.[index] || "N/A");
-          filteredData.interviewer_names.push(currentStatus.interviewer_names?.[index] || "N/A");
-          filteredData.hr_names.push(currentStatus.hr_names?.[index] || "N/A");
-          filteredData.joining_dates.push(currentStatus.joining_dates?.[index] || "N/A");
-          filteredData.notes.push((currentStatus.notes || [])[index] || "N/A");
-          filteredData.first_round_comments.push((currentStatus.first_round_comments || [])[index] || "N/A");
-          filteredData.applicant_referrals_comments.push(
-            (currentStatus.applicant_referrals_comments || [])[index] || "N/A"
+          // Status filter
+          const filteredByStatus = statusMap[captureStatus]?.includes(
+            currentStatus.status
           );
-        }
-      });
-    }
 
-    return filteredData;
-  })
-  .filter((data) => data.applicant_names.length > 0);
+          // Only add profile data if it matches the filters
+          if (inMarket && inDateRange && filteredByStatus) {
+            filteredData.applicant_names.push(
+              currentStatus.applicant_names?.[index] || ""
+            );
+            filteredData.phone.push(currentStatus.phone?.[index] || "");
+            filteredData.applicant_emails.push(
+              currentStatus.applicant_emails?.[index] || ""
+            );
+            filteredData.applicant_referred_by.push(
+              currentStatus.applicant_referred_by?.[index] || ""
+            );
+            filteredData.applicant_reference_ids.push(
+              currentStatus.applicant_reference_ids?.[index] || ""
+            );
+            filteredData.applicant_uuids.push(
+              currentStatus.applicant_uuids?.[index] || ""
+            );
+            filteredData.created_at_dates.push(
+              currentStatus.created_at_dates?.[index] || ""
+            );
+            filteredData.work_location_names.push(
+              currentStatus.work_location_names?.[index] || ""
+            );
+            filteredData.screening_manager_names.push(
+              currentStatus.screening_manager_names?.[index] || "N/A"
+            );
+            filteredData.interviewer_names.push(
+              currentStatus.interviewer_names?.[index] || "N/A"
+            );
+            filteredData.hr_names.push(
+              currentStatus.hr_names?.[index] || "N/A"
+            );
+            filteredData.joining_dates.push(
+              currentStatus.joining_dates?.[index] || "N/A"
+            );
+            filteredData.notes.push(
+              (currentStatus.notes || [])[index] || "N/A"
+            );
+            filteredData.first_round_comments.push(
+              (currentStatus.first_round_comments || [])[index] || "N/A"
+            );
+            filteredData.applicant_referrals_comments.push(
+              (currentStatus.applicant_referrals_comments || [])[index] || "N/A"
+            );
+          }
+        });
+      }
 
-
+      return filteredData;
+    })
+    .filter((data) => data.applicant_names.length > 0);
 
   const flattenedProfiles = filteredProfiles.flatMap((status) => {
     return status.applicant_names.map((name, index) => ({
@@ -336,7 +358,6 @@ function StatsTicketView() {
       index ===
       self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
   );
-
 
   const indexOfLastProfile = currentPage * profilesPerPage;
   const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
@@ -380,6 +401,7 @@ function StatsTicketView() {
     color: "#ffffff",
     padding: "4px 8px",
     alignItems: "center",
+    fontSize: "12px",
   };
   const handleOpenModal = (profile) => {
     setUpdatedComment(
@@ -448,7 +470,7 @@ function StatsTicketView() {
   };
 
   return (
-    <Container className="mt-3">
+    <Container fluid className="mt-3">
       {loading ? (
         <Box
           display="flex"
@@ -475,101 +497,155 @@ function StatsTicketView() {
           </div>
 
           <TableContainer
-            component={Paper}
-            sx={{ width: "100%", boxShadow: 2, borderRadius: 2 }}
-          >
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell style={headerStyle}>S.No</TableCell>
-                  <TableCell style={headerStyle}>Created At</TableCell>
-                  <TableCell style={headerStyle}>Applicant Details</TableCell>
-                  <TableCell style={headerStyle}>Referred_by</TableCell>
-                  <TableCell style={headerStyle}>Reference ID</TableCell>
-                  <TableCell style={headerStyle}>Work Location</TableCell>
-                  <TableCell style={headerStyle}>Screening Manager</TableCell>
-                  <TableCell style={headerStyle}>Interviewer</TableCell>
-                  <TableCell style={headerStyle}>HR Name</TableCell>
-                  <TableCell style={headerStyle}>Status</TableCell>
-                  <TableCell style={headerStyle}>Joining Date</TableCell>
-                  <TableCell style={headerStyle}>Comments</TableCell>
-                  <TableCell style={headerStyle}>Update Comment</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {currentProfiles.map((profile, index) => (
-                  <TableRow key={index}>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {indexOfFirstProfile + index + 1}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.created_at_date.slice(0,10) || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      <Box display="flex" alignItems="center">
-                        <Box ml={2}>
-                          <Typography
-                            variant="body1"
-                            style={{ fontWeight: "bold" }}
-                          >
-                            {" "}
-                            {profile.applicant_name || "N/A"}
-                          </Typography>
-                          <Typography variant="body1" color="textSecondary">
-                            {profile.applicant_phone}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.applicant_referred_by || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.applicant_reference_id || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.work_location_name || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.screening_manager_name || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.interviewer_name || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.hr_name || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.status || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.joining_date || "N/A"}
-                    </TableCell>
+      component={Paper}
+      sx={{
+        width: "100%",
+        boxShadow: 2,
+        borderRadius: 2,
+        maxHeight: "600px", // Define height for scrollable content
+      }}
+      >
+      <Table stickyHeader className="table-condensed table-sm">
+        {/* Table Header */}
+        <TableHead>
+          <TableRow>
+            {[
+              "S.No",
+              "Created_At",
+              "Applicant Details",
+              "Referred_by",
+              "Reference ID",
+              "Work Location",
+              "Screening Manager",
+              "Interviewer",
+              "HR Name",
+              "Status",
+              "Joining_Date",
+              "Comments",
+              "Update_Comment",
+            ].map((header, index) => (
+              <TableCell
+                key={index}
+                align="center"
+                className="text-center"
+                style={headerStyle}
+              >
+                {header}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
 
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+        {/* Table Body */}
+        <TableBody>
+          {currentProfiles.map((profile, index) => (
+            <TableRow key={index}>
+              {/* S.No */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                {indexOfFirstProfile + index + 1}
+              </TableCell>
+
+              {/* Created At */}
+              <TableCell
+                style={{ padding: "4px 9px", fontSize: "0.6rem" }}
+                className="text-center"
+              >
+                {profile.created_at_date.slice(0, 10) || "N/A"}
+              </TableCell>
+
+              {/* Applicant Details */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                <Box ml={2}>
+                  <Typography
+                    variant="body1"
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "0.8rem",
+                    }}
+                    className="text-center"
+                  >
+                    {profile.applicant_name || "N/A"}
+                    <span className="d-block text-muted">
+                      {profile.applicant_phone}
+                    </span>
+                  </Typography>
+                </Box>
+              </TableCell>
+
+              {/* Referred_by */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                {profile.applicant_referred_by || "N/A"}
+              </TableCell>
+
+              {/* Reference ID */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                {profile.applicant_reference_id || "N/A"}
+              </TableCell>
+
+              {/* Work Location */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-capitalize text-center"
+              >
+                {profile.work_location_name?.toLowerCase() || "N/A"}
+              </TableCell>
+
+              {/* Screening Manager */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                {profile.screening_manager_name || "N/A"}
+              </TableCell>
+
+              {/* Interviewer */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                {profile.interviewer_name || "N/A"}
+              </TableCell>
+
+              {/* HR Name */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                {profile.hr_name || "N/A"}
+              </TableCell>
+
+              {/* Status */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                {profile.status || "N/A"}
+              </TableCell>
+
+              {/* Joining Date */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                {profile.joining_date || "N/A"}
+              </TableCell>
+
+              {/* Comments */}
+              <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
                     >
                       <OverlayTrigger
                         placement="top"
@@ -579,11 +655,13 @@ function StatsTicketView() {
                               "pending at Screening",
                               "rejected at Screening",
                               "no show at Screening",
-                              "Not Interested at screening","moved to Interview"
+                              "Not Interested at screening",
+                              "moved to Interview",
                             ].includes(profile.status)
                               ? profile.applicant_referrals_comments
                               : [
-                                  "put on hold at Interview","Moved to HR",
+                                  "put on hold at Interview",
+                                  "Moved to HR",
                                   "selected at Interview",
                                   "need second opinion at Interview",
                                   "rejected at Interview",
@@ -613,16 +691,18 @@ function StatsTicketView() {
                             "pending at Screening",
                             "rejected at Screening",
                             "no show at Screening",
-                            "Not Interested at screening","moved to Interview"
+                            "Not Interested at screening",
+                            "moved to Interview",
                           ].includes(profile.status) &&
                           profile.applicant_referrals_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : [
-                              "put on hold at Interview","Moved to HR",
-                                  "selected at Interview",
-                                  "need second opinion at Interview",
-                                  "rejected at Interview",
-                                  "no show at Interview",
+                              "put on hold at Interview",
+                              "Moved to HR",
+                              "selected at Interview",
+                              "need second opinion at Interview",
+                              "rejected at Interview",
+                              "no show at Interview",
                             ].includes(profile.status) &&
                             profile.first_round_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
@@ -647,24 +727,31 @@ function StatsTicketView() {
                       </OverlayTrigger>
                     </TableCell>
 
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      <Button
-                        className="text-white bg-primary "
-                        style={{ fontSize: "10px" }}
-                        onClick={() => handleOpenModal(profile)}
-                      >
-                        Update
-                      </Button>{" "}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              {/* Update Comment */}
+              <TableCell
+                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                className="text-center"
+              >
+                <Button
+                  className="text-white bg-primary text-center"
+                  style={{ fontSize: "10px" }}
+                  onClick={() => handleOpenModal(profile)}
+                >
+                  Update
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
 
-          <Stack spacing={2} sx={{ marginTop: 3 }}>
+          <Stack spacing={2}   sx={{
+    marginTop: 1,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  }}>
             <Pagination
               count={pageCount}
               page={currentPage}
@@ -680,15 +767,16 @@ function StatsTicketView() {
       )}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Update Comment</Modal.Title>
+          <Modal.Title className="fs-6">Update Comment</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
             <Form.Group controlId="comment">
-              <Form.Label>Comment</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
+                className="border shadow-none"
+                placeholder="Enter Comment"
                 value={updatedComment}
                 onChange={(e) => setUpdatedComment(e.target.value)}
                 required

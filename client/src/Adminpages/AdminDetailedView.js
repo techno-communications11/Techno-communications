@@ -62,9 +62,7 @@ function AdminDetailedView() {
   }, []);
 
   const handleMarketChange = (selectedId) => {
-    // setSelectedMarket(selectedId);
     setSelectedLocationId(selectedId);
-    // console.log(selectedId); // Make sure this is defined and accessible3
   };
 
   const handleCardClick = async (type) => {

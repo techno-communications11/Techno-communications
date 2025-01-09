@@ -184,53 +184,63 @@ function Ntidboard() {
 
   return (
     <div className="container">
-      <h4 className="mt-5" style={{ color: "#E10174" }}>
-        NTID's Dashboard
-      </h4>
-      <div className="d-flex justify-content-start mt-5 gap-5">
-        <div>
-          <span className="text-primary fw-bolder">Start Date:</span>
-          <Input
-            className="ms-2"
-            type="date"
-            value={startDate}
-            onChange={handleStartDateChange}
-            style={{ color: "#E10174" }}
-            placeholder="Enter Start Date"
-          />
-        </div>
-        <div>
-          <span className="text-primary fw-bolder">End Date:</span>
-          <Input
-            className="ms-2"
-            type="date"
-            value={endDate}
-            onChange={handleEndDateChange}
-            style={{ color: "#E10174" }}
-            placeholder="Enter End Date"
-          />
-        </div>
-        <div>
-          <MarketSelector
-            selectedMarket={selectedMarket}
-            smallerFormStyles={smallerFormStyles}
-            text={text}
-            setSelectedMarket={setSelectedMarket}
-            isAllSelected={isAllSelected}
-            setIsAllSelected={setIsAllSelected}
-            setMarketFilter={setMarketFilter}
-          />
-        </div>
-      </div>
+    <h4 className="mt-5 text-center" style={{ color: "#E10174" }}>
+      NTID's Dashboard
+    </h4>
+    <div className="row">
+      <div className="col-12 col-lg-8">
+      <div className="d-flex flex-wrap justify-content-between align-items-center my-5 gap-1">
+  {/* Date Selection Section */}
+  <div className="col-12 col-lg-3 d-flex flex-column align-items-start">
+    <span className="text-primary fw-bolder ms-3 text-start">Start Date:</span>
+    <input
+      className="form-control ms-2"
+      type="date"
+      value={startDate}
+      onChange={handleStartDateChange}
+      style={{ color: "#E10174" }}
+      placeholder="Enter Start Date"
+    />
+  </div>
+  
+  <div className="col-12 col-lg-3 d-flex flex-column align-items-start">
+    <span className="text-primary fw-bolder ms-3 text-start">End Date:</span>
+    <input
+      className="form-control ms-2"
+      type="date"
+      value={endDate}
+      onChange={handleEndDateChange}
+      style={{ color: "#E10174" }}
+      placeholder="Enter End Date"
+    />
+  </div>
+  
+  <div className="col-12 col-lg-3 d-flex flex-column align-items-start">
+    <span className="text-primary fw-bolder ms-3 text-start">Market:</span>
+    <div className="border rounded-2 mt-3">
+      <MarketSelector
+        selectedMarket={selectedMarket}
+        smallerFormStyles={smallerFormStyles}
+        text={text}
+        setSelectedMarket={setSelectedMarket}
+        isAllSelected={isAllSelected}
+        setIsAllSelected={setIsAllSelected}
+        setMarketFilter={setMarketFilter}
+      />
+    </div>
+  </div>
+</div>
 
-      <div className="mt-5 d-flex gap-5">
-        <div className="row row-cols-1 col-md-8 row-cols-md-2 g-4">
+
+  
+        {/* Cards Section */}
+        <div className="row row-cols-1 row-cols-md-2 g-4">
           {["NTID Pending", "NTID Created", "Contract Signed", "Contract Unsigned"].map(
             (title, index) => (
               <div className="col" key={index}>
                 <div
-                  className="card shadow-sm h-100"
-                  onClick={()=>handleClick(title)}
+                  className="card shadow-lg h-100 border-0"
+                  onClick={() => handleClick(title)}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="card-body text-center">
@@ -251,13 +261,23 @@ function Ntidboard() {
             )
           )}
         </div>
-
-        <div className="ms-5 col-md-3">
-          <h5 className="text-primary">Status Distribution</h5>
+      </div>
+  
+      {/* Pie Chart Section */}
+      <div className="col-12 col-lg-4 mt-5 mt-lg-0">
+        <h5 className="text-primary text-center">Status Distribution</h5>
+        <div
+          style={{ height: "30rem" }}
+          className="d-flex justify-content-center align-items-center w-100"
+        >
           <Pie data={pieData} />
         </div>
       </div>
     </div>
+  </div>
+  
+  
+
   );
 }
 

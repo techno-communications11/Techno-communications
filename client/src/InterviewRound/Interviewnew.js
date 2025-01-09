@@ -4,7 +4,7 @@ import decodeToken from "../decodedDetails";
 import axios from "axios";
 import { getAuthHeaders } from "../Authrosization/getAuthHeaders";
 import { format } from "date-fns";
-import { Dropdown } from "react-bootstrap"; // Using React Bootstrap for dropdown
+import { Dropdown,Table } from "react-bootstrap"; // Using React Bootstrap for dropdown
 import { Assignment } from "@mui/icons-material"; // Material-UI Assignment icon
 import { toast, ToastContainer } from "react-toastify";
 
@@ -100,13 +100,13 @@ const InterViewHome = ({
   };
 
   return (
-    <div className="container my-5">
-      <div className="d-flex mb-4">
-        <h2 className="text-start fw-bolder">{`Interviewer Dashboard`}</h2>
-        <h2 className="ms-auto fw-bolder">{userData.name}</h2>
+    <div className="container-fluid my-3">
+      <div className="d-flex mb-3">
+        <h4 className="text-start fw-bolder">{`Interviewer Dashboard`}</h4>
+        <h4 className="ms-auto fw-bolder">{userData.name}</h4>
       </div>
 
-      <div className="mb-5">
+      <div className="mb-3">
         <input
           type="text"
           className="form-control m-auto w-50 text-center"
@@ -116,7 +116,7 @@ const InterViewHome = ({
         />
       </div>
 
-      <table className="table table-striped table-hover">
+      <Table className="table table-striped table-hover table-sm">
         <thead className="table-dark">
           <tr>
             <th style={{ backgroundColor: "#E10174", color: "white" }}>
@@ -148,18 +148,18 @@ const InterViewHome = ({
         <tbody>
           {filteredProfiles.map((profile, index) => (
             <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{profile.applicant_name}</td>
-              <td>{profile.applicant_uuid}</td>
-              <td>{profile.phone}</td>
-              <td>{profile.email}</td>
-              <td>
+              <td className="p-2">{index + 1}</td>
+              <td className="p-2">{profile.applicant_name}</td>
+              <td className="p-2">{profile.applicant_uuid}</td>
+              <td className="p-2">{profile.phone}</td>
+              <td className="p-2">{profile.email}</td>
+              <td className="p-2">
                 {format(
                   new Date(profile.time_of_interview),
                   "MM/dd/yyyy hh:mm a"
                 )}
               </td>
-              <td>
+              <td className="p-2">
                 <button
                   className="btn btn-primary"
                   style={{ fontSize: "14px", whiteSpace: "nowrap" }}
@@ -168,7 +168,7 @@ const InterViewHome = ({
                   Start Interview
                 </button>
               </td>
-              <td>
+              <td className="p-2">
                 <Dropdown
                   onSelect={(eventKey) =>
                     handleSelect(eventKey, profile.applicant_uuid)
@@ -200,7 +200,7 @@ const InterViewHome = ({
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
       <ToastContainer />
     </div>
   );

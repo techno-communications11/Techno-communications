@@ -51,11 +51,6 @@ function HrHome() {
     { status: "backOut", bgColor: '#20B2AA' }  // Light Sea Green
   ];
   
-  
-  
-  // console.log(filteredStatuses);
-  
-  
 
   const TotalCount = stats
     .filter(stat => filteredStatuses.some(fStatus => fStatus.status === stat.status)) // Filter only matching statuses

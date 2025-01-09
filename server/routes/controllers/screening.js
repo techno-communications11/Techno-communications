@@ -1,79 +1,79 @@
-const db = require('../config/db');
+const db = require("../config/db");
 // const { io } = require('../../app');
-
-
-
 
 // module.exports = { getApplicantsForScreening };
 
-
 const getApplicantsofScreening = async (req, res) => {
-    const { userId } = req.params;
+  const { userId } = req.params;
 
-    try {
-        // Step 1: Get Work Locations for the User
-        const [locationsResult] = await db.query(
-            `SELECT wl.id AS work_location_id
+  try {
+    // Step 1: Get Work Locations for the User
+    const [locationsResult] = await db.query(
+      `SELECT wl.id AS work_location_id
              FROM work_locations wl
              JOIN user_work_locations uwl ON wl.id = uwl.work_location_id
              WHERE uwl.user_id = ?`,
-            [userId]
-        );
+      [userId]
+    );
 
+    // console.log('Locations Result:', locationsResult); // Debugging statement
 
+    if (locationsResult.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No locations found for the user." });
+    }
 
-        // console.log('Locations Result:', locationsResult); // Debugging statement
-
-        if (locationsResult.length === 0) {
-            return res.status(404).json({ message: 'No locations found for the user.' });
-        }
-
-        // Extract location IDs
-        const locationIds = locationsResult.map(location => location.work_location_id);
-        // console.log(locationIds)
-        // Step 2: Get Applicants for These Locations
-        const [applicantsResult] = await db.query(
-            `SELECT 
+    // Extract location IDs
+    const locationIds = locationsResult.map(
+      (location) => location.work_location_id
+    );
+    // console.log(locationIds)
+    // Step 2: Get Applicants for These Locations
+    const [applicantsResult] = await db.query(
+      `SELECT 
             ar.id AS applicant_id,
-             ar.applicant_uuid,
+            ar.applicant_uuid,
               ar.name AS applicant_name,
               ar.email AS applicant_email,
                ar.phone AS applicant_phone,
                 ar.referred_by, 
-                ar.created_at,
+                ar.created_at,  
                  ar.status
              FROM applicant_referrals ar
              WHERE ar.work_location IN (?)`,
-            [locationIds]
-        );
+      [locationIds]
+    );
 
-        // Format the `created_at` field for each applicant
-        const formattedApplicantsResult = applicantsResult.map(applicant => ({
-            ...applicant,
-            created_at: new Date(applicant.created_at).toLocaleString('en-US', { hour12: true }) // Format as desired
-            // {new Date(profile.time_of_hrinterview).toLocaleString('en-US', { hour12: true })}
-        }));
+    console.log(applicantsResult,'appppppppppppppppp')
 
-        // Log the formatted results (for debugging)
-        // console.log(formattedApplicantsResult);
+    // Format the `created_at` field for each applicant
+    const formattedApplicantsResult = applicantsResult.map((applicant) => ({
+      ...applicant,
+      created_at: new Date(applicant.created_at).toLocaleString("en-US", {
+        hour12: true,
+      }), // Format as desired
+      // {new Date(profile.time_of_hrinterview).toLocaleString('en-US', { hour12: true })}
+    }));
 
-        // Send the formatted data as the response
-        res.status(200).json(formattedApplicantsResult);
+    // Log the formatted results (for debugging)
+    // console.log(formattedApplicantsResult);
 
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
+    // Send the formatted data as the response
+    res.status(200).json(formattedApplicantsResult);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const getApplicationforinterviewr = async (req, res) => {
-
-    const { userId } = req.params;
-    // console.log("trying get applicants for interviewer......")
-    try {
-        // Step 1: Get Work Locations for the User
-        const [applicantsResult] = await db.query(
-            `SELECT 
+  const { userId } = req.params;
+  // console.log("trying get applicants for interviewer......")
+  try {
+    // Step 1: Get Work Locations for the User
+    const [applicantsResult] = await db.query(
+      `SELECT 
     interviews.applicant_uuid,
     interviews.time_of_interview,
     applicant_referrals.name AS applicant_name,
@@ -90,24 +90,22 @@ WHERE
     interviews.interviewer_id = ?
     AND applicant_referrals.status = 'moved to Interview';
 `,
-            [userId]
-        );
+      [userId]
+    );
 
-        res.status(200).json(applicantsResult);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
-
+    res.status(200).json(applicantsResult);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 const getApplicationforhr = async (req, res) => {
-
-    const { userId } = req.params;
-    // console.log("trying get applicants for hr......11   ")
-    try {
-        // Step 1: Get Work Locations for the User
-        const [applicantsResult] = await db.query(
-            `SELECT 
+  const { userId } = req.params;
+  // console.log("trying get applicants for hr......11   ")
+  try {
+    // Step 1: Get Work Locations for the User
+    const [applicantsResult] = await db.query(
+      `SELECT 
             hrinterview.applicant_uuid,
     hrinterview.time_of_hrinterview,
     applicant_referrals.name AS applicant_name
@@ -119,23 +117,22 @@ JOIN
     hrinterview.hr_id = ?   
     AND applicant_referrals.status = 'Moved to HR';
  `,
-            [userId]
-        );
+      [userId]
+    );
 
-        res.status(200).json(applicantsResult);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
-
+    res.status(200).json(applicantsResult);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 const getAllApplicationsForHR = async (req, res) => {
-    // console.log("Trying to get applicants for all HRs with HR names...");
+  // console.log("Trying to get applicants for all HRs with HR names...");
 
-    try {
-        // Step 1: Get applicants for all HRs and include HR name from the users table
-        const [applicantsResult] = await db.query(
-            `SELECT 
+  try {
+    // Step 1: Get applicants for all HRs and include HR name from the users table
+    const [applicantsResult] = await db.query(
+      `SELECT 
                 hrinterview.applicant_uuid,
                 hrinterview.hr_id,
                 hrinterview.time_of_hrinterview,
@@ -149,23 +146,21 @@ const getAllApplicationsForHR = async (req, res) => {
                 users ON hrinterview.hr_id = users.id  -- Join with users table to get HR name
             WHERE 
                 applicant_referrals.status = 'Moved to HR';`
-        );
+    );
 
-        res.status(200).json(applicantsResult);
-        // console.log(applicantsResult);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
+    res.status(200).json(applicantsResult);
+    // console.log(applicantsResult);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const getApplicationforallhr = async (req, res) => {
-
-
-    try {
-        // Step 1: Get Work Locations for the User
-        const [applicantsResult] = await db.query(
-            `SELECT 
+  try {
+    // Step 1: Get Work Locations for the User
+    const [applicantsResult] = await db.query(
+      `SELECT 
             hrinterview.applicant_uuid,
     hrinterview.time_of_hrinterview,
     applicant_referrals.name AS applicant_name
@@ -177,25 +172,23 @@ JOIN
     hrinterview.hr_id = ?   
     AND applicant_referrals.status = 'Moved to HR';
  `,
-            [userId]
-        );
+      [userId]
+    );
 
-        res.status(200).json(applicantsResult);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
-
+    res.status(200).json(applicantsResult);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const getApplicationforTrainer = (io) => async (req, res) => {
-
-    const { userId } = req.params;
-    // console.log(`trying get applicants for Trainer......for ${userId}`)
-    try {
-        // Step 1: Get Work Locations for the User
-        const [applicantsResult] = await db.query(
-            `SELECT 
+  const { userId } = req.params;
+  // console.log(`trying get applicants for Trainer......for ${userId}`)
+  try {
+    // Step 1: Get Work Locations for the User
+    const [applicantsResult] = await db.query(
+      `SELECT 
      training_sessions.applicant_uuid,
     
     applicant_referrals.name AS applicant_name
@@ -207,26 +200,25 @@ WHERE
      training_sessions.trainer_id = ?
     AND applicant_referrals.status = 'Sent for Evaluation';
 `,
-            [userId]
-        );
+      [userId]
+    );
 
-        res.status(200).json(applicantsResult);
-        // console.log(applicantsResult)
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
-
+    res.status(200).json(applicantsResult);
+    // console.log(applicantsResult)
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const gertrainerfeedbackapplicants = (io) => async (req, res) => {
-    const { userId } = req.params;
-    // console.log("Trying to get applicants for HR trained applicants...");
+  const { userId } = req.params;
+  // console.log("Trying to get applicants for HR trained applicants...");
 
-    try {
-        // Step 1: Get applicants based on status and HR ID
-        const [applicantsResult] = await db.query(
-            `SELECT 
+  try {
+    // Step 1: Get applicants based on status and HR ID
+    const [applicantsResult] = await db.query(
+      `SELECT 
                 hrinterview.applicant_uuid,
                 hrinterview.time_of_hrinterview,
                 applicant_referrals.status AS applicant_status,
@@ -238,28 +230,27 @@ const gertrainerfeedbackapplicants = (io) => async (req, res) => {
             WHERE 
                 hrinterview.hr_id = ?
                 AND applicant_referrals.status IN ('Spanish Evaluation', 'Store Evaluation', 'Applicant will think about It');`,
-            [userId]
-        );
+      [userId]
+    );
 
-        const count = applicantsResult.length;
-        // console.log(count, "Counting applicants...");
-        io.emit('trainerfeedbackcount', count);
-        res.status(200).json(applicantsResult);
-        // console.log(applicantsResult);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
+    const count = applicantsResult.length;
+    // console.log(count, "Counting applicants...");
+    io.emit("trainerfeedbackcount", count);
+    res.status(200).json(applicantsResult);
+    // console.log(applicantsResult);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
-
 const getAllTrainerFeedbackApplicants = (io) => async (req, res) => {
-    // console.log("Trying to get applicants for all HRs with HR names...");
+  // console.log("Trying to get applicants for all HRs with HR names...");
 
-    try {
-        // Step 1: Get applicants based on status and include HR name from the users table
-        const [applicantsResult] = await db.query(
-            `SELECT 
+  try {
+    // Step 1: Get applicants based on status and include HR name from the users table
+    const [applicantsResult] = await db.query(
+      `SELECT 
                 hrinterview.applicant_uuid,
                 hrinterview.hr_id,
              	hrinterview.updated_at,
@@ -275,23 +266,26 @@ const getAllTrainerFeedbackApplicants = (io) => async (req, res) => {
                 users ON hrinterview.hr_id = users.id  -- Join with the users table to get HR name
             WHERE 
                 applicant_referrals.status IN ('Spanish Evaluation', 'Store Evaluation', 'Applicant will think about It');`
-        );
+    );
 
-        const count = applicantsResult.length;
-        // console.log(count, "Counting all HR applicants...");
-        io.emit('allTrainerFeedbackCount', count);  // Emit the count of applicants for all HRs
-        res.status(200).json(applicantsResult);
-        // console.log(applicantsResult);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
-    }
+    const count = applicantsResult.length;
+    // console.log(count, "Counting all HR applicants...");
+    io.emit("allTrainerFeedbackCount", count); // Emit the count of applicants for all HRs
+    res.status(200).json(applicantsResult);
+    // console.log(applicantsResult);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
-
-
-
-
-
-
-module.exports = { getApplicationforinterviewr, getApplicationforhr, getAllApplicationsForHR,getApplicationforallhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants ,getAllTrainerFeedbackApplicants};
+module.exports = {
+  getApplicationforinterviewr,
+  getApplicationforhr,
+  getAllApplicationsForHR,
+  getApplicationforallhr,
+  getApplicantsofScreening,
+  getApplicationforTrainer,
+  gertrainerfeedbackapplicants,
+  getAllTrainerFeedbackApplicants,
+};

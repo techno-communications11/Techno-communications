@@ -15,8 +15,6 @@ function Login() {
   const passwordRef = useRef();
   const navigate = useNavigate();
 
-  // const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -24,22 +22,7 @@ function Login() {
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
 
-    // const emailValid = regexEmail.test(email);
-    // const passwordValid = regexPassword.test(password);
-
-    // if (!emailValid && !passwordValid) {
-    //   setError('Please enter a valid email address and a valid password.');
-    //   return;
-    // } else if (!emailValid) {
-    //   setError('Please enter a valid email address.');
-    //   return;
-    // } else if (!passwordValid) {
-    //   setError('Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character.');
-    //   return;
-    // }
-
     setError('');
-    // console.log(" api ===>", process.env.REACT_APP_API);
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_API}/login`,

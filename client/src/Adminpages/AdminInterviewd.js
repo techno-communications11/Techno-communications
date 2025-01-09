@@ -1,20 +1,17 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { MyContext } from '../pages/MyContext';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import decodeToken from '../decodedDetails';
-import { Button, Dropdown, Modal } from 'react-bootstrap'; // Using React Bootstrap for modal and dropdown
+import { Button, Dropdown, Modal, Table, Container } from 'react-bootstrap'; // Using React Bootstrap for modal, dropdown, table, and container
 import { Assignment } from '@mui/icons-material'; // Assignment icon
 import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 
 function AdminInterviewd() {
     const apiurl = process.env.REACT_APP_API;
-    const navigate = useNavigate();
     const userData = decodeToken();
     const [profiles, setProfiles] = useState([]);
     const [hrs, setHrs] = useState([]); // State to store HRs
-    const { setapplicant_uuid } = useContext(MyContext);
     const [activeDropdownRow, setActiveDropdownRow] = useState(null); // Track active dropdown row
     const [selectedHR, setSelectedHR] = useState(null); // Track selected HR
     const [selectedProfile, setSelectedProfile] = useState(null); // Track selected profile
@@ -92,56 +89,53 @@ function AdminInterviewd() {
     };
 
     return (
-        <div className="container">
-            <div className="col-12 container w-80">
-                <p className='m-1'>ALL Applicants IN Pending At HR </p>
-                <table className="table table-striped">
-                    <thead>
-                        <tr>
-                            <th style={{backgroundColor:"#E10174"}}>S.No</th>
-                            <th style={{backgroundColor:"#E10174"}}>Applicant Name</th>
-                            <th style={{backgroundColor:"#E10174"}}>Applicant UUID</th>
-                            <th style={{backgroundColor:"#E10174"}}>Time Of Interview</th>
-                            <th style={{backgroundColor:"#E10174"}}>HR Name</th>
-                            <th style={{backgroundColor:"#E10174"}}>Assign New HR</th>
+        <Container className="mt-1">
+            <Table responsive striped bordered hover className="text-center">
+                <thead>
+                    <tr>
+                        <th className="p-2" style={{ backgroundColor: "#E10174", color: "#fff" }}>S.No</th>
+                        <th className="p-2" style={{ backgroundColor: "#E10174", color: "#fff" }}>Applicant Name</th>
+                        <th className="p-2" style={{ backgroundColor: "#E10174", color: "#fff" }}>Applicant UUID</th>
+                        <th className="p-2" style={{ backgroundColor: "#E10174", color: "#fff" }}>Time Of Interview</th>
+                        <th className="p-2" style={{ backgroundColor: "#E10174", color: "#fff" }}>HR Name</th>
+                        <th className="p-2" style={{ backgroundColor: "#E10174", color: "#fff" }}>Assign New HR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {profiles.map((profile, index) => (
+                        <tr key={profile.id}>
+                            <td className="p-2">{index + 1}</td>
+                            <td className="p-2 text-capitalize">{profile.applicant_name}</td>
+                            <td className="p-2">{profile.applicant_uuid}</td>
+                            <td className="p-2">{new Date(profile.time_of_hrinterview).toLocaleString('en-US', { hour12: true })}</td>
+                            <td className="p-2">{profile.hr_name}</td>
+                            <td className="p-2">
+                                <Dropdown
+                                    onSelect={(eventKey) => {
+                                        const selectedHR = hrs.find(hr => hr.id === parseInt(eventKey));
+                                        handleHRSelect(selectedHR, profile); // Open confirmation modal
+                                    }}
+                                    show={activeDropdownRow === index} // Show dropdown only for the active row
+                                    onToggle={(isOpen) => handleChangeScrenningToggle(isOpen, index)} // Track the row's dropdown toggle state
+                                >
+                                    <Dropdown.Toggle className=" border-0 text-white" style={{ backgroundColor: "#E10174" }} id="dropdown-basic">
+                                        <Assignment /> Change Assign To 
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu className="w-auto">
+                                        {hrs
+                                            .sort((a, b) => a.name.localeCompare(b.name))
+                                            .map((hr) => (
+                                                <Dropdown.Item key={hr.id} eventKey={hr.id} className="bg-light text-dark">
+                                                    {hr.name}
+                                                </Dropdown.Item>
+                                            ))}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {profiles.map((profile, index) => (
-                            <tr key={profile.id}>
-                                <td>{index + 1}</td>
-                                <td>{profile.applicant_name}</td>
-                                <td>{profile.applicant_uuid}</td>
-                                <td>{new Date(profile.time_of_hrinterview).toLocaleString('en-US', { hour12: true })}</td>
-                                <td>{profile.hr_name}</td>
-                                <td>
-                                    <Dropdown
-                                        onSelect={(eventKey) => {
-                                            const selectedHR = hrs.find(hr => hr.id === parseInt(eventKey));
-                                            handleHRSelect(selectedHR, profile); // Open confirmation modal
-                                        }}
-                                        show={activeDropdownRow === index} // Show dropdown only for the active row
-                                        onToggle={(isOpen) => handleChangeScrenningToggle(isOpen, index)} // Track the row's dropdown toggle state
-                                    >
-                                        <Dropdown.Toggle style={{backgroundColor:"#E10174"}} className="w-100 border-0  text-white border-secondary" id="dropdown-basic">
-                                            <Assignment /> Change Assign To 
-                                        </Dropdown.Toggle>
-                                        <Dropdown.Menu className="w-auto">
-                                            {hrs
-                                                .sort((a, b) => a.name.localeCompare(b.name))
-                                                .map((hr) => (
-                                                    <Dropdown.Item key={hr.id} eventKey={hr.id} className="bg-light text-dark">
-                                                        {hr.name}
-                                                    </Dropdown.Item>
-                                                ))}
-                                        </Dropdown.Menu>
-                                    </Dropdown>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                    ))}
+                </tbody>
+            </Table>
 
             {/* Confirmation Modal */}
             <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
@@ -162,7 +156,7 @@ function AdminInterviewd() {
             </Modal>
 
             <ToastContainer />
-        </div>
+        </Container>
     );
 }
 

@@ -33,10 +33,8 @@ function DirectNew() {
                     headers: getAuthHeaders(),
                 });
                 setProfiles(response.data);
-                // toast.success('Profiles fetched successfully!');
             } catch (error) {
                 setError('No Avilable Profiles.');
-                // toast.error('Failed to fetch profiles.');
             } finally {
                 setLoading(false);
             }
@@ -61,10 +59,7 @@ function DirectNew() {
     );
 
 
-    const handleShowModal = (profile) => {
-        setSelectedProfile(profile);
-        setShowModal(true);
-    };
+    
 
     const handleSearch = async () => {
         try {

@@ -3,10 +3,8 @@ import decodeToken from "../decodedDetails";
 import axios from "axios";
 import { getAuthHeaders } from "../Authrosization/getAuthHeaders";
 import { Modal, Form, Dropdown } from "react-bootstrap";
-// import DatePicker from 'react-datepicker';
 import { ToastContainer, toast } from "react-toastify";
 import { Tooltip } from "@mui/material";
-// import FilterListIcon from '@mui/icons-material/FilterList';
 import { DataGrid } from "@mui/x-data-grid";
 import Accordion from "react-bootstrap/Accordion";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -66,7 +64,6 @@ export default function InterviewedProfiles() {
         );
 
         setProfiles(response.data);
-        // console.log(response.data)
         setFilteredProfiles(response.data);
       } catch (error) {
         console.log(error);
@@ -107,9 +104,7 @@ export default function InterviewedProfiles() {
     fetchInterviewers();
   }, [apiurl, userData.id]);
 
-  // const handleFilterClick = () => {
-  //     setShowFilterModal(true);
-  // };
+
 
   const fetchingresponse = async (applicantId) => {
     try {
@@ -123,7 +118,6 @@ export default function InterviewedProfiles() {
         Array.isArray(response.data) &&
         response.data.length > 0
       ) {
-        // console.log(response.data[0])
         setFirstRound(response.data[0]);
         setRow(response.data[0]);
         setShowMoreModel(true);
@@ -137,8 +131,6 @@ export default function InterviewedProfiles() {
       // Handle and log specific error details
       if (err.response) {
         toast.error("no previous records found");
-        // Server responded with a status other than 200
-        // console.log("Error response:", err.response.status, err.response.data);
       } else if (err.request) {
         // Request was made but no response received
         console.log("No response received", err.request);
@@ -215,14 +207,8 @@ export default function InterviewedProfiles() {
     }
   };
 
-  // const handleShowNext = () => {
-  //     setShowDateModel(true);
-  //     setShowModal(false);
-
-  // };
+ 
   const handleDateTimeSave = async () => {
-    // console.log(selectedHost, 'hosts');
-    // console.log(selectedDateTime, selectedProfile.applicant_uuid);
 
     if (!selectedDateTime) {
       toast.error("Please select a date and time.");
@@ -245,7 +231,6 @@ export default function InterviewedProfiles() {
       const payload = {
         applicant_uuid: selectedProfile ? selectedProfile.applicant_uuid : null,
       };
-      // console.log(hrs, "hrsssssssssssssss....")
       // Dynamically add hr_id or interviewer_id based on the condition
       if (hrNames.includes(selectedHost.name)) {
         // console.log(hrs, "hrsssssssssssssss....", selectedHost.name);
@@ -701,11 +686,7 @@ export default function InterviewedProfiles() {
             <Modal.Title>{`Action for ${selectedProfile?.status}`}</Modal.Title>
           </Modal.Header>
           <Modal.Body>{renderModalContent()}</Modal.Body>
-          {/* {selectedHost && (
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={handleShowNext}>Next</Button>
-                        </Modal.Footer>
-                    )} */}
+         
         </Modal>
         <Modal
           show={showMoreModel}

@@ -3,14 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { MyContext } from '../pages/MyContext';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
-import decodeToken from '../decodedDetails';
-import { Button } from 'react-bootstrap'; // Using React Bootstrap for dropdown
+// import decodeToken from '../decodedDetails';
+import { Button,Table } from 'react-bootstrap'; // Using React Bootstrap for dropdown
 import { toast, ToastContainer } from 'react-toastify';
 
 function AdminHrEdit() {
     const apiurl = process.env.REACT_APP_API; // Ensure REACT_APP_API is defined
     const navigate = useNavigate();
-    const userData = decodeToken();
     const [profiles, setProfiles] = useState([]); // Ensure profiles is always an array
     const { setapplicant_uuid } = useContext(MyContext);
 
@@ -71,7 +70,7 @@ function AdminHrEdit() {
     return (
         <div className="container">
             <div className="col-12 container w-80">
-                <table className="table table-striped">
+                <Table className="table table-striped table-sm">
                     <thead>
                         <tr>
                             <th style={{backgroundColor:"#E10174"}}>S.No</th>
@@ -85,13 +84,13 @@ function AdminHrEdit() {
                     <tbody>
                         {Array.isArray(profiles) && profiles.length > 0 ? (
                             profiles.map((profile, index) => (
-                                <tr key={profile.id}>
-                                    <td>{index + 1}</td>
-                                    <td>{profile.applicant_id}</td>
-                                    <td>{profile.applicant_name}</td>
-                                    <td>{profile.applicant_phone}</td>
-                                    <td>{profile.hr_name}</td>
-                                    <td>
+                                <tr className='p-2' key={profile.id}>
+                                    <td className='p-2'>{index + 1}</td>
+                                    <td className='p-2'>{profile.applicant_id}</td>
+                                    <td className='p-2'>{profile.applicant_name}</td>
+                                    <td className='p-2'>{profile.applicant_phone}</td>
+                                    <td className='p-2'>{profile.hr_name}</td>
+                                    <td className='p-2'>
                                         <Button style={{backgroundColor:"#E10174"}} className='border-0' onClick={() => handleEdit(profile)}>
                                             Edit Record
                                         </Button>
@@ -104,7 +103,7 @@ function AdminHrEdit() {
                             </tr>
                         )}
                     </tbody>
-                </table>
+                </Table>
             </div>
             <ToastContainer />
         </div>

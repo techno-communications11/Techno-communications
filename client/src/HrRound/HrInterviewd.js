@@ -4,7 +4,7 @@ import axios from 'axios';
 import { MyContext } from '../pages/MyContext';
 import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import decodeToken from '../decodedDetails';
-import { Button } from 'react-bootstrap'; // Using React Bootstrap for dropdown
+import { Button,Table } from 'react-bootstrap'; // Using React Bootstrap for dropdown
 import { toast, ToastContainer } from 'react-toastify';
 
 function HrInterviewd() {
@@ -50,7 +50,7 @@ function HrInterviewd() {
     return (
         <div className="container">
             <div className="col-12 container w-80">
-                <table className="table table-striped">
+                <Table className="table table-striped table-sm">
                     <thead>
                         <tr>
                             <th style={{backgroundColor:'#E10174'}}>S.No</th>
@@ -65,13 +65,13 @@ function HrInterviewd() {
                         {Array.isArray(profiles) && profiles.length > 0 ? (
                             profiles.map((profile, index) => (
                                 <tr key={profile.id} >
-                                    <td>{index + 1}</td>
+                                    <td className='p-2'>{index + 1}</td>
                                  
-                                    <td>{profile.applicant_id}</td>
-                                    <td>{profile.name}</td>
-                                    <td>{profile.phone}</td>
+                                    <td className='p-2'>{profile.applicant_id}</td>
+                                    <td className='p-2'>{profile.name}</td>
+                                    <td className='p-2'>{profile.phone}</td>
                                   
-                                    <td>
+                                    <td className='p-2'>
                                         <Button  style={{backgroundColor:'#E10174'}} className='text-white border-0' onClick={() => handleEdit(profile)}>
                                             Edit Record
                                         </Button>
@@ -84,7 +84,7 @@ function HrInterviewd() {
                             </tr>
                         )}
                     </tbody>
-                </table>
+                </Table>
             </div>
             <ToastContainer />
         </div>

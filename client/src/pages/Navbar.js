@@ -92,7 +92,25 @@ function AppNavbar() {
   return (
     <Navbar expand="lg" className="shadow-sm">
       <Container fluid>
-        <Navbar.Brand className="fw-bolder">
+      {role !== "trainer" && role !== "market_manager" && (
+        
+        <Navbar.Brand as={Link}
+        to={
+          role === "interviewer"
+            ? "/InterviewerDashboard"
+            : role === "direct_hiring"
+            ? "/directHiring"
+            : role === "screening_manager"
+            ? "screeinghome"
+            : role === "admin"
+            ? "/adminhome"
+            : role === "hr"
+            ? "/hrhome"
+            : role !== "market_manager"
+            ? ""
+            : "/"
+        }
+        className="fw-bolder">
           <img
             src="/logo.png"
             alt="Logo"
@@ -102,6 +120,8 @@ function AppNavbar() {
           />{" "}
           TECHNO COMMUNICATIONS LLC
         </Navbar.Brand>
+      )}
+
         <Navbar.Toggle aria-controls="navbarSupportedContent" />
         <Navbar.Collapse id="navbarSupportedContent">
           <Nav className="ms-auto d-flex align-items-center">
@@ -149,7 +169,7 @@ function AppNavbar() {
                   HR Profile
                 </Nav.Link>
               )}
-              {role !== "trainer" && role !== "market_manager" && (
+              {/* {role !== "trainer" && role !== "market_manager" && (
                 <Nav.Link
                   as={Link}
                   to={
@@ -171,7 +191,7 @@ function AppNavbar() {
                 >
                   Dashboard
                 </Nav.Link>
-              )}
+              )} */}
               {role === "admin" && (
                 <Nav.Link
                   as={Link}

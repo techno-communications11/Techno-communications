@@ -9,7 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "../pages/loader.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col,Table } from "react-bootstrap";
 import { Button } from "@mui/material";
 import ConfirmationModal from "../pages/Confirm";
 
@@ -331,7 +331,7 @@ function New() {
       </Row>
       <Row>
         <Col>
-          <table className="table table-striped">
+          <Table  stickyHeader className="table table-striped text-sm">
             <thead>
               <tr>
                 {[
@@ -356,15 +356,14 @@ function New() {
               {sortedProfiles.length > 0 ? (
                 sortedProfiles.map((profile, index) => (
                   <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{profile.applicant_name}</td>
-                    {/* <td>{profile.applicant_email}</td> */}
-                    <td>{profile.applicant_phone}</td>
-                    <td>{profile.referred_by}</td>
-                    <td>{profile.reference_id}</td>
-                    <td>{new Date(profile.created_at).toLocaleString('en-US', { hour12: true })}</td>
+                    <td className="p-2">{index + 1}</td>
+                    <td className="p-2">{profile.applicant_name}</td>
+                    <td className="p-2">{profile.applicant_phone}</td>
+                    <td className="p-2">{profile.referred_by}</td>
+                    <td className="p-2">{profile.reference_id||'-'}</td>
+                    <td className="p-2">{new Date(profile.created_at).toLocaleString('en-US', { hour12: true })}</td>
 
-                    <td>
+                    <td className="p-2">
                       <Button
                         variant="contained"
                         onClick={() => handleShowModal(profile)}
@@ -380,7 +379,7 @@ function New() {
                 </tr>
               )}
             </tbody>
-          </table>
+          </Table>
         </Col>
       </Row>
 
