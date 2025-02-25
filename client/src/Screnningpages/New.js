@@ -315,7 +315,7 @@ function New() {
   };
 
   return (
-    <Container>
+    <Container fluid>
       <Row className="justify-content-center">
         <Col xs={12} md={8} lg={6}>
           <Form className="mb-4">

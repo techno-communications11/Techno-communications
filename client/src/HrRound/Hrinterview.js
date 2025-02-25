@@ -384,14 +384,14 @@ const Hrinterview = () => {
   };
 
   return (
-    <Container className="d-flex justify-content-center ">
+    <Container fluid className="d-flex justify-content-center  ">
 
 
 
-      <Col md={8} lg={5} className="m-4">
-        <h2 className='m-2'>{applicant_uuidprops} First Round Details</h2>
+      <Col md={8} lg={5} className="m-4 ">
+        <h2 className='m-2' style={{color:'#E10174'}}>{applicant_uuidprops} First Round Details</h2>
         {/* Accordion to display first round details */}
-        <Accordion defaultActiveKey="0" className="mt-4">
+        <Accordion defaultActiveKey="0" className="mt-4 card shadow-lg">
           {Object.entries(firstRound).map(([key, value], index) => (
             <Accordion.Item eventKey={index.toString()} key={index}>
               <Accordion.Header>{key}</Accordion.Header>
@@ -402,12 +402,12 @@ const Hrinterview = () => {
           ))}
         </Accordion>
       </Col>
-      <Col md lg={7} className="m-4">
+      <Col md lg={6} className="m-4">
         <div className="d-flex justify-content-end gap-2">
           <Button
             variant="warning"
             onClick={() => noshowatinterview(applicant_uuidprops, 'no show at Interview')}
-            className="mt-2"
+            className="mt-2 text-white fw-bolder"
           >
             No Show
           </Button>
@@ -420,10 +420,10 @@ const Hrinterview = () => {
           </Button>
         </div>
 
-        <h2 className='m-2'>HR Interview Questions</h2>
+        <h2 className='m-2' style={{color:'#E10174'}}>HR Interview Questions</h2>
 
 
-        <Form onSubmit={handleSubmit} >
+        <Form onSubmit={handleSubmit} className='card shadow-lg p-5' >
 
 
 

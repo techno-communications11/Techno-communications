@@ -111,15 +111,16 @@ function Screening() {
 
   return (
     <div className='container-fluid d-flex justify-content-center align-items-center mt-4'>
-      <div className='row  mx-5 rounded-3'>
+      <div className='row  mx-5 rounded-3 mt-5'>
         {/* Image Section */}
         <div className='col-md-6 d-flex justify-content-center align-items-center'>
           <img src="./registerUser.png" alt="Register User" className="img-fluid" style={{ height: '80%' }} />
         </div>
 
-        <div className='col-md-6'>
+        <div className='col-md-6 border border-2 border-secondary shadow-lg'>
+          {/* Form Section */}
           <Form className='bg-white p-4 rounded-3' onSubmit={handleSubmit}>
-            <h3 className='text-center mb-4 fw-bold'  >Register Candidate</h3>
+            <h3 className='text-center mb-4 fw-bold'  style={{color:'#E10174'}} >Register Candidate</h3>
 
             <Form.Group className="mb-3" controlId="formBasicName">
               <Form.Control
@@ -171,13 +172,13 @@ function Screening() {
 
             <Form.Group className="mb-3 border-secondary" controlId="formBasicMarket">
               <Dropdown onSelect={handleSelectMarket}>
-                <Dropdown.Toggle className='w-100 bg-transparent text-dark border-secondary' id="dropdown-basic">
+                <Dropdown.Toggle className='w-100 bg-transparent text-dark border-secondary text-start text-secondary' id="dropdown-basic">
                   {selectedMarket || "Select Market"}
                 </Dropdown.Toggle>
-                <Dropdown.Menu className='w-100 overflow-auto' style={{ height: '15rem' }}>
+                <Dropdown.Menu className='w-100 overflow-auto ' style={{ height: '15rem' }}>
                   {markets.sort((a, b) => (a.markets || "").localeCompare(b.markets || "")).map((market, index) => (
-                    <Dropdown.Item key={market.location_name || index} eventKey={market.location_name}>
-                      {market.location_name.toUpperCase()}
+                    <Dropdown.Item key={market.location_name || index} eventKey={market.location_name} className='text-capitalize shadow '>
+                      {market.location_name.toLowerCase()}
                     </Dropdown.Item>
                   ))}
                 </Dropdown.Menu>

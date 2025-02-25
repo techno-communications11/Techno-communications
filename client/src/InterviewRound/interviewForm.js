@@ -230,14 +230,14 @@ const ApplicantForm = ({
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center">
+    <Container fluid className=" d-flex justify-content-center align-items-center">
       <Col
         lg={8}
-        className="border px-5 mt-5"
+        className="border px-5 mt-5  card shadow-md"
         style={{ fontFamily: "Roboto, sans-serif" }}
       >
         {/* Flex container to align button to the right */}
-        <div className="d-flex justify-content-end">
+        <div className="d-flex justify-content-end ">
           <Button
             variant="warning"
             onClick={() => noshowatinterview(applicant_uuidProps)}
@@ -247,10 +247,10 @@ const ApplicantForm = ({
           </Button>
         </div>
 
-        <h1 className="m-4">
+        <h1 className="m-4" style={{ color: "#E10174" }}>
           {applicant_uuidProps} Applicant Information Form
         </h1>
-        <Form>
+        <Form >
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
               1. Enter Applicant uuid

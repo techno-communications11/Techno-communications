@@ -60,7 +60,7 @@ export default function CenteredTabs() {
     };
 
     return (
-        <Container className='mt-4'>
+        <Container fluid className='mt-4'>
             {/* Search Bar */}
             <Form className='mb-3'>
 

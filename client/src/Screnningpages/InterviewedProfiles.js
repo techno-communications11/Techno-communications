@@ -469,7 +469,7 @@ export default function InterviewedProfiles() {
       case "rejected at Screening":
       case "rejected at Interview":
       case "rejected at Hr":
-        return { backgroundColor: "#FF6347", color: "white" };
+        return { backgroundColor: "red", color: "white" };
       case "moved to Interview":
       case "selected at Interview":
       case "selected at Hr":

@@ -66,7 +66,7 @@ function TrainerRes({ setTrainerCount }) {
 
     return (
         <div>
-            <div className="col-12 container w-80">
+            <div className="col-12 container-fluid w-80">
                 <Table className="table table-striped table-sm">
                     <thead>
                         <tr>
