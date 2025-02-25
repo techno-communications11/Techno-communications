@@ -334,7 +334,8 @@ useEffect(() => {
                 <Form.Check
                   key={location.id}
                   type="checkbox"
-                  label={location.name}
+                  label={location.name?.toLowerCase()}
+                  className="text-capitalize " 
                   value={location.name}
                   checked={selectedMarket?.includes(location.name)}
                   onChange={handleLocationChange}

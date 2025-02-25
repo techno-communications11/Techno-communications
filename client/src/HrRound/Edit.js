@@ -102,15 +102,16 @@ const Edit = () => {
     { id: 21, name: "RELOCATION" },
   ];
   return (
-    <Container className="d-flex justify-content-center">
+    <Container fluid className="d-flex justify-content-center">
       <Col md lg={7} className="m-4">
-        <h2 className="m-2">
+        <h2 className="m-2" style={{ color: "#E10174" }}>
           HR Interview Form Edit For {profile.applicant_id}
         </h2>
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} className="p-4 rounded shadow">
+          {/* Applicant ID */}
           {/* Market */}
           <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={6} className="text-start">
+            <Form.Label column sm={6} className="text-start text-capitalize">
               1. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED
               FOR
             </Form.Label>

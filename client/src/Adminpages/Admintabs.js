@@ -72,7 +72,7 @@ export default function AdminTabs() {
     
 
     return (
-        <Container className="mt-4">
+        <Container fluid className="mt-4">
             <Row>
                 <Tabs
                     value={value}

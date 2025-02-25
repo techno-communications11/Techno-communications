@@ -131,7 +131,7 @@ function StatsTicketView() {
         const profilesData = response.data.status_counts || [];
         setSelectedProfiles(profilesData); // Set state to update the UI
         // Update localStorage with the latest selected profiles data
-        console.log(profilesData,"ffffff")
+        console.log(profilesData, "ffffff")
         localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
       } else {
         console.error("Error fetching profiles:", response);
@@ -239,9 +239,9 @@ function StatsTicketView() {
           const inMarket =
             markets.length > 0
               ? markets.some(
-                  (market) =>
-                    currentStatus.work_location_names?.[index] === market
-                )
+                (market) =>
+                  currentStatus.work_location_names?.[index] === market
+              )
               : true;
 
           const createdDate = new Date(currentStatus.created_at_dates?.[index]);
@@ -408,8 +408,8 @@ function StatsTicketView() {
       profile.status.includes("Screening")
         ? profile.applicant_referrals_comments
         : profile.status.includes("Interview")
-        ? profile.first_round_comments
-        : profile.notes
+          ? profile.first_round_comments
+          : profile.notes
     );
     setCommentProfileApplicant_uuid(profile.applicant_uuid);
     setCommentprofileStatus(profile.status);
@@ -452,8 +452,7 @@ function StatsTicketView() {
         }, 3000);
       } else {
         toast.error(
-          `Failed to update the comment: ${
-            responseData.error || "Unknown error"
+          `Failed to update the comment: ${responseData.error || "Unknown error"
           }`
         );
       }
@@ -476,7 +475,6 @@ function StatsTicketView() {
           display="flex"
           justifyContent="center"
           alignItems="center"
-          height="100vh"
         >
           <CircularProgress />
         </Box>
@@ -497,153 +495,153 @@ function StatsTicketView() {
           </div>
 
           <TableContainer
-      component={Paper}
-      sx={{
-        width: "100%",
-        boxShadow: 2,
-        borderRadius: 2,
-        maxHeight: "600px", // Define height for scrollable content
-      }}
-      >
-      <Table stickyHeader className="table-condensed table-sm">
-        {/* Table Header */}
-        <TableHead>
-          <TableRow>
-            {[
-              "S.No",
-              "Created_At",
-              "Applicant Details",
-              "Referred_by",
-              "Reference ID",
-              "Work Location",
-              "Screening Manager",
-              "Interviewer",
-              "HR Name",
-              "Status",
-              "Joining_Date",
-              "Comments",
-              "Update_Comment",
-            ].map((header, index) => (
-              <TableCell
-                key={index}
-                align="center"
-                className="text-center"
-                style={headerStyle}
-              >
-                {header}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
+            component={Paper}
+            sx={{
+              width: "100%",
+              boxShadow: 2,
+              borderRadius: 2,
+              maxHeight: "700px", // Define height for scrollable content
+            }}
+          >
+            <Table stickyHeader className="table-condensed table-sm">
+              {/* Table Header */}
+              <TableHead>
+                <TableRow>
+                  {[
+                    "S.No",
+                    "Created_At",
+                    "Applicant Details",
+                    "Referred_by",
+                    "Reference ID",
+                    "Work Location",
+                    "Screening Manager",
+                    "Interviewer",
+                    "HR Name",
+                    "Status",
+                    "Joining_Date",
+                    "Comments",
+                    "Update_Comment",
+                  ].map((header, index) => (
+                    <TableCell
+                      key={index}
+                      align="center"
+                      className="text-center"
+                      style={headerStyle}
+                    >
+                      {header}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
 
-        {/* Table Body */}
-        <TableBody>
-          {currentProfiles.map((profile, index) => (
-            <TableRow key={index}>
-              {/* S.No */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                {indexOfFirstProfile + index + 1}
-              </TableCell>
+              {/* Table Body */}
+              <TableBody>
+                {currentProfiles.map((profile, index) => (
+                  <TableRow key={index}>
+                    {/* S.No */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      {indexOfFirstProfile + index + 1}
+                    </TableCell>
 
-              {/* Created At */}
-              <TableCell
-                style={{ padding: "4px 9px", fontSize: "0.6rem" }}
-                className="text-center"
-              >
-                {profile.created_at_date.slice(0, 10) || "N/A"}
-              </TableCell>
+                    {/* Created At */}
+                    <TableCell
+                      style={{ padding: "4px 9px", fontSize: "0.6rem" }}
+                      className="text-center"
+                    >
+                      {profile.created_at_date.slice(0, 10) || "N/A"}
+                    </TableCell>
 
-              {/* Applicant Details */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                <Box ml={2}>
-                  <Typography
-                    variant="body1"
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "0.8rem",
-                    }}
-                    className="text-center"
-                  >
-                    {profile.applicant_name || "N/A"}
-                    <span className="d-block text-muted">
-                      {profile.applicant_phone}
-                    </span>
-                  </Typography>
-                </Box>
-              </TableCell>
+                    {/* Applicant Details */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      <Box ml={2}>
+                        <Typography
+                          variant="body1"
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: "0.8rem",
+                          }}
+                          className="text-center"
+                        >
+                          {profile.applicant_name || "N/A"}
+                          <span className="d-block text-muted">
+                            {profile.applicant_phone}
+                          </span>
+                        </Typography>
+                      </Box>
+                    </TableCell>
 
-              {/* Referred_by */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                {profile.applicant_referred_by || "N/A"}
-              </TableCell>
+                    {/* Referred_by */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      {profile.applicant_referred_by || "N/A"}
+                    </TableCell>
 
-              {/* Reference ID */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                {profile.applicant_reference_id || "N/A"}
-              </TableCell>
+                    {/* Reference ID */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      {profile.applicant_reference_id || "N/A"}
+                    </TableCell>
 
-              {/* Work Location */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-capitalize text-center"
-              >
-                {profile.work_location_name?.toLowerCase() || "N/A"}
-              </TableCell>
+                    {/* Work Location */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-capitalize text-center"
+                    >
+                      {profile.work_location_name?.toLowerCase() || "N/A"}
+                    </TableCell>
 
-              {/* Screening Manager */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                {profile.screening_manager_name || "N/A"}
-              </TableCell>
+                    {/* Screening Manager */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      {profile.screening_manager_name || "N/A"}
+                    </TableCell>
 
-              {/* Interviewer */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                {profile.interviewer_name || "N/A"}
-              </TableCell>
+                    {/* Interviewer */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      {profile.interviewer_name || "N/A"}
+                    </TableCell>
 
-              {/* HR Name */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                {profile.hr_name || "N/A"}
-              </TableCell>
+                    {/* HR Name */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      {profile.hr_name || "N/A"}
+                    </TableCell>
 
-              {/* Status */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                {profile.status || "N/A"}
-              </TableCell>
+                    {/* Status */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      {profile.status || "N/A"}
+                    </TableCell>
 
-              {/* Joining Date */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                {profile.joining_date || "N/A"}
-              </TableCell>
+                    {/* Joining Date */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      {profile.joining_date || "N/A"}
+                    </TableCell>
 
-              {/* Comments */}
-              <TableCell
+                    {/* Comments */}
+                    <TableCell
                       style={{ padding: "4px 8px", fontSize: "0.8rem" }}
                       className="text-center"
                     >
@@ -660,15 +658,15 @@ function StatsTicketView() {
                             ].includes(profile.status)
                               ? profile.applicant_referrals_comments
                               : [
-                                  "put on hold at Interview",
-                                  "Moved to HR",
-                                  "selected at Interview",
-                                  "need second opinion at Interview",
-                                  "rejected at Interview",
-                                  "no show at Interview",
-                                ].includes(profile.status)
-                              ? profile.first_round_comments
-                              : [
+                                "put on hold at Interview",
+                                "Moved to HR",
+                                "selected at Interview",
+                                "need second opinion at Interview",
+                                "rejected at Interview",
+                                "no show at Interview",
+                              ].includes(profile.status)
+                                ? profile.first_round_comments
+                                : [
                                   "Recommended For Hiring",
                                   "Sent for Evaluation",
                                   "Applicant will think about It",
@@ -680,8 +678,8 @@ function StatsTicketView() {
                                   "backOut",
                                   "mark_assigned",
                                 ].includes(profile.status)
-                              ? profile.notes
-                              : "N/A"}
+                                  ? profile.notes
+                                  : "N/A"}
                           </Tooltip>
                         }
                       >
@@ -694,30 +692,30 @@ function StatsTicketView() {
                             "Not Interested at screening",
                             "moved to Interview",
                           ].includes(profile.status) &&
-                          profile.applicant_referrals_comments !== "N/A" ? (
+                            profile.applicant_referrals_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : [
-                              "put on hold at Interview",
-                              "Moved to HR",
-                              "selected at Interview",
-                              "need second opinion at Interview",
-                              "rejected at Interview",
-                              "no show at Interview",
-                            ].includes(profile.status) &&
+                            "put on hold at Interview",
+                            "Moved to HR",
+                            "selected at Interview",
+                            "need second opinion at Interview",
+                            "rejected at Interview",
+                            "no show at Interview",
+                          ].includes(profile.status) &&
                             profile.first_round_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : [
-                              "Recommended For Hiring",
-                              "Sent for Evaluation",
-                              "Applicant will think about It",
-                              "selected at Hr",
-                              "Store Evaluation",
-                              "Spanish Evaluation",
-                              "Not Recommended For Hiring",
-                              "rejected at Hr",
-                              "backOut",
-                              "mark_assigned",
-                            ].includes(profile.status) &&
+                            "Recommended For Hiring",
+                            "Sent for Evaluation",
+                            "Applicant will think about It",
+                            "selected at Hr",
+                            "Store Evaluation",
+                            "Spanish Evaluation",
+                            "Not Recommended For Hiring",
+                            "rejected at Hr",
+                            "backOut",
+                            "mark_assigned",
+                          ].includes(profile.status) &&
                             profile.notes !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : (
@@ -727,31 +725,31 @@ function StatsTicketView() {
                       </OverlayTrigger>
                     </TableCell>
 
-              {/* Update Comment */}
-              <TableCell
-                style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                className="text-center"
-              >
-                <Button
-                  className="text-white bg-primary text-center"
-                  style={{ fontSize: "10px" }}
-                  onClick={() => handleOpenModal(profile)}
-                >
-                  Update
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+                    {/* Update Comment */}
+                    <TableCell
+                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
+                      className="text-center"
+                    >
+                      <Button
+                        className="text-white bg-primary text-center"
+                        style={{ fontSize: "10px" }}
+                        onClick={() => handleOpenModal(profile)}
+                      >
+                        Update
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-          <Stack spacing={2}   sx={{
-    marginTop: 1,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  }}>
+          <Stack spacing={2} sx={{
+            marginTop: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
             <Pagination
               count={pageCount}
               page={currentPage}

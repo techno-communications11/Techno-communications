@@ -10,6 +10,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "@mui/material";
 import Swal from "sweetalert2";
+import { FaUser, FaPhone, FaBuilding, FaIdCard, FaSignInAlt } from "react-icons/fa"; // Import icons
 
 function Public() {
   const apiUrl = process.env.REACT_APP_API;
@@ -38,19 +39,13 @@ function Public() {
 
     // Validate each field
     const nameValid = nameRef.current?.value.trim() !== "";
-    // const emailValid = regexEmail.test(emailRef.current?.value);
-    // const phoneValid = regexPhone.test(phoneRef.current?.value);
     const marketValid = selectedMarket !== "";
     const referredByValid = referredByRef.current?.value.trim() !== "";
-    // const referenceNtidValid = referenceNtidRef.current?.value.trim() !== '';
 
     // Update invalidFields state
     const newInvalidFields = {
       name: !nameValid,
-      // email: !emailValid,
-      // phone: !phoneValid,
       referredBy: !referredByValid,
-      // referenceNtid: !referenceNtidValid,
       market: !marketValid,
     };
 
@@ -62,23 +57,16 @@ function Public() {
     );
 
     function sanitizePhoneNumber(phoneNumber) {
-      // Remove all non-digit characters (spaces, symbols, letters, etc.)
       const sanitized = phoneNumber.replace(/[^\d]/g, "");
-
-      // Ensure we only keep the last 10 digits (if country code exists, it will be removed)
       const phoneWithoutCountryCode =
         sanitized.length > 10 ? sanitized.slice(-10) : sanitized;
-
-      // If the sanitized number has exactly 10 digits, return it, otherwise return an empty string
       return phoneWithoutCountryCode.length === 10
         ? phoneWithoutCountryCode
         : "";
     }
 
-    // Get the phone number value from the input field and sanitize it
     const phoneNumber = sanitizePhoneNumber(phoneRef.current.value);
 
-    // If phone number is invalid, show error and prevent submission
     if (!phoneNumber) {
       setError("Please enter a valid phone number with exactly 10 digits.");
       setLoading(false);
@@ -101,7 +89,6 @@ function Public() {
         referred_by: referredByRef.current.value,
         reference_id: referenceNtidRef.current.value,
       };
-      // console.log(formData,'ffffffffeeeeeeeeeee');
 
       const response = await axios.post(`${apiUrl}/submit`, formData);
 
@@ -113,7 +100,6 @@ function Public() {
         });
       }
     } catch (error) {
-      // Handle errors
       if (error.response && error.response.data && error.response.data.error) {
         Swal.fire({
           title: "Error",
@@ -128,7 +114,6 @@ function Public() {
         });
       }
     } finally {
-      // Reset form fields
       nameRef.current.value = "";
       phoneRef.current.value = "";
       referredByRef.current.value = "";
@@ -146,7 +131,6 @@ function Public() {
 
   const handleSelectMarket = (eventKey) => {
     setSelectedMarket(eventKey);
-    // Remove invalid state when user selects a market
     setInvalidFields((prev) => ({ ...prev, market: false }));
   };
 
@@ -169,13 +153,10 @@ function Public() {
 
   return (
     <Container fluid>
-      <Row className="vh-100">
+      <h2 className="mt-4 display-2 fw-bolder" style={{ color: '#E10174' }}>Welcome Back..</h2>
+      <Row className="vh-90">
         {/* Left Column with Image */}
-        <Col
-          md={6}
-          lg={6}
-          className="d-flex justify-content-center align-items-center"
-        >
+        <Col md={6} lg={6} className="d-flex justify-content-center align-items-center">
           <img
             src={job}
             alt="jobs"
@@ -186,71 +167,73 @@ function Public() {
 
         {/* Right Column with Form */}
         <Col md={6} lg={6} className="d-flex flex-column mt-4">
-          <h2 className="mt-4">TECHNO HIRING</h2>
-          <Form
-            className="shadow-lg p-4 rounded-3 mt-4"
-            onSubmit={handleSubmit}
-            noValidate
-          >
-            <h3 className="text-center mb-4 fw-bolder">
-              Candidate Details Form
-            </h3>
+          <Form className="shadow-lg p-4 rounded-3 mt-4 p-4" onSubmit={handleSubmit} noValidate>
+            <h3 className="text-center mb-4 fw-bolder">Candidate Details Form</h3>
 
-            {/* Form Fields */}
-            <Form.Group className="mb-3 " controlId="formBasicName">
-              <Form.Control
-                ref={nameRef}
-                type="text"
-                placeholder="Name"
-                className="shadow-none border"
-                required
-                isInvalid={invalidFields.name}
-              />
+            {/* Form Fields with Icons */}
+            <Form.Group className="mb-3" controlId="formBasicName">
+              <div className="input-group">
+                <span className="input-group-text"><FaUser style={{color:'#e10174'}} /></span>
+                <Form.Control
+                  ref={nameRef}
+                  type="text"
+                  placeholder="Name"
+                  className="shadow-none border"
+                  required
+                  isInvalid={invalidFields.name}
+                />
+              </div>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPhone">
-              <Form.Control
-                ref={phoneRef}
-                type="tel"
-                placeholder="Phone Number"
-                className="shadow-none border"
-                required
-              />
+              <div className="input-group">
+                <span className="input-group-text"><FaPhone style={{color:'#e10174'}} /></span>
+                <Form.Control
+                  ref={phoneRef}
+                  type="tel"
+                  placeholder="Phone Number"
+                  className="shadow-none border"
+                  required
+                />
+              </div>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicReferredBy">
-              <Form.Control
-                ref={referredByRef}
-                type="text"
-                placeholder="Referred By"
-                className="shadow-none border "
-                required
-                isInvalid={invalidFields.referredBy}
-              />
+              <div className="input-group">
+                <span className="input-group-text"><FaUser style={{color:'#e10174'}} /></span>
+                <Form.Control
+                  ref={referredByRef}
+                  type="text"
+                  placeholder="Referred By"
+                  className="shadow-none border"
+                  required
+                  isInvalid={invalidFields.referredBy}
+                />
+              </div>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicReferenceNtid">
-              <Form.Control
-                ref={referenceNtidRef}
-                type="text"
-                className="shadow-none border"
-                placeholder="Reference NTID (optional)"
-              />
+              <div className="input-group">
+                <span className="input-group-text"><FaIdCard  style={{color:'#e10174'}}/></span>
+                <Form.Control
+                  ref={referenceNtidRef}
+                  type="text"
+                  className="shadow-none border"
+                  placeholder="Reference NTID (optional)"
+                />
+              </div>
             </Form.Group>
 
-            {/* Market Selection Dropdown */}
+            {/* Market Selection Dropdown with Icon */}
             <Form.Group className="mb-3" controlId="formBasicMarket">
-              <div
-                className={`${
-                  invalidFields.market ? "border-danger" : "border"
-                } rounded`}
-              >
+              <div className={`${invalidFields.market ? "border-danger" : "border"} rounded`}>
                 <Dropdown onSelect={handleSelectMarket}>
                   <Dropdown.Toggle
-                    className={`w-100 bg-transparent text-muted  shadow-none border `}
+                    className="w-100 bg-transparent text-muted shadow-none border"
                     id="dropdown-basic"
                     style={{ padding: "10px", textAlign: "left" }}
                   >
+                    <FaBuilding className="me-2" style={{color:'#e10174'}} />
                     {selectedMarket || "Select Market"}
                   </Dropdown.Toggle>
                   <Dropdown.Menu
@@ -263,9 +246,7 @@ function Public() {
                   >
                     {markets
                       .sort((a, b) =>
-                        (a.location_name || "").localeCompare(
-                          b.location_name || ""
-                        )
+                        (a.location_name || "").localeCompare(b.location_name || "")
                       )
                       .map((market, index) => (
                         <Dropdown.Item
@@ -278,18 +259,16 @@ function Public() {
                             fontWeight: "500",
                             borderBottom: "1px solid #ddd",
                           }}
-                          className="dropdown-item-hover"
+                          className="dropdown-item-hover text-capitalize"
                         >
-                          {market.location_name.toUpperCase()}
+                          {market.location_name.toLowerCase()}
                         </Dropdown.Item>
                       ))}
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
               {invalidFields.market && (
-                <div className="invalid-feedback d-block">
-                  Please select a market.
-                </div>
+                <div className="invalid-feedback d-block">Please select a market.</div>
               )}
             </Form.Group>
 
@@ -306,7 +285,7 @@ function Public() {
             {error && <div className="text-danger mt-3">{error}</div>}
           </Form>
 
-          {/* Login Button */}
+          {/* Login Button with Icon */}
           <div className="text-center mt-4">
             <Button
               style={{
@@ -317,6 +296,7 @@ function Public() {
               }}
               onClick={handleLoginModalShow}
             >
+              <FaSignInAlt className="me-2" />
               Login to Application
             </Button>
           </div>

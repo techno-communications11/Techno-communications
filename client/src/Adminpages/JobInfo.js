@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody,  Grid, Select, MenuItem, InputLabel, FormControl, OutlinedInput, Checkbox, ListItemText, Typography } from '@mui/material';
 import axios from 'axios';
+import { Col, Container, Form ,Row} from 'react-bootstrap';
 
 const JobInfo = () => {
     const apiurl = process.env.REACT_APP_API;
@@ -84,15 +85,16 @@ const JobInfo = () => {
     const postedByNames = Object.keys(userMarket);
 
     return (
-        <Box sx={{ flexGrow: 1, mt: 4, display: 'flex', justifyContent: 'center' }}>
-            <Box sx={{ width: '90%', maxWidth: 1200 }}>
-                <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
+        <Container fluid sx={{ flexGrow: 1, mt: 4, display: 'flex', justifyContent: 'center' }}>
+            <Row sx={{ width: '90%', maxWidth: 1200 }}>
+                <h1 variant="h4" align="center" className='mt-3 fw-bolder' gutterBottom sx={{ mb: 4, fontWeight: 'bold' }} style={{ color: '#E10174' }}>
                     Job Posting Information
-                </Typography>
+                </h1>
 
                 {/* Filters */}
-                <Grid container spacing={2} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={4}>
+                <Row  className='d-flex mb-3' container spacing={2} md={12}>
+                    <Col item xs={12} sm={4} md={4}>
+                    <Form item xs={12} sm={4} md={4}>
                         <FormControl fullWidth size="small">
                             <InputLabel>Market</InputLabel>
                             <Select
@@ -130,9 +132,11 @@ const JobInfo = () => {
                                 ))}
                             </Select>
                         </FormControl>
-                    </Grid>
+                    </Form>
+                    </Col>
+                    <Col item xs={12} sm={4} md={4}>
 
-                    <Grid item xs={12} sm={4}>
+                    <Form item xs={12} sm={4} md={4}>
                         <FormControl fullWidth size="small">
                             <InputLabel>Posted By</InputLabel>
                             <Select
@@ -166,40 +170,41 @@ const JobInfo = () => {
                                 ))}
                             </Select>
                         </FormControl>
-                    </Grid>
+                    </Form>
+                    </Col>
 
                 
-                </Grid>
+                </Row>
 
                 {/* Table */}
-                <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
-                    <Table>
-                        <TableHead>
-                            <TableRow sx={{ backgroundColor: '#E10174' }}>
-                            <TableCell className='text-center'><strong style={{ color: '#fff' }} >SI No</strong></TableCell>
-                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Market</strong></TableCell>
-                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Openings</strong></TableCell>
-                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Posted By</strong></TableCell>
-                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Created At</strong></TableCell>
-                                <TableCell className='text-center'><strong style={{ color: '#fff' }}>Deadline</strong></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
+                <div  className="container-fluid" component={Paper}>
+                    <table className="table table-striped table-sm">
+                        <thead>
+                            <tr  >
+                            <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong  >SI No</strong></th>
+                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Market</strong></th>
+                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Openings</strong></th>
+                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Posted By</strong></th>
+                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Created At</strong></th>
+                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Deadline</strong></th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             {filteredMarkets.map((market,index) => (
                                 <TableRow key={market.id}>
-                                     <TableCell className='text-center'>{index+1}</TableCell>
-                                    <TableCell className='text-center'>{market.name}</TableCell>
-                                    <TableCell className='text-center'>{market.openings}</TableCell>
-                                    <TableCell className='text-center'>{market.posted_by}</TableCell>
-                                    <TableCell className='text-center'>{new Date(market.created_at).toLocaleDateString('en-US')}</TableCell>
-                                    <TableCell className='text-center'>{new Date(market.deadline).toLocaleDateString('en-US')}</TableCell>
+                                     <td className='text-center'>{index+1}</td>
+                                    <td className='text-center'>{market.name}</td>
+                                    <td className='text-center'>{market.openings}</td>
+                                    <td className='text-center'>{market.posted_by}</td>
+                                    <td className='text-center'>{new Date(market.created_at).toLocaleDateString('en-US')}</td>
+                                    <td className='text-center'>{new Date(market.deadline).toLocaleDateString('en-US')}</td>
                                 </TableRow>
                             ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box>
-        </Box>
+                        </tbody>
+                    </table>
+                </div>
+            </Row>
+        </Container>
     );
 };
 

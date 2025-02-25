@@ -87,7 +87,7 @@ function AppComponent() {
     normalizedPath !== "/login";
 
   return (
-    <div className="App">
+    <div className="App" >
       {showNavbar && <Navbar />}
       <Routes>
         {!token ? (

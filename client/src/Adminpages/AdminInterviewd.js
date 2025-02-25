@@ -89,8 +89,8 @@ function AdminInterviewd() {
     };
 
     return (
-        <Container className="mt-1">
-            <Table responsive striped bordered hover className="text-center">
+        <Container fluid className="mt-1">
+            <Table responsive striped bordered hover className="text-center ">
                 <thead>
                     <tr>
                         <th className="p-2" style={{ backgroundColor: "#E10174", color: "#fff" }}>S.No</th>

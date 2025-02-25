@@ -68,8 +68,8 @@ function AdminHrEdit() {
     };
 
     return (
-        <div className="container">
-            <div className="col-12 container w-80">
+        <div className="container-fluid">
+            <div className="col-12 container-fluid w-80">
                 <Table className="table table-striped table-sm">
                     <thead>
                         <tr>
