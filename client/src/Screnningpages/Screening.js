@@ -1,16 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@mui/material';
+import React, { useState, useRef } from 'react';
+import Button from '../utils/Button';
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import decodeToken from '../decodedDetails';
+import SanitizePhoneNumber from '../utils/SanitizePhoneNumber'; 
+import { useContext } from 'react';
+import { MyContext } from '../pages/MyContext';
+import useFetchMarkets from '../Hooks/useFetchMarkets';
 
 function Screening() {
-  const userData = decodeToken();
   const [error, setError] = useState('');
   const [selectedMarket, setSelectedMarket] = useState('');
-  const [markets, setMarkets] = useState([]);
   const nameRef = useRef();
   const emailRef = useRef();
   const phoneRef = useRef();
@@ -18,6 +19,8 @@ function Screening() {
   const referenceNtidRef = useRef();
   const apiUrl = process.env.REACT_APP_API;
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   const {userData}=useContext(MyContext);
+    const {markets}=useFetchMarkets();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -32,25 +35,10 @@ function Screening() {
       setError('Please fill out all fields correctly.');
       return;
     }
-    // Function to sanitize phone number by removing country code, non-digit characters, and ensuring 10 digits
-    function sanitizePhoneNumber(phoneNumber) {
-      // Remove all non-digit characters (spaces, symbols, letters, etc.)
-      const sanitized = phoneNumber.replace(/[^\d]/g, '');
-      
-      // Ensure we only keep the last 10 digits (if country code exists, it will be removed)
-      const phoneWithoutCountryCode = sanitized.length > 10 ? sanitized.slice(-10) : sanitized;
-      
-      // If the sanitized number has exactly 10 digits, return it, otherwise return an empty string
-      return phoneWithoutCountryCode.length === 10 ? phoneWithoutCountryCode : '';
-    }
-  
-    // Get the phone number value from the input field and sanitize it
-    const phoneNumber = sanitizePhoneNumber(phoneRef.current.value);
-  
-    // If phone number is invalid, show error and prevent submission
+    const phoneNumber = SanitizePhoneNumber(phoneRef.current.value);
+
     if (!phoneNumber) {
       setError("Please enter a valid phone number with exactly 10 digits.");
-      // setLoading(false);
       return;
     }
     setError('');
@@ -65,9 +53,8 @@ function Screening() {
         reference_id: referenceNtidRef.current.value,
         sourcedBy: userData.name,  // Directly assign the userData.name here
       };
-      // console.log(formData);
 
-      const response = await axios.post(`${apiUrl}/submit`, formData);
+      const response = await axios.post(`${apiUrl}/submit`, formData,{withCredentials:true});
 
       if (response.status === 201) {
         Swal.fire({
@@ -96,23 +83,10 @@ function Screening() {
     setSelectedMarket(eventKey);
   };
 
-  useEffect(() => {
-    const fetchMarkets = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/markets`);
-        setMarkets(response.data);
-      } catch (error) {
-        setError('Failed to fetch markets. Please try again later.');
-      }
-    };
-
-    fetchMarkets();
-  }, []);
-
   return (
     <div className='container-fluid d-flex justify-content-center align-items-center mt-4'>
       <div className='row  mx-5 rounded-3 mt-5'>
-        {/* Image Section */}
+       
         <div className='col-md-6 d-flex justify-content-center align-items-center'>
           <img src="./registerUser.png" alt="Register User" className="img-fluid" style={{ height: '80%' }} />
         </div>
@@ -185,9 +159,8 @@ function Screening() {
               </Dropdown>
             </Form.Group>
 
-            <Button className='w-100' variant="contained" type="submit">
-              Submit
-            </Button>
+            <Button label={"Submit"} variant="btn-primary w-100" type="submit"/>
+            
 
             <div className='text-danger mt-3'>{error}</div>
           </Form>

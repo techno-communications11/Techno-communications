@@ -9,9 +9,7 @@ import Interviewedprofiles from './InterviewedProfiles';
 import Button from '@mui/material/Button';
 
 function TabPanel(props) {
-
     const { children, value, index, ...other } = props;
-
     return (
         <div
             role="tabpanel"
@@ -50,7 +48,14 @@ export default function CenteredTabs() {
         // Replace with the actual API call to fetch applicant details by mobile number
         try {
             // console.log("mobileNumber", mobileNumber)
-            const response = await fetch(`${apiurl}/getstatusnyphone/${mobileNumber}`);
+            const response = await fetch(`${apiurl}/getstatusnyphone/${mobileNumber}`, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include', // <-- This allows cookies to be sent with the request
+              });
+              
             const data = await response.json();
             setApplicantDetails(data);
             // console.log("data", data)
@@ -103,10 +108,7 @@ export default function CenteredTabs() {
                         onClick={() => {
                             // Clear the applicantDetails state
                             setApplicantDetails(null);
-                            setMobileNumber("")
-
-
-                            // Reload the page or perform other necessary actions
+                            setMobileNumber("");
 
                         }}
                         sx={{ marginTop: 2 }} // Adds spacing from the content above

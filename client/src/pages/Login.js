@@ -1,159 +1,171 @@
-import React, { useState, useRef } from 'react';
-import Button from 'react-bootstrap/Button';
+import React, { useState, useRef, useContext } from 'react';
 import Form from 'react-bootstrap/Form';
-import { FaEyeSlash, FaEye, FaEnvelope, FaLock } from 'react-icons/fa'; // Added more icons
+import { FaEyeSlash, FaEye, FaEnvelope, FaLock } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
-// import { toast, ToastContainer } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
-// import './Login.css'; // Optional: Add custom CSS for additional styling
+import Button from '../utils/Button';
+import Loader from '../utils/Loader';
+import Inputicons from '../utils/Inputicons';
+import { MyContext } from './MyContext';
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // Added loading state
+  const [loading, setLoading] = useState(false);
   const emailRef = useRef();
   const passwordRef = useRef();
   const navigate = useNavigate();
+  const { setIsAuthenticated, setUserData } = useContext(MyContext);
+
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true); // Set loading to true during submission
-
-    const email = emailRef.current.value;
-    const password = passwordRef.current.value;
-
     setError('');
 
+    console.log('emailRef.current:', emailRef.current);
+    console.log('passwordRef.current:', passwordRef.current);
+
+    if (!emailRef.current || !passwordRef.current) {
+      setError('Form inputs are not properly initialized.');
+      return;
+    }
+
+    const email = emailRef.current.value.trim();
+    const password = passwordRef.current.value.trim();
+
+    console.log('Login payload:', { email, password });
+
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const response = await axios.post(
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      console.log('API URL:', process.env.REACT_APP_API);
+      console.log('Sending login request:', { email });
+      const loginResponse = await axios.post(
         `${process.env.REACT_APP_API}/login`,
         { email, password },
-        { withCredentials: true }
-      );
-
-      if (response.status === 200) {
-        const { token } = response.data;
-        localStorage.setItem('token', token);
-
-        const decodedToken = jwtDecode(token);
-        const userRole = decodedToken.role;
-
-        // Redirect based on user role
-        switch (userRole) {
-          case 'admin':
-            navigate('/adminhome');
-            break;
-          case 'hr':
-            navigate('/hrhome');
-            break;
-          case 'trainer':
-            navigate('/trainerhome');
-            break;
-          case 'screening_manager':
-            navigate('/screeinghome');
-            break;
-          case 'interviewer':
-            navigate('/interviewerdashboard');
-            break;
-          case 'market_manager':
-            navigate('/markethome');
-            break;
-          case 'direct_hiring':
-            navigate('/directHiring');
-            break;
-          default:
-            navigate('/');
-            break;
+        {
+          withCredentials: true,
+          signal: controller.signal,
         }
-
-        // Show success toast
-        // toast.success('Login successful!', {
-        //   // position: toast.POSITION.TOP_CENTER,
-        //   autoClose: 3000,
-        // });
-      }
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          'Login failed. Please check your email and password.'
       );
-      // toast.error(error.response?.data?.message || 'Login failed!', {
-      //   // position: toast.POSITION.TOP_CENTER,
-      //   autoClose: 3000,
-      // });
+
+      clearTimeout(timeoutId);
+
+      console.log('Login response:', loginResponse.status, loginResponse.data);
+
+      if (loginResponse.status !== 200) {
+        throw new Error('Login failed. Please try again.');
+      }
+
+      console.log('Fetching user data...');
+      const userRes = await axios.get(`${process.env.REACT_APP_API}/user/me`, {
+        withCredentials: true,
+        signal: controller.signal,
+      });
+
+      console.log('User response:', userRes.status, userRes.data);
+
+      const userData = userRes.data;
+      if (!userData?.id || !userData?.role) {
+        throw new Error('Invalid user data received.');
+      }
+
+      const { id, role, email: userEmail, market, name, ...otherData } = userData;
+      setUserData({ id, role, email: userEmail, market, name, ...otherData });
+      setIsAuthenticated(true);
+
+      const routeMap = {
+        admin: '/adminhome',
+        hr: '/hrhome',
+        trainer: '/trainerhome',
+        screening_manager: '/screeinghome',
+        interviewer: '/interviewerdashboard',
+        market_manager: '/markethome',
+        direct_hiring: '/directHiring',
+      };
+       console.log(routeMap["hr"],'dimimd')
+
+      navigate(routeMap[role] || '/');
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        setError('Request timed out. Please try again.');
+      } else if (error.response?.status === 401) {
+        setError('Invalid email or password. Please try again.');
+      } else {
+        setError(
+          error.response?.data?.message ||
+          error.message ||
+          'An unexpected error occurred. Please try again.'
+        );
+      }
+      console.error('Login error:', error);
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
-  const handlePasswordShow = () => {
-    setShowPassword((prev) => !prev);
-  };
+  if (loading) return <Loader />;
 
   return (
-    <>
-      <Form className="p-4 rounded shadow-sm" onSubmit={handleSubmit}>
-        <h3 className="text-center mb-4 fw-bold">Login</h3>
+    <Form className="p-4 rounded shadow-sm" onSubmit={handleSubmit}>
+      <h3 className="text-center mb-4 fw-bold">Login</h3>
 
-        {/* Email Input */}
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <div className="input-group">
-            <span className="input-group-text">
-              <FaEnvelope style={{color:'#e10174'}} />
-            </span>
-            <Form.Control
-              ref={emailRef}
-              type="email"
-              placeholder="Enter email"
-              required
-              className="shadow-none border"
-            />
-          </div>
-        </Form.Group>
+      <Form.Group className="mb-3" controlId="formBasicEmail">
+        <div className="input-group">
+          <Inputicons icon={FaEnvelope} />
+          <Form.Control
+            ref={emailRef}
+            type="email"
+            placeholder="Enter email"
+            required
+            className="shadow-none border"
+          />
+        </div>
+      </Form.Group>
 
-        {/* Password Input */}
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <div className="input-group">
-            <span className="input-group-text">
-              <FaLock  style={{color:'#e10174'}}/>
-            </span>
-            <Form.Control
-              ref={passwordRef}
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Password"
-              required
-              className="shadow-none border"
-            />
-            <span
-              onClick={handlePasswordShow}
-              role="button"
-              className="input-group-text"
-            >
-              {showPassword ? <FaEye style={{color:'#e10174'}} /> : <FaEyeSlash style={{color:'#e10174'}} />}
-            </span>
-          </div>
-          {error && (
-            <span className="text-danger d-block mt-2 text-center">{error}</span>
-          )}
-        </Form.Group>
+      <Form.Group className="mb-3" controlId="formBasicPassword">
+        <div className="input-group">
+          <Inputicons icon={FaLock} />
+          <Form.Control
+            ref={passwordRef}
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            required
+            className="shadow-none border"
+          />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            role="button"
+            className="input-group-text"
+          >
+            {showPassword ? <Inputicons icon={FaEye} /> : <Inputicons icon={FaEyeSlash} />}
+          </span>
+        </div>
+        {error && (
+          <span className="text-danger d-block mt-2 text-center">{error}</span>
+        )}
+      </Form.Group>
 
-        {/* Submit Button */}
-        <Button
-          // variant="primary"
-          style={{backgroundColor:'#e10174'}}
-          type="submit"
-          className="w-100 fw-bold border-0"
-          disabled={loading} // Disable button during loading
-        >
-          {loading ? 'Logging in...' : 'Login'}
-        </Button>
-      </Form>
-
-      {/* Toast Container */}
-      {/* <ToastContainer /> */}
-    </>
+      <Button
+        variant="btn-primary w-100"
+        type="submit"
+        label="Login"
+        disabled={loading}
+      />
+    </Form>
   );
 }
 

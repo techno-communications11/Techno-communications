@@ -7,22 +7,24 @@ import { Modal, Form } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import Pagination from "@mui/material/Pagination";
 import {
-  Button,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Paper,
   Typography,
   Box,
   Stack,
-  CircularProgress,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { Container } from "react-bootstrap";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
+import Loader from "../utils/Loader";
+import TableHead from "../utils/TableHead";
+import API_URL from "../Constants/ApiUrl";
+import Button from "../utils/Button";
+
 function StatsTicketView() {
   const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,18 +32,13 @@ function StatsTicketView() {
   const profilesPerPage = 100;
   const [showModal, setShowModal] = useState(false);
   const [updatedComment, setUpdatedComment] = useState("");
-  const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =
-    useState("");
+  const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] = useState("");
   const [commentprofilestatus, setCommentprofileStatus] = useState("");
-
   const myContext = useContext(MyContext);
-  const { markets, captureStatus, captureDate } = myContext;
-  // console.log(captureStatus,"caps")
+  const { markets, captureStatus, captureDate, } = myContext;
 
   useEffect(() => {
-    // First, use context values
     const { markets, captureStatus, captureDate } = myContext;
-
     // Check if the context values are set (non-empty) or fall back to localStorage
     let parsedMarkets = markets && markets.length > 0 ? markets : [];
     let parsedCaptureStatus = captureStatus || "";
@@ -111,7 +108,7 @@ function StatsTicketView() {
   ) => {
     setLoading(true);
     try {
-      const url = `${process.env.REACT_APP_API}/Detailstatus`;
+      const url = `${API_URL}/Detailstatus`;
       const params = {
         market: markets,
         status: statusMap[captureStatus], // Ensure that the `statusMap` exists
@@ -125,13 +122,12 @@ function StatsTicketView() {
             : null,
       };
 
-      const response = await axios.get(url, { params });
+      const response = await axios.get(url, { params,withCredentials:true });
 
       if (response.status === 200) {
         const profilesData = response.data.status_counts || [];
         setSelectedProfiles(profilesData); // Set state to update the UI
         // Update localStorage with the latest selected profiles data
-        console.log(profilesData, "ffffff")
         localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
       } else {
         console.error("Error fetching profiles:", response);
@@ -142,6 +138,22 @@ function StatsTicketView() {
       setLoading(false);
     }
   };
+
+  const TableHeader = [
+    "S.No",
+    "Created At",
+    "Applicant Details",
+    "Referred By",
+    "Reference ID",
+    "Work Location",
+    "Screening Manager",
+    "Interviewer",
+    "HR Name",
+    "Status",
+    "Joining Date",
+    "Comments",
+    "Update Comment",
+  ];
 
   const statusMap = {
     Total: [
@@ -239,27 +251,20 @@ function StatsTicketView() {
           const inMarket =
             markets.length > 0
               ? markets.some(
-                (market) =>
-                  currentStatus.work_location_names?.[index] === market
-              )
+                  (market) =>
+                    currentStatus.work_location_names?.[index] === market
+                )
               : true;
 
           const createdDate = new Date(currentStatus.created_at_dates?.[index]);
-
-          // Get start and end dates from captureDate (if defined)
           const [startDate, endDate] = captureDate;
-
-          // Convert start and end dates to Date objects, if they exist
           const startDateObj = startDate ? new Date(startDate) : null;
           const endDateObj = endDate ? new Date(endDate) : null;
-
           if (startDateObj && endDateObj) {
             if (startDateObj.toDateString() === endDateObj.toDateString()) {
-              // Same day: Adjust time to include the full day
               startDateObj.setHours(0, 0, 0, 0); // Local start of the day
               endDateObj.setHours(23, 59, 59, 999); // Local end of the day
             } else {
-              // Different days: Normalize both start and end dates to UTC
               startDateObj.setHours(0, 0, 0, 0); // UTC start of the start day
               endDateObj.setHours(23, 59, 59, 999); // UTC end of the end day
             }
@@ -396,25 +401,19 @@ function StatsTicketView() {
     XLSX.writeFile(workbook, "Applicants_List.xlsx");
   };
 
-  const headerStyle = {
-    backgroundColor: "#E10174",
-    color: "#ffffff",
-    padding: "4px 8px",
-    alignItems: "center",
-    fontSize: "12px",
-  };
   const handleOpenModal = (profile) => {
     setUpdatedComment(
       profile.status.includes("Screening")
         ? profile.applicant_referrals_comments
         : profile.status.includes("Interview")
-          ? profile.first_round_comments
-          : profile.notes
+        ? profile.first_round_comments
+        : profile.notes
     );
     setCommentProfileApplicant_uuid(profile.applicant_uuid);
     setCommentprofileStatus(profile.status);
     setShowModal(true);
   };
+  
   const handleCloseModal = () => {
     setShowModal(false);
   };
@@ -429,21 +428,17 @@ function StatsTicketView() {
     };
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API}/update-comment`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await fetch(`${API_URL}/update-comment`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
       // Log the server's response to understand what's going wrong
       const responseData = await response.json();
       // console.log("Server Response:", responseData);
-
       if (response.ok) {
         handleCloseModal();
         toast.success("Comment updated successfully!");
@@ -452,7 +447,8 @@ function StatsTicketView() {
         }, 3000);
       } else {
         toast.error(
-          `Failed to update the comment: ${responseData.error || "Unknown error"
+          `Failed to update the comment: ${
+            responseData.error || "Unknown error"
           }`
         );
       }
@@ -471,13 +467,7 @@ function StatsTicketView() {
   return (
     <Container fluid className="mt-3">
       {loading ? (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <CircularProgress />
-        </Box>
+        <Loader />
       ) : uniqueFlattenedProfiles.length > 0 ? (
         <>
           <div className="justify-content-between d-flex m-1">
@@ -485,13 +475,11 @@ function StatsTicketView() {
               Total: {uniqueFlattenedProfiles.length}
             </h3>
             <Button
-              variant="outlined"
-              color="success"
-              startIcon={<FileDownloadIcon />}
+              variant="btn-success"
+              icon={<FileDownloadIcon />}
               onClick={() => handleDownloadExcel(uniqueFlattenedProfiles)}
-            >
-              Download Data Excel
-            </Button>
+              label=" Download Data Excel"
+            />
           </div>
 
           <TableContainer
@@ -504,37 +492,7 @@ function StatsTicketView() {
             }}
           >
             <Table stickyHeader className="table-condensed table-sm">
-              {/* Table Header */}
-              <TableHead>
-                <TableRow>
-                  {[
-                    "S.No",
-                    "Created_At",
-                    "Applicant Details",
-                    "Referred_by",
-                    "Reference ID",
-                    "Work Location",
-                    "Screening Manager",
-                    "Interviewer",
-                    "HR Name",
-                    "Status",
-                    "Joining_Date",
-                    "Comments",
-                    "Update_Comment",
-                  ].map((header, index) => (
-                    <TableCell
-                      key={index}
-                      align="center"
-                      className="text-center"
-                      style={headerStyle}
-                    >
-                      {header}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-
-              {/* Table Body */}
+              <TableHead headData={TableHeader} />
               <TableBody>
                 {currentProfiles.map((profile, index) => (
                   <TableRow key={index}>
@@ -658,15 +616,15 @@ function StatsTicketView() {
                             ].includes(profile.status)
                               ? profile.applicant_referrals_comments
                               : [
-                                "put on hold at Interview",
-                                "Moved to HR",
-                                "selected at Interview",
-                                "need second opinion at Interview",
-                                "rejected at Interview",
-                                "no show at Interview",
-                              ].includes(profile.status)
-                                ? profile.first_round_comments
-                                : [
+                                  "put on hold at Interview",
+                                  "Moved to HR",
+                                  "selected at Interview",
+                                  "need second opinion at Interview",
+                                  "rejected at Interview",
+                                  "no show at Interview",
+                                ].includes(profile.status)
+                              ? profile.first_round_comments
+                              : [
                                   "Recommended For Hiring",
                                   "Sent for Evaluation",
                                   "Applicant will think about It",
@@ -678,8 +636,8 @@ function StatsTicketView() {
                                   "backOut",
                                   "mark_assigned",
                                 ].includes(profile.status)
-                                  ? profile.notes
-                                  : "N/A"}
+                              ? profile.notes
+                              : "N/A"}
                           </Tooltip>
                         }
                       >
@@ -692,30 +650,30 @@ function StatsTicketView() {
                             "Not Interested at screening",
                             "moved to Interview",
                           ].includes(profile.status) &&
-                            profile.applicant_referrals_comments !== "N/A" ? (
+                          profile.applicant_referrals_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : [
-                            "put on hold at Interview",
-                            "Moved to HR",
-                            "selected at Interview",
-                            "need second opinion at Interview",
-                            "rejected at Interview",
-                            "no show at Interview",
-                          ].includes(profile.status) &&
+                              "put on hold at Interview",
+                              "Moved to HR",
+                              "selected at Interview",
+                              "need second opinion at Interview",
+                              "rejected at Interview",
+                              "no show at Interview",
+                            ].includes(profile.status) &&
                             profile.first_round_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : [
-                            "Recommended For Hiring",
-                            "Sent for Evaluation",
-                            "Applicant will think about It",
-                            "selected at Hr",
-                            "Store Evaluation",
-                            "Spanish Evaluation",
-                            "Not Recommended For Hiring",
-                            "rejected at Hr",
-                            "backOut",
-                            "mark_assigned",
-                          ].includes(profile.status) &&
+                              "Recommended For Hiring",
+                              "Sent for Evaluation",
+                              "Applicant will think about It",
+                              "selected at Hr",
+                              "Store Evaluation",
+                              "Spanish Evaluation",
+                              "Not Recommended For Hiring",
+                              "rejected at Hr",
+                              "backOut",
+                              "mark_assigned",
+                            ].includes(profile.status) &&
                             profile.notes !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : (
@@ -731,12 +689,10 @@ function StatsTicketView() {
                       className="text-center"
                     >
                       <Button
-                        className="text-white bg-primary text-center"
-                        style={{ fontSize: "10px" }}
+                        variant=" bg-primary"
                         onClick={() => handleOpenModal(profile)}
-                      >
-                        Update
-                      </Button>
+                        label="Update"
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -744,12 +700,15 @@ function StatsTicketView() {
             </Table>
           </TableContainer>
 
-          <Stack spacing={2} sx={{
-            marginTop: 1,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}>
+          <Stack
+            spacing={2}
+            sx={{
+              marginTop: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <Pagination
               count={pageCount}
               page={currentPage}
@@ -783,11 +742,10 @@ function StatsTicketView() {
             <div className="mt-3">
               <Button
                 type="submit"
-                className="bg-primary text-white"
+                variant="bg-primary small"
                 disabled={loading}
-              >
-                {loading ? "Updating..." : "Update Comment"}
-              </Button>
+                label={loading ? "Updating..." : "Update Comment"}
+              />
             </div>
           </Form>
         </Modal.Body>

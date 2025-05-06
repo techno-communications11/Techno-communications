@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Form, Row, Col, Button, Container, Modal } from "react-bootstrap";
-import { getAuthHeaders } from "../Authrosization/getAuthHeaders";
 import { useNavigate } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -120,7 +119,6 @@ const ApplicantForm = ({
       "contract_sign",
       "evaluation",
       "recommend_hiring",
-      
       "current_city",
       "current_country",
       
@@ -177,7 +175,7 @@ const ApplicantForm = ({
         `${process.env.REACT_APP_API}/add-evaluation`,
         formData,
         {
-          headers: getAuthHeaders(),
+          withCredentials:true
         }
       );
 
@@ -297,9 +295,13 @@ const ApplicantForm = ({
                 <option value="" disabled>
                   Select Gender{" "}
                 </option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                {["Male","Female","Other"].map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+               
+                
               </Form.Control>
             </Col>
           </Form.Group>
@@ -352,10 +354,12 @@ const ApplicantForm = ({
                     ? "Select a country"
                     : formData.current_country}
                 </option>
-                <option value="USA">USA</option>
-                <option value="Canada">Canada</option>
-                <option value="UK">UK</option>
-                <option value="India">India</option>
+                {["USA", "Canada", "UK", "India"].map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+      
               </Form.Control>
             </Col>
           </Form.Group>
@@ -450,11 +454,12 @@ const ApplicantForm = ({
                 onChange={handleChange}
                 isInvalid={!!errors.education_level} // Handle changes with a change handler
               >
-                <option>High School</option>
-                <option>Associate's Degree</option>
-                <option>Bachelor's Degree</option>
-                <option>Master's Degree</option>
-                <option>PhD</option>
+                {["Select an option", "High School", "Associate's Degree", "Bachelor's Degree", "Master's Degree", "PhD"].map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+                
               </Form.Control>
             </Col>
           </Form.Group>
@@ -775,11 +780,13 @@ const ApplicantForm = ({
                 isInvalid={!!errors.compensation_type}
                 value={formData.compensation_type || ""}
               >
-                <option value="">Select an option</option>
-                <option value="Salary">Salary</option>
-                <option value="Hourly">Hourly</option>
-                <option value="Commission">Commission</option>
-                <option value="Other">Other</option>
+                <option value="">Select option</option>
+                {["Salary", "Hourly", "Commission", "Other"].map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+               
                 {/* Add more options as needed */}
               </Form.Control>
             </Col>

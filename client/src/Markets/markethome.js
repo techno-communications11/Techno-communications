@@ -18,12 +18,13 @@ import {
 } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import decodeToken from "../decodedDetails";
-import { Spinner } from "react-bootstrap"; // Add the import here
+import Loader from "../utils/Loader";
+import { useContext } from "react";
+import { MyContext } from "../pages/MyContext";
 
 const Markethome = () => {
   const apiurl = process.env.REACT_APP_API;
-  const userData = decodeToken();
+  const {userData} = useContext(MyContext);
   const [markets, setMarkets] = useState([]);
   const [loading, setLoading] = useState(true); // Default to loading true
 
@@ -63,14 +64,11 @@ const Markethome = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (isMonthlyLimitReached) {
-    //   toast.error("You can only post one job per month.");
-    //   return;
-    // }
+  
 
     try {
       // console.log(jobDetails, "jbs");
-      const response = await axios.post(`${apiurl}/post-job`, jobDetails);
+      const response = await axios.post(`${apiurl}/post-job`, jobDetails,{withCredentials:true});
       if (response.status === 200) {
         toast.success(response.data.message);
         setJobDetails({
@@ -93,15 +91,12 @@ const Markethome = () => {
   useEffect(() => {
     const fetchMarketJobs = async () => {
       try {
-        const response = await axios.get(`${apiurl}/getmarketjobs`);
+        const response = await axios.get(`${apiurl}/getmarketjobs`,{withCredentials:true});
         const data = response.data;
         const filteredData = data.filter((val) => val.name === userMarketLocation);
         setMarkets(filteredData);
 
-        const currentMonth = new Date().getMonth();
-        const isPostedThisMonth = filteredData.some(
-          (job) => new Date(job.created_at).getMonth() === currentMonth
-        );
+       
         // setIsMonthlyLimitReached(isPostedThisMonth);
         setLoading(false); // Set loading to false after data is fetched
       } catch (error) {
@@ -152,18 +147,7 @@ const Markethome = () => {
                   variant="outlined"
                   required
                 />
-                {/* <TextField
-                  label="Comments"
-                  name="comments"
-                  value={jobDetails.comments}
-                  onChange={handleChange}
-                  fullWidth
-                  multiline
-                  rows={2}
-                  margin="normal"
-                  variant="outlined"
-                  required
-                /> */}
+               
                 <TextField
                   label="Application Deadline"
                   name="deadline"
@@ -226,18 +210,7 @@ const Markethome = () => {
                   <TableRow>
                     <TableCell colSpan={6} align="center">
                       {loading ? (
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            padding: "20px",
-                          }}
-                        >
-                          <Spinner animation="border" role="status" style={{ width: "3rem", height: "3rem" }}>
-                            <span className="visually-hidden">Loading...</span>
-                          </Spinner>
-                        </div>
+                        <Loader/>
                       ) : (
                         "No jobs available"
                       )}

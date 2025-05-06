@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Table, Button, Modal, Form, Alert, InputGroup, FormControl, Col } from 'react-bootstrap';
-import decodeToken from '../decodedDetails';
-import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import { toast, ToastContainer } from 'react-toastify';
 import '../pages/loader.css';
+import { useContext } from 'react';
+import { MyContext } from '../pages/MyContext';
 
 function TrainerHome() {
   const apiurl = process.env.REACT_APP_API;
@@ -16,13 +16,13 @@ function TrainerHome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const userData = decodeToken();
+  const {userData} = useContext(MyContext);
 
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
         const response = await axios.get(`${apiurl}/users/${userData.id}/trainerapplicants`, {
-          headers: getAuthHeaders(),
+          withCredentials:true
         });
         const sortedProfiles = response.data.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
@@ -64,7 +64,7 @@ function TrainerHome() {
 
     try {
       const res = await axios.post(`${apiurl}/updatestatus`, payload, {
-        headers: getAuthHeaders(),
+        withCredentials:true
       });
 
       if (res.status === 200) {
@@ -88,9 +88,7 @@ function TrainerHome() {
         <h2 className="text-start fw-bolder">Trainer Dashboard</h2>
         <h2 className="ms-auto fw-bolder">{userData.name}</h2>
       </div>
-
       {error && <Alert variant="danger">{error}</Alert>}
-
       <InputGroup className="m-auto border-black fw-bolder w-50 my-5">
         <FormControl
           placeholder="Filter Profiles..."
@@ -99,17 +97,17 @@ function TrainerHome() {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </InputGroup>
-
       {loading ? (
         <div className="loader m-auto"></div>
       ) : (
         <Table striped hover responsive>
           <thead style={{ backgroundColor: "#E10174" }}>
             <tr>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>S.NO</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Name</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Applicant UUID</th>
-              <th style={{ backgroundColor: "#E10174", color: "white" }}>Action</th>
+              {["S.No", "Name", "Applicant UUID", "Action"].map((header, index) => (
+                <th key={index} className="text-center" style={{ backgroundColor: "#E10174", color: "white" }}>
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -130,7 +128,6 @@ function TrainerHome() {
           </tbody>
         </Table>
       )}
-
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Add Comment on {selectedProfile?.applicant_name || ""}</Modal.Title>

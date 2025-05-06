@@ -1,13 +1,12 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router";
-import { getAuthHeaders } from "../Authrosization/getAuthHeaders";
 import { Form, Row, Col, Button, Container } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import locations from "../Constants/Loacations";
 
 const Edit = () => {
-  // const navigate = useNavigate();
   const location = useLocation(); // Used to access the profile passed from navigate()
   const { profile } = location.state || {}; // Accessing profile from passed state
   const apiurl = process.env.REACT_APP_API;
@@ -59,18 +58,16 @@ const Edit = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formErrors = validateForm();
-
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       return;
     }
-
     try {
       const response = await axios.put(
         `${apiurl}/hrevalution/${formData.applicantId}`,
         formData,
         {
-          headers: getAuthHeaders(),
+          withCredentials:true,
         }
       );
 
@@ -82,25 +79,7 @@ const Edit = () => {
       toast.error("Failed to update the form.");
     }
   };
-  const locations = [
-    { id: 4, name: "ARIZONA" },
-    { id: 5, name: "Bay Area" },
-    { id: 6, name: "COLORADO" },
-    { id: 7, name: "DALLAS" },
-    { id: 8, name: "El Paso" },
-    { id: 9, name: "FLORIDA" },
-    { id: 10, name: "HOUSTON" },
-    { id: 11, name: "LOS ANGELES" },
-    { id: 12, name: "MEMPHIS" },
-    { id: 13, name: "NASHVILLE" },
-    { id: 14, name: "NORTH CAROLINA" },
-    { id: 15, name: "SACRAMENTO" },
-    { id: 16, name: "SAN DIEGO" },
-    { id: 17, name: "SAN FRANCISCO" },
-    { id: 18, name: "SAN JOSE" },
-    { id: 19, name: "SANTA ROSA" },
-    { id: 21, name: "RELOCATION" },
-  ];
+ 
   return (
     <Container fluid className="d-flex justify-content-center">
       <Col md lg={7} className="m-4">
@@ -108,8 +87,6 @@ const Edit = () => {
           HR Interview Form Edit For {profile.applicant_id}
         </h2>
         <Form onSubmit={handleSubmit} className="p-4 rounded shadow">
-          {/* Applicant ID */}
-          {/* Market */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start text-capitalize">
               1. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED
@@ -225,9 +202,13 @@ const Edit = () => {
                 value={formData.payroll}
                 onChange={handleChange}
               >
-                <option value="">Select...</option>
-                <option>Current Payroll</option>
-                <option>Back Payroll</option>
+                <option value="" disabled>Select...</option>
+                {["Current Payroll", "Back Payroll"].map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+            
               </Form.Control>
             </Col>
           </Form.Group>

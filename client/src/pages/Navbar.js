@@ -1,73 +1,88 @@
-import React, { useState, useEffect } from "react";
-import { Navbar, Nav, Button, Container } from "react-bootstrap";
+import React, { useState, useEffect, useContext } from "react";
+import { Navbar, Nav, Container } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import Avatar from "@mui/material/Avatar";
 import { deepPurple } from "@mui/material/colors";
 import Badge from "@mui/material/Badge";
 import IconButton from "@mui/material/IconButton";
-import SettingsIcon from "@mui/icons-material/Settings"; // Import the Settings icon
+import SettingsIcon from "@mui/icons-material/Settings";
+import Button from "../utils/Button";
+import { MyContext } from "./MyContext";
 
 function AppNavbar() {
   const apiurl = process.env.REACT_APP_API;
   const navigate = useNavigate();
+  const { userData, setIsAuthenticated } = useContext(MyContext);
   const [counts, setCounts] = useState(0);
-  const token = localStorage.getItem("token");
-  let role = "";
-  let name = "";
-  let id = "";
+  const [error, setError] = useState(null);
 
-  if (token) {
-    try {
-      const decodedToken = jwtDecode(token);
-      role = decodedToken.role || "";
-      name = decodedToken.name || "";
-      id = decodedToken.id || "";
-    } catch (error) {
-      console.error("Token decoding failed", error);
-    }
-  }
+  // Define role-based routes for reusability
+  const roleRoutes = {
+    interviewer: "/InterviewerDashboard",
+    direct_hiring: "/directHiring",
+    screening_manager: "/screeinghome",
+    admin: "/adminhome",
+    hr: "/hrhome",
+    market_manager: "/markethome",
+    trainer: "/",
+  };
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.removeItem("name");
+      // Make logout API call to clear server-side session/cookie
+      await axios.post(
+        `${apiurl}/logout`,
+        {},
+        { withCredentials: true }
+      );
+      // Clear client-side authentication state
+      setIsAuthenticated(false);
       navigate("/");
     } catch (error) {
       console.error("Error logging out:", error);
+      setError("Failed to log out. Please try again.");
     }
   };
 
   useEffect(() => {
     const fetchCounts = async () => {
+      if (!userData?.id || !userData?.role) {
+        console.warn("userData is incomplete:", userData);
+        return;
+      }
+
       try {
         let endpoint = "";
-
-        if (role === "interviewer") {
-          endpoint = `/users/${id}/interviewapplicants`;
-        } else if (role === "hr") {
-          endpoint = `/users/${id}/hrinterviewapplicants`;
-        } else if (role === "screening_manager") {
-          endpoint = `/users/${id}/applicants`;
+        if (userData.role === "interviewer") {
+          endpoint = `/users/${userData.id}/interviewapplicants`;
+        } else if (userData.role === "hr") {
+          endpoint = `/users/${userData.id}/hrinterviewapplicants`;
+        } else if (userData.role === "screening_manager") {
+          endpoint = `/users/${userData.id}/applicants`;
         }
 
         if (endpoint) {
-          const response = await axios.get(`${apiurl}${endpoint}`);
-          if (response.status === 200) {
+          const response = await axios.get(`${apiurl}${endpoint}`, {
+            withCredentials: true,
+          });
+          if (response.status === 200 && Array.isArray(response.data)) {
             setCounts(response.data.length);
+          } else {
+            console.warn("Unexpected response format:", response.data);
           }
         }
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching counts:", error);
+        setError("Failed to fetch applicant counts.");
       }
     };
 
     fetchCounts();
-  }, [role, id, apiurl]);
+  }, [userData, apiurl]);
 
-  function stringToColor(string) {
+  // Utility functions for avatar
+  const stringToColor = (string) => {
     let hash = 0;
     for (let i = 0; i < string.length; i++) {
       hash = string.charCodeAt(i) + ((hash << 5) - hash);
@@ -78,130 +93,100 @@ function AppNavbar() {
       color += `00${value.toString(16)}`.slice(-2);
     }
     return color;
-  }
+  };
 
-  function stringAvatar(name) {
+  const stringAvatar = (name) => {
+    if (!name) return { sx: { bgcolor: deepPurple[600] }, children: "N/A" };
+    const nameParts = name.split(" ");
     return {
       sx: {
         bgcolor: stringToColor(name),
+        width: 30,
+        height: 30,
       },
-      children: `${name.split(" ")[0][0]}${name.split(" ")[1]?.[0] || ""}`,
+      children: `${nameParts[0][0]}${nameParts[1]?.[0] || ""}`,
     };
+  };
+
+  // Return null if userData is not available
+  if (!userData || !userData.role || !userData.name) {
+    return null; // Or a fallback UI, e.g., <div>Loading...</div>
   }
 
   return (
     <Navbar expand="lg" className="shadow-sm">
       <Container fluid>
-      {role !== "trainer" && role !== "market_manager" && (
-        
-        <Navbar.Brand as={Link}
-        to={
-          role === "interviewer"
-            ? "/InterviewerDashboard"
-            : role === "direct_hiring"
-            ? "/directHiring"
-            : role === "screening_manager"
-            ? "screeinghome"
-            : role === "admin"
-            ? "/adminhome"
-            : role === "hr"
-            ? "/hrhome"
-            : role !== "market_manager"
-            ? ""
-            : "/"
-        }
-        className="fw-bolder">
-          <img
-            src="/logo.png"
-            alt="Logo"
-            width="44"
-            height="34"
-            className="d-inline-block align-top"
-          />{" "}
-          TECHNO COMMUNICATIONS LLC
-        </Navbar.Brand>
-      )}
+        {/* {userData.role !== "trainer" && userData.role !== "market_manager" && ( */}
+          <Navbar.Brand
+            as={Link}
+            to={roleRoutes[userData.role] || "/"}
+            className="fw-bolder text-capitalize ms-2"
+          >
+            <img
+              src="/logo.png"
+              alt="Logo"
+              width="44"
+              height="34"
+              className="d-inline-block align-top"
+            />
+            &nbsp; techno communications LLC
+          </Navbar.Brand>
+        {/* )} */}
 
         <Navbar.Toggle aria-controls="navbarSupportedContent" />
         <Navbar.Collapse id="navbarSupportedContent">
           <Nav className="ms-auto d-flex align-items-center">
             <div className="d-flex gap-3 align-items-center">
-              {(role === "screening_manager" || role === "direct_hiring") && (
+              {(userData.role === "screening_manager" || userData.role === "direct_hiring") && (
                 <Nav.Link
                   as={Link}
                   to={
-                    role === "screening_manager"
+                    userData.role === "screening_manager"
                       ? "/screening"
-                      : role === "direct_hiring"
-                      ? "/directform"
-                      : ""
+                      : "/directform"
                   }
                   className="fw-bolder nav-link-custom"
                 >
                   List Profile
                 </Nav.Link>
               )}
-              {role === "market_manager" && (
-                <Nav.Link
-                  as={Link}
-                  to="/markethome"
-                  className="fw-bolder nav-link-custom"
-                >
-                  Job Posting
-                </Nav.Link>
+              {userData.role === "market_manager" && (
+                <>
+                  <Nav.Link
+                    as={Link}
+                    to="/markethome"
+                    className="fw-bolder nav-link-custom"
+                  >
+                    Job Posting
+                  </Nav.Link>
+                  <Nav.Link
+                    as={Link}
+                    to="/selectedathr"
+                    className="fw-bolder nav-link-custom"
+                  >
+                    Hired Applicants
+                  </Nav.Link>
+                </>
               )}
-              {role === "market_manager" && (
-                <Nav.Link
-                  as={Link}
-                  to="/selectedathr"
-                  className="fw-bolder nav-link-custom"
-                >
-                  Hired_applicants
-                </Nav.Link>
+              {userData.role === "admin" && (
+                <>
+                  <Nav.Link
+                    as={Link}
+                    to="/adminTabs"
+                    className="fw-bolder nav-link-custom"
+                  >
+                    HR Profile
+                  </Nav.Link>
+                  <Nav.Link
+                    as={Link}
+                    to="/register"
+                    className="fw-bolder nav-link-custom"
+                  >
+                    Register
+                  </Nav.Link>
+                </>
               )}
-
-              {role === "admin" && (
-                <Nav.Link
-                  as={Link}
-                  to="/adminTabs"
-                  className="fw-bolder nav-link-custom"
-                >
-                  HR Profile
-                </Nav.Link>
-              )}
-              {/* {role !== "trainer" && role !== "market_manager" && (
-                <Nav.Link
-                  as={Link}
-                  to={
-                    role === "interviewer"
-                      ? "/InterviewerDashboard"
-                      : role === "direct_hiring"
-                      ? "/directHiring"
-                      : role === "screening_manager"
-                      ? "screeinghome"
-                      : role === "admin"
-                      ? "/adminhome"
-                      : role === "hr"
-                      ? "/hrhome"
-                      : role !== "market_manager"
-                      ? ""
-                      : "/"
-                  }
-                  className="fw-bolder nav-link-custom"
-                >
-                  Dashboard
-                </Nav.Link>
-              )} */}
-              {role === "admin" && (
-                <Nav.Link
-                  as={Link}
-                  to="/register"
-                  className="fw-bolder nav-link-custom"
-                >
-                  Register
-                </Nav.Link>
-              )}
-              {role === "direct_hiring" && (
+              {userData.role === "direct_hiring" && (
                 <Nav.Link
                   as={Link}
                   to="/directtabs"
@@ -210,20 +195,19 @@ function AppNavbar() {
                   Applicants
                 </Nav.Link>
               )}
-              
-              {role !== "admin" &&
-                role !== "trainer" &&
-                role !== "market_manager" && (
+              {userData.role !== "admin" &&
+                userData.role !== "trainer" &&
+                userData.role !== "market_manager" && (
                   <Nav.Link
                     as={Link}
                     to={
-                      role === "interviewer"
+                      userData.role === "interviewer"
                         ? "/interviewhome"
-                        : role === "hr"
+                        : userData.role === "hr"
                         ? "/hrtabs"
-                        : role === "screening_manager"
+                        : userData.role === "screening_manager"
                         ? "/tabs"
-                        : role === "direct_hiring"
+                        : userData.role === "direct_hiring"
                         ? "/directnew"
                         : ""
                     }
@@ -245,48 +229,44 @@ function AppNavbar() {
                         badgeContent={counts}
                         className="mb-4 ms-2"
                         color="error"
-                      ></Badge>
+                      />
                     )}
                   </Nav.Link>
                 )}
-
               <Nav.Link>
                 <IconButton
                   color="primary"
-                  onClick={() => navigate("/updatepassword")} // Navigate to UpdatePassword component
+                  onClick={() => navigate("/updatepassword")}
                 >
                   <SettingsIcon />
                 </IconButton>
               </Nav.Link>
-
               <Nav.Link className="d-flex align-items-center">
                 <Avatar
                   sx={{ bgcolor: deepPurple[600], width: 30, height: 30 }}
-                  {...stringAvatar(name)}
+                  {...stringAvatar(userData.name)}
                 />
                 <div className="ms-2 fw-bolder">
                   <span
                     className="d-block text-start"
                     style={{ fontSize: "0.9rem", textTransform: "capitalize" }}
                   >
-                    {name}
+                    {userData.name}
                   </span>
                   <span
                     className="d-block text-start"
                     style={{ fontSize: "0.9rem", textTransform: "capitalize" }}
                   >
-                    {role.split("_").join(" ")}
+                    {userData.role.split("_").join(" ")}
                   </span>
                 </div>
               </Nav.Link>
               <Button
-                variant="danger"
+                variant="btn-danger ms-2"
                 onClick={handleLogout}
                 size="md"
-                className="ms-2"
-              >
-                Logout
-              </Button>
+                label="Logout"
+              />
             </div>
           </Nav>
         </Navbar.Collapse>

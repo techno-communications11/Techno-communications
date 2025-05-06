@@ -1,10 +1,9 @@
-import { getAuthHeaders } from "../Authrosization/getAuthHeaders";
 import axios from "axios";
 
 const getStatusCounts = async () => {
   try {
     const response = await axios.get(`${process.env.REACT_APP_API}/status`, {
-      headers: getAuthHeaders(), // Correct property name
+      withCredentials:true // Correct property name
     });
    
 

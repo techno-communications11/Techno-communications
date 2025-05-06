@@ -18,7 +18,7 @@ export const DirectDash = () => {
         setLoading(true);
         try {
             const url = `${process.env.REACT_APP_API}/Detailstatus`;
-            const response = await axios.get(url);
+            const response = await axios.get(url,{withCredentials:true});
             if (response.status === 200) {
                 const details = response.data.status_counts;
                 setSelectedProfiles(details || []);

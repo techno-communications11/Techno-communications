@@ -15,17 +15,19 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Paper,
   Typography,
   Box,
   Stack,
-  CircularProgress,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { Container } from "react-bootstrap";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
+import locations from "../Constants/Loacations";
+import Loader from "../utils/Loader";
+import TableHead from "../utils/TableHead";
+
 function ViewDetais() {
   const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -59,7 +61,7 @@ useEffect(() => {
     setLoading(true);
     try {
       const url = `${process.env.REACT_APP_API}/viewdetails`;
-      const response = await axios.get(url);
+      const response = await axios.get(url,{withCredentials:true});
   
       if (response.status === 200) {
         const profilesData = response.data.status_counts || [];
@@ -139,26 +141,7 @@ useEffect(() => {
     "backOut":["backOut"],"Not recommeneded for Hiring":["Not recommeneded for Hiring"],"Store Evaluation":["Store Evaluation"]
   };
   
-  const locations = [
-    { id: 4, name: "ARIZONA" },
-    { id: 5, name: "Bay Area" },
-    { id: 6, name: "COLORADO" },
-    { id: 7, name: "DALLAS" },
-    { id: 8, name: "El Paso" },
-    { id: 9, name: "FLORIDA" },
-    { id: 10, name: "HOUSTON" },
-    { id: 11, name: "LOS ANGELES" },
-    { id: 12, name: "MEMPHIS" },
-    { id: 13, name: "NASHVILLE" },
-    { id: 14, name: "NORTH CAROL" },
-    { id: 15, name: "SACRAMENTO" },
-    { id: 16, name: "SAN DEIGIO" },
-    { id: 17, name: "SAN FRANCISCO" },
-    { id: 18, name: "SAN JOSE" },
-    { id: 19, name: "SANTA ROSA" },
-    { id: 21, name: "relocation" },
-    { id: 23, name: "DirectHiring" },
-  ];
+  
  
   
      // Handle checkbox change
@@ -209,7 +192,6 @@ useEffect(() => {
         applicant_referrals_comments: [],
       };
   
-      // Apply filtering only if both startDate and endDate are selected
       const isDateInRange = (date) => {
         if (startDate && endDate) {
           const dateToCheck = new Date(date);
@@ -218,19 +200,13 @@ useEffect(() => {
         return true; // No date filtering if either date is missing
       };
   
-      // Apply location filter only if a market/location is selected
       
       
   
       if (currentStatus.applicant_names && currentStatus.applicant_names.forEach) {
         currentStatus.applicant_names.forEach((_, index) => {
-          // Default filter: status is applied first
           const filteredByStatus = statusMap[captureStatusFromStorage]?.includes(currentStatus.status);
-  
-          // Apply date filter only if both start and end dates are selected
           const isInDateRange = isDateInRange(currentStatus.created_at_dates?.[index]);
-  
-          // Apply location filter if a location is selected
           const inMarket =
             selectedLocations.length > 0
               ? selectedLocations.some(
@@ -334,14 +310,10 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants");
     XLSX.writeFile(workbook, "Applicants_List.xlsx");
   };
-  const headerStyle = {
-    backgroundColor: "#E10174",
-    color: "#ffffff",
-    padding: "4px 8px",
-    textAlign: "center", // Corrected property name
-};
+ 
 
   const handleOpenModal = (profile) => {
+     console.log(profile,'pppppppp')
     setUpdatedComment(
       profile.status.includes("Screening")
         ? profile.applicant_referrals_comments
@@ -359,13 +331,13 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const data = {
       applicant_uuid: commentprofileapplicant_uuid,
       status: commentprofilestatus,
       comment: updatedComment,
     };
-
+  
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API}/update-comment`,
@@ -374,14 +346,13 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include", // ✅ Correct way for fetch to send cookies
           body: JSON.stringify(data),
         }
       );
-
-      // Log the server's response to understand what's going wrong
+  
       const responseData = await response.json();
-      // console.log("Server Response:", responseData);
-
+  
       if (response.ok) {
         handleCloseModal();
         toast.success("Comment updated successfully!");
@@ -406,18 +377,28 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
       setCommentprofileStatus("");
     }
   };
+  
+
+  const tableHeaders = [
+    "S.No",
+    "Created_At",
+    "Applicant_Details",
+    "Referred_by",
+    "Reference_ID",
+    "Work_Location",
+    "Screening_Manager",
+    "Interviewer",
+    "HR_Name",
+    "Status",
+    "Joining_Date",
+    "Comments",
+    "Update_Comment"
+  ];
 
   return (
     <Container fluid className="mt-3">
       {loading ? (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="100vh"
-        >
-          <CircularProgress />
-        </Box>
+        <Loader />
       ) : uniqueFlattenedProfiles.length > 0 ? (
         <>
           <div className="justify-content-between d-flex m-1">
@@ -499,23 +480,8 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                  }}
           >
             <Table stickyHeader className="table-sm">
-              <TableHead>
-                <TableRow>
-                  <TableCell style={headerStyle}>S.No</TableCell>
-                  <TableCell style={headerStyle}>Created_At</TableCell>
-                  <TableCell style={headerStyle}>Applicant_Details</TableCell>
-                  <TableCell style={headerStyle}>Referred_by</TableCell>
-                  <TableCell style={headerStyle}>Reference_ID</TableCell>
-                  <TableCell style={headerStyle}>Work_Location</TableCell>
-                  <TableCell style={headerStyle}>Screening_Manager</TableCell>
-                  <TableCell style={headerStyle}>Interviewer</TableCell>
-                  <TableCell style={headerStyle}>HR_Name</TableCell>
-                  <TableCell style={headerStyle}>Status</TableCell>
-                  <TableCell style={headerStyle}>Joining_Date</TableCell>
-                  <TableCell style={headerStyle}>Comments</TableCell>
-                  <TableCell style={headerStyle}>Update_Comment</TableCell>
-                </TableRow>
-              </TableHead>
+              <TableHead headData={tableHeaders}/>
+               
               <TableBody>
                 {currentProfiles.map((profile, index) => (
                   <TableRow key={index}>

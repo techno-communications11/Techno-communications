@@ -164,17 +164,11 @@ function Home() {
           {filteredProfiles.length > 0 ? (
             <Table striped bordered hover responsive className='border-dark fw-bolder'>
               <thead>
-                <tr> <th style={{backgroundColor:'#E10174', color:'white'}}>SC.No</th>
-                  <th style={{backgroundColor:'#E10174', color:'white'}}>Name</th>
-                  <th style={{backgroundColor:'#E10174', color:'white'}}>Email</th>
-                  <th style={{backgroundColor:'#E10174', color:'white'}}>Phone</th>
-                  <th style={{backgroundColor:'#E10174', color:'white'}}>Referred By</th>
-                  <th style={{backgroundColor:'#E10174', color:'white'}}>Reference NTID</th>
-                  <th style={{backgroundColor:'#E10174', color:'white'}}>Market</th>
-                  <th style={{backgroundColor:'#E10174', color:'white'}}>Status</th>
-                  <th style={{backgroundColor:'#E10174', color:'white'}}>Date</th>
-                  <th  style={{backgroundColor:'#E10174', color:'white'}}>Comments</th>
-                </tr>
+                {["S.No", "Name", "Email", "Phone", "Referred By", "Reference NTID", "Market", "Status", "Date", "Comments"].map((header, index) => (
+                  <th key={index} className="text-center" style={{ backgroundColor: "#E10174", color: "white" }}>
+                    {header}
+                  </th>
+                ))}    
               </thead>
               <tbody>
                 {filteredProfiles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((profile,index) => (

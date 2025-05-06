@@ -7,20 +7,20 @@ import {  Dropdown } from 'react-bootstrap'; // Using React Bootstrap for dropdo
 import { Assignment } from '@mui/icons-material'; // Assignment icon
 import { toast, ToastContainer } from 'react-toastify';
 import { TableCell, Box, Avatar, Typography } from '@mui/material';
+ import useFetchHrs from '../Hooks/useFetchHrs';
 
 function HrPrendings() {
   const apiurl = process.env.REACT_APP_API;
   const userData = decodeToken();
   const [profiles, setProfiles] = useState([]);
-  const [hrs, setHrs] = useState([]); // State to store HRs
   const [ChangeScrenningMenu, setChangeScrenningMenu] = useState(false); // Show/Hide Dropdown
+  const {hrs}=useFetchHrs();
 
-  // Fetch the applicants assigned for HR interviews
   useEffect(() => {
     const fetchInterviewApplicants = async () => {
       try {
         const response = await axios.get(`${apiurl}/users/allhrinterviewapplicants`, {
-          headers: getAuthHeaders()
+          withCredentials:true
         });
 
         if (response.status === 200) {
@@ -34,30 +34,15 @@ function HrPrendings() {
     fetchInterviewApplicants();
   }, [apiurl, userData]);
 
-  // Fetch the list of HRs
-  useEffect(() => {
-    const fetchHRs = async () => {
-      try {
-        const response = await axios.get(`${apiurl}/hrs`, {
-          headers: getAuthHeaders(),
-        });
-        setHrs(response.data); // Set the HRs data
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchHRs();
-  }, [apiurl]);
+  
 
   // Handle assignment of an applicant to selected HR
   const handleSelect = async (selectedHRId, applicant_uuid) => {
-    console.log(selectedHRId, applicant_uuid, ">>?<<")
     try {
       await axios.post(
         `${apiurl}/newhr`, // Assuming you have an endpoint for assigning HR
         { applicantId: applicant_uuid, newUserId: selectedHRId }, // Payload format
-        { headers: getAuthHeaders() }
+        { withCredentials:true }
       );
       toast.success('Assigned to New HR successfully!');
       setTimeout(() => {
@@ -81,11 +66,9 @@ function HrPrendings() {
         <table className="table table-striped">
           <thead>
             <tr>
-              <th>S.No</th>
-              <th>Applicant Details</th>
-              <th>Staus</th>
-              <th>HR</th>
-              <th>Assign New HR</th>
+              {["S.No", "Applicant Details", "Status", "HR", "Assign New HR"].map((header, index) => (
+                <th key={index} className="text-center">{header}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -96,6 +79,7 @@ function HrPrendings() {
                     <Box display="flex" alignItems="center">
                       <Avatar alt={profile.name} sx={{ backgroundColor: profile.avatarColor || '#3f51b5' }} />
                       <Box ml={2}>
+                        
                         <Typography variant="body1" style={{ fontWeight: 'bold' }}>{profile.name}</Typography>
                         <Typography variant="body2" color="textSecondary">{profile.email}</Typography>
                         <Typography variant="body1" color="textSecondary">{profile.phone}</Typography>

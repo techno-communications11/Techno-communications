@@ -6,7 +6,6 @@ import Typography from '@mui/material/Typography';
 import { Container, Row } from 'react-bootstrap';
 import decodeToken from '../decodedDetails';
 import axios from 'axios';
-import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import DetailedView from './DetailedView'
 import Hired from './Hired'
 import Pending from './Pending';
@@ -54,7 +53,7 @@ export default function HrTabs() {
         const assignedToInterviewer = async () => {
             try {
                 const response = await axios.get(`${apiurl}/users/${userData.id}/trainerfeedbackapplicants`, {
-                    headers: getAuthHeaders()
+                    withCredentials:true
                 });
                 if (response.status === 200) {
                     // Assuming the response contains a field `count` for trainer feedback applicants

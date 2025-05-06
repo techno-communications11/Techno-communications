@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import Form from "react-bootstrap/Form";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
@@ -6,20 +6,31 @@ import axios from "axios";
 import { Container, Row, Col } from "react-bootstrap";
 import Login from "./Login";
 import job from "./images/logo.webp";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Button } from "@mui/material";
+import { FaRegHandPointer } from "react-icons/fa";
+import Inputicons from "../utils/Inputicons";
+import SanitizePhoneNumber from "../utils/SanitizePhoneNumber";
+import Loader from "../utils/Loader";
+
 import Swal from "sweetalert2";
-import { FaUser, FaPhone, FaBuilding, FaIdCard, FaSignInAlt } from "react-icons/fa"; // Import icons
+import {
+  FaUser,
+  FaPhone,
+  FaBuilding,
+  FaIdCard,
+  FaSignInAlt,
+} from "react-icons/fa";
+import Button from "../utils/Button";
+import "../Styles/Button.css";
+import useFetchMarkets from "../Hooks/useFetchMarkets";
 
 function Public() {
-  const apiUrl = process.env.REACT_APP_API;
   const [error, setError] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("");
-  const [markets, setMarkets] = useState([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const { markets } = useFetchMarkets();
   // State to track invalid fields
   const [invalidFields, setInvalidFields] = useState({
     name: false,
@@ -39,6 +50,7 @@ function Public() {
 
     // Validate each field
     const nameValid = nameRef.current?.value.trim() !== "";
+
     const marketValid = selectedMarket !== "";
     const referredByValid = referredByRef.current?.value.trim() !== "";
 
@@ -56,16 +68,7 @@ function Public() {
       (field) => !field
     );
 
-    function sanitizePhoneNumber(phoneNumber) {
-      const sanitized = phoneNumber.replace(/[^\d]/g, "");
-      const phoneWithoutCountryCode =
-        sanitized.length > 10 ? sanitized.slice(-10) : sanitized;
-      return phoneWithoutCountryCode.length === 10
-        ? phoneWithoutCountryCode
-        : "";
-    }
-
-    const phoneNumber = sanitizePhoneNumber(phoneRef.current.value);
+    const phoneNumber = SanitizePhoneNumber(phoneRef.current.value);
 
     if (!phoneNumber) {
       setError("Please enter a valid phone number with exactly 10 digits.");
@@ -83,14 +86,18 @@ function Public() {
 
     try {
       const formData = {
-        name: nameRef.current.value,
+        name: nameRef?.current.value,
         phone: phoneNumber,
         work_location: selectedMarket,
-        referred_by: referredByRef.current.value,
-        reference_id: referenceNtidRef.current.value,
+        referred_by: referredByRef?.current.value,
+        reference_id: referenceNtidRef?.current.value,
       };
 
-      const response = await axios.post(`${apiUrl}/submit`, formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API}/submit`,
+        formData,
+        { withCredentials: true }
+      );
 
       if (response.status === 201) {
         Swal.fire({
@@ -114,10 +121,11 @@ function Public() {
         });
       }
     } finally {
-      nameRef.current.value = "";
-      phoneRef.current.value = "";
-      referredByRef.current.value = "";
-      referenceNtidRef.current.value = "";
+      if (nameRef.current) nameRef.current.value = "";
+      if (phoneRef.current) phoneRef.current.value = "";
+      if (referredByRef.current) referredByRef.current.value = "";
+      if (referenceNtidRef.current) referenceNtidRef.current.value = "";
+
       setSelectedMarket("");
       setInvalidFields({
         name: false,
@@ -134,29 +142,24 @@ function Public() {
     setInvalidFields((prev) => ({ ...prev, market: false }));
   };
 
-  useEffect(() => {
-    const fetchMarkets = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/markets`);
-        setMarkets(response.data);
-      } catch (error) {
-        setError("Failed to fetch markets. Please try again later.");
-        toast.error("Failed to fetch markets. Please try again later.");
-      }
-    };
-
-    fetchMarkets();
-  }, [apiUrl]);
-
   const handleLoginModalShow = () => setShowLoginModal(true);
   const handleLoginModalClose = () => setShowLoginModal(false);
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <Container fluid>
-      <h2 className="mt-4 display-2 fw-bolder" style={{ color: '#E10174' }}>Welcome Back..</h2>
+      <h2 className="mt-4 display-2 fw-bolder" style={{ color: "#E10174" }}>
+        Welcome Back..
+      </h2>
       <Row className="vh-90">
         {/* Left Column with Image */}
-        <Col md={6} lg={6} className="d-flex justify-content-center align-items-center">
+        <Col
+          md={6}
+          lg={6}
+          className="d-flex justify-content-center align-items-center"
+        >
           <img
             src={job}
             alt="jobs"
@@ -167,13 +170,19 @@ function Public() {
 
         {/* Right Column with Form */}
         <Col md={6} lg={6} className="d-flex flex-column mt-4">
-          <Form className="shadow-lg p-4 rounded-3 mt-4 p-4" onSubmit={handleSubmit} noValidate>
-            <h3 className="text-center mb-4 fw-bolder">Candidate Details Form</h3>
+          <Form
+            className="shadow-lg p-4 rounded-3 mt-4 p-4"
+            onSubmit={handleSubmit}
+            noValidate
+          >
+            <h3 className="text-center mb-4 fw-bolder">
+              Candidate Details Form
+            </h3>
 
             {/* Form Fields with Icons */}
             <Form.Group className="mb-3" controlId="formBasicName">
               <div className="input-group">
-                <span className="input-group-text"><FaUser style={{color:'#e10174'}} /></span>
+                <Inputicons icon={FaUser} />
                 <Form.Control
                   ref={nameRef}
                   type="text"
@@ -187,7 +196,7 @@ function Public() {
 
             <Form.Group className="mb-3" controlId="formBasicPhone">
               <div className="input-group">
-                <span className="input-group-text"><FaPhone style={{color:'#e10174'}} /></span>
+                <Inputicons icon={FaPhone} />
                 <Form.Control
                   ref={phoneRef}
                   type="tel"
@@ -200,7 +209,7 @@ function Public() {
 
             <Form.Group className="mb-3" controlId="formBasicReferredBy">
               <div className="input-group">
-                <span className="input-group-text"><FaUser style={{color:'#e10174'}} /></span>
+                <Inputicons icon={FaUser} />
                 <Form.Control
                   ref={referredByRef}
                   type="text"
@@ -214,7 +223,7 @@ function Public() {
 
             <Form.Group className="mb-3" controlId="formBasicReferenceNtid">
               <div className="input-group">
-                <span className="input-group-text"><FaIdCard  style={{color:'#e10174'}}/></span>
+                <Inputicons icon={FaIdCard} />
                 <Form.Control
                   ref={referenceNtidRef}
                   type="text"
@@ -226,14 +235,18 @@ function Public() {
 
             {/* Market Selection Dropdown with Icon */}
             <Form.Group className="mb-3" controlId="formBasicMarket">
-              <div className={`${invalidFields.market ? "border-danger" : "border"} rounded`}>
+              <div
+                className={`${
+                  invalidFields.market ? "border-danger" : "border"
+                } rounded`}
+              >
                 <Dropdown onSelect={handleSelectMarket}>
                   <Dropdown.Toggle
-                    className="w-100 bg-transparent text-muted shadow-none border"
+                    className="w-100 bg-transparent text-muted shadow-none border me-auto"
                     id="dropdown-basic"
                     style={{ padding: "10px", textAlign: "left" }}
                   >
-                    <FaBuilding className="me-2" style={{color:'#e10174'}} />
+                    <FaBuilding className="me-2" style={{ color: "#e10174" }} />
                     {selectedMarket || "Select Market"}
                   </Dropdown.Toggle>
                   <Dropdown.Menu
@@ -246,12 +259,12 @@ function Public() {
                   >
                     {markets
                       .sort((a, b) =>
-                        (a.location_name || "").localeCompare(b.location_name || "")
+                        (a.name || "").localeCompare(b.name || "")
                       )
                       .map((market, index) => (
                         <Dropdown.Item
                           key={market.id || index}
-                          eventKey={market.location_name}
+                          eventKey={market.name}
                           style={{
                             padding: "10px",
                             backgroundColor: "#f8f9fa",
@@ -268,42 +281,38 @@ function Public() {
                 </Dropdown>
               </div>
               {invalidFields.market && (
-                <div className="invalid-feedback d-block">Please select a market.</div>
+                <div className="invalid-feedback d-block">
+                  Please select a market.
+                </div>
               )}
             </Form.Group>
 
             {/* Submit Button */}
             <Button
-              className="w-100"
-              variant="contained"
+              variant="btn-primary w-100" // Fixed typo: 'varient' → 'variant'
               type="submit"
               disabled={loading}
-            >
-              {loading ? "Submitting..." : "Submit"}
-            </Button>
+              loading={loading}
+              label="Submit"
+              icon={<FaRegHandPointer />}
+            />
 
             {error && <div className="text-danger mt-3">{error}</div>}
           </Form>
 
           {/* Login Button with Icon */}
-          <div className="text-center mt-4">
-            <Button
-              style={{
-                width: "100%",
-                backgroundColor: "#E10174",
-                color: "white",
-                outline: "none",
-              }}
-              onClick={handleLoginModalShow}
-            >
-              <FaSignInAlt className="me-2" />
-              Login to Application
-            </Button>
-          </div>
+
+          <Button
+            variant="bg-primary opacity-75 w-100  mt-3" // Fixed typo: 'varient' → 'variant'
+            label="Login to Application"
+            onClick={handleLoginModalShow}
+            icon={<FaSignInAlt />}
+            loading={loading}
+            disabled={loading}
+          />
         </Col>
       </Row>
 
-      {/* Modal for Login */}
       <Modal
         show={showLoginModal}
         onHide={handleLoginModalClose}

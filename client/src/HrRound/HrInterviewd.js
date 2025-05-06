@@ -2,25 +2,27 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { MyContext } from '../pages/MyContext';
-import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
-import decodeToken from '../decodedDetails';
 import { Button,Table } from 'react-bootstrap'; // Using React Bootstrap for dropdown
 import { toast, ToastContainer } from 'react-toastify';
+import Loader from '../utils/Loader';
+import TableHead from '../utils/TableHead';
 
 function HrInterviewd() {
     const apiurl = process.env.REACT_APP_API;
     const navigate = useNavigate();
-    const userData = decodeToken();
+    const {userData} = useContext(MyContext);
     const [profiles, setProfiles] = useState([]); // Ensure profiles is always an array
     const { setapplicant_uuid } = useContext(MyContext);
+    const [loading,setLoading]=useState(false);
 
     // Fetch the applicants assigned for HR interviews
     useEffect(() => {
         const fetchInterviewApplicants = async () => {
             // const id = 42; // Hardcoded for now, replace with actual logic if necessary
+            setLoading(true);
             try {
                 const response = await axios.get(`${apiurl}/hrevalution/${userData.id}`, {
-                    headers: getAuthHeaders(),
+                    withCredentials:true
                 });
 
                 // Check if response.data is an object or an array
@@ -35,6 +37,8 @@ function HrInterviewd() {
             } catch (err) {
                 console.error(err);
                 toast.error('Failed to load profiles');
+            }finally{
+                setLoading(false)
             }
         };
 
@@ -45,22 +49,16 @@ function HrInterviewd() {
         setapplicant_uuid(profile.applicant_uuid); // If this is required
         navigate("/edit", { state: { profile } }); // Pass the full profile object in state
     };
-    
+     if(loading){
+        return <Loader/>
+     }
+     const TableHeaders=["S.No", "Applicant UUID", "Applicant Name", "Phone", "Action"];
 
     return (
         <div className="container-fluid">
             <div className="col-12 container-fluid w-80">
                 <Table className="table table-striped table-sm">
-                    <thead>
-                        <tr>
-                            <th style={{backgroundColor:'#E10174'}}>S.No</th>
-                            
-                            <th style={{backgroundColor:'#E10174'}}>Applicant UUID</th>
-                            <th style={{backgroundColor:'#E10174'}}>Applicant Name</th>
-                            <th style={{backgroundColor:'#E10174'}}>Phone</th>
-                            <th style={{backgroundColor:'#E10174'}}>Action</th>
-                        </tr>
-                    </thead>
+                    <TableHead headData={TableHeaders}/>
                     <tbody>
                         {Array.isArray(profiles) && profiles.length > 0 ? (
                             profiles.map((profile, index) => (

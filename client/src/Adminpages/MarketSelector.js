@@ -1,36 +1,25 @@
-import React, { useState } from 'react';
-import { Dropdown, Form } from 'react-bootstrap';
+import React, { useState } from "react";
+import { Dropdown, Form } from "react-bootstrap";
+import useFetchMarkets from "../Hooks/useFetchMarkets";
 
-const MarketSelector = ({ selectedMarket, smallerFormStyles,text, setSelectedMarket, isAllSelected, setIsAllSelected, setMarketFilter }) => {
-  const locations = [
-    { id: 4, name: 'ARIZONA' },
-    { id: 5, name: 'Bay Area' },
-    { id: 6, name: 'COLORADO' },
-    { id: 7, name: 'DALLAS' },
-    { id: 8, name: 'El Paso' },
-    { id: 9, name: 'FLORIDA' },
-    { id: 10, name: 'HOUSTON' },
-    { id: 11, name: 'LOS ANGELES' },
-    { id: 12, name: 'MEMPHIS' },
-    { id: 13, name: 'NASHVILLE' },
-    { id: 14, name: 'NORTH CAROLINA' },
-    { id: 15, name: 'SACRAMENTO' },
-    { id: 16, name: 'SAN DIEGO' },
-    { id: 17, name: 'SAN FRANCISCO' },
-    { id: 18, name: 'SAN JOSE' },
-    { id: 19, name: 'SANTA ROSA' },
-    { id: 21, name: 'RELOCATION' },
-    { id: 23, name: 'DirectHiring' },
-  ];
-
-  const [searchTerm, setSearchTerm] = useState('');
+const MarketSelector = ({
+  selectedMarket,
+  smallerFormStyles,
+  text,
+  setSelectedMarket,
+  isAllSelected,
+  setIsAllSelected,
+  setMarketFilter,
+}) => {
+  const { markets } = useFetchMarkets();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSelectAllChange = (event) => {
     const { checked } = event.target;
     setIsAllSelected(checked);
     if (checked) {
-      setSelectedMarket(locations.map(location => location.name));
-      setMarketFilter(locations.map(location => location.name));
+      setSelectedMarket(markets.map((location) => location.location_name));
+      setMarketFilter(markets.map((location) => location.location_name));
     } else {
       setSelectedMarket([]);
       setMarketFilter([]);
@@ -40,48 +29,64 @@ const MarketSelector = ({ selectedMarket, smallerFormStyles,text, setSelectedMar
   const handleLocationChange = (event) => {
     const { value, checked } = event.target;
     if (checked) {
-      setSelectedMarket(prevSelected => [...prevSelected, value]);
-      setMarketFilter(prevFilter => [...prevFilter, value]);
+      setSelectedMarket((prevSelected) => [...prevSelected, value]);
+      setMarketFilter((prevFilter) => [...prevFilter, value]);
     } else {
-      setSelectedMarket(prevSelected => prevSelected.filter(market => market !== value));
-      setMarketFilter(prevFilter => prevFilter.filter(market => market !== value));
+      setSelectedMarket((prevSelected) =>
+        prevSelected.filter((market) => market !== value)
+      );
+      setMarketFilter((prevFilter) =>
+        prevFilter.filter((market) => market !== value)
+      );
     }
     setIsAllSelected(false);
   };
 
-  const filteredLocations = locations.filter(location =>
-    location.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredMarkets = markets.filter((location) =>
+    location.location_name?.toLowerCase().includes(searchTerm?.toLowerCase())
   );
 
   return (
     <Dropdown>
-      <Dropdown.Toggle className='bg-transparent text-secondary border-0' id="dropdown-basic">
-       {text}
+      <Dropdown.Toggle
+        className="bg-white text-dark border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+        id="dropdown-basic"
+      >
+        {text}
       </Dropdown.Toggle>
 
-      <Dropdown.Menu   className="border-1 dropdown-menu  p-1"  style={{ ...smallerFormStyles, maxHeight: '300px', overflowY: 'auto',width: '10vw',zindex:1}}>
+      <Dropdown.Menu
+        className="border border-gray-200 rounded-md shadow-lg p-3 bg-white"
+        style={{
+          ...smallerFormStyles,
+          maxHeight: "300px",
+          overflowY: "auto",
+          width: "250px",
+          zIndex: 1000,
+        }}
+      >
         <Form.Control
           type="text"
-          placeholder="Search..."
+          placeholder="Search markets..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ marginBottom: '8px' }}
+          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 text-sm"
         />
         <Form.Check
           type="checkbox"
           label="Select All"
           checked={isAllSelected}
           onChange={handleSelectAllChange}
-          style={{ marginBottom: '8px', fontWeight: 'bold' }}
+          className="mb-3 font-semibold text-gray-800 hover:text-blue-600 cursor-pointer"
         />
-        {filteredLocations.map((location) => (
+        {filteredMarkets.map((location) => (
           <Form.Check
             key={location.id}
             type="checkbox"
-            className="text-capitalize shadow-sm text-primary"
-            label={location.name.toLowerCase()}
-            value={location.name}
-            checked={selectedMarket?.includes(location.name)}
+            className="text-capitalize text-gray-700 hover:text-blue-600 mb-2 cursor-pointer"
+            label={location.location_name.toLowerCase()}
+            value={location.location_name}
+            checked={selectedMarket?.includes(location.location_name)}
             onChange={handleLocationChange}
           />
         ))}

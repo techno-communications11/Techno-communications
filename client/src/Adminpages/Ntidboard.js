@@ -1,6 +1,5 @@
-import React, { useState, useEffect,useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { MyContext } from "../pages/MyContext";
-import { Input } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MarketSelector from "./MarketSelector";
 import axios from "axios";
@@ -14,20 +13,25 @@ function Ntidboard() {
   const [selectedMarket, setSelectedMarket] = useState([]);
   const [isAllSelected, setIsAllSelected] = useState(true); // Select all by default
   const [MarketFilter, setMarketFilter] = useState([]);
-  const [startDate, setStartDate] = useState(() =>
-    new Date(new Date().setDate(new Date().getDate() - 7))
-      .toISOString()
-      .split("T")[0]
+  const [startDate, setStartDate] = useState(
+    () =>
+      new Date(new Date().setDate(new Date().getDate() - 7))
+        .toISOString()
+        .split("T")[0]
   );
-  const [endDate, setEndDate] = useState(() =>
-    new Date().toISOString().split("T")[0]
+  const [endDate, setEndDate] = useState(
+    () => new Date().toISOString().split("T")[0]
   );
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   // const { setMarket, setCaptureDate } = MyContext();
   const navigate = useNavigate();
-  const { setStartDateForContext,setEndDateForContext, setMarkets,setCaptureStatus } =
-    useContext(MyContext);
+  const {
+    setStartDateForContext,
+    setEndDateForContext,
+    setMarkets,
+    setCaptureStatus,
+  } = useContext(MyContext);
   const [counts, setCounts] = useState({
     markAssigned: 0,
     selectedAtHr: 0,
@@ -51,7 +55,9 @@ function Ntidboard() {
 
   const fetchApplicantsData = async () => {
     try {
-      const response = await axios.get(`${apiurl}/applicants/ntidDashboardCount`);
+      const response = await axios.get(
+        `${apiurl}/applicants/ntidDashboardCount`,{withCredentials:true}
+      );
       if (response.status === 200) {
         const fetchedData = response.data.data;
         setData(fetchedData);
@@ -75,12 +81,14 @@ function Ntidboard() {
 
   const applyFilters = (dataToFilter) => {
     let filtered = dataToFilter;
-    setMarkets(selectedMarket)
+    setMarkets(selectedMarket);
     setStartDateForContext(startDate);
     setEndDateForContext(endDate);
     // Filter by market
     if (!isAllSelected && selectedMarket.length > 0) {
-      filtered = filtered.filter((item) => selectedMarket.includes(item.market));
+      filtered = filtered.filter((item) =>
+        selectedMarket.includes(item.market)
+      );
     }
 
     // Filter by date
@@ -88,34 +96,46 @@ function Ntidboard() {
       // Convert startDate and endDate to Date objects
       const startDateObj = new Date(startDate);
       const endDateObj = new Date(endDate);
-    
+
       if (startDateObj && endDateObj) {
         // Adjust to UTC for the start and end of the day
-        const adjustedStartDateUTC = new Date(Date.UTC(
-          startDateObj.getUTCFullYear(),
-          startDateObj.getUTCMonth(),
-          startDateObj.getUTCDate(),
-          0, 0, 0, 0 // Start of the day
-        ));
-    
-        const adjustedEndDateUTC = new Date(Date.UTC(
-          endDateObj.getUTCFullYear(),
-          endDateObj.getUTCMonth(),
-          endDateObj.getUTCDate(),
-          23, 59, 59, 999 // End of the day
-        ));
-    
+        const adjustedStartDateUTC = new Date(
+          Date.UTC(
+            startDateObj.getUTCFullYear(),
+            startDateObj.getUTCMonth(),
+            startDateObj.getUTCDate(),
+            0,
+            0,
+            0,
+            0 // Start of the day
+          )
+        );
+
+        const adjustedEndDateUTC = new Date(
+          Date.UTC(
+            endDateObj.getUTCFullYear(),
+            endDateObj.getUTCMonth(),
+            endDateObj.getUTCDate(),
+            23,
+            59,
+            59,
+            999 // End of the day
+          )
+        );
+
         // Filter rows by checking if the joining date (in UTC) is within the range
         filtered = filtered.filter((item) => {
           const joiningDate = new Date(item.joining_date); // The row's joining_date should be in UTC format
-    
-          return joiningDate >= adjustedStartDateUTC && joiningDate <= adjustedEndDateUTC;
+
+          return (
+            joiningDate >= adjustedStartDateUTC &&
+            joiningDate <= adjustedEndDateUTC
+          );
         });
-    
+
         // console.log("After Date Filter:", filtered);
       }
     }
-    
 
     setFilteredData(filtered);
     calculateCounts(filtered);
@@ -148,7 +168,12 @@ function Ntidboard() {
   }, [selectedMarket, startDate, endDate, isAllSelected]);
 
   const pieData = {
-    labels: ["NTID Created", "NTID Pending", "Contract Signed", "Contract Unsigned"],
+    labels: [
+      "NTID Created",
+      "NTID Pending",
+      "Contract Signed",
+      "Contract Unsigned",
+    ],
     datasets: [
       {
         data: [
@@ -163,80 +188,88 @@ function Ntidboard() {
     ],
   };
 
-  const handleClick= (title) => {
-    var status="";
-    if(title==='NTID Pending'){
-      status='selected at Hr'
+  const handleClick = (title) => {
+    var status = "";
+    if (title === "NTID Pending") {
+      status = "selected at Hr";
     }
-    if(title==='NTID Created'){
-      status='mark_assigned'
+    if (title === "NTID Created") {
+      status = "mark_assigned";
     }
-    if(title==='Contract Signed'){
-      status='contract_signed1'
+    if (title === "Contract Signed") {
+      status = "contract_signed1";
     }
-    if(title==='Contract Unsigned'){
-      status='contract_signed0'
+    if (title === "Contract Unsigned") {
+      status = "contract_signed0";
     }
     setCaptureStatus(status);
     // console.log(status,'sss')
- navigate("/ntiddata");
+    navigate("/ntiddata");
   };
 
   return (
     <div className="container">
-    <h4 className="mt-5 text-center" style={{ color: "#E10174" }}>
-      NTID's Dashboard
-    </h4>
-    <div className="row">
-      <div className="col-12 col-lg-8">
-      <div className="d-flex flex-wrap justify-content-between align-items-center my-5 gap-1">
-  {/* Date Selection Section */}
-  <div className="col-12 col-lg-3 d-flex flex-column align-items-start">
-    <span className="text-primary fw-bolder ms-3 text-start">Start Date:</span>
-    <input
-      className="form-control ms-2"
-      type="date"
-      value={startDate}
-      onChange={handleStartDateChange}
-      style={{ color: "#E10174" }}
-      placeholder="Enter Start Date"
-    />
-  </div>
-  
-  <div className="col-12 col-lg-3 d-flex flex-column align-items-start">
-    <span className="text-primary fw-bolder ms-3 text-start">End Date:</span>
-    <input
-      className="form-control ms-2"
-      type="date"
-      value={endDate}
-      onChange={handleEndDateChange}
-      style={{ color: "#E10174" }}
-      placeholder="Enter End Date"
-    />
-  </div>
-  
-  <div className="col-12 col-lg-3 d-flex flex-column align-items-start">
-    <span className="text-primary fw-bolder ms-3 text-start">Market:</span>
-    <div className="border rounded-2 mt-3">
-      <MarketSelector
-        selectedMarket={selectedMarket}
-        smallerFormStyles={smallerFormStyles}
-        text={text}
-        setSelectedMarket={setSelectedMarket}
-        isAllSelected={isAllSelected}
-        setIsAllSelected={setIsAllSelected}
-        setMarketFilter={setMarketFilter}
-      />
-    </div>
-  </div>
-</div>
+      <h4 className="mt-5 text-center" style={{ color: "#E10174" }}>
+        NTID's Dashboard
+      </h4>
+      <div className="row">
+        <div className="col-12 col-lg-8">
+          <div className="d-flex flex-wrap justify-content-between align-items-center my-5 gap-1">
+            {/* Date Selection Section */}
+            <div className="col-12 col-lg-3 d-flex flex-column align-items-start">
+              <span className="text-primary fw-bolder ms-3 text-start">
+                Start Date:
+              </span>
+              <input
+                className="form-control ms-2"
+                type="date"
+                value={startDate}
+                onChange={handleStartDateChange}
+                style={{ color: "#E10174" }}
+                placeholder="Enter Start Date"
+              />
+            </div>
 
+            <div className="col-12 col-lg-3 d-flex flex-column align-items-start">
+              <span className="text-primary fw-bolder ms-3 text-start">
+                End Date:
+              </span>
+              <input
+                className="form-control ms-2"
+                type="date"
+                value={endDate}
+                onChange={handleEndDateChange}
+                style={{ color: "#E10174" }}
+                placeholder="Enter End Date"
+              />
+            </div>
 
-  
-        {/* Cards Section */}
-        <div className="row row-cols-1 row-cols-md-2 g-4">
-          {["NTID Pending", "NTID Created", "Contract Signed", "Contract Unsigned"].map(
-            (title, index) => (
+            <div className="col-12 col-lg-3 d-flex flex-column align-items-start">
+              <span className="text-primary fw-bolder ms-3 text-start">
+                Market:
+              </span>
+              <div className="border rounded-2 mt-3">
+                <MarketSelector
+                  selectedMarket={selectedMarket}
+                  smallerFormStyles={smallerFormStyles}
+                  text={text}
+                  setSelectedMarket={setSelectedMarket}
+                  isAllSelected={isAllSelected}
+                  setIsAllSelected={setIsAllSelected}
+                  setMarketFilter={setMarketFilter}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Cards Section */}
+          <div className="row row-cols-1 row-cols-md-2 g-4">
+            {[
+              "NTID Pending",
+              "NTID Created",
+              "Contract Signed",
+              "Contract Unsigned",
+            ].map((title, index) => (
               <div className="col" key={index}>
                 <div
                   className="card shadow-lg h-100 border-0"
@@ -244,40 +277,41 @@ function Ntidboard() {
                   style={{ cursor: "pointer" }}
                 >
                   <div className="card-body text-center">
-                    <h6 className="card-title fs-5 mt-4" style={{ color: "#E10174" }}>
+                    <h6
+                      className="card-title fs-5 mt-4"
+                      style={{ color: "#E10174" }}
+                    >
                       {title}
                     </h6>
                     <p className="card-text fs-1">
-                      {[
-                        counts.selectedAtHr,
-                        counts.markAssigned,
-                        counts.contractSigned1,
-                        counts.contractSigned0,
-                      ][index]}
+                      {
+                        [
+                          counts.selectedAtHr,
+                          counts.markAssigned,
+                          counts.contractSigned1,
+                          counts.contractSigned0,
+                        ][index]
+                      }
                     </p>
                   </div>
                 </div>
               </div>
-            )
-          )}
+            ))}
+          </div>
         </div>
-      </div>
-  
-      {/* Pie Chart Section */}
-      <div className="col-12 col-lg-4 mt-5 mt-lg-0">
-        <h5 className="text-primary text-center">Status Distribution</h5>
-        <div
-          style={{ height: "30rem" }}
-          className="d-flex justify-content-center align-items-center w-100"
-        >
-          <Pie data={pieData} />
+
+        {/* Pie Chart Section */}
+        <div className="col-12 col-lg-4 mt-5 mt-lg-0">
+          <h5 className="text-primary text-center">Status Distribution</h5>
+          <div
+            style={{ height: "30rem" }}
+            className="d-flex justify-content-center align-items-center w-100"
+          >
+            <Pie data={pieData} />
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  
-  
-
   );
 }
 

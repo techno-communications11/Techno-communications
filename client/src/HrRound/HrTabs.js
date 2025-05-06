@@ -6,14 +6,14 @@ import Typography from '@mui/material/Typography';
 import { Container, Row } from 'react-bootstrap';
 import HrNew from './HrNew';
 import TrainerRes from './TrainerRes';
-import decodeToken from '../decodedDetails';
 import axios from 'axios';
-import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import Badge from '@mui/material/Badge';
 import HrInterviewd from './HrInterviewd';
+import { useContext } from 'react';
+import { MyContext } from '../pages/MyContext';
 
 function TabPanel(props) {
-
+ 
     
     const { children, value, index, ...other } = props;
 
@@ -45,7 +45,7 @@ export default function HrTabs() {
     const [value, setValue] = useState(0);
     const [trainerCount, setTrainerCount] = useState(0); // State to hold the trainer count
     const apiurl = process.env.REACT_APP_API;
-    const userData = decodeToken();
+    const {userData} = useContext(MyContext);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -56,7 +56,7 @@ export default function HrTabs() {
         const assignedToInterviewer = async () => {
             try {
                 const response = await axios.get(`${apiurl}/users/${userData.id}/trainerfeedbackapplicants`, {
-                    headers: getAuthHeaders()
+                    withCredentials:true
                 });
                 if (response.status === 200) {
                     // Assuming the response contains a field `count` for trainer feedback applicants

@@ -4,7 +4,6 @@ import { Form, Container, Row, Col, Table, Modal } from 'react-bootstrap';
 import { Button } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
 import decodeToken from '../decodedDetails';
 import '../pages/loader.css';
 import Box from '@mui/material/Box';
@@ -30,7 +29,7 @@ function DirectNew() {
             setLoading(true);
             try {
                 const response = await axios.get(`${apiurl}/getApplicantsForDirect/${userData.id}`, {
-                    headers: getAuthHeaders(),
+                  withCredentials:true
                 });
                 setProfiles(response.data);
             } catch (error) {
@@ -63,7 +62,7 @@ function DirectNew() {
 
     const handleSearch = async () => {
         try {
-            const response = await fetch(`${apiurl}/getstatusnyphone/${mobileNumber}`);
+            const response = await fetch(`${apiurl}/getstatusnyphone/${mobileNumber}`,{withCredentials:true});
             const data = await response.json();
             setApplicantDetails(data);
             // console.log('data', data);
@@ -91,7 +90,7 @@ function DirectNew() {
 
         // console.log("Payload for rejection:", payload);
         try {
-            const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
+            const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload,{withCredentials:true});
 
             if (res.status === 200) {
                 toast.success(res.data.message);

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import decodeToken from "../decodedDetails";
 import axios from "axios";
-import { getAuthHeaders } from "../Authrosization/getAuthHeaders";
 import { format } from "date-fns";
 import { Dropdown,Table } from "react-bootstrap"; // Using React Bootstrap for dropdown
 import { Assignment } from "@mui/icons-material"; // Material-UI Assignment icon
 import { toast, ToastContainer } from "react-toastify";
+import TableHead from "../utils/TableHead";
+import Loader from "../utils/Loader";
+import { useContext } from 'react';
+import { MyContext } from '.././pages/MyContext';
 
 const InterViewHome = ({
   setApplicant_uuid,
@@ -15,20 +17,22 @@ const InterViewHome = ({
 }) => {
   const apiurl = process.env.REACT_APP_API;
   const navigate = useNavigate();
-  const userData = decodeToken();
   const [profiles, setProfiles] = useState([]);
   const [filteredProfiles, setFilteredProfiles] = useState([]);
   const [filter, setFilter] = useState("");
-  const [hrs, setHrs] = useState([]);
-  const [openDropdown, setOpenDropdown] = useState(null); // State to track open dropdown
+  const [interviewer, setinterviewer] = useState([]);
+  const [openDropdown, setOpenDropdown] = useState(null); 
+  const [loading, setLoading] = useState(false); // Loading state
+  const { userData } = useContext(MyContext);
 
   useEffect(() => {
     const assignedToInterviewer = async () => {
+      setLoading(true); // Start loading
       try {
         const response = await axios.get(
           `${apiurl}/users/${userData.id}/interviewapplicants`,
           {
-            headers: getAuthHeaders(),
+            withCredentials:true
           }
         );
 
@@ -43,23 +47,26 @@ const InterViewHome = ({
       } catch (err) {
         console.log(err);
       }
+      finally {
+        setLoading(false); // Stop loading
+      }
     };
     assignedToInterviewer();
   }, [apiurl, userData.id]);
 
   useEffect(() => {
-    const fetchHRs = async () => {
+    const fetchinterviewer = async () => {
       try {
         const response = await axios.get(`${apiurl}/interviewer`, {
-          headers: getAuthHeaders(),
+          withCredentials:true
         });
-        setHrs(response.data);
+        setinterviewer(response.data);
       } catch (err) {
         console.error(err);
       }
     };
 
-    fetchHRs();
+    fetchinterviewer();
   }, [apiurl]);
 
   const handleFilterChange = (e) => {
@@ -83,7 +90,7 @@ const InterViewHome = ({
       await axios.post(
         `${apiurl}/newinterviewer`,
         { applicantId: applicant_uuid, newUserId: selectedHRId },
-        { headers: getAuthHeaders() }
+        { withCredentials:true }
       );
       toast.success("Assigned to New Interviewer successfully!");
       setTimeout(() => {
@@ -98,6 +105,14 @@ const InterViewHome = ({
   const toggleDropdown = (uuid) => {
     setOpenDropdown((prev) => (prev === uuid ? null : uuid)); // Toggle dropdown visibility
   };
+
+   if(loading) {
+    return (
+      <Loader/>
+    )
+  }
+
+   const TableHeader = ["SI.No", "Applicant Name", "Applicant UUID", "Applicant Phone", "Applicant email", "Interview Time","Action","Assign New Interviewer"];
 
   return (
     <div className="container-fluid my-3">
@@ -117,34 +132,7 @@ const InterViewHome = ({
       </div>
 
       <Table className="table table-striped table-hover table-sm">
-        <thead className="table-dark">
-          <tr>
-            <th style={{ backgroundColor: "#E10174", color: "white" }}>
-              SI.No
-            </th>
-            <th style={{ backgroundColor: "#E10174", color: "white" }}>
-              Applicant Name
-            </th>
-            <th style={{ backgroundColor: "#E10174", color: "white" }}>
-              Applicant UUID
-            </th>
-            <th style={{ backgroundColor: "#E10174", color: "white" }}>
-              Applicant Phone
-            </th>
-            <th style={{ backgroundColor: "#E10174", color: "white" }}>
-              Applicant email
-            </th>
-            <th style={{ backgroundColor: "#E10174", color: "white" }}>
-              Interview Time
-            </th>
-            <th style={{ backgroundColor: "#E10174", color: "white" }}>
-              Action
-            </th>
-            <th style={{ backgroundColor: "#E10174", color: "white" }}>
-              Assign New Interviewer
-            </th>
-          </tr>
-        </thead>
+       <TableHead headData={TableHeader} />
         <tbody>
           {filteredProfiles.map((profile, index) => (
             <tr key={index}>
@@ -183,7 +171,7 @@ const InterViewHome = ({
                     <Assignment /> Change Assign To
                   </Dropdown.Toggle>
                   <Dropdown.Menu className="w-auto">
-                    {hrs
+                    {interviewer
                       .sort((a, b) => a.name.localeCompare(b.name))
                       .map((hr) => (
                         <Dropdown.Item

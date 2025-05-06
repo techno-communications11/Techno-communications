@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Button } from "@mui/material";
 import job from './images/logo.webp';
 import Swal from "sweetalert2";
+import Loader from "../utils/Loader";
 
 function PublicFixedLocation() {
   const apiUrl = process.env.REACT_APP_API;
@@ -81,6 +82,11 @@ function PublicFixedLocation() {
       setLoading(false);
     }
   };
+   if(loading) {
+    return (
+      <Loader/>
+    );
+  }
 
   return (
     <Container fluid>

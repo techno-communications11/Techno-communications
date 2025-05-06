@@ -1,23 +1,22 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { getAuthHeaders } from '../Authrosization/getAuthHeaders';
-import { Form, Row, Col, Button, Container, Modal, Dropdown } from 'react-bootstrap';
+import { Form, Row, Col, Button, Container, Modal } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import Accordion from 'react-bootstrap/Accordion';
 import 'react-toastify/dist/ReactToastify.css';
 import { MyContext } from '../pages/MyContext';
 import { useContext } from 'react';
-import decodeToken from '../decodedDetails';
 import Select from "react-select";
+import options from '../Constants/Days'
+import useFetchMarkets from '../Hooks/useFetchMarkets';
+
 const Hrinterview = () => {
-  const { applicant_uuid } = useContext(MyContext);
-  const userData = decodeToken();
+  const { applicant_uuid ,userData} = useContext(MyContext);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [errors, setErrors] = useState({});
   const [jobId,setJobId]=useState('')
-
- 
+   const {markets}=useFetchMarkets();
   let applicant_uuidprops = applicant_uuid || sessionStorage.getItem('uuid');
   const role = userData.role
   const handleClose = () => setShowConfirmation(false);
@@ -68,25 +67,7 @@ const Hrinterview = () => {
 
     return errors;
   };
-  const locations = [
-    { id: 4, name: 'ARIZONA' },
-    { id: 5, name: 'Bay Area' },
-    { id: 6, name: 'COLORADO' },
-    { id: 7, name: 'DALLAS' },
-    { id: 8, name: 'El Paso' },
-    { id: 9, name: 'FLORIDA' },
-    { id: 10, name: 'HOUSTON' },
-    { id: 11, name: 'LOS ANGELES' },
-    { id: 12, name: 'MEMPHIS' },
-    { id: 13, name: 'NASHVILLE' },
-    { id: 14, name: 'NORTH CAROLINA' },
-    { id: 15, name: 'SACRAMENTO' },
-    { id: 16, name: 'SAN DIEGO' },
-    { id: 17, name: 'SAN FRANCISCO' },
-    { id: 18, name: 'SAN JOSE' },
-    { id: 19, name: 'SANTA ROSA' },
-    { id: 21, name: 'RELOCATION' },
-  ];
+ 
   const navigate = useNavigate();
   const [firstRound, setFirstRound] = useState([])
   const [formData, setFormData] = useState({
@@ -111,16 +92,7 @@ const Hrinterview = () => {
     offDays: [],
 
   });
-  const options = [
-    { value: "MON", label: "Monday" },
-    { value: "TUE", label: "Tuesday" },
-    { value: "WED", label: "Wednesday" },
-    { value: "THU", label: "Thursday" },
-    { value: "FRI", label: "Friday" },
-    { value: "SAT", label: "Saturday" },
-    { value: "SUN", label: "Sunday" },
-    { value: "OPEN", label: "Open" },
-  ];
+  
   const handleSelectChange = (selectedOptions) => {
     setFormData({
       ...formData,
@@ -130,12 +102,17 @@ const Hrinterview = () => {
 
   useEffect(() => {
     const getJobId = async () => {
-      console.log(formData.market, "ffms");
       try {
-        const response = await axios.get(`${apiurl}/get_jobId?location=${formData.market}`);
+        const response = await axios.get(
+          `${apiurl}/get_jobId?location=${encodeURIComponent(formData.market)}`,
+          {
+            withCredentials: true,
+          }
+        );
+        
+
         if (response.status === 200) {
           setJobId(response.data.id); 
-          console.log(response.data.id,"ids")
         }
       } catch (error) {
         console.error("Error fetching job ID:", error); // Log the error for debugging
@@ -230,7 +207,9 @@ const Hrinterview = () => {
     }
 
     try {
-      const response = await axios.post(`${apiurl}/add-hrevaluation`, formData);
+      const response = await axios.post(`${apiurl}/add-hrevaluation`, formData, {
+        withCredentials: true,
+      });
       setFormData({
         applicantId: '',
         market: '',
@@ -247,14 +226,11 @@ const Hrinterview = () => {
         backOut: '',
         disclosed: '',
         reasonBackOut: '',
-        // Job_id:'',
         recommend_hiring: '',
         evaluationDate: "",
       });
-      // updateChoosen(jobId,"idssssssssss") 
       if (response.status === 200) {
        
-        // console.log("api calling...")
         toast.success(response.data.message);
         setTimeout(() => {
           if (role === "direct_hiring") {
@@ -274,12 +250,10 @@ const Hrinterview = () => {
 
   useEffect(() => {
     if (formData.recommend_hiring === 'selected at Hr'
-      //  && jobId
-      //  && formData.Job_id !== jobId
+   
       ) {
       setFormData(prevFormData => ({
         ...prevFormData,
-        // Job_id: jobId,
       }));
     }
   }, [jobId, formData.recommend_hiring]);
@@ -294,7 +268,10 @@ const Hrinterview = () => {
         return;
       }
       try {
-        const response = await axios.get(`${apiurl}/first_round_res/${applicant_uuidprops}`);
+        const response = await axios.get(`${apiurl}/first_round_res/${applicant_uuidprops}`, {
+          withCredentials: true,
+          timeout: 5000, // 5-second timeout
+        });
         if (isMounted && response.data && response.data.length > 0) {
           setFirstRound(response.data[0]);
         } else {
@@ -322,7 +299,10 @@ const Hrinterview = () => {
 
     };
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload);
+      const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload, {
+        withCredentials: true,
+        timeout: 5000, // 5-second timeout
+      });
 
       if (res.status === 200) {
         // Show success message
@@ -355,7 +335,7 @@ const Hrinterview = () => {
     const fetchTrainers = async () => {
       try {
         const response = await axios.get(`${apiurl}/trainers`, {
-          headers: getAuthHeaders(),
+          withCredentials:true
         });
         setTrainers(response.data);
       } catch (error) {
@@ -440,9 +420,9 @@ const Hrinterview = () => {
                 isInvalid={!!errors.market}
               >
                 <option value="">Select Market</option> {/* Default empty option */}
-                {locations.map(location => (
-                  <option key={location.id} value={location.name}>
-                    {location.name}
+                {markets.map(location => (
+                  <option key={location.id} value={location.location_name}>
+                    {location.location_name}
                   </option>
                 ))}
               </Form.Select>
@@ -483,9 +463,9 @@ const Hrinterview = () => {
                 isInvalid={!!errors.trainingLocation}
               >
                 <option value="">Select Training Location</option> {/* Default empty option */}
-                {locations.map(location => (
-                  <option key={location.id} value={location.name}>
-                    {location.name}
+                {markets.map(location => (
+                  <option key={location.id} value={location.location_name}>
+                    {location.location_name}
                   </option>
                 ))}
               </Form.Select>
@@ -608,8 +588,6 @@ const Hrinterview = () => {
               />
             </Col>
           </Form.Group>
-
-
 
 
           {/* PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK */}

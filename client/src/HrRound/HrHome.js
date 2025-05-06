@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col } from 'react-bootstrap';
-import decodeToken from '../decodedDetails';
 import getStatusCounts from '../pages/getStatusCounts';
 import { MyContext } from '../pages/MyContext';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import filteredStatuses from '../Constants/filteredStatuseshr'
+
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function HrHome() {
-  const userData = decodeToken();
   const [stats, setStats] = useState([]);
   const { setCaptureStatus } = useContext(MyContext);
   const navigate = useNavigate();
+   const {userData}=useContext(MyContext)
 
   useEffect(() => {
     const fetchStatusCounts = async () => {
@@ -39,17 +40,7 @@ function HrHome() {
     }
   };
 
-  const filteredStatuses = [
-    { status: "selected at Hr", bgColor: '#FF69B4' },  // Hot Pink
-    { status: "rejected at Hr", bgColor: '#FF4500' },  // Orange Red
-    { status: "Sent for Evaluation", bgColor: '#FFD700' },  // Gold
-    { status: "Applicant will think about It", bgColor: '#32CD32' },  // Lime Green
-    { status: "mark_assigned", bgColor: '#1E90FF' },  // Dodger Blue
-    { status: "Not Recommended For Hiring", bgColor: '#DC143C' },  // Crimson Red
-    { status: "Store Evaluation", bgColor: '#8A2BE2' },  // Blue Violet
-    { status: "Spanish Evaluation", bgColor: '#FF7F50' },  // Coral
-    { status: "backOut", bgColor: '#20B2AA' }  // Light Sea Green
-  ];
+  
   
 
   const TotalCount = stats

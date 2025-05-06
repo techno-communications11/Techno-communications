@@ -1,21 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
-import { Modal, Dropdown, Form } from "react-bootstrap";
-import "react-datepicker/dist/react-datepicker.css";
-import { getAuthHeaders } from "../Authrosization/getAuthHeaders";
-import decodeToken from "../decodedDetails";
+import { Modal, Dropdown, Form, Container, Row, Col, Table } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import "../pages/loader.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Container, Row, Col,Table } from "react-bootstrap";
 import { Button } from "@mui/material";
 import ConfirmationModal from "../pages/Confirm";
-
+import Loader from "../utils/Loader";
+import { MyContext } from "../pages/MyContext";
 
 function New() {
-  let userData = decodeToken();
   const [profiles, setProfiles] = useState([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [email, setEmail] = useState("");
@@ -24,7 +19,7 @@ function New() {
   const [showModal, setShowModal] = useState(false);
   const [showCalendlyModal, setShowCalendlyModal] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [moveForwardMenu, setMoveForwardMenu] = useState(false);
   const [selectedHost, setSelectedHost] = useState(null);
   const [selectedScreen, setSelectedScreen] = useState(null);
@@ -32,173 +27,205 @@ function New() {
   const [hrs, setHrs] = useState([]);
   const [calendlyUrl, setCalendlyUrl] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [ChangeScrenningMenu, setChangeScrenningMenu] = useState(false);
+  const [changeScreeningMenu, setChangeScreeningMenu] = useState(false);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
-  const [showdateModel, setShowDateModel] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [confirmassiging, setConfirmassiging] = useState(false);
+  const [confirmAssigning, setConfirmAssigning] = useState(false);
   const [actionToPerform, setActionToPerform] = useState("");
+  const { userData, isLoading: userDataLoading } = useContext(MyContext);
 
-  const newcount = profiles.length;
+  const hasFetchedData = useRef(false);
 
-  localStorage.setItem("newcount", newcount);
-
-  const apiurl = process.env.REACT_APP_API;
-
-  const fetchData = async (url, setData, errorMessage) => {
-    try {
-      const response = await axios.get(url, {
-        headers: getAuthHeaders(),
-      });
-      setData(response.data);
-    } catch (error) {
-      setError(errorMessage);
-    }
-  };
+  const apiurl = process.env.REACT_APP_API || "http://localhost:5000/api";
 
   useEffect(() => {
-    setLoading(true);
+    console.log("userData:", userData);
+    console.log("userDataLoading:", userDataLoading);
 
-    fetchData(
-      `${apiurl}/screening`,
-      setScreens,
-      "Failed to fetch hosts. Please try again later."
-    );
+    if (userDataLoading) {
+      return;
+    }
 
-    fetchData(
-      `${apiurl}/interviewer`,
-      setHosts,
-      "Failed to fetch hosts. Please try again later."
-    );
+    if (!userData?.id) {
+      setError("User data not available. Please log in.");
+      return;
+    }
 
-    fetchData(
-      `${apiurl}/hrs`,
-      setHrs,
-      "Failed to fetch HRs. Please try again later."
-    );
-    const getprofiles = async () => {
+    if (hasFetchedData.current) {
+      console.log("Skipping fetch: Data already fetched.");
+      return;
+    }
+
+    const fetchInitialData = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get(
-          `${apiurl}/users/${userData.id}/applicants`,
-          {
-            headers: getAuthHeaders(),
-          }
-        );
+        const screensPromise = axios.get(`${apiurl}/screening`, { withCredentials: true, timeout: 5000 })
+          .catch(err => {
+            console.error("Error fetching /screening:", err);
+            return { data: [] };
+          });
 
-        setProfiles(response.data);
+        const hostsPromise = axios.get(`${apiurl}/interviewer`, { withCredentials: true, timeout: 5000 })
+          .catch(err => {
+            console.error("Error fetching /interviewer:", err);
+            return { data: [] };
+          });
+
+        const hrsPromise = axios.get(`${apiurl}/hrs`, { withCredentials: true, timeout: 5000 })
+          .catch(err => {
+            console.error("Error fetching /hrs:", err);
+            return { data: [] };
+          });
+
+        const profilesPromise = axios.get(`${apiurl}/users/${userData.id}/applicants`, { withCredentials: true, timeout: 5000 })
+          .catch(err => {
+            console.error("Error fetching /users/:id/applicants:", err);
+            return { data: [] };
+          });
+
+        const [screensResponse, hostsResponse, hrsResponse, profilesResponse] = await Promise.all([
+          screensPromise,
+          hostsPromise,
+          hrsPromise,
+          profilesPromise,
+        ]);
+
+        if (screensResponse.data.length > 0) setScreens(screensResponse.data);
+        if (hostsResponse.data.length > 0) setHosts(hostsResponse.data);
+        if (hrsResponse.data.length > 0) setHrs(hrsResponse.data);
+        if (profilesResponse.data.length > 0) setProfiles(profilesResponse.data);
+
+        hasFetchedData.current = true;
       } catch (error) {
-        setError("Failed to fetch profiles. Please try again later.", error);
+        console.error("Error in fetchInitialData:", error);
+        setError(`Failed to load data: ${error.response?.status || "Unknown error"}. Please try again or contact support.`);
+        toast.error(error.response?.data?.message || "Failed to load data.");
+      } finally {
+        setLoading(false);
       }
     };
-    getprofiles();
 
-    setLoading(false);
-  }, [5000]); // Add dependencies to avoid unnecessary re-renders
+    fetchInitialData();
+  }, [apiurl, userData?.id, userDataLoading]);
+
+  useEffect(() => {
+    localStorage.setItem("newcount", profiles.length);
+  }, [profiles]);
 
   const formData = {
-    applicant_uuid: selectedProfile ? selectedProfile.applicant_uuid : null,
-    interviewer_id: selectedHost ? selectedHost.id : null,
+    applicant_uuid: selectedProfile?.applicant_uuid || null,
+    interviewer_id: selectedHost?.id || null,
     time_of_interview: selectedDateTime ? selectedDateTime.toISOString() : null,
     comment,
   };
 
   const handleShowModal = (profile) => {
+    console.log("handleShowModal called with profile:", profile);
     setSelectedProfile(profile);
-    if (
-      profile.applicant_email === null ||
-      profile.applicant_email === "" ||
-      profile.applicant_email === undefined
-    ) {
+    if (!profile.applicant_email) {
       setShowEmailModal(true);
     } else {
       setShowModal(true);
     }
   };
 
- 
-
   const handleCloseModal = () => {
     setShowModal(false);
-    setComment("");
-    setCalendlyUrl("");
-    setShowCalendlyModal(false);
-    setShowDateModel(false);
-    setSelectedHost(false);
-    setSelectedDateTime("");
     setShowEmailModal(false);
+    setShowCalendlyModal(false);
+    setSelectedProfile(null);
+    setSelectedHost(null);
+    setSelectedScreen(null);
+    setComment("");
     setEmail("");
+    setCalendlyUrl("");
+    setSelectedDateTime(null);
+    setConfirmAssigning(false);
+    setShowConfirm(false);
+    setActionToPerform("");
   };
 
-  ///<---------------------------------------------- actions for reject, not intrest,no response------------------------------------------------------------------------>
-  const handleAction = async (applicant_uuid, action) => {
+  const handleAction = (profile, action) => {
+    console.log("handleAction called with:", { profile, action });
+    setSelectedProfile(profile);
     setActionToPerform(action);
-    setSelectedProfile(applicant_uuid);
     setShowConfirm(true);
   };
 
   const handleConfirm = async () => {
-  
+    console.log("handleConfirm called with:", { selectedProfile, actionToPerform, comment });
+    if (!selectedProfile || !actionToPerform) {
+      console.log("handleConfirm early return: missing selectedProfile or actionToPerform");
+      return;
+    }
 
     setShowConfirm(false);
-
-    if (!selectedProfile) return;
+    setActionLoading(true);
 
     const payload = {
-      applicant_uuid: selectedProfile,
+      applicant_uuid: selectedProfile.applicant_uuid,
       action: actionToPerform,
-      comments: comment,
+      comments: comment || "No comment provided",
     };
+    console.log("Sending payload to /updatestatus:", payload);
+
     try {
       const response = await axios.post(`${apiurl}/updatestatus`, payload, {
-        headers: getAuthHeaders(),
+        withCredentials: true,
+        timeout: 5000,
       });
 
+      console.log("API response:", response.data);
       if (response.status === 200) {
         toast.success(response.data.message);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+        setTimeout(() => window.location.reload(), 1500);
       }
     } catch (error) {
       console.error("Error updating status:", error);
-      toast.error("Failed to update status");
+      toast.error(error.response?.data?.message || "Failed to update status.");
     } finally {
+      setActionLoading(false);
       handleCloseModal();
     }
   };
 
- 
-
   const handleMoveForwardMenuToggle = () => {
     setMoveForwardMenu(!moveForwardMenu);
   };
-  const handleChangeScrenningToggle = () => {
-    setChangeScrenningMenu(!ChangeScrenningMenu);
-  };
-  const handleSelect = async (eventKey, applicant_uuid) => {
-    const selected = screens.find((screen) => screen.name === eventKey);
 
+  const handleChangeScreeningToggle = () => {
+    setChangeScreeningMenu(!changeScreeningMenu);
+  };
+
+  const handleSelect = async (eventKey) => {
+    if (!selectedProfile) {
+      toast.error("No profile selected.");
+      return;
+    }
+
+    const selected = screens.find((screen) => screen.name === eventKey);
     setSelectedScreen(selected);
 
     if (selected) {
-      const newUserId = selected.id;
-      console.log(newUserId, comment, applicant_uuid,"kkkkkpl")
+      setActionLoading(true);
       try {
         const response = await axios.post(`${apiurl}/assignapplicanttoUser`, {
-          newUserId: newUserId,
-          applicantId: applicant_uuid,
-          comment
-        });
+          newUserId: selected.id,
+          applicantId: selectedProfile.applicant_uuid,
+          comment,
+        }, { withCredentials: true, timeout: 5000 });
 
         if (response.status === 200) {
           toast.success(response.data.message);
-          setTimeout(() => {
-            window.location.reload();
-          }, 1500);
+          setTimeout(() => window.location.reload(), 1500);
         }
       } catch (error) {
-        toast.error("Error occurred while Assigning  user");
+        console.error("Error assigning user:", error);
+        toast.error(error.response?.data?.message || "Error assigning user.");
+      } finally {
+        setActionLoading(false);
       }
     }
   };
@@ -214,45 +241,38 @@ function New() {
       toast.error("Please select a date and time in the future.");
       return;
     }
-    console.log(formData,"ffed ")
 
+    if (!selectedProfile || !selectedHost) {
+      toast.error("Profile or host not selected.");
+      return;
+    }
+
+    setActionLoading(true);
     try {
-      const response = await axios.post(
-        `${apiurl}/assign-interviewer`,
-        formData,
-        {
-          headers: getAuthHeaders(),
-        }
-      );
+      const response = await axios.post(`${apiurl}/assign-interviewer`, formData, {
+        withCredentials: true,
+        timeout: 5000,
+      });
 
       if (response.status === 200) {
-        // console.log(formData);
-        console.log("Message from server:", response.data.message); // Access message from response.data
         toast.success(response.data.message);
-        setSelectedDateTime(""); // Display the message from server
-        setTimeout(() => {
-          window.location.reload();
-        }, 1800);
+        setTimeout(() => window.location.reload(), 1800);
       }
     } catch (error) {
-      console.error("Error updating status:", error);
-      // Check if the error response exists to display error message
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("An error occurred while updating status."); // Default error message
-      }
+      console.error("Error assigning interviewer:", error);
+      toast.error(error.response?.data?.message || "Error assigning interviewer.");
     } finally {
-      // handleCloseModal();
+      setActionLoading(false);
+      handleCloseModal();
     }
   };
 
-  const handleSelectHost = async (eventKey) => {
+  const handleSelectHost = (eventKey) => {
     const selected = hosts.find((host) => host.name === eventKey);
+    if (!selected || !selected.email) {
+      toast.error("Selected host does not have a valid email.");
+      return;
+    }
 
     const calendlyUsername = selected.email
       .trim()
@@ -260,13 +280,47 @@ function New() {
       .join("-")
       .slice(0, -4);
     setSelectedHost(selected);
-    if (selected) {
-      const calendlyUrl = `https://calendly.com/${calendlyUsername}`;
-      setCalendlyUrl(calendlyUrl);
-      setShowCalendlyModal(true);
+    const calendlyUrl = `https://calendly.com/${calendlyUsername}`;
+    setCalendlyUrl(calendlyUrl);
+    setShowCalendlyModal(true);
+  };
+
+  const handleSubmitEmail = async () => {
+    if (!selectedProfile) {
+      toast.error("No profile selected.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    setActionLoading(true);
+    const payload = {
+      applicant_uuid: selectedProfile.applicant_uuid,
+      email,
+    };
+
+    try {
+      const response = await axios.post(`${apiurl}/updateemail`, payload, {
+        withCredentials: true,
+        timeout: 5000,
+      });
+
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        setShowEmailModal(false);
+        setShowModal(true);
+      }
+    } catch (error) {
+      console.error("Error updating email:", error);
+      toast.error(error.response?.data?.message || "Failed to update email.");
+    } finally {
+      setActionLoading(false);
     }
   };
-  
 
   const filteredProfiles = profiles.filter((profile) => {
     const lowercasedTerm = searchTerm.toLowerCase();
@@ -277,42 +331,18 @@ function New() {
       profile.created_at?.toLowerCase().includes(lowercasedTerm)
     );
   });
+
   const sortedProfiles = [...filteredProfiles].sort(
-    (a, b) => new Date(a.created_at) - new Date(b.created_at)
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );
 
-  const handleSubmitEmail = async () => {
-    const payload = {
-      applicant_uuid: selectedProfile.applicant_uuid,
-      email,
-    };
+  if (loading || userDataLoading) {
+    return <Loader />;
+  }
 
-    // Email validation using regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email pattern
-
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address.");
-      return; // Stop execution if the email is invalid
-    }
-
-    // console.log(payload, "update email");
-
-    try {
-      const response = await axios.post(`${apiurl}/updateemail`, payload, {
-        headers: getAuthHeaders(),
-      });
-
-      if (response.status === 200) {
-        toast.success(response.data.message);
-      }
-    } catch (error) {
-      console.error("Error updating status:", error);
-      toast.error("Failed to update status");
-    } finally {
-      setShowModal(true);
-      setEmail("");
-    }
-  };
+  if (error) {
+    return <div className="alert alert-danger m-3">{error}</div>;
+  }
 
   return (
     <Container fluid>
@@ -331,55 +361,65 @@ function New() {
       </Row>
       <Row>
         <Col>
-          <Table  stickyHeader className="table table-striped text-sm">
-            <thead>
-              <tr>
-                {[
-                  "SC.NO",
-                  "Name",
-                  "Phone",
-                  "Referred By",
-                  "Reference NTID",
-                  "Created At",
-                  "Action",
-                ].map((header, index) => (
-                  <th
-                    key={index}
-                    style={{ backgroundColor: "#E10174", color: "white" }}
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedProfiles.length > 0 ? (
-                sortedProfiles.map((profile, index) => (
-                  <tr key={index}>
-                    <td className="p-2">{index + 1}</td>
-                    <td className="p-2">{profile.applicant_name}</td>
-                    <td className="p-2">{profile.applicant_phone}</td>
-                    <td className="p-2">{profile.referred_by}</td>
-                    <td className="p-2">{profile.reference_id||'-'}</td>
-                    <td className="p-2">{new Date(profile.created_at).toLocaleString('en-US', { hour12: true })}</td>
-
-                    <td className="p-2">
-                      <Button
-                        variant="contained"
-                        onClick={() => handleShowModal(profile)}
-                      >
-                        Proceed
-                      </Button>
+          <div className="table-responsive">
+            <Table striped bordered hover className="text-sm">
+              <thead>
+                <tr>
+                  {[
+                    "SC.NO",
+                    "Name",
+                    "Phone",
+                    "Referred By",
+                    "Reference NTID",
+                    "Created At",
+                    "Action",
+                  ].map((header, index) => (
+                    <th
+                      key={index}
+                      style={{ backgroundColor: "#E10174", color: "white" }}
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sortedProfiles.length > 0 ? (
+                  sortedProfiles.map((profile, index) => (
+                    <tr key={profile.applicant_uuid || index}>
+                      <td className="p-2">{index + 1}</td>
+                      <td className="p-2">{profile.applicant_name || "-"}</td>
+                      <td className="p-2">{profile.applicant_phone || "-"}</td>
+                      <td className="p-2">{profile.referred_by || "-"}</td>
+                      <td className="p-2">{profile.reference_id || "-"}</td>
+                      <td className="p-2">
+                        {profile.created_at
+                          ? new Date(profile.created_at).toLocaleString("en-US", {
+                              hour12: true,
+                            })
+                          : "-"}
+                      </td>
+                      <td className="p-2">
+                        <Button
+                          variant="contained"
+                          onClick={() => handleShowModal(profile)}
+                          disabled={actionLoading}
+                        >
+                          Proceed
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center">
+                      No profiles available.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="9">No profiles available.</td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
+                )}
+              </tbody>
+            </Table>
+          </div>
         </Col>
       </Row>
 
@@ -391,20 +431,17 @@ function New() {
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title>
-            Action for {selectedProfile?.applicant_uuid}
-          </Modal.Title>
+          <Modal.Title>Action for {selectedProfile?.applicant_uuid || "Unknown"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="comment" className="mx-5">
+            <Form.Group controlId="email" className="mx-5">
               <Form.Label className="fw-bolder">
                 Email<sup className="fs-6 text-danger">*</sup>
               </Form.Label>
               <Form.Control
                 className="border-dark mb-2"
-                as="textarea"
-                rows={1}
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -413,8 +450,9 @@ function New() {
               <Button
                 variant="contained"
                 color="success"
-                className=" mt-2 "
+                className="mt-2"
                 onClick={handleSubmitEmail}
+                disabled={actionLoading}
               >
                 Update Email
               </Button>
@@ -423,21 +461,11 @@ function New() {
               <Button
                 variant="contained"
                 color="warning"
-                onClick={() =>
-                  handleAction(
-                    selectedProfile.applicant_uuid,
-                    "no show at Screening"
-                  )
-                }
+                onClick={() => handleAction(selectedProfile, "no show at Screening")}
+                disabled={actionLoading}
               >
                 No Show
               </Button>
-              <ConfirmationModal
-                show={showConfirm}
-                handleClose={() => setShowConfirm(false)}
-                handleConfirm={handleConfirm}
-                message={`Are you sure you want to mark this applicant as ${actionToPerform}?`}
-              />
             </div>
           </Form>
         </Modal.Body>
@@ -445,12 +473,10 @@ function New() {
 
       <Modal show={showModal} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Action for {selectedProfile?.name}</Modal.Title>
+          <Modal.Title>Action for {selectedProfile?.applicant_name || "Unknown"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* Conditional rendering based on showCalendlyModal */}
           {!showCalendlyModal ? (
-            // Action Form
             <Form>
               <Form.Group controlId="comment" className="mx-5">
                 <Form.Label className="fw-bolder">
@@ -465,56 +491,34 @@ function New() {
                 />
               </Form.Group>
               <div className="d-flex mx-5 flex-column flex-md-row justify-content-around mt-3">
-                {/* Left Container for Action Buttons */}
                 <Container>
                   <Row className="gap-2">
                     <Button
                       variant="contained"
                       color="error"
-                      onClick={() =>
-                        handleAction(
-                          selectedProfile.applicant_uuid,
-                          "rejected at Screening"
-                        )
-                      }
+                      onClick={() => handleAction(selectedProfile, "rejected at Screening")}
+                      disabled={actionLoading}
                     >
                       Reject
                     </Button>
                     <Button
                       variant="contained"
                       color="warning"
-                      onClick={() =>
-                        handleAction(
-                          selectedProfile.applicant_uuid,
-                          "no show at Screening"
-                        )
-                      }
+                      onClick={() => handleAction(selectedProfile, "no show at Screening")}
+                      disabled={actionLoading}
                     >
                       No Show
                     </Button>
                     <Button
                       variant="contained"
                       color="secondary"
-                      onClick={() =>
-                        handleAction(
-                          selectedProfile.applicant_uuid,
-                          "Not Interested at screening"
-                        )
-                      }
+                      onClick={() => handleAction(selectedProfile, "Not Interested at screening")}
+                      disabled={actionLoading}
                     >
                       Not Interested
                     </Button>
                   </Row>
-                  {/* Confirmation Modal */}
-                  <ConfirmationModal
-                    show={showConfirm}
-                    handleClose={() => setShowConfirm(false)}
-                    handleConfirm={handleConfirm}
-                    message={`Are you sure you want to mark this applicant as ${actionToPerform}?`}
-                  />
                 </Container>
-
-                {/* Right Container for Move Forward Button */}
                 <Container>
                   <Row className="gap-2">
                     <Dropdown
@@ -533,7 +537,7 @@ function New() {
                           .sort((a, b) => a.name.localeCompare(b.name))
                           .map((host, index) => (
                             <Dropdown.Item
-                              key={index}
+                              key={host.id || index}
                               eventKey={host.name}
                               className="bg-light text-dark"
                             >
@@ -543,18 +547,9 @@ function New() {
                       </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown
-                      onSelect={(eventKey) => {
-                        if (selectedProfile) {
-                          handleSelect(
-                            eventKey,
-                            selectedProfile.applicant_uuid
-                          ); // Only call handleSelect if selectedProfile exists
-                        } else {
-                          console.error("selectedProfile is null or undefined");
-                        }
-                      }}
-                      show={ChangeScrenningMenu}
-                      onToggle={handleChangeScrenningToggle}
+                      onSelect={handleSelect}
+                      show={changeScreeningMenu}
+                      onToggle={handleChangeScreeningToggle}
                     >
                       <Dropdown.Toggle
                         className="w-100 bg-primary text-white border-secondary"
@@ -567,7 +562,7 @@ function New() {
                           .sort((a, b) => a.name.localeCompare(b.name))
                           .map((screen, index) => (
                             <Dropdown.Item
-                              key={index}
+                              key={screen.id || index}
                               eventKey={screen.name}
                               className="bg-light text-dark"
                             >
@@ -581,13 +576,10 @@ function New() {
               </div>
             </Form>
           ) : (
-            // Calendly Modal for scheduling
             <Form>
               <div className="text-center mt-5">
-                <div className="mb-3">{selectedHost?.name}</div>
-                {/* Using d-flex to show iframe and date picker side by side */}
+                <div className="mb-3">{selectedHost?.name || "Unknown Host"}</div>
                 <div className="d-flex justify-content-between align-items-start">
-                  {/* Iframe Container */}
                   <div className="flex-grow-1 me-3">
                     <iframe
                       src={calendlyUrl}
@@ -598,11 +590,9 @@ function New() {
                       style={{ maxWidth: "100%" }}
                     />
                   </div>
-
-                  {/* Date Picker Container */}
                   <div className="flex-grow-1">
                     <Form.Group controlId="dateTime" className="my-3 w-100">
-                      <p>Select date & Time</p>
+                      <p>Select Date & Time</p>
                       <DatePicker
                         selected={selectedDateTime}
                         onChange={(date) => setSelectedDateTime(date)}
@@ -615,29 +605,33 @@ function New() {
                       variant="contained"
                       color="success"
                       className="mt-3"
-                      onClick={() => setConfirmassiging(true)}
+                      onClick={() => setConfirmAssigning(true)}
+                      disabled={actionLoading}
                     >
                       Assign to Interviewer
                     </Button>
                   </div>
-                  <ConfirmationModal
-                    show={confirmassiging}
-                    handleClose={() => setConfirmassiging(false)}
-                    handleConfirm={() =>
-                      handleDateTimeSave(selectedProfile.id, "Moved")
-                    }
-                    message={
-                      "Have you scheduled the interview in the calendar? Please confirm before submitting."
-                    }
-                  />
                 </div>
-
-                {/* Button Below the Iframe and DatePicker */}
               </div>
             </Form>
           )}
         </Modal.Body>
       </Modal>
+
+      {/* Moved Confirmation Modals to the root level */}
+      {console.log("showConfirm:", showConfirm)}
+      <ConfirmationModal
+        show={showConfirm}
+        handleClose={() => setShowConfirm(false)}
+        handleConfirm={handleConfirm}
+        message={`Are you sure you want to mark this applicant as ${actionToPerform}?`}
+      />
+      <ConfirmationModal
+        show={confirmAssigning}
+        handleClose={() => setConfirmAssigning(false)}
+        handleConfirm={handleDateTimeSave}
+        message="Have you scheduled the interview in the calendar? Please confirm before submitting."
+      />
 
       <ToastContainer />
     </Container>

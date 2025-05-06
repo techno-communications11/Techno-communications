@@ -1,62 +1,35 @@
-import { Button, Grid } from '@mui/material';
-import { Link } from 'react-router-dom';
-import DetailCards from './DetailCards';
+import Button from "../utils/Button";
+import { Link } from "react-router-dom";
+import DetailCards from "./DetailCards";
+const menuItems = [
+  { label: "Detailed View", path: "/detail" },
+  { label: "Hired Applicants", path: "/selectedathr" },
+  { label: "Job Openings", path: "/jobinfo" },
+  { label: "NTIDs Dashboard", path: "/ntidDboard" },
+];
 
 function AdminHome() {
-    return (
-        <div sx={{ mt: 3 }} className='m-4'>
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <Grid container justifyContent="start" spacing={2}>
-                        <Grid item>
-                            <Button
-                                variant="contained"
-                                component={Link}
-                                to="/detail"
-                                sx={{ backgroundColor: "#E10174", color: "white" }}
-                            >
-                                Detailed View
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                variant="contained"
-                                component={Link}
-                                to="/selectedathr"
-                                sx={{ backgroundColor: "#E10174", color: "white" }}
-                            >
-                                HIRED APPLICANTS
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                variant="contained"
-                                component={Link}
-                                to="/jobinfo"
-                                sx={{ backgroundColor: "#E10174", color: "white" }}
-                            >
-                                JOB Openings
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                variant="contained"
-                                component={Link}
-                                to="/ntidDboard"
-                                sx={{ backgroundColor: "#E10174", color: "white" }}
-                            >
-                                NTIDs Dashboard 
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </Grid>
-                
-                <Grid item xs={12}>
-                    <DetailCards />
-                </Grid>
-            </Grid>
+  return (
+    <div sx={{ mt: 3 }} className="m-4">
+      <div container>
+        <div xs={12}>
+          <div container className="d-flex gap-3">
+            <div style={{ display: "flex", gap: "10px" }}>
+              {menuItems.map((item, index) => (
+                <Link to={item.path} key={index}>
+                  <Button variant="btn-primary opacity-75" label={item.label} />
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
-    );
+
+        <div xs={12}>
+          <DetailCards />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default AdminHome;

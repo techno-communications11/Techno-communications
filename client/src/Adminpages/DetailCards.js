@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Row, Col, Form, Card, Spinner } from "react-bootstrap";
-import {  TextField } from "@mui/material";
+import { Row, Col, Form, Card } from "react-bootstrap";
+import { TextField } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
@@ -9,46 +9,28 @@ import dayjs from "dayjs";
 import { CanvasJSChart } from "canvasjs-react-charts";
 import { MyContext } from "../pages/MyContext";
 import { useNavigate } from "react-router-dom";
+import useFetchMarkets from "../Hooks/useFetchMarkets";
+import Loader from "../utils/Loader";
+import API_URL from "../Constants/ApiUrl";
 
 const DetailCards = () => {
   const [statusCounts, setStatusCounts] = useState({});
   const [selectedMarket, setSelectedMarket] = useState([]); // Holds multiple markets
   const [dateRange, setDateRange] = useState([
-    dayjs().subtract(7, 'days'),
+    dayjs().subtract(7, "days"),
     dayjs(),
-  ]); 
+  ]);
   const [loading, setLoading] = useState(false);
   const [isAllSelected, setIsAllSelected] = useState(false); // State to track Select All
   const { setCaptureStatus, setCaptureDate, setMarkets } =
     useContext(MyContext);
   const navigate = useNavigate();
+  const { markets } = useFetchMarkets();
 
-  const locations = [
-    { id: 4, name: "ARIZONA" },
-    { id: 5, name: "Bay Area" },
-    { id: 6, name: "COLORADO" },
-    { id: 7, name: "DALLAS" },
-    { id: 8, name: "El Paso" },
-    { id: 9, name: "FLORIDA" },
-    { id: 10, name: "HOUSTON" },
-    { id: 11, name: "LOS ANGELES" },
-    { id: 12, name: "MEMPHIS" },
-    { id: 13, name: "NASHVILLE" },
-    { id: 14, name: "NORTH CAROL" },
-    { id: 15, name: "SACRAMENTO" },
-    { id: 16, name: "SAN DEIGIO" },
-    { id: 17, name: "SAN FRANCISCO" },
-    { id: 18, name: "SAN JOSE" },
-    { id: 19, name: "SANTA ROSA" },
-    { id: 21, name: "relocation" },
-    { id: 23, name: "DirectHiring" },
-  ];
- 
   useEffect(() => {
     fetchStatusCounts();
-    
   }, []);
-  // Fetch data when filters change
+
   useEffect(() => {
     if (selectedMarket.length > 0 || dateRange) {
       fetchStatusCounts();
@@ -58,12 +40,11 @@ const DetailCards = () => {
   const fetchStatusCounts = async () => {
     setLoading(true);
     try {
-      const url = `${process.env.REACT_APP_API}/getStatusCountsByLocation`;
-      
-      const response = await axios.get(url);
+      const url = `${API_URL}/getStatusCountsByLocation`;
+
+      const response = await axios.get(url, { withCredentials: true });
       if (response.status === 200) {
         const details = response.data.status_counts;
-        // console.log(details,'dts')
         setStatusCounts(deriveProfileStats(details));
       } else {
         console.error("Error fetching profiles:", response);
@@ -75,29 +56,26 @@ const DetailCards = () => {
     }
   };
 
+  const handleSelectAllChange = (event) => {
+    const { checked } = event.target;
+    setIsAllSelected(checked);
+    setMarkets(markets.map((location) => location.location_name));
+    setSelectedMarket(markets.map((location) => location.location_name));
+    if (checked) {
+      setMarkets(markets.map((location) => location.location_name));
+      setSelectedMarket(markets.map((location) => location.location_name));
+    } else {
+      setSelectedMarket([]); // Clear selected markets when "Select All" is unchecked
+      setMarkets([]); // Clear markets
+    }
+  };
 
-// Handle "Select All" and individual market selections
-const handleSelectAllChange = (event) => {
-  const { checked } = event.target;
-  setIsAllSelected(checked);
-  setMarkets(locations.map((location) => location.name));
-  setSelectedMarket(locations.map((location) => location.name));
-  if (checked) {
-    setMarkets(locations.map((location) => location.name));
-    setSelectedMarket(locations.map((location) => location.name));
-  } else {
-    setSelectedMarket([]); // Clear selected markets when "Select All" is unchecked
-    setMarkets([]); // Clear markets
-  }
-};
-
-// Set initial state for "Select All" and default selected markets on mount
-useEffect(() => {
-  setIsAllSelected(true);
-  setMarkets(locations.map((location) => location.name));
-  setSelectedMarket(locations.map((location) => location.name));
-}, []); // Run when 'locations' data is available
-
+  // Set initial state for "Select All" and default selected markets on mount
+  useEffect(() => {
+    setIsAllSelected(true);
+    setMarkets(markets.map((location) => location.location_name));
+    setSelectedMarket(markets.map((location) => location.location_name));
+  }, []);
 
   const handleLocationChange = (event) => {
     const { value, checked } = event.target;
@@ -121,70 +99,51 @@ useEffect(() => {
 
   const flattenProfiles = (profiles) => {
     return profiles
-        .flatMap((profile) => {
-            return profile.applicant_names.map((name, index) => ({
-                applicant_name: name,
-                applicant_phone: profile.phone[index],
-                applicant_email: profile.applicant_emails[index],
-                applicant_uuid: profile.applicant_uuids[index],
-                work_location_name: profile.work_location_names[index],
-                created_at_date: profile.created_at_dates[index],
-                status: profile.status,
-            }));
-        })
-        .filter((profile) => {
-            // Filter by market
-            const inMarket = selectedMarket?.length > 0
-                ? selectedMarket.includes(profile.work_location_name)
-                : true;
+      .flatMap((profile) => {
+        return profile.applicant_names.map((name, index) => ({
+          applicant_name: name,
+          applicant_phone: profile.phone[index],
+          applicant_email: profile.applicant_emails[index],
+          applicant_uuid: profile.applicant_uuids[index],
+          work_location_name: profile.work_location_names[index],
+          created_at_date: profile.created_at_dates[index],
+          status: profile.status,
+        }));
+      })
+      .filter((profile) => {
+        // Filter by market
+        const inMarket =
+          selectedMarket?.length > 0
+            ? selectedMarket.includes(profile.work_location_name)
+            : true;
+        const createdDate = new Date(profile.created_at_date);
+        const [startDate, endDate] = dateRange;
+        const startDateObj = startDate ? new Date(startDate) : null;
+        const endDateObj = endDate ? new Date(endDate) : null;
+        if (startDateObj && endDateObj) {
+          if (startDateObj.toDateString() === endDateObj.toDateString()) {
+            startDateObj.setHours(0, 0, 0, 0); // Local start of the day
+            endDateObj.setHours(23, 59, 59, 999); // Local end of the day
+          } else {
+            startDateObj.setHours(0, 0, 0, 0); // UTC start of the start day
+            endDateObj.setHours(23, 59, 59, 999); // UTC end of the end day
+          }
+        }
 
-            // Parse created_at_date into a Date object
-            const createdDate = new Date(profile.created_at_date);
+        // Convert to timestamps for comparison
+        const startTimestamp = startDateObj ? startDateObj.getTime() : null;
+        const endTimestamp = endDateObj ? endDateObj.getTime() : null;
+        const createdTimestamp = createdDate.getTime();
 
-            // Parse dateRange
-            const [startDate, endDate] = dateRange;
-            
-            // Convert start and end dates to Date objects, if they exist
-            const startDateObj = startDate ? new Date(startDate) : null;
-            const endDateObj = endDate ? new Date(endDate) : null;
-            
-            if (startDateObj && endDateObj) {
-                if (startDateObj.toDateString() === endDateObj.toDateString()) {
-                    // For the same day: Adjust time to cover the entire day in local time
-                    startDateObj.setHours(0, 0, 0, 0); // Local start of the day
-                    endDateObj.setHours(23, 59, 59, 999); // Local end of the day
-                } else {
-                    // For different days: Adjust to cover entire day ranges in UTC
-                    startDateObj.setHours(0, 0, 0, 0); // UTC start of the start day
-                    endDateObj.setHours(23, 59, 59, 999); // UTC end of the end day
-                }
-            }
-            
-            // Convert to timestamps for comparison
-            const startTimestamp = startDateObj ? startDateObj.getTime() : null;
-            const endTimestamp = endDateObj ? endDateObj.getTime() : null;
-            const createdTimestamp = createdDate.getTime();
-            
-            // Filter by date range (inclusive)
-            const inDateRange =
-                startTimestamp && endTimestamp
-                    ? createdTimestamp >= startTimestamp && createdTimestamp <= endTimestamp
-                    : true; // Default to true if no date range is provided
-
-            // Return profiles matching both filters
-            return inMarket && inDateRange;
-        });
-};
-
-
-  
-  
-  
-  
-  
-  
-
-  // Derive profile statistics based on the flattened profiles
+        // Filter by date range (inclusive)
+        const inDateRange =
+          startTimestamp && endTimestamp
+            ? createdTimestamp >= startTimestamp &&
+              createdTimestamp <= endTimestamp
+            : true; // Default to true if no date range is provided
+        return inMarket && inDateRange;
+      });
+  }; // Derive profile statistics based on the flattened profiles
   const deriveProfileStats = (profiles) => {
     const flattenedProfiles = flattenProfiles(profiles);
     const uniqueProfiles = flattenedProfiles.filter(
@@ -200,7 +159,6 @@ useEffect(() => {
     return calculateFinalStatusCounts(profileStats);
   };
 
-  // Calculate the final counts for each status based on the profile statistics
   const calculateFinalStatusCounts = (profileStats) => {
     const pendingTotal =
       (profileStats["pending at Screening"] || 0) +
@@ -266,28 +224,7 @@ useEffect(() => {
 
   return (
     <div className="mt-4">
-      {loading && (
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{
-            position: "fixed", // Makes the spinner overlay fixed to the screen
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0, // Ensures it covers the whole screen
-            backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent dark background
-            zIndex: 9999, // Places the spinner above other content
-          }}
-        >
-          <Spinner
-            animation="border"
-            role="status"
-            style={{ width: "3rem", height: "3rem" }}
-          >
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </div>
-      )}
+      {loading && <Loader />}
 
       {/* First Row: Date Range Filter */}
       <Row className="d-flex justify-content-between align-items-center mb-4">
@@ -330,14 +267,14 @@ useEffect(() => {
                 checked={isAllSelected}
                 onChange={handleSelectAllChange}
               />
-              {locations.map((location) => (
+              {markets.map((location) => (
                 <Form.Check
                   key={location.id}
                   type="checkbox"
-                  label={location.name?.toLowerCase()}
-                  className="text-capitalize " 
-                  value={location.name}
-                  checked={selectedMarket?.includes(location.name)}
+                  label={location.location_name?.toLowerCase()}
+                  className="text-capitalize "
+                  value={location.location_name}
+                  checked={selectedMarket?.includes(location.location_name)}
                   onChange={handleLocationChange}
                 />
               ))}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Container, Row, Col } from 'react-bootstrap';
-import decodeToken from '../decodedDetails';
 import getStatusCounts from '../pages/getStatusCounts';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
@@ -9,22 +8,20 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-
-// Register the necessary Chart.js components
+import filteredStatuses from '../Constants/filteredStatusesinterviewer'
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function InterviewerDashboard() {
   const [stats, setStats] = useState([]);
-  const userData = decodeToken();
-  const { setCaptureStatus } = useContext(MyContext);
+  const { setCaptureStatus,userData } = useContext(MyContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStatusCounts = async () => {
       try {
         const data = await getStatusCounts();
+       
         setStats(data);
-        // console.log(data);
       } catch (error) {
         console.error("Error fetching status counts:", error);
       }
@@ -32,25 +29,16 @@ function InterviewerDashboard() {
     fetchStatusCounts();
   }, []);
 
-  const filteredStatuses = [
-    { status: "no show at Interview", bgColor: "#FF5733" }, // Orange
-    { status: "selected at Interview", bgColor: "#28A745" }, // Green
-    { status: "rejected at Interview", bgColor: "#DC3545" }, // Red
-    { status: "put on hold at Interview", bgColor: "#6C757D" }, // Gray
-    { status: "Moved to HR", bgColor: "#007BFF" }, // Blue
-    { status: "need second opinion at Interview", bgColor: "#FFCC00" } // Yellow
-  ];
+  
 
   const handleData = (status) => {
     try {
-      // console.log(status);
       setCaptureStatus(status);
       navigate('/detailview');
     } catch (error) {
       console.error('Error in handleData:', error);
     }
   };
-
   // Filter the stats based on statuses in filteredStatuses
   const TotalCount = stats
     .filter(stat => filteredStatuses.some(fStatus => fStatus.status === stat.status)) // Filter only matching statuses

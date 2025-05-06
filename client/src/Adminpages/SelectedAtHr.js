@@ -7,7 +7,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import "react-toastify/dist/ReactToastify.css";
 import CustomDateRangePicker from "./DateFilter";
 import MarketSelector from "./MarketSelector";
-import { Tabs, Tab, Card, Typography } from "@mui/material";
+import { Tabs, Tab, Typography } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import {
   Table,
@@ -76,7 +76,7 @@ function SelectedAtHr() {
   useEffect(() => {
     const fetchApplicantsData = async () => {
       try {
-        const response = await axios.get(`${apiurl}/applicants/selected-at-hr`);
+        const response = await axios.get(`${apiurl}/applicants/selected-at-hr`,{withCredentials:true});
         // console.log(response.data.data, "redd");
         if (response.status === 200) {
           setData(response.data.data);
@@ -1057,6 +1057,7 @@ function SelectedAtHr() {
 }
 const headerStyle = {
   backgroundColor: "#3f51b5",
+
   color: "#ffffff",
   padding: "2px",
   position: "sticky",

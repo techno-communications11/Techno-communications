@@ -15,7 +15,7 @@ function Pending() {
         // console.log("Decoded User ID:", userId);
 
         // Send request to the server with userId
-        const response = await axios.post(`${process.env.REACT_APP_API}/getdirecthiringdetails`, { assigned_user_id: userId });
+        const response = await axios.post(`${process.env.REACT_APP_API}/getdirecthiringdetails`, { assigned_user_id: userId },{withCredentials:true});
         // console.log("Fetched Applicants Data:", response.data);
 
         // Update state with the fetched data

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody,  Grid, Select, MenuItem, InputLabel, FormControl, OutlinedInput, Checkbox, ListItemText, Typography } from '@mui/material';
+import {  Paper,  TableRow,  Select, MenuItem, InputLabel, FormControl, OutlinedInput, Checkbox, ListItemText } from '@mui/material';
 import axios from 'axios';
 import { Col, Container, Form ,Row} from 'react-bootstrap';
+import TableHead from '../utils/TableHead';
 
 const JobInfo = () => {
     const apiurl = process.env.REACT_APP_API;
@@ -32,7 +33,7 @@ const JobInfo = () => {
     useEffect(() => {
         const fetchMarketJobs = async () => {
             try {
-                const response = await axios.get(`${apiurl}/getmarketjobs`);
+                const response = await axios.get(`${apiurl}/getmarketjobs`,{withCredentials:true});
                 const data = response.data;
                 // console.log(data,'id of jobs for market');
                 setMarkets(data);
@@ -83,6 +84,7 @@ const JobInfo = () => {
 
     const marketNames = Object.values(userMarket);
     const postedByNames = Object.keys(userMarket);
+     const TableHeaders = ["S.No", "Market", "Openings", "Posted By", "Created At", "Deadline"];
 
     return (
         <Container fluid sx={{ flexGrow: 1, mt: 4, display: 'flex', justifyContent: 'center' }}>
@@ -179,16 +181,7 @@ const JobInfo = () => {
                 {/* Table */}
                 <div  className="container-fluid" component={Paper}>
                     <table className="table table-striped table-sm">
-                        <thead>
-                            <tr  >
-                            <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong  >SI No</strong></th>
-                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Market</strong></th>
-                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Openings</strong></th>
-                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Posted By</strong></th>
-                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Created At</strong></th>
-                                <th className='text-center' style={{ backgroundColor: '#E10174' }}><strong >Deadline</strong></th>
-                            </tr>
-                        </thead>
+                        <TableHead headData={TableHeaders}/>
                         <tbody>
                             {filteredMarkets.map((market,index) => (
                                 <TableRow key={market.id}>

@@ -1,0 +1,9 @@
+.btn-pink {
+    background-color: #e83e8c; /* Bootstrap's pink color */
+    border: none;
+  }
+  
+  .btn-pink:hover {
+    background-color: #d63384; /* Slightly darker pink on hover */
+  }
+  

@@ -18,7 +18,7 @@ function IndividualPerformance() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`${apiurl}/getAllUsers`);
+        const response = await axios.get(`${apiurl}/getAllUsers`,{withCredentials:true});
         setUsers(response.data);
         // console.log(response.data);
       } catch (error) {
@@ -113,8 +113,11 @@ function IndividualPerformance() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold',color:"green" }}>Applicant UUID</TableCell>
-                <TableCell style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold',color:"#f1720d" }}>Referral Status</TableCell>
+                {["Applicant UUID", "Referral Status"].map((header, index) => (
+                  <TableCell key={index} style={{ backgroundColor: '#3f51b5', color: '#ffffff', fontWeight: 'bold' }}>
+                    {header}
+                  </TableCell>
+                ))}
               </TableRow>
             </TableHead>
             <TableBody>

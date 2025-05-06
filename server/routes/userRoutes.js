@@ -1,168 +1,128 @@
 const express = require('express');
 const router = express.Router();
-const { getApplicationforinterviewr, getApplicationforhr,getAllApplicationsForHR,getApplicationforallhr, getApplicantsofScreening, getApplicationforTrainer, gertrainerfeedbackapplicants,getAllTrainerFeedbackApplicants } = require('./controllers/screening');
-const { login } = require('./controllers/Login');
-const { getApplicantsForScreening, assignApplicantToUser, assignnewInterviewer, assignnewHr } = require('./controllers/screeningApplications');
-const { getAllHRs, getAllinterviewers, getAllTrainers, getAllScreening } = require('./controllers/getroles'); // Adjust the path if necessary
-const { getAllUsersStatus } = require('./controllers/admin');
-const { createApplicantReferral, updatemail } = require('./controllers/applicantController');
-const { getmarkets } = require('./controllers/Markets');
-const { addFirstRoundEvaluation, getHREvaluationById } = require('./controllers/interviewevaluation');
-const { addHREvaluation } = require('./controllers/hrevaluationController');
-const {ContractSign, getStatusCounts, getStatusCountss, statusupdate, getStatusCountsByLocation, getStatusDetailCounts, getStatusCountsByWorkLocation, Viewdetails } = require('./controllers/status')
-const assigningapplications = require('./controllers/assignapplicants');
-const { getApplicantDetailsByMobile } = require('./controllers/statusbypfone')
-const { downloadApplicantsData } = require('./controllers/downloadApplicantsData')
-const { getMarkets, postJob, getJobId, updateJobChosen } = require("./controllers/marketController")
-const { updatePassword } = require("./controllers/updatepass")
-const { trackingWork } = require("./controllers/tracking")
-const { getAllUsers } = require("./controllers/getroles")
-const { createUser } = require("./controllers/createUser")
-const { createNtid, getSelectedAtHr, getNtidDashboardCounts } = require("./controllers/ntids")
-const { DirectReferal, getApplicantsForDirect,getWorkForLocDirect } = require('./controllers/Direct');
-const { formdetails, updateform ,formDetailsForAllHRs} = require('./controllers/Edit');
-const { updateComment }= require('./controllers/status');
-const {getAllusersOFDirectHiring}=require('./controllers/Direct')
-// const {ContractSign}=require('/./controllers/')
-getNtidDashboardCounts
+const {
+  getApplicationforinterviewr,
+  getApplicationforhr,
+  getAllApplicationsForHR,
+  getApplicationforallhr,
+  getApplicantsofScreening,
+  getApplicationforTrainer,
+  getAllTrainerFeedbackApplicants,getAllTrainerFeedbackApplicantDetails
+} = require('../controllers/screening');
+const { login } = require('../controllers/Login');
+const {
+  getApplicantsForScreening,
+  assignApplicantToUser,
+  assignnewInterviewer,
+  assignnewHr
+} = require('../controllers/screeningApplications');
+const {
+  getAllHRs,
+  getAllinterviewers,
+  getAllTrainers,
+  getAllScreening
+} = require('../controllers/getroles');
+const { getAllUsersStatus } = require('../controllers/admin');
+const { createApplicantReferral, updatemail } = require('../controllers/applicantController');
+const { getmarkets } = require('../controllers/Markets');
+const { addFirstRoundEvaluation, getHREvaluationById } = require('../controllers/interviewevaluation');
+const { addHREvaluation } = require('../controllers/hrevaluationController');
+const {
+  ContractSign,
+  getStatusCounts,
+  getStatusCountss,
+  statusupdate,
+  getStatusCountsByLocation,
+  getStatusDetailCounts,
+  getStatusCountsByWorkLocation,
+  Viewdetails,
+  updateComment
+} = require('../controllers/status');
+const assigningapplications = require('../controllers/assignapplicants');
+const { getApplicantDetailsByMobile } = require('../controllers/statusbypfone');
+const { downloadApplicantsData } = require('../controllers/downloadApplicantsData');
+const { getMarkets, postJob, getJobId, updateJobChosen } = require("../controllers/marketController");
+const { updatePassword } = require("../controllers/updatepass");
+const { trackingWork } = require("../controllers/tracking");
+const { getAllUsers } = require("../controllers/getroles");
+const { createUser } = require("../controllers/createUser");
+const { createNtid, getSelectedAtHr, getNtidDashboardCounts } = require("../controllers/ntids");
+const { DirectReferal, getApplicantsForDirect, getWorkForLocDirect } = require('../controllers/Direct');
+const { formdetails, updateform, formDetailsForAllHRs } = require('../controllers/Edit');
+const { getAllusersOFDirectHiring } = require('../controllers/Direct');
+const authMiddleware=require('../middleware/authMiddleware')
+ const {getUser}=require('../controllers/getUser')
+ const logout = require('../controllers/logout.js');
 
-module.exports = (io) => {
- 
-  router.put('/hrevalution/:applicant_id', updateform)
-  router.put('/update-comment', updateComment)
+// All routes below (no `io` passed)
+router.put('/hrevalution/:applicant_id', authMiddleware, updateform);
+router.put('/update-comment', authMiddleware, updateComment);
+router.get('/user/me', authMiddleware,getUser)
 
-  // Route to get all selected applicants at HR stage
-  router.get('/applicants/selected-at-hr', getSelectedAtHr);
-  router.get('/applicants/ntidDashboardCount', getNtidDashboardCounts);
-  //Route to Create ntids
-  router.post('/ntids', createNtid)
-  router.get('/hrevalution/:hr_id', formdetails)
-  router.get('/formDetailsForAllHRs/', formDetailsForAllHRs)
-  //Route to Create User
-  router.post('/createuser', createUser)
-  //Route to assignApplicantToUser
-  router.post('/assignapplicanttoUser', assignApplicantToUser)
-  //Route to new interviewer
-  router.post('/newinterviewer', assignnewInterviewer)
-  //Route to newhr
-  router.post('/newhr', assignnewHr)
-  // route get all Users
-  router.get('/getAllUsers', getAllUsers)
-  //routes to update password
-  router.post('/updatePassword', updatePassword)
+router.get('/applicants/selected-at-hr', authMiddleware, getSelectedAtHr);
+router.get('/applicants/ntidDashboardCount', authMiddleware, getNtidDashboardCounts);
+router.post('/ntids', authMiddleware,createNtid);
+router.get('/hrevalution/:hr_id', authMiddleware, formdetails);
+router.get('/formDetailsForAllHRs',authMiddleware, formDetailsForAllHRs);
 
-  //routes to trackwork 
-  router.get('/tracking/:startDate/:endDate/:userId', trackingWork);
+router.post('/createuser',authMiddleware, createUser);
+router.post('/assignapplicanttoUser',authMiddleware, assignApplicantToUser);
+router.post('/newinterviewer',authMiddleware, assignnewInterviewer);
+router.post('/newhr',authMiddleware, assignnewHr);
+router.get('/getAllUsers',authMiddleware, getAllUsers);
+router.post('/updatePassword',authMiddleware, updatePassword);
+router.get('/tracking/:startDate/:endDate/:userId',authMiddleware, trackingWork);
+router.post('/updateemail',authMiddleware, updatemail);
+router.post('/logout',authMiddleware,logout)
 
+router.get('/hrs',authMiddleware, getAllHRs);
+router.get('/screening',authMiddleware, getAllScreening);
+router.post('/post-job',authMiddleware, postJob);
+router.get('/get_jobId',authMiddleware, getJobId);
+router.put('/update_jobId',authMiddleware, updateJobChosen);
+router.get('/getmarketjobs',authMiddleware, getMarkets);
+router.get('/trainers',authMiddleware, getAllTrainers);
+router.get('/interviewer',authMiddleware, getAllinterviewers);
 
-  //Route for updqate email
-  router.post('/updateemail', updatemail)
-  // Route to get all HR users
-  router.get('/hrs', getAllHRs);
-  // Route to get all HR users
-  router.get('/screening', getAllScreening);
-  //Route to post job
-  router.post('/post-job', postJob);
-  router.get('/get_jobId', getJobId);
-  router.put('/update_jobId', updateJobChosen);
-  //Route to get all marketjobs
-  router.get('/getmarketjobs', getMarkets)
+router.get('/users/:userId/applicants',authMiddleware, getApplicantsForScreening);
+router.get('/users/:userId/getAllTrainerFeedbackApplicants', authMiddleware, getAllTrainerFeedbackApplicants);
+router.get('/users/:userId/applicantsatalllevel',authMiddleware, getApplicantsofScreening);
+router.get('/users/:userId/interviewapplicants', authMiddleware ,getApplicationforinterviewr);
+router.get('/users/:userId/hrinterviewapplicants',authMiddleware, getApplicationforhr);
+router.get('/users/getAllApplicationsForHR',authMiddleware, getAllApplicationsForHR);
+router.get('/users/allhrinterviewapplicants',authMiddleware, getApplicationforallhr);
+router.get('/users/get_All_Trainer_Feedback_Applicant_details', authMiddleware, getAllTrainerFeedbackApplicantDetails);
 
-  //get all trainers
-  router.get('/trainers', getAllTrainers)
+router.post('/login', login);
 
-  // Route to get all interviewers
-  router.get('/interviewer', getAllinterviewers);
+router.get('/status',authMiddleware, getStatusCounts);
+router.get('/statuss',authMiddleware, getStatusCountss);
+router.get('/statuslocation', authMiddleware,getStatusCountsByWorkLocation);
+router.get('/Detailstatus', authMiddleware,getStatusDetailCounts);
+router.get('/viewdetails',authMiddleware, Viewdetails);
+router.get('/getStatusCountsByLocation',authMiddleware, getStatusCountsByLocation);
+router.post('/getdirecthiringdetails',authMiddleware, getAllusersOFDirectHiring);
 
-  // Define the route to get applicants for screening manager
-  router.get('/users/:userId/applicants', getApplicantsForScreening);
+router.post('/updatestatus',authMiddleware, statusupdate);
+router.post('/contractsign', authMiddleware,ContractSign);
+router.get('/markets',authMiddleware, getmarkets);
+router.get('/user-status',authMiddleware, getAllUsersStatus);
 
+// router.get('/testing', (req, res) => res.send('Test route is working!'));
+router.post('/submit',authMiddleware, createApplicantReferral);
+router.post('/assigntohr',authMiddleware, assigningapplications.assignApplicanttohr);
+router.post('/assign-interviewer',authMiddleware, assigningapplications.assignApplicanttointerviewer);
+router.post('/assign-trainer',authMiddleware, assigningapplications.assigntoTrainer);
 
-  // Define the route to get applicants for screening manager
-  router.get('/users/:userId/trainerfeedbackapplicants', gertrainerfeedbackapplicants(io));
-  router.get('/users/getAllTrainerFeedbackApplicants', getAllTrainerFeedbackApplicants(io));
-  // Define the route to get applicants for screening manager at all levels
-  router.get('/users/:userId/applicantsatalllevel', getApplicantsofScreening);
+router.post('/add-evaluation',authMiddleware, addFirstRoundEvaluation);
+router.post('/add-hrevaluation',authMiddleware, addHREvaluation);
+router.get('/first_round_res/:applicantId',authMiddleware, getHREvaluationById);
+router.get("/getstatusnyphone/:mobileNumber",authMiddleware, getApplicantDetailsByMobile);
+router.get("/datadowload",authMiddleware, downloadApplicantsData);
+router.get("/getApplicantsForDirect/:userId",authMiddleware, getApplicantsForDirect);
+router.get("/directapplicants",authMiddleware, getWorkForLocDirect);
+// router.get('/test', (req, res) => res.send('Test route is working!'));
+router.post('/directform',authMiddleware, DirectReferal);
+router.get('/users/:userId/trainerapplicants',authMiddleware, getApplicationforTrainer);
 
-  // Define the route to get applicants for interviewer
-  router.get('/users/:userId/interviewapplicants', getApplicationforinterviewr);
-
-  // Define the route to get applicants for HR
-  router.get('/users/:userId/hrinterviewapplicants', getApplicationforhr);
-  router.get('/users/getAllApplicationsForHR', getAllApplicationsForHR);
-  router.get('/users/allhrinterviewapplicants', getApplicationforallhr);
-
-  // Route for login
-  router.post('/login', login);
-  //route for status
-  router.get('/status', getStatusCounts)
-  //route for status
-  router.get('/statuss', getStatusCountss)
-  //route for status
-  router.get('/statuslocation', getStatusCountsByWorkLocation)
-  //route for detailstatus
-  router.get('/Detailstatus', getStatusDetailCounts)
-  router.get('/viewdetails', Viewdetails)
-  //route for getStatusCountsByLocation
-  router.get('/getStatusCountsByLocation', getStatusCountsByLocation)
-  router.post('/getdirecthiringdetails',getAllusersOFDirectHiring )
-
-  // upadting staus at each level
-  router.post('/updatestatus', statusupdate)
-  router.post('/contractsign', ContractSign)
-
-  // Route to get markets
-  router.get('/markets', getmarkets);
-
-  // Route to get all users' status
-  router.get('/user-status', getAllUsersStatus);
-
-  // Test route to verify the setup
-  router.get('/testing', (req, res) => {
-    res.send('Test route is working!');
-  });
-
-  // Route to handle form submission
-  router.post('/submit', createApplicantReferral);
-
-  // Route to assign applicant to HR
-  router.post('/assigntohr', assigningapplications.assignApplicanttohr);
-
-  // Route to assign applicant to interviewer
-  router.post('/assign-interviewer', assigningapplications.assignApplicanttointerviewer);
-
-
-  // Route to assign applicant to trainer
-  router.post('/assign-trainer', assigningapplications.assigntoTrainer
-  );
-  // POST: Add first-round evaluation
-  router.post('/add-evaluation', addFirstRoundEvaluation);
-
-  // POST: Add HR evaluation
-  router.post('/add-hrevaluation', addHREvaluation);
-
-  // GET: Retrieve HR evaluation by applicant ID
-  router.get('/first_round_res/:applicantId', getHREvaluationById);
-
-  //get aplicant details by phone number
-  router.get("/getstatusnyphone/:mobileNumber", getApplicantDetailsByMobile)
-
-  //dowload applicants data in Excel
-  router.get("/datadowload", downloadApplicantsData)
-  //getApplicantsForDirect 
-  router.get("/getApplicantsForDirect/:userId", getApplicantsForDirect)
-  router.get("/directapplicants", getWorkForLocDirect);
-  // Another test route (if needed)
-  router.get('/test', (req, res) => {
-    res.send('Test route is working!');
-  });
-  // directform route
-  router.post('/directform', DirectReferal)
-
-
-  //get Applicants for Trainer
-  router.get('/users/:userId/trainerapplicants', getApplicationforTrainer(io))
-
-  // Export the router
-  return router;
-};
+module.exports = router;

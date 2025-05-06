@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@mui/material';
 import Form from 'react-bootstrap/Form';
 // import Dropdown from 'react-bootstrap/Dropdown';
@@ -9,8 +9,8 @@ import decodeToken from '../decodedDetails';
 function DirectForm() {
   const userData = decodeToken();
   const [error, setError] = useState('');
-  const [selectedMarket, setSelectedMarket] = useState('');
-  const [markets, setMarkets] = useState([]);
+  // const [selectedMarket, setSelectedMarket] = useState('');
+  // const [markets, setMarkets] = useState([]);
   const nameRef = useRef();
   const emailRef = useRef();
   const phoneRef = useRef();
@@ -47,7 +47,7 @@ function DirectForm() {
         assign_to: userData.id,
       };
 
-      const response = await axios.post(`${apiUrl}/directform`, formData);
+      const response = await axios.post(`${apiUrl}/directform`, formData,{withCredentials:true});
 
       if (response.status === 201) {
         Swal.fire({
@@ -62,7 +62,7 @@ function DirectForm() {
         phoneRef.current.value = "";
         referredByRef.current.value = "";
         referenceNtidRef.current.value = "";
-        setSelectedMarket("");
+        // setSelectedMarket("");
         setError(''); // Clear any previous errors
       } else {
         setError("Unexpected response status: " + response.status);
@@ -74,18 +74,18 @@ function DirectForm() {
   };
 
 
-  useEffect(() => {
-    const fetchMarkets = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/markets`);
-        setMarkets(response.data);
-      } catch (error) {
-        setError('Failed to fetch markets. Please try again later.');
-      }
-    };
+  // useEffect(() => {
+  //   const fetchMarkets = async () => {
+  //     try {
+  //       const response = await axios.get(`${apiUrl}/markets`);
+  //       setMarkets(response.data);
+  //     } catch (error) {
+  //       setError('Failed to fetch markets. Please try again later.');
+  //     }
+  //   };
 
-    fetchMarkets();
-  }, []);
+  //   fetchMarkets();
+  // }, []);
 
 
 
