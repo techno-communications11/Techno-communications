@@ -2,8 +2,9 @@ import React, { useState, useEffect, useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import { useNavigate } from "react-router-dom";
 import MarketSelector from "./MarketSelector";
-import axios from "axios";
 import { Pie } from "react-chartjs-2";
+import useFetchNtidDashCount from "../Hooks/useFetchNtidDashCount";
+import Loader from "../utils/Loader";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 // Register ChartJS components
@@ -22,9 +23,8 @@ function Ntidboard() {
   const [endDate, setEndDate] = useState(
     () => new Date().toISOString().split("T")[0]
   );
-  const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  // const { setMarket, setCaptureDate } = MyContext();
+  const {data,loading,error}=useFetchNtidDashCount();
   const navigate = useNavigate();
   const {
     setStartDateForContext,
@@ -39,7 +39,6 @@ function Ntidboard() {
     contractSigned1: 0,
   });
 
-  const apiurl = process.env.REACT_APP_API;
 
   const smallerFormStyles = {
     width: "200px",
@@ -53,31 +52,7 @@ function Ntidboard() {
   const handleStartDateChange = (e) => setStartDate(e.target.value);
   const handleEndDateChange = (e) => setEndDate(e.target.value);
 
-  const fetchApplicantsData = async () => {
-    try {
-      const response = await axios.get(
-        `${apiurl}/applicants/ntidDashboardCount`,{withCredentials:true}
-      );
-      if (response.status === 200) {
-        const fetchedData = response.data.data;
-        setData(fetchedData);
-
-        // Extract all unique markets
-        const allMarkets = [...new Set(fetchedData.map((item) => item.market))];
-        setMarketFilter(allMarkets);
-
-        if (isAllSelected) {
-          setSelectedMarket(allMarkets); // Select all markets by default
-        }
-
-        applyFilters(fetchedData);
-      } else {
-        console.error("Error fetching applicants data");
-      }
-    } catch (error) {
-      console.error("Error fetching applicants:", error);
-    }
-  };
+ 
 
   const applyFilters = (dataToFilter) => {
     let filtered = dataToFilter;
@@ -159,13 +134,10 @@ function Ntidboard() {
     setCounts(counts);
   };
 
-  useEffect(() => {
-    fetchApplicantsData();
-  }, []);
 
   useEffect(() => {
     applyFilters(data);
-  }, [selectedMarket, startDate, endDate, isAllSelected]);
+  }, [selectedMarket, startDate, endDate, isAllSelected,data]);
 
   const pieData = {
     labels: [
@@ -206,6 +178,19 @@ function Ntidboard() {
     // console.log(status,'sss')
     navigate("/ntiddata");
   };
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    return (
+      <div className="container text-center mt-5">
+        <h5 style={{ color: "#F44336" }}>{error}</h5>
+      </div>
+    );
+  }
+
 
   return (
     <div className="container">

@@ -5,7 +5,6 @@ import Modal from "react-bootstrap/Modal";
 import axios from "axios";
 import { Container, Row, Col } from "react-bootstrap";
 import Login from "./Login";
-import job from "./images/logo.webp";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaRegHandPointer } from "react-icons/fa";
@@ -161,7 +160,7 @@ function Public() {
           className="d-flex justify-content-center align-items-center"
         >
           <img
-            src={job}
+            src="/logo.webp"
             alt="jobs"
             className="img-fluid d-none d-md-block"
             style={{ height: "30vh" }}

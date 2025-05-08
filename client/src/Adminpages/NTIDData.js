@@ -1,37 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
 import { MyContext } from "../pages/MyContext";
 import { IoMdDownload } from "react-icons/io";
 import { Table } from "react-bootstrap";
 import * as XLSX from "xlsx";
 import TableHead from "../utils/TableHead";
 import Button from "../utils/Button";
+import useFetchNtidDashCount from "../Hooks/useFetchNtidDashCount";
+import Loader from "../utils/Loader";
 
 
 
 function NTIDData() {
   const { endDate, startDate, markets, captureStatus } = useContext(MyContext);
-  const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-
-  const apiurl = process.env.REACT_APP_API;
-
-  const fetchApplicantsData = async () => {
-    try {
-      const response = await axios.get(
-        `${apiurl}/applicants/ntidDashboardCount`,{withCredentials:true}
-      );
-      if (response.status === 200) {
-        const fetchedData = response.data.data;
-        setData(fetchedData);
-        applyFilters(fetchedData);
-      } else {
-        console.error("Error fetching applicants data");
-      }
-    } catch (error) {
-      console.error("Error fetching applicants:", error);
-    }
-  };
+   const {data,loading,error}=useFetchNtidDashCount();
 
   const applyFilters = (dataToFilter) => {
     let filtered = dataToFilter;
@@ -91,14 +73,9 @@ function NTIDData() {
 
     setFilteredData(filtered);
   };
-
-  useEffect(() => {
-    fetchApplicantsData();
-  }, []);
-
   useEffect(() => {
     applyFilters(data);
-  }, [markets, startDate, endDate]);
+  }, [markets, startDate, endDate,data]);
   
   const handleDownloadExcel = () => {
     if (filteredData.length === 0) {
@@ -131,6 +108,17 @@ function NTIDData() {
     "Status",
     "NTID",
   ];
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    return (
+      <div className="container text-center mt-5">
+        <h5 style={{ color: "#F44336" }}>{error}</h5>
+      </div>
+    );
+  }
 
   return (
     <div className="container-flex mx-4 mt-1">

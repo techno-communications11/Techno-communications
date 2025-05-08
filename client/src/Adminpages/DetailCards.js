@@ -22,8 +22,7 @@ const DetailCards = () => {
   ]);
   const [loading, setLoading] = useState(false);
   const [isAllSelected, setIsAllSelected] = useState(false); // State to track Select All
-  const { setCaptureStatus, setCaptureDate, setMarkets } =
-    useContext(MyContext);
+  const {setMarkets,setCaptureDate } = useContext(MyContext);
   const navigate = useNavigate();
   const { markets } = useFetchMarkets();
 
@@ -41,7 +40,6 @@ const DetailCards = () => {
     setLoading(true);
     try {
       const url = `${API_URL}/getStatusCountsByLocation`;
-
       const response = await axios.get(url, { withCredentials: true });
       if (response.status === 200) {
         const details = response.data.status_counts;
@@ -59,23 +57,25 @@ const DetailCards = () => {
   const handleSelectAllChange = (event) => {
     const { checked } = event.target;
     setIsAllSelected(checked);
-    setMarkets(markets.map((location) => location.location_name));
-    setSelectedMarket(markets.map((location) => location.location_name));
     if (checked) {
-      setMarkets(markets.map((location) => location.location_name));
-      setSelectedMarket(markets.map((location) => location.location_name));
+      const allMarkets = markets.map((location) => location.location_name);
+      setMarkets(allMarkets);
+      setSelectedMarket(allMarkets);
     } else {
       setSelectedMarket([]); // Clear selected markets when "Select All" is unchecked
       setMarkets([]); // Clear markets
     }
   };
 
-  // Set initial state for "Select All" and default selected markets on mount
+  // Set all markets as selected by default when markets are fetched
   useEffect(() => {
-    setIsAllSelected(true);
-    setMarkets(markets.map((location) => location.location_name));
-    setSelectedMarket(markets.map((location) => location.location_name));
-  }, []);
+    if (markets.length > 0) {
+      const allMarkets = markets.map((location) => location.location_name);
+      setSelectedMarket(allMarkets); // Preselect all markets
+      setMarkets(allMarkets); // Update context with all markets
+      setIsAllSelected(true); // Set "Select All" checkbox to checked to reflect UI state
+    }
+  }, [markets, setMarkets]);
 
   const handleLocationChange = (event) => {
     const { value, checked } = event.target;
@@ -143,7 +143,8 @@ const DetailCards = () => {
             : true; // Default to true if no date range is provided
         return inMarket && inDateRange;
       });
-  }; // Derive profile statistics based on the flattened profiles
+  };
+
   const deriveProfileStats = (profiles) => {
     const flattenedProfiles = flattenProfiles(profiles);
     const uniqueProfiles = flattenedProfiles.filter(
@@ -181,7 +182,7 @@ const DetailCards = () => {
       (profileStats["rejected at Interview"] || 0) +
       (profileStats["no show at Interview"] || 0) +
       (profileStats["no show at Hr"] || 0) +
-      (profileStats["Not Recommended For Hiring"] || 0) +
+      (profileStats["Not A: Not Recommended For Hiring"] || 0) +
       (profileStats["backOut"] || 0) +
       (profileStats["rejected at Hr"] || 0);
     const pendingAtScreening = profileStats["pending at Screening"] || 0;
@@ -216,17 +217,15 @@ const DetailCards = () => {
     };
   };
 
-  const handleDataView = (status) => {
-    setCaptureStatus(status);
+  const handleDataView = (captureStatus) => {
     setCaptureDate(dateRange);
-    navigate("/statusticketview");
+    navigate(`/statusticketview/${captureStatus}`);
   };
 
   return (
     <div className="mt-4">
       {loading && <Loader />}
 
-      {/* First Row: Date Range Filter */}
       <Row className="d-flex justify-content-between align-items-center mb-4">
         <Col md={4}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>

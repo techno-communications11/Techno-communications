@@ -9,21 +9,26 @@ import { useNavigate } from 'react-router-dom';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import filteredStatuses from '../Constants/filteredStatusesinterviewer'
+import Loader from '../utils/Loader';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function InterviewerDashboard() {
   const [stats, setStats] = useState([]);
-  const { setCaptureStatus,userData } = useContext(MyContext);
+  const { userData } = useContext(MyContext);
   const navigate = useNavigate();
+  const [loading,setLoading]=useState(false);
 
   useEffect(() => {
     const fetchStatusCounts = async () => {
+      setLoading(true)
       try {
         const data = await getStatusCounts();
        
         setStats(data);
       } catch (error) {
         console.error("Error fetching status counts:", error);
+      } finally{
+        setLoading(false)
       }
     };
     fetchStatusCounts();
@@ -31,12 +36,16 @@ function InterviewerDashboard() {
 
   
 
-  const handleData = (status) => {
+  const handleData = (captureStatus) => {
     try {
-      setCaptureStatus(status);
-      navigate('/detailview');
+      if (captureStatus && typeof captureStatus === "string") {
+        // Navigate to the detail view with the dynamic captureStatus parameter
+        navigate(`/detailview/${captureStatus}`);
+      } else {
+        console.error("Invalid captureStatus:", captureStatus);
+      }
     } catch (error) {
-      console.error('Error in handleData:', error);
+      console.error("Error in handleShow:", error);
     }
   };
   // Filter the stats based on statuses in filteredStatuses
@@ -56,6 +65,11 @@ function InterviewerDashboard() {
       backgroundColor: filteredStatuses.map(({ bgColor }) => bgColor),
     }],
   };
+   if(loading){
+    return(
+      <Loader/>
+    )
+   }
 
   return (
     <Container>

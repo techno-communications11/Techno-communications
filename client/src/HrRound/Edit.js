@@ -4,12 +4,13 @@ import { useLocation } from "react-router";
 import { Form, Row, Col, Button, Container } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import locations from "../Constants/Loacations";
+import useFetchMarkets from "../Hooks/useFetchMarkets";
 
 const Edit = () => {
   const location = useLocation(); // Used to access the profile passed from navigate()
   const { profile } = location.state || {}; // Accessing profile from passed state
   const apiurl = process.env.REACT_APP_API;
+  const { markets } = useFetchMarkets();
 
   const [formData, setFormData] = useState({
     applicantId: profile.applicant_id || "",
@@ -67,7 +68,7 @@ const Edit = () => {
         `${apiurl}/hrevalution/${formData.applicantId}`,
         formData,
         {
-          withCredentials:true,
+          withCredentials: true,
         }
       );
 
@@ -79,7 +80,7 @@ const Edit = () => {
       toast.error("Failed to update the form.");
     }
   };
- 
+
   return (
     <Container fluid className="d-flex justify-content-center">
       <Col md lg={7} className="m-4">
@@ -100,10 +101,9 @@ const Edit = () => {
                 isInvalid={!!errors.market}
               >
                 <option value="">Select Market</option>{" "}
-                {/* Default empty option */}
-                {locations.map((location) => (
-                  <option key={location.id} value={location.name}>
-                    {location.name}
+                {markets.map((location) => (
+                  <option key={location.id} value={location.location_name}>
+                    {location.location_name}
                   </option>
                 ))}
               </Form.Select>
@@ -143,9 +143,9 @@ const Edit = () => {
               >
                 <option value="">Select Training Location</option>{" "}
                 {/* Default empty option */}
-                {locations.map((location) => (
-                  <option key={location.id} value={location.name}>
-                    {location.name}
+                {markets.map((location) => (
+                  <option key={location.id} value={location.location_name}>
+                    {location.location_name}
                   </option>
                 ))}
               </Form.Select>
@@ -202,13 +202,14 @@ const Edit = () => {
                 value={formData.payroll}
                 onChange={handleChange}
               >
-                <option value="" disabled>Select...</option>
+                <option value="" disabled>
+                  Select...
+                </option>
                 {["Current Payroll", "Back Payroll"].map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
                 ))}
-            
               </Form.Control>
             </Col>
           </Form.Group>

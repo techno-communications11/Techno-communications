@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
-import { MyContext } from "../pages/MyContext";
+import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { Modal, Form } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
-import '../Adminpages/ModalStyles.css'
+import "../Adminpages/Styles/ModalStyles.css";
 import Pagination from "@mui/material/Pagination";
 import { IoIosArrowDown } from "react-icons/io";
 
@@ -24,9 +23,10 @@ import {
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { Container } from "react-bootstrap";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
-import locations from "../Constants/Loacations";
+import useFetchMarkets from "../Hooks/useFetchMarkets";
 import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
+import { useParams } from "react-router";
 
 function ViewDetais() {
   const [selectedProfiles, setSelectedProfiles] = useState([]);
@@ -35,34 +35,32 @@ function ViewDetais() {
   const profilesPerPage = 100;
   const [showModal, setShowModal] = useState(false);
   const [updatedComment, setUpdatedComment] = useState("");
-  const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =useState("");
+  const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =
+    useState("");
   const [commentprofilestatus, setCommentprofileStatus] = useState("");
-  const myContext = useContext(MyContext);
-const { captureStatus } = myContext;
-const [selectedLocations, setSelectedLocations] = useState([]);
+
+  const [selectedLocations, setSelectedLocations] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { captureStatus } = useParams();
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+   const {markets}=useFetchMarkets();
  
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-const captureStatusFromStorage = captureStatus || localStorage.getItem("captureStatuss");  // Fallback to a default value if null
 
-useEffect(() => {
-  if (captureStatus) {
-    localStorage.setItem("captureStatuss", captureStatus);
-  }
-}, [captureStatus]);
+ 
 
-useEffect(() => {
-  fetchProfiles();
-}, [myContext]);  // Effect will run when myContext changes
+  useEffect(() => {
+    fetchProfiles();
+  }, [captureStatus]); // Effect will run when myContext changes
   // Effect will run when myContext changes
-  
+
   const fetchProfiles = async () => {
     setLoading(true);
     try {
       const url = `${process.env.REACT_APP_API}/viewdetails`;
-      const response = await axios.get(url,{withCredentials:true});
-  
+      const response = await axios.get(url, { withCredentials: true });
+
       if (response.status === 200) {
         const profilesData = response.data.status_counts || [];
         setSelectedProfiles(profilesData); // Set state to update the UI
@@ -86,16 +84,16 @@ useEffect(() => {
     setEndDate(event.target.value);
   };
   // console.log(setSelectedProfiles,'selecp')
-  
+
   const statusMap = {
-    "Total1": [
+    Total1: [
       "pending at Screening",
       "Not Interested at screening",
       "moved to Interview",
       "rejected at Screening",
-      "no show at Screening"
+      "no show at Screening",
     ],
-    "Total2": [
+    Total2: [
       "put on hold at Interview",
       "selected at Interview",
       "need second opinion at Interview",
@@ -103,75 +101,72 @@ useEffect(() => {
       "no show at Interview",
       "Moved to HR",
     ],
-    "Total3": [
+    Total3: [
       "Sent for Evaluation",
       "Applicant will think about It",
       "selected at Hr",
       "no show at Hr",
       "rejected at Hr",
-      'mark_assigned',
+      "mark_assigned",
       "Spanish Evaluation",
       "backOut",
       "Not Recommended For Hiring",
       "Store Evaluation",
     ],
-   
+
     // Flattened individual statuses
-    'pending at Screening': ["pending at Screening"],
-    'No Response At Screening': ["No Response At Screening"],
-    'Not Interested at screening': ["Not Interested at screening"],
-    'moved to Interview': ["moved to Interview"],
-    'rejected at Screening': ["rejected at Screening"],
+    "pending at Screening": ["pending at Screening"],
+    "No Response At Screening": ["No Response At Screening"],
+    "Not Interested at screening": ["Not Interested at screening"],
+    "moved to Interview": ["moved to Interview"],
+    "rejected at Screening": ["rejected at Screening"],
     "no show at Screening": ["no show at Screening"],
-    
-    'put on hold at Interview': ["put on hold at Interview"],
-    'selected at Interview': ["selected at Interview"],
-    'need second opinion at Interview': ["need second opinion at Interview"],
-    'rejected at Interview': ["rejected at Interview"],
-    'no show at Interview': ["no show at Interview"],
-    'Moved to HR': ["Moved to HR"],
-  
-    'Sent for Evaluation': ["Sent for Evaluation"],
-    'Applicant will think about It': ["Applicant will think about It"],
-    'selected at Hr': ["selected at Hr"],
-    'no show at Hr': ["no show at Hr"],
-    'rejected at Hr': ["rejected at Hr"],
-    'mark_assigned':['mark_assigned'],
-    "Spanish Evaluation":["Spanish for Evaluation"],
-    "backOut":["backOut"],"Not recommeneded for Hiring":["Not recommeneded for Hiring"],"Store Evaluation":["Store Evaluation"]
+
+    "put on hold at Interview": ["put on hold at Interview"],
+    "selected at Interview": ["selected at Interview"],
+    "need second opinion at Interview": ["need second opinion at Interview"],
+    "rejected at Interview": ["rejected at Interview"],
+    "no show at Interview": ["no show at Interview"],
+    "Moved to HR": ["Moved to HR"],
+
+    "Sent for Evaluation": ["Sent for Evaluation"],
+    "Applicant will think about It": ["Applicant will think about It"],
+    "selected at Hr": ["selected at Hr"],
+    "no show at Hr": ["no show at Hr"],
+    "rejected at Hr": ["rejected at Hr"],
+    mark_assigned: ["mark_assigned"],
+    "Spanish Evaluation": ["Spanish for Evaluation"],
+    backOut: ["backOut"],
+    "Not recommeneded for Hiring": ["Not recommeneded for Hiring"],
+    "Store Evaluation": ["Store Evaluation"],
   };
-  
-  
- 
-  
-     // Handle checkbox change
-     const handleCheckboxChange = (event) => {
-      const { value, checked } = event.target;
-      if (checked) {
-        setSelectedLocations([...selectedLocations, value]);
-      } else {
-        setSelectedLocations(selectedLocations.filter((name) => name !== value));
-      }
-    };
-  
-    // Handle dropdown toggle
-    const toggleDropdown = () => {
-      setIsDropdownOpen(!isDropdownOpen);
-    };
-  
-    // Handle "Select All" functionality
-    const handleSelectAllChange = (event) => {
-      const { checked } = event.target;
-      if (checked) {
-        setSelectedLocations(locations.map((loc) => loc.name.toString()));
-      } else {
-        setSelectedLocations([]);
-      }
-    };
-    // console.log(selectedLocations,'selec')
- 
-  
-    const filteredProfiles = selectedProfiles
+
+  // Handle checkbox change
+  const handleCheckboxChange = (event) => {
+    const { value, checked } = event.target;
+    if (checked) {
+      setSelectedLocations([...selectedLocations, value]);
+    } else {
+      setSelectedLocations(selectedLocations.filter((name) => name !== value));
+    }
+  };
+
+  // Handle dropdown toggle
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  // Handle "Select All" functionality
+  const handleSelectAllChange = (event) => {
+    const { checked } = event.target;
+    if (checked) {
+      setSelectedLocations(markets.map((loc) => loc.location_name?.toString()));
+    } else {
+      setSelectedLocations([]);
+    }
+  };
+
+  const filteredProfiles = selectedProfiles
     .map((currentStatus) => {
       const filteredData = {
         applicant_names: [],
@@ -191,22 +186,29 @@ useEffect(() => {
         first_round_comments: [],
         applicant_referrals_comments: [],
       };
-  
+
       const isDateInRange = (date) => {
         if (startDate && endDate) {
           const dateToCheck = new Date(date);
-          return dateToCheck >= new Date(startDate) && dateToCheck <= new Date(endDate);
+          return (
+            dateToCheck >= new Date(startDate) &&
+            dateToCheck <= new Date(endDate)
+          );
         }
         return true; // No date filtering if either date is missing
       };
-  
-      
-      
-  
-      if (currentStatus.applicant_names && currentStatus.applicant_names.forEach) {
+
+      if (
+        currentStatus.applicant_names &&
+        currentStatus.applicant_names.forEach
+      ) {
         currentStatus.applicant_names.forEach((_, index) => {
-          const filteredByStatus = statusMap[captureStatusFromStorage]?.includes(currentStatus.status);
-          const isInDateRange = isDateInRange(currentStatus.created_at_dates?.[index]);
+          const filteredByStatus = statusMap[
+            captureStatus
+          ]?.includes(currentStatus.status);
+          const isInDateRange = isDateInRange(
+            currentStatus.created_at_dates?.[index]
+          );
           const inMarket =
             selectedLocations.length > 0
               ? selectedLocations.some(
@@ -214,65 +216,92 @@ useEffect(() => {
                     currentStatus.work_location_names?.[index] === market
                 )
               : true;
-  
-          // Only include data that matches status, date range, and location (if applicable)
-          if (filteredByStatus && inMarket && (startDate && endDate ? isInDateRange : true)) {
-            filteredData.applicant_names.push(currentStatus.applicant_names?.[index] || "");
+
+          if (
+            filteredByStatus &&
+            inMarket &&
+            (startDate && endDate ? isInDateRange : true)
+          ) {
+            filteredData.applicant_names.push(
+              currentStatus.applicant_names?.[index] || ""
+            );
             filteredData.phone.push(currentStatus.phone?.[index] || "");
-            filteredData.applicant_emails.push(currentStatus.applicant_emails?.[index] || "");
-            filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by?.[index] || "");
-            filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids?.[index] || "");
-            filteredData.applicant_uuids.push(currentStatus.applicant_uuids?.[index] || "");
-            filteredData.created_at_dates.push(currentStatus.created_at_dates?.[index] || "");
-            filteredData.work_location_names.push(currentStatus.work_location_names?.[index] || "");
-            filteredData.screening_manager_names.push(currentStatus.screening_manager_names?.[index] || "N/A");
-            filteredData.interviewer_names.push(currentStatus.interviewer_names?.[index] || "N/A");
-            filteredData.hr_names.push(currentStatus.hr_names?.[index] || "N/A");
-            filteredData.joining_dates.push(currentStatus.joining_dates?.[index] || "N/A");
-            filteredData.notes.push((currentStatus.notes || [])[index] || "N/A");
-            filteredData.first_round_comments.push((currentStatus.first_round_comments || [])[index] || "N/A");
-            filteredData.applicant_referrals_comments.push((currentStatus.applicant_referrals_comments || [])[index] || "N/A");
+            filteredData.applicant_emails.push(
+              currentStatus.applicant_emails?.[index] || ""
+            );
+            filteredData.applicant_referred_by.push(
+              currentStatus.applicant_referred_by?.[index] || ""
+            );
+            filteredData.applicant_reference_ids.push(
+              currentStatus.applicant_reference_ids?.[index] || ""
+            );
+            filteredData.applicant_uuids.push(
+              currentStatus.applicant_uuids?.[index] || ""
+            );
+            filteredData.created_at_dates.push(
+              currentStatus.created_at_dates?.[index] || ""
+            );
+            filteredData.work_location_names.push(
+              currentStatus.work_location_names?.[index] || ""
+            );
+            filteredData.screening_manager_names.push(
+              currentStatus.screening_manager_names?.[index] || "N/A"
+            );
+            filteredData.interviewer_names.push(
+              currentStatus.interviewer_names?.[index] || "N/A"
+            );
+            filteredData.hr_names.push(
+              currentStatus.hr_names?.[index] || "N/A"
+            );
+            filteredData.joining_dates.push(
+              currentStatus.joining_dates?.[index] || "N/A"
+            );
+            filteredData.notes.push(
+              (currentStatus.notes || [])[index] || "N/A"
+            );
+            filteredData.first_round_comments.push(
+              (currentStatus.first_round_comments || [])[index] || "N/A"
+            );
+            filteredData.applicant_referrals_comments.push(
+              (currentStatus.applicant_referrals_comments || [])[index] || "N/A"
+            );
           }
         });
       }
-  
+
       return filteredData;
     })
     .filter((data) => data.applicant_names.length > 0); // Filter out profiles with no names
-  
 
-const flattenedProfiles = filteredProfiles.flatMap((status) => {
-  return status.applicant_names.map((name, index) => ({
-    applicant_name: name,
-    applicant_phone: status.phone[index],
-    applicant_email: status.applicant_emails[index],
-    applicant_referred_by: status.applicant_referred_by[index],
-    applicant_reference_id: status.applicant_reference_ids[index],
-    applicant_uuid: status.applicant_uuids[index],
-    created_at_date: status.created_at_dates[index],
-    work_location_name: status.work_location_names[index],
-    screening_manager_name: status.screening_manager_names[index],
-    interviewer_name: status.interviewer_names[index],
-    hr_name: status.hr_names[index],
-    notes: status.notes[index],
-    applicant_referrals_comments: status.applicant_referrals_comments[index],
-    first_round_comments: status.first_round_comments[index],
-    status: status.status,
-    joining_date:
-      status.joining_dates[index] !== "0000-00-00"
-        ? dayjs(status.joining_dates[index]).format("YYYY-MM-DD")
-        : "N/A",
-  }));
-});
-
-  
+  const flattenedProfiles = filteredProfiles.flatMap((status) => {
+    return status.applicant_names.map((name, index) => ({
+      applicant_name: name,
+      applicant_phone: status.phone[index],
+      applicant_email: status.applicant_emails[index],
+      applicant_referred_by: status.applicant_referred_by[index],
+      applicant_reference_id: status.applicant_reference_ids[index],
+      applicant_uuid: status.applicant_uuids[index],
+      created_at_date: status.created_at_dates[index],
+      work_location_name: status.work_location_names[index],
+      screening_manager_name: status.screening_manager_names[index],
+      interviewer_name: status.interviewer_names[index],
+      hr_name: status.hr_names[index],
+      notes: status.notes[index],
+      applicant_referrals_comments: status.applicant_referrals_comments[index],
+      first_round_comments: status.first_round_comments[index],
+      status: status.status,
+      joining_date:
+        status.joining_dates[index] !== "0000-00-00"
+          ? dayjs(status.joining_dates[index]).format("YYYY-MM-DD")
+          : "N/A",
+    }));
+  });
 
   const uniqueFlattenedProfiles = flattenedProfiles.filter(
     (profile, index, self) =>
       index ===
       self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
   );
-
 
   const indexOfLastProfile = currentPage * profilesPerPage;
   const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
@@ -310,10 +339,8 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants");
     XLSX.writeFile(workbook, "Applicants_List.xlsx");
   };
- 
 
   const handleOpenModal = (profile) => {
-     console.log(profile,'pppppppp')
     setUpdatedComment(
       profile.status.includes("Screening")
         ? profile.applicant_referrals_comments
@@ -331,13 +358,13 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const data = {
       applicant_uuid: commentprofileapplicant_uuid,
       status: commentprofilestatus,
       comment: updatedComment,
     };
-  
+
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API}/update-comment`,
@@ -350,9 +377,9 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
           body: JSON.stringify(data),
         }
       );
-  
+
       const responseData = await response.json();
-  
+
       if (response.ok) {
         handleCloseModal();
         toast.success("Comment updated successfully!");
@@ -377,22 +404,21 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
       setCommentprofileStatus("");
     }
   };
-  
 
   const tableHeaders = [
     "S.No",
-    "Created_At",
-    "Applicant_Details",
-    "Referred_by",
-    "Reference_ID",
-    "Work_Location",
-    "Screening_Manager",
+    "Created At",
+    "Applicant Details",
+    "Referred by",
+    "Reference ID",
+    "Work Location",
+    "Screening Manager",
     "Interviewer",
-    "HR_Name",
+    "HR Name",
     "Status",
-    "Joining_Date",
+    "Joining Date",
     "Comments",
-    "Update_Comment"
+    "Update Comment",
   ];
 
   return (
@@ -406,60 +432,66 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
               Total: {uniqueFlattenedProfiles.length}
             </h3>
             <div className="dropdown-container">
-      {/* Dropdown Button */}
-      <div className="dropdown-button" onClick={toggleDropdown}>
-        <span>Select Market</span>
-        <span className="dropdown-arrow"><IoIosArrowDown /></span>
-      </div>
+              {/* Dropdown Button */}
+              <div className="dropdown-button" onClick={toggleDropdown}>
+                <span>Select Market</span>
+                <span className="dropdown-arrow">
+                  <IoIosArrowDown />
+                </span>
+              </div>
 
-      {/* Dropdown content (checkboxes) */}
-      {isDropdownOpen && (
-        <div className="checkbox-dropdown">
-          <div className="checkbox-item">
-            <input
-              type="checkbox"
-              id="select-all"
-              checked={selectedLocations.length === locations.length}
-              onChange={handleSelectAllChange}
-            />
-            <label htmlFor="select-all">Select All</label>
-          </div>
+              {/* Dropdown content (checkboxes) */}
+              {isDropdownOpen && (
+                <div className="checkbox-dropdown">
+                  <div className="checkbox-item">
+                    <input
+                      type="checkbox"
+                      id="select-all"
+                      checked={selectedLocations.length === markets.length}
+                      onChange={handleSelectAllChange}
+                    />
+                    <label htmlFor="select-all">Select All</label>
+                  </div>
 
-          {locations.map((location) => (
-            <div key={location.name} className="checkbox-item">
-              <input
-                type="checkbox"
-                id={`location-${location.name}`}
-                value={location.name}
-                checked={selectedLocations.includes(location.name.toString())}
-                onChange={handleCheckboxChange}
-              />
-              <label htmlFor={`location-${location.name}`}>{location.name}</label>
+                  {markets.map((location) => (
+                    <div key={location.location_name} className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        id={`location-${location.location_name}`}
+                        value={location.location_name}
+                        checked={selectedLocations.includes(
+                          location.location_name.toString()
+                        )}
+                        onChange={handleCheckboxChange}
+                      />
+                      <label htmlFor={`location-${location.location_name}`} className="text-capitalize">
+                        {location.location_name.toLowerCase()}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-    <div className="date-picker">
-        <label htmlFor="start-date">Start Date:</label>
-        <input
-          type="date"
-          id="start-date"
-          value={startDate}
-          onChange={handleStartDateChange}
-        />
-      </div>
+            <div className="date-picker">
+              <label htmlFor="start-date">Start Date:</label>
+              <input
+                type="date"
+                id="start-date"
+                value={startDate}
+                onChange={handleStartDateChange}
+              />
+            </div>
 
-      {/* End Date Picker */}
-      <div className="date-picker">
-        <label htmlFor="end-date">End Date:</label>
-        <input
-          type="date"
-          id="end-date"
-          value={endDate}
-          onChange={handleEndDateChange}
-        />
-      </div>
+            {/* End Date Picker */}
+            <div className="date-picker">
+              <label htmlFor="end-date">End Date:</label>
+              <input
+                type="date"
+                id="end-date"
+                value={endDate}
+                onChange={handleEndDateChange}
+              />
+            </div>
             <Button
               variant="outlined"
               color="success"
@@ -471,17 +503,17 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
           </div>
 
           <TableContainer
-           component={Paper}
-                 sx={{
-                   width: "100%",
-                   boxShadow: 2,
-                   borderRadius: 2,
-                   maxHeight: "600px", // Define height for scrollable content
-                 }}
+            component={Paper}
+            sx={{
+              width: "100%",
+              boxShadow: 2,
+              borderRadius: 2,
+              maxHeight: "600px", // Define height for scrollable content
+            }}
           >
             <Table stickyHeader className="table-sm">
-              <TableHead headData={tableHeaders}/>
-               
+              <TableHead headData={tableHeaders} />
+
               <TableBody>
                 {currentProfiles.map((profile, index) => (
                   <TableRow key={index}>
@@ -492,19 +524,19 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                       {indexOfFirstProfile + index + 1}
                     </TableCell>
                     <TableCell className="text-center">
-                      {profile.created_at_date.slice(0,10)}
+                      {profile.created_at_date.slice(0, 10)}
                     </TableCell>
                     <TableCell
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
-                      <Box display="flex" >
+                      <Box display="flex">
                         <Box ml={2}>
                           <Typography
                             variant="body1"
                             style={{ fontWeight: "bold" }}
                           >
                             {" "}
-                            {profile.applicant_name || "N/A"}
+                            {profile.applicant_name?.toLowerCase() || "N/A"}
                           </Typography>
                           <Typography variant="body1" color="textSecondary">
                             {profile.applicant_phone}
@@ -513,56 +545,56 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                       </Box>
                     </TableCell>
                     <TableCell
-                    className="text-center"
+                      className="text-center text-capitalize"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
-                      {profile.applicant_referred_by || "N/A"}
+                      {profile.applicant_referred_by?.toLowerCase() || "N/A"}
                     </TableCell>
                     <TableCell
-                    className="text-center"
+                      className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.applicant_reference_id || "N/A"}
                     </TableCell>
                     <TableCell
-                    className="text-center"
+                      className="text-center text-capitalize"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
-                      {profile.work_location_name || "N/A"}
+                      {profile.work_location_name?.toLowerCase() || "N/A"}
                     </TableCell>
                     <TableCell
-                    className="text-center"
+                      className="text-center text-capitalize"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
-                      {profile.screening_manager_name || "N/A"}
+                      {profile.screening_manager_name?.toLowerCase() || "N/A"}
                     </TableCell>
                     <TableCell
-                    className="text-center"
+                      className="text-center text-capitalize"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
-                      {profile.interviewer_name || "N/A"}
+                      {profile.interviewer_name?.toLowerCase() || "N/A"}
                     </TableCell>
                     <TableCell
-                    className="text-center"
+                      className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.hr_name || "N/A"}
                     </TableCell>
                     <TableCell
-                    className="text-center"
+                      className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.status || "N/A"}
                     </TableCell>
                     <TableCell
-                    className="text-center"
+                      className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       {profile.joining_date || "N/A"}
                     </TableCell>
 
                     <TableCell
-                    className="text-center"
+                      className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       <OverlayTrigger
@@ -573,11 +605,13 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                               "pending at Screening",
                               "rejected at Screening",
                               "no show at Screening",
-                              "Not Interested at screening","moved to Interview"
+                              "Not Interested at screening",
+                              "moved to Interview",
                             ].includes(profile.status)
                               ? profile.applicant_referrals_comments
                               : [
-                                  "put on hold at Interview","Moved to HR",
+                                  "put on hold at Interview",
+                                  "Moved to HR",
                                   "selected at Interview",
                                   "need second opinion at Interview",
                                   "rejected at Interview",
@@ -607,16 +641,18 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                             "pending at Screening",
                             "rejected at Screening",
                             "no show at Screening",
-                            "Not Interested at screening","moved to Interview"
+                            "Not Interested at screening",
+                            "moved to Interview",
                           ].includes(profile.status) &&
                           profile.applicant_referrals_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
                           ) : [
-                              "put on hold at Interview","Moved to HR",
-                                  "selected at Interview",
-                                  "need second opinion at Interview",
-                                  "rejected at Interview",
-                                  "no show at Interview",
+                              "put on hold at Interview",
+                              "Moved to HR",
+                              "selected at Interview",
+                              "need second opinion at Interview",
+                              "rejected at Interview",
+                              "no show at Interview",
                             ].includes(profile.status) &&
                             profile.first_round_comments !== "N/A" ? (
                             <span style={{ color: "green" }}>View </span>
@@ -642,7 +678,7 @@ const flattenedProfiles = filteredProfiles.flatMap((status) => {
                     </TableCell>
 
                     <TableCell
-                    className="text-center"
+                      className="text-center"
                       style={{ padding: "4px 8px", fontSize: "0.9rem" }}
                     >
                       <Button

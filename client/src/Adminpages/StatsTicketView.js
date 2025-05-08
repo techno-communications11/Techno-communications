@@ -24,6 +24,7 @@ import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
 import API_URL from "../Constants/ApiUrl";
 import Button from "../utils/Button";
+import { useParams } from "react-router";
 
 function StatsTicketView() {
   const [selectedProfiles, setSelectedProfiles] = useState([]);
@@ -35,7 +36,8 @@ function StatsTicketView() {
   const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] = useState("");
   const [commentprofilestatus, setCommentprofileStatus] = useState("");
   const myContext = useContext(MyContext);
-  const { markets, captureStatus, captureDate, } = myContext;
+  const { markets,captureDate} = myContext;
+   const {captureStatus}=useParams();
 
   useEffect(() => {
     const { markets, captureStatus, captureDate } = myContext;
@@ -433,6 +435,7 @@ function StatsTicketView() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials:'include',
         body: JSON.stringify(data),
       });
 
@@ -488,6 +491,7 @@ function StatsTicketView() {
               width: "100%",
               boxShadow: 2,
               borderRadius: 2,
+              overflowY:'auto',
               maxHeight: "700px", // Define height for scrollable content
             }}
           >

@@ -9,23 +9,27 @@ import { useNavigate } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { IoIosArrowForward } from "react-icons/io";
+import Loader from "../utils/Loader";
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function ScreeningHome() {
-  const { setCaptureStatus } = useContext(MyContext);
   const [stats, setStats] = useState([]);
   const navigate = useNavigate();
   const { userData } = useContext(MyContext);
-  
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const fetchStatusCounts = async () => {
+      setLoading(true);
       try {
         const data = await getStatusCounts();
         setStats(data);
       } catch (error) {
         console.error("Error fetching status counts:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchStatusCounts();
@@ -44,8 +48,8 @@ function ScreeningHome() {
   const TotalCount = stats
     .filter((stat) =>
       filteredStatuses.some((fStatus) => fStatus.status === stat.status)
-    ) // Filter only matching statuses
-    .reduce((total, stat) => total + stat.count, 0); // Sum the count for matching statuses
+    )
+    .reduce((total, stat) => total + stat.count, 0);
 
   // Pie chart data preparation
   const pieChartData = {
@@ -62,16 +66,23 @@ function ScreeningHome() {
     ],
   };
 
-  // Handle click on a card to show detailed information
-  const handleShow = (status) => {
+  // Handle click on a card to navigate to detailed view
+  const handleShow = (captureStatus) => {
     try {
-      // console.log(status);
-      setCaptureStatus(status);
-      navigate("/detailview");
+      if (captureStatus && typeof captureStatus === "string") {
+        // Navigate to the detail view with the dynamic captureStatus parameter
+        navigate(`/detailview/${captureStatus}`);
+      } else {
+        console.error("Invalid captureStatus:", captureStatus);
+      }
     } catch (error) {
       console.error("Error in handleShow:", error);
     }
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <Container style={{ minHeight: "80vh" }}>

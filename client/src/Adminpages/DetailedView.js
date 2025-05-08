@@ -8,7 +8,7 @@ import {
   TableContainer,
   TableRow,
   Paper,
-  Button,
+
 } from "@mui/material";
 import { Form, Col, Row, Container } from "react-bootstrap";
 import { Dropdown,  } from "react-bootstrap";
@@ -22,6 +22,7 @@ import DateFilter from "./DateFilter";
 import Loader from "../utils/Loader";
 import API_URL from "../Constants/ApiUrl";
 import TableHead from "../utils/TableHead";
+import Button from "../utils/Button";
 
 // FilterControls Component
 const FilterControls = ({
@@ -131,20 +132,22 @@ const FilterControls = ({
 
 // ProfileCountCard Component
 const ProfileCountCard = ({ profileCount, onDownload }) => (
-  <Row className="mb-4 d-flex justify-content-between">
-    <Col xs={6}>
-      <Typography className="text-xl font-bold text-blue-600">
-        Total profiles: {profileCount}
-      </Typography>
+  <Row className="mb-4 align-items-center justify-content-between g-3 mt-2">
+    {/* Left side: Profile Count */}
+    <Col xs="auto" className="d-flex align-items-center">
+      <span className="fs-5 fw-bold text-primary">
+        Total profiles: <span className="text-dark">{profileCount}</span>
+      </span>
     </Col>
-    <Col xs={6} className="text-right">
+
+    {/* Right side: Download Button */}
+    <Col xs="auto">
       <Button
-        variant="contained"
+        variant="btn-primary"
         onClick={onDownload}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
-      >
-        Download Data Excel
-      </Button>
+        label={"Download Data"}
+      />
+       
     </Col>
   </Row>
 );
@@ -231,7 +234,7 @@ const ProfileTable = ({ profiles, serialNumberStart }) => {
 
 // PaginationControls Component
 const PaginationControls = ({ pageCount, currentPage, onPageChange }) => (
-  <Stack spacing={2} className="mt-6 flex justify-center">
+  <Stack spacing={2} className="mt-6 d-flex justify-center">
     <Pagination
       count={pageCount}
       page={currentPage}

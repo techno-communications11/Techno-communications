@@ -5,7 +5,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "@mui/material";
-import job from './images/logo.webp';
+
 import Swal from "sweetalert2";
 import Loader from "../utils/Loader";
 
@@ -93,7 +93,7 @@ function PublicFixedLocation() {
       <Row className="vh-100">
         <Col md={6} lg={6} className="d-flex justify-content-center align-items-center">
           <img
-            src={job}
+            src="/logo.webp"
             alt="jobs"
             className="img-fluid d-none d-md-block"
             style={{ height: "30vh" }}

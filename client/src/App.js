@@ -111,12 +111,12 @@ function AppComponent() {
                
                 <Route path="/register" element={<Register />} />
                 <Route path="/edit" element={<Edit />} />
-                <Route path="/statusticketview" element={<StatsTicketView />} />
+                <Route path="/statusticketview/:captureStatus" element={<StatsTicketView />} />
               </>
             )}
             {userData.role === "hr" && (
               <>
-                <Route path="/detailview" element={<ViewDetails />} />
+                <Route path="/detailview/:captureStatus" element={<ViewDetails />} />
                 <Route path="/hrhome" element={<HrHome />} />
                 <Route path="/edit" element={<Edit />} />
                 <Route path="/hrinterviewed" element={<HrInterviewd />} />
@@ -148,7 +148,7 @@ function AppComponent() {
             )}
             {userData.role === "screening_manager" && (
               <>
-                <Route path="/detailview" element={<ViewDetails />} />
+                <Route path="/detailview/:captureStatus" element={<ViewDetails />} />
                 <Route path="/screeinghome" element={<ScreeningHome />} />
                 <Route path="/screening" element={<Listprofile />} />
                 <Route path="/screeningnew" element={<New />} />
@@ -166,7 +166,7 @@ function AppComponent() {
             )}
             {userData.role === "interviewer" && (
               <>
-                <Route path="/detailview" element={<ViewDetails />} />
+                <Route path="/detailview/:captureStatus" element={<ViewDetails />} />
                 <Route
                   path="/interviewhome"
                   element={

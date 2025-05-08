@@ -619,7 +619,6 @@ function New() {
       </Modal>
 
       {/* Moved Confirmation Modals to the root level */}
-      {console.log("showConfirm:", showConfirm)}
       <ConfirmationModal
         show={showConfirm}
         handleClose={() => setShowConfirm(false)}

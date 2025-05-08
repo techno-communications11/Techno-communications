@@ -7,38 +7,45 @@ import { useNavigate } from 'react-router-dom';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import filteredStatuses from '../Constants/filteredStatuseshr'
+import Loader from '../utils/Loader';
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function HrHome() {
   const [stats, setStats] = useState([]);
-  const { setCaptureStatus } = useContext(MyContext);
   const navigate = useNavigate();
    const {userData}=useContext(MyContext)
+   const [loading,setLoading]=useState(false);
 
   useEffect(() => {
     const fetchStatusCounts = async () => {
+      setLoading(true)
       try {
         const data = await getStatusCounts();
         setStats(data);
         // console.log(data);
       } catch (error) {
         console.error("Error fetching status counts:", error);
+      } finally{
+        setLoading(false);
       }
     };
     fetchStatusCounts();
   }, []);
 
-  const handleData = (status) => {
+  const handleData = (captureStatus) => {
     try {
-      // console.log(status);
-      setCaptureStatus(status);
-      navigate('/detailview');
+      navigate(`/detailview/${captureStatus}`);
     } catch (error) {
       console.error('Error in handleData:', error);
     }
   };
+   if(loading){
+    return(
+      <Loader/>
+    )
+   }
 
   
   

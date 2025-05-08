@@ -1,25 +1,23 @@
-import React, { useEffect, useState } from 'react';
 import { Grid, Card, CardContent, Typography, Box } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import axios from 'axios';
+import Loader from '../utils/Loader';
+import useGetMarketJobs from '../Hooks/useGetMarketJobs';
 
 const MarketJobOpenings = () => {
-  const apiurl = process.env.REACT_APP_API;
-  const [markets, setMarkets] = useState([]);
+  const {loading,marketJobs,error}=useGetMarketJobs();
 
-  useEffect(() => {
-    const fetchMarketJobs = async () => {
-      try {
-        const response = await axios.get(`${apiurl}/getmarketjobs`, { withCredentials: true });
-        const data = response.data;
-        setMarkets(data);
-      } catch (error) {
-        console.error('Error fetching market job openings:', error);
-      }
-    };
+  if (loading) {
+    return <Loader />;
+  }
 
-    fetchMarketJobs();
-  }, []);
+  if (error) {
+    return (
+      <div className="container text-center mt-5">
+        <h5 style={{ color: "#F44336" }}>{error}</h5>
+      </div>
+    );
+  }
+  
 
   return (
     <Box
@@ -50,7 +48,7 @@ const MarketJobOpenings = () => {
       </Typography>
 
       <Grid container spacing={3} justifyContent="center">
-        {markets.map((market) => (
+        {marketJobs.map((market) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={market.id}>
             <Card
               sx={{

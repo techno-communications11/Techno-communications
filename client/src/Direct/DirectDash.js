@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import decodeToken from '../decodedDetails'; // Import your decode token function
 import { Box, Card, Typography, Grid ,Container} from '@mui/material'; // Use Grid instead of Col
 import dayjs from 'dayjs';
+import { useContext } from 'react';
+import { MyContext } from '../pages/MyContext';
+import Loader from '../utils/Loader';
 
 export const DirectDash = () => {
-    const userData = decodeToken();
+    const {userData}=useContext(MyContext);
     const selectedUser = userData.name ; // Get the user name from token or fallback
     const [selectedProfiles, setSelectedProfiles] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -162,7 +164,11 @@ export const DirectDash = () => {
         "NTID Created": "#e74c3c",  // Another red for created status
         "Total": "#34495e",  // Dark Blue for Total
     };
-
+ if(loading){
+    return(
+        <Loader/>
+    )
+ }
     return (
         <Container>
         <Grid container spacing={2} className='mt-4'>
