@@ -31,7 +31,6 @@ import { MyProvider } from "./pages/MyContext";
 import InterviewerDashboard from "./InterviewRound/interviewerDashboard";
 import MarketJobOpenings from "./Markets/markets";
 import Markethome from "./Markets/markethome";
-import Individual_performance from "./Adminpages/Work";
 import UpdatePassword from "./pages/UpdatePassword";
 import SelectedAtHr from "./Adminpages/SelectedAtHr";
 import DetailedView from "./Adminpages/DetailedView";
@@ -46,7 +45,6 @@ import AdminHrEdit from "./Adminpages/AdminHrEdit";
 import StatsTicketView from "./Adminpages/StatsTicketView";
 import JobInfo from "./Adminpages/JobInfo";
 import Tabls from "./Direct/Tabs";
-import Memphis from "../src/pages/Memphis";
 import ViewDetails from "./pages/ViewDetails";
 import Ntidboard from "./Adminpages/Ntidboard";
 import NTIDData from "./Adminpages/NTIDData";
@@ -84,6 +82,7 @@ function AppComponent() {
         {!userData ? (
           <>
             <Route path="/" element={<Public />} />
+             <Route path="/memphis" element={<Public />} />
             <Route path="/login" element={<Login />} />
             
           </>
@@ -97,18 +96,14 @@ function AppComponent() {
 
             {userData.role === "admin" && (
               <>
-              <Route path="/ntiddata" element={<NTIDData/>}/>
+              <Route path="/ntiddata/:captureStatus" element={<NTIDData/>}/>
               <Route path="/ntidDboard" element={<Ntidboard/>}/>
-                <Route path="/work" element={<Individual_performance />} />
                 <Route path="/jobinfo" element={<JobInfo />} />
                 <Route path="/adminTabs" element={<AdminTabs />} />
-                <Route path="/AdminHrEdit" element={<AdminHrEdit />} />
-                <Route path="/detailacrds" element={<DetailCards />} />
                 <Route path="/detail" element={<DetailedView />} />
                 <Route path="/selectedathr" element={<SelectedAtHr />} />
                 <Route path="/adminhome" element={<AdminHome />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
-               
                 <Route path="/register" element={<Register />} />
                 <Route path="/edit" element={<Edit />} />
                 <Route path="/statusticketview/:captureStatus" element={<StatsTicketView />} />
@@ -118,13 +113,10 @@ function AppComponent() {
               <>
                 <Route path="/detailview/:captureStatus" element={<ViewDetails />} />
                 <Route path="/hrhome" element={<HrHome />} />
+                  <Route path="/hrtabs" element={<HrTabs />} />
                 <Route path="/edit" element={<Edit />} />
-                <Route path="/hrinterviewed" element={<HrInterviewd />} />
                 <Route path="/hrinterview" element={<Hrinterview />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
-                <Route path="/hrnew" element={<HrNew />} />
-                <Route path="/hrtabs" element={<HrTabs />} />
-                <Route path="/trainerhome" element={<TrainerHome />} />
                 <Route path="/TrainerRes" element={<TrainerRes />} />
               </>
             )}
@@ -137,7 +129,7 @@ function AppComponent() {
             )}
             {userData.role === "direct_hiring" && (
               <>
-                <Route path="/detailview" element={<ViewDetails />} />
+                <Route path="/detailview/:captureStatus" element={<ViewDetails />} />
                 <Route path="/directHiring" element={<DirectDash />} />
                 <Route path="/directtabs" element={<Tabls />} />
                 <Route path="/directform" element={<DirectForm />} />
@@ -206,7 +198,7 @@ function AppComponent() {
           </>
         )}
         <Route path="*" element={<Navigate to={"/"} />} />
-        <Route path="/memphis" element={<Memphis />} />
+        {/* <Route path="/memphis" element={<Memphis />} /> */}
       </Routes>
     </div>
   );

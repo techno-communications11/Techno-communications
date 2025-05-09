@@ -4,9 +4,9 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import decodeToken from '../decodedDetails';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
+import API_URL from '../Constants/ApiUrl';
 
 const UpdatePassword = () => {
-    const apiurl = process.env.REACT_APP_API;
     let userData = decodeToken();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,7 +24,7 @@ const UpdatePassword = () => {
         }
 
         try {
-            const response = await axios.post(`${apiurl}/updatePassword`, {
+            const response = await axios.post(`${API_URL}/updatePassword`, {
                 updatePassword: password,
                 userId: userData.id // Replace with actual user ID if dynamic
             });

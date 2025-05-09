@@ -7,6 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import Loader from "../utils/Loader";
 import Button from "../utils/Button";
 import TableHead from "../utils/TableHead";
+import API_URL from "../Constants/ApiUrl";
 const TableHeaders = [
   "S.No",
   "Applicant UUID",
@@ -17,7 +18,6 @@ const TableHeaders = [
 ];
 
 function AdminHrEdit() {
-  const apiurl = process.env.REACT_APP_API; // Ensure REACT_APP_API is defined
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState([]); // Ensure profiles is always an array
   const { setapplicant_uuid } = useContext(MyContext);
@@ -27,7 +27,7 @@ function AdminHrEdit() {
     const fetchInterviewApplicants = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${apiurl}/formDetailsForAllHRs`, {
+        const response = await axios.get(`${API_URL}/formDetailsForAllHRs`, {
           withCredentials: true,
         });
         if (response.status === 200) {

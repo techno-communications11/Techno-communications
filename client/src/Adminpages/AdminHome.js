@@ -1,6 +1,7 @@
 import Button from "../utils/Button";
 import { Link } from "react-router-dom";
 import DetailCards from "./DetailCards";
+
 const menuItems = [
   { label: "Detailed View", path: "/detail" },
   { label: "Hired Applicants", path: "/selectedathr" },
@@ -17,7 +18,7 @@ function AdminHome() {
             <div style={{ display: "flex", gap: "10px" }}>
               {menuItems.map((item, index) => (
                 <Link to={item.path} key={index}>
-                  <Button variant="btn-primary opacity-75" label={item.label} />
+                  <Button variant=" opacity-75" code="#E10174" label={item.label} />
                 </Link>
               ))}
             </div>

@@ -7,6 +7,7 @@ import Loader from "../utils/Loader";
 import Button from "../utils/Button";
 import TableHead from "../utils/TableHead";
 import { MyContext } from "../pages/MyContext";
+import API_URL from "../Constants/ApiUrl";
 
 const TableHeader = [
   "SI.No",
@@ -19,7 +20,6 @@ const TableHeader = [
 ];
 
 function EvalutionResult({ setTrainerCount }) {
-  const apiurl = process.env.REACT_APP_API;
 
   const [profiles, setProfiles] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -33,7 +33,7 @@ function EvalutionResult({ setTrainerCount }) {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${apiurl}/users/get_All_Trainer_Feedback_Applicant_details`,
+          `${API_URL}/users/get_All_Trainer_Feedback_Applicant_details`,
           {
             withCredentials: true,
           }
@@ -54,7 +54,7 @@ function EvalutionResult({ setTrainerCount }) {
     if (userData?.id) {
       assignedToInterviewer();
     }
-  }, [apiurl, userData?.id, setTrainerCount]);
+  }, [API_URL, userData?.id, setTrainerCount]);
 
   const handleActionClick = (profile, action) => {
     setSelectedProfile(profile);
@@ -72,7 +72,7 @@ function EvalutionResult({ setTrainerCount }) {
 
     try {
       const res = await axios.post(
-        `${apiurl}/updatestatus`,
+        `${API_URL}/updatestatus`,
         payload,
         { withCredentials: true }
       );

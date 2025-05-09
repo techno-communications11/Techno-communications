@@ -105,7 +105,7 @@ router.post('/getdirecthiringdetails',authMiddleware, getAllusersOFDirectHiring)
 
 router.post('/updatestatus',authMiddleware, statusupdate);
 router.post('/contractsign', authMiddleware,ContractSign);
-router.get('/markets',authMiddleware, getmarkets);
+router.get('/markets', getmarkets);
 router.get('/user-status',authMiddleware, getAllUsersStatus);
 
 // router.get('/testing', (req, res) => res.send('Test route is working!'));

@@ -7,13 +7,15 @@ import TableHead from "../utils/TableHead";
 import Button from "../utils/Button";
 import useFetchNtidDashCount from "../Hooks/useFetchNtidDashCount";
 import Loader from "../utils/Loader";
+import { useParams } from "react-router";
 
 
 
 function NTIDData() {
-  const { endDate, startDate, markets, captureStatus } = useContext(MyContext);
+  const { endDate, startDate, markets } = useContext(MyContext);
   const [filteredData, setFilteredData] = useState([]);
    const {data,loading,error}=useFetchNtidDashCount();
+   const {captureStatus}=useParams();
 
   const applyFilters = (dataToFilter) => {
     let filtered = dataToFilter;

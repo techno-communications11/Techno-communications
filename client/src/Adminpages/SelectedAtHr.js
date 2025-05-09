@@ -34,6 +34,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import Loader from "../utils/Loader";
+import API_URL from "../Constants/ApiUrl";
 
 // Reusable Hook for Filtering Logic
 const useFilters = (
@@ -48,7 +49,7 @@ const useFilters = (
   const filteredData = useMemo(() => {
     if (!data) return [];
     let updatedData = data;
-
+ console.log(updatedData,"lllllllllll")
     // Pre-compute lowercase values for efficiency
     const lowerCaseTokenMarket = tokenMarket?.toLowerCase().trim();
     const lowerCaseMarketFilter = marketFilter.map((market) =>
@@ -483,11 +484,13 @@ const RenderRow = memo(
       columns,
     },
   }) => {
-    const row = uniqdata[index];
+     const data=uniqdata.sort(
+      (a, b) => new Date(b.ntidCreatedDate) - new Date(a.ntidCreatedDate)
+    );
+    const row = data[index]
     return (
       <TableRow
         key={row.applicant_uuid}
-       
         style={{
           ...style,
           backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#ffffff",
@@ -677,7 +680,7 @@ const RenderRow = memo(
 
 // Main Component
 function SelectedAtHr({
-  apiEndpoint = `${process.env.REACT_APP_API}/applicants/selected-at-hr`,
+  apiEndpoint = `${API_URL}/applicants/selected-at-hr`,
 }) {
   const [data, setData] = useState(null);
   const [showDateInput, setShowDateInput] = useState({});
@@ -736,7 +739,6 @@ function SelectedAtHr({
         const response = await axios.get(apiEndpoint, {
           withCredentials: true,
         });
-         console.log(response.data.data,'dddddddddddd')
         if (isMounted && response.status === 200) {
           setData(response.data.data || []);
         } else {
@@ -822,17 +824,14 @@ function SelectedAtHr({
 
       try {
         const { ntidCreated, ntidCreatedDate, ntid, addedToSchedule } = rowData;
-        const response = await axios.post(
-          `${process.env.REACT_APP_API}/ntids`,
-          {
-            ntidCreated,
-            ntidCreatedDate,
-            ntid,
-            addedToSchedule,
-            markAsAssigned: true,
-            applicant_uuid,
-          }
-        );
+        const response = await axios.post(`${API_URL}/ntids`, {
+          ntidCreated,
+          ntidCreatedDate,
+          ntid,
+          addedToSchedule,
+          markAsAssigned: true,
+          applicant_uuid,
+        });
         if (response.status === 201) {
           toast.success("NTID entry created successfully!");
           setTimeout(() => window.location.reload(), 2000);
@@ -861,10 +860,10 @@ function SelectedAtHr({
 
     if (result.isConfirmed) {
       try {
-        const res = await axios.post(
-          `${process.env.REACT_APP_API}/updatestatus`,
-          { applicant_uuid, action }
-        );
+        const res = await axios.post(`${API_URL}/updatestatus`, {
+          applicant_uuid,
+          action,
+        });
         if (res.status === 200) {
           toast.success(res.data.message || "Status updated successfully");
           setTimeout(() => window.location.reload(), 1800);
@@ -894,10 +893,9 @@ function SelectedAtHr({
 
     if (result.isConfirmed) {
       try {
-        const res = await axios.post(
-          `${process.env.REACT_APP_API}/contractsign`,
-          { applicant_uuid }
-        );
+        const res = await axios.post(`${API_URL}/contractsign`, {
+          applicant_uuid,
+        });
         if (res.status === 200) {
           toast.success(res.data.message || "Contract signed successfully");
           setTimeout(() => window.location.reload(), 1800);

@@ -41,7 +41,6 @@ function StatsTicketView() {
 
   useEffect(() => {
     const { markets, captureStatus, captureDate } = myContext;
-    // Check if the context values are set (non-empty) or fall back to localStorage
     let parsedMarkets = markets && markets.length > 0 ? markets : [];
     let parsedCaptureStatus = captureStatus || "";
     let parsedCaptureDate =

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -45,10 +45,7 @@ function ViewDetais() {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-   const {markets}=useFetchMarkets();
- 
-
- 
+  const { markets } = useFetchMarkets();
 
   useEffect(() => {
     fetchProfiles();
@@ -203,9 +200,9 @@ function ViewDetais() {
         currentStatus.applicant_names.forEach
       ) {
         currentStatus.applicant_names.forEach((_, index) => {
-          const filteredByStatus = statusMap[
-            captureStatus
-          ]?.includes(currentStatus.status);
+          const filteredByStatus = statusMap[captureStatus]?.includes(
+            currentStatus.status
+          );
           const isInDateRange = isDateInRange(
             currentStatus.created_at_dates?.[index]
           );
@@ -464,7 +461,10 @@ function ViewDetais() {
                         )}
                         onChange={handleCheckboxChange}
                       />
-                      <label htmlFor={`location-${location.location_name}`} className="text-capitalize">
+                      <label
+                        htmlFor={`location-${location.location_name}`}
+                        className="text-capitalize"
+                      >
                         {location.location_name.toLowerCase()}
                       </label>
                     </div>

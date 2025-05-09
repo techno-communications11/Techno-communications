@@ -1,148 +1,140 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import Form from "react-bootstrap/Form";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import axios from "axios";
 import { Container, Row, Col } from "react-bootstrap";
 import Login from "./Login";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaRegHandPointer } from "react-icons/fa";
 import Inputicons from "../utils/Inputicons";
 import SanitizePhoneNumber from "../utils/SanitizePhoneNumber";
 import Loader from "../utils/Loader";
-
 import Swal from "sweetalert2";
-import {
-  FaUser,
-  FaPhone,
-  FaBuilding,
-  FaIdCard,
-  FaSignInAlt,
-} from "react-icons/fa";
+import { FaUser, FaPhone, FaBuilding, FaIdCard, FaSignInAlt } from "react-icons/fa";
 import Button from "../utils/Button";
 import "../Styles/Button.css";
 import useFetchMarkets from "../Hooks/useFetchMarkets";
+import API_URL from "../Constants/ApiUrl";
+
+const memphisArray = ["memphis", "relocation"];
 
 function Public() {
-  const [error, setError] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
   const { markets } = useFetchMarkets();
-  // State to track invalid fields
-  const [invalidFields, setInvalidFields] = useState({
-    name: false,
-    referredBy: false,
-    referenceNtid: false,
-    market: false,
-  });
-
+  
   const nameRef = useRef();
   const phoneRef = useRef();
   const referredByRef = useRef();
   const referenceNtidRef = useRef();
+  const pathname = window.location.pathname;
+
+  // Validate form fields
+  const validateForm = () => {
+    const errors = {};
+    const phoneNumber = SanitizePhoneNumber(phoneRef.current?.value);
+
+    if (!nameRef.current?.value.trim()) {
+      errors.name = "Name is required";
+    }
+    
+    if (!phoneNumber) {
+      errors.phone = "Valid 10-digit phone number is required";
+    }
+    
+    if (!referredByRef.current?.value.trim()) {
+      errors.referredBy = "Referrer name is required";
+    }
+    
+    if (!selectedMarket) {
+      errors.market = "Please select a market";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Reset validation when user starts typing
+  const handleInputChange = (field) => {
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: null }));
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form");
+      return;
+    }
+
     setLoading(true);
-
-    // Validate each field
-    const nameValid = nameRef.current?.value.trim() !== "";
-
-    const marketValid = selectedMarket !== "";
-    const referredByValid = referredByRef.current?.value.trim() !== "";
-
-    // Update invalidFields state
-    const newInvalidFields = {
-      name: !nameValid,
-      referredBy: !referredByValid,
-      market: !marketValid,
-    };
-
-    setInvalidFields(newInvalidFields);
-
-    // Check if any field is invalid
-    const isFormValid = Object.values(newInvalidFields).every(
-      (field) => !field
-    );
-
-    const phoneNumber = SanitizePhoneNumber(phoneRef.current.value);
-
-    if (!phoneNumber) {
-      setError("Please enter a valid phone number with exactly 10 digits.");
-      setLoading(false);
-      return;
-    }
-
-    if (!isFormValid) {
-      setError("Please fill out all fields correctly.");
-      setLoading(false);
-      return;
-    } else {
-      setError("");
-    }
-
+    
     try {
+      const phoneNumber = SanitizePhoneNumber(phoneRef.current.value);
       const formData = {
-        name: nameRef?.current.value,
+        name: nameRef.current.value.trim(),
         phone: phoneNumber,
         work_location: selectedMarket,
-        referred_by: referredByRef?.current.value,
-        reference_id: referenceNtidRef?.current.value,
+        referred_by: referredByRef.current.value.trim(),
+        reference_id: referenceNtidRef.current?.value.trim() || null,
       };
 
       const response = await axios.post(
-        `${process.env.REACT_APP_API}/submit`,
+        `${API_URL}/submit`,
         formData,
         { withCredentials: true }
       );
 
       if (response.status === 201) {
         Swal.fire({
-          title: "Thank You!",
+          title: "Success!",
           text: "Data submitted successfully!",
           icon: "success",
         });
+        resetForm();
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        Swal.fire({
-          title: "Error",
-          text: error.response.data.error,
-          icon: "error",
-        });
-      } else {
-        Swal.fire({
-          title: "Failed",
-          text: "Failed to submit data. Please try again later.",
-          icon: "error",
-        });
+      let errorMessage = "Failed to submit data. Please try again later.";
+      
+      if (error.response) {
+        errorMessage = error.response.data.error || errorMessage;
+      } else if (error.request) {
+        errorMessage = "Network error. Please check your connection.";
       }
-    } finally {
-      if (nameRef.current) nameRef.current.value = "";
-      if (phoneRef.current) phoneRef.current.value = "";
-      if (referredByRef.current) referredByRef.current.value = "";
-      if (referenceNtidRef.current) referenceNtidRef.current.value = "";
-
-      setSelectedMarket("");
-      setInvalidFields({
-        name: false,
-        referredBy: false,
-        referenceNtid: false,
-        market: false,
+      
+      Swal.fire({
+        title: "Error",
+        text: errorMessage,
+        icon: "error",
       });
+    } finally {
       setLoading(false);
     }
   };
 
+  const resetForm = () => {
+    nameRef.current.value = "";
+    phoneRef.current.value = "";
+    referredByRef.current.value = "";
+    referenceNtidRef.current.value = "";
+    setSelectedMarket("");
+    setFormErrors({});
+  };
+
   const handleSelectMarket = (eventKey) => {
     setSelectedMarket(eventKey);
-    setInvalidFields((prev) => ({ ...prev, market: false }));
+    setFormErrors(prev => ({ ...prev, market: null }));
   };
 
   const handleLoginModalShow = () => setShowLoginModal(true);
   const handleLoginModalClose = () => setShowLoginModal(false);
+
   if (loading) {
     return <Loader />;
   }
@@ -154,11 +146,7 @@ function Public() {
       </h2>
       <Row className="vh-90">
         {/* Left Column with Image */}
-        <Col
-          md={6}
-          lg={6}
-          className="d-flex justify-content-center align-items-center"
-        >
+        <Col md={6} lg={6} className="d-flex justify-content-center align-items-center">
           <img
             src="/logo.webp"
             alt="jobs"
@@ -169,16 +157,10 @@ function Public() {
 
         {/* Right Column with Form */}
         <Col md={6} lg={6} className="d-flex flex-column mt-4">
-          <Form
-            className="shadow-lg p-4 rounded-3 mt-4 p-4"
-            onSubmit={handleSubmit}
-            noValidate
-          >
-            <h3 className="text-center mb-4 fw-bolder">
-              Candidate Details Form
-            </h3>
+          <Form className="shadow-lg p-4 rounded-3 mt-4 p-4" onSubmit={handleSubmit} noValidate>
+            <h3 className="text-center mb-4 fw-bolder">Candidate Details Form</h3>
 
-            {/* Form Fields with Icons */}
+            {/* Name Field */}
             <Form.Group className="mb-3" controlId="formBasicName">
               <div className="input-group">
                 <Inputicons icon={FaUser} />
@@ -186,13 +168,17 @@ function Public() {
                   ref={nameRef}
                   type="text"
                   placeholder="Name"
-                  className="shadow-none border"
-                  required
-                  isInvalid={invalidFields.name}
+                  className={`shadow-none border ${formErrors.name ? "is-invalid" : ""}`}
+                  onChange={() => handleInputChange("name")}
+                  isInvalid={!!formErrors.name}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {formErrors.name}
+                </Form.Control.Feedback>
               </div>
             </Form.Group>
 
+            {/* Phone Field */}
             <Form.Group className="mb-3" controlId="formBasicPhone">
               <div className="input-group">
                 <Inputicons icon={FaPhone} />
@@ -200,12 +186,17 @@ function Public() {
                   ref={phoneRef}
                   type="tel"
                   placeholder="Phone Number"
-                  className="shadow-none border"
-                  required
+                  className={`shadow-none border ${formErrors.phone ? "is-invalid" : ""}`}
+                  onChange={() => handleInputChange("phone")}
+                  isInvalid={!!formErrors.phone}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {formErrors.phone}
+                </Form.Control.Feedback>
               </div>
             </Form.Group>
 
+            {/* Referred By Field */}
             <Form.Group className="mb-3" controlId="formBasicReferredBy">
               <div className="input-group">
                 <Inputicons icon={FaUser} />
@@ -213,13 +204,17 @@ function Public() {
                   ref={referredByRef}
                   type="text"
                   placeholder="Referred By"
-                  className="shadow-none border"
-                  required
-                  isInvalid={invalidFields.referredBy}
+                  className={`shadow-none border ${formErrors.referredBy ? "is-invalid" : ""}`}
+                  onChange={() => handleInputChange("referredBy")}
+                  isInvalid={!!formErrors.referredBy}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {formErrors.referredBy}
+                </Form.Control.Feedback>
               </div>
             </Form.Group>
 
+            {/* Reference NTID Field */}
             <Form.Group className="mb-3" controlId="formBasicReferenceNtid">
               <div className="input-group">
                 <Inputicons icon={FaIdCard} />
@@ -232,16 +227,12 @@ function Public() {
               </div>
             </Form.Group>
 
-            {/* Market Selection Dropdown with Icon */}
+            {/* Market Selection Dropdown */}
             <Form.Group className="mb-3" controlId="formBasicMarket">
-              <div
-                className={`${
-                  invalidFields.market ? "border-danger" : "border"
-                } rounded`}
-              >
+              <div className={`rounded ${formErrors.market ? "border-danger" : "border"}`}>
                 <Dropdown onSelect={handleSelectMarket}>
                   <Dropdown.Toggle
-                    className="w-100 bg-transparent text-muted shadow-none border me-auto"
+                    className={`w-100 bg-transparent text-muted shadow-none border me-auto ${formErrors.market ? "border-danger" : ""}`}
                     id="dropdown-basic"
                     style={{ padding: "10px", textAlign: "left" }}
                   >
@@ -257,13 +248,18 @@ function Public() {
                     }}
                   >
                     {markets
+                      .filter((market) =>
+                        pathname === "/memphis"
+                          ? memphisArray.includes(market.location_name.toLowerCase())
+                          : true
+                      )
                       .sort((a, b) =>
-                        (a.name || "").localeCompare(b.name || "")
+                        (a.location_name || "").localeCompare(b.location_name || "")
                       )
                       .map((market, index) => (
                         <Dropdown.Item
                           key={market.id || index}
-                          eventKey={market.name}
+                          eventKey={market.location_name}
                           style={{
                             padding: "10px",
                             backgroundColor: "#f8f9fa",
@@ -273,42 +269,40 @@ function Public() {
                           }}
                           className="dropdown-item-hover text-capitalize"
                         >
-                          {market.location_name.toLowerCase()}
+                          {market.location_name?.toLowerCase()}
                         </Dropdown.Item>
                       ))}
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
-              {invalidFields.market && (
+              {formErrors.market && (
                 <div className="invalid-feedback d-block">
-                  Please select a market.
+                  {formErrors.market}
                 </div>
               )}
             </Form.Group>
 
             {/* Submit Button */}
             <Button
-              variant="btn-primary w-100" // Fixed typo: 'varient' → 'variant'
+              variant="btn-primary w-100"
               type="submit"
               disabled={loading}
               loading={loading}
               label="Submit"
               icon={<FaRegHandPointer />}
             />
-
-            {error && <div className="text-danger mt-3">{error}</div>}
           </Form>
 
-          {/* Login Button with Icon */}
-
-          <Button
-            variant="bg-primary opacity-75 w-100  mt-3" // Fixed typo: 'varient' → 'variant'
-            label="Login to Application"
-            onClick={handleLoginModalShow}
-            icon={<FaSignInAlt />}
-            loading={loading}
-            disabled={loading}
-          />
+          {pathname !== "/memphis" && (
+            <Button
+              variant="w-100 mt-3"
+              code="#E10174"
+              label="Login to Application"
+              onClick={handleLoginModalShow}
+              icon={<FaSignInAlt />}
+              disabled={loading}
+            />
+          )}
         </Col>
       </Row>
 
@@ -323,8 +317,7 @@ function Public() {
         </Modal.Body>
       </Modal>
 
-      {/* Toast Container */}
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={5000} />
     </Container>
   );
 }

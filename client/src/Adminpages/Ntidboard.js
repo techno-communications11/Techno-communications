@@ -7,7 +7,6 @@ import useFetchNtidDashCount from "../Hooks/useFetchNtidDashCount";
 import Loader from "../utils/Loader";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
-// Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function Ntidboard() {
@@ -23,14 +22,12 @@ function Ntidboard() {
   const [endDate, setEndDate] = useState(
     () => new Date().toISOString().split("T")[0]
   );
-  const [filteredData, setFilteredData] = useState([]);
-  const {data,loading,error}=useFetchNtidDashCount();
+  const { data, loading, error } = useFetchNtidDashCount();
   const navigate = useNavigate();
   const {
     setStartDateForContext,
     setEndDateForContext,
     setMarkets,
-    setCaptureStatus,
   } = useContext(MyContext);
   const [counts, setCounts] = useState({
     markAssigned: 0,
@@ -38,7 +35,6 @@ function Ntidboard() {
     contractSigned0: 0,
     contractSigned1: 0,
   });
-
 
   const smallerFormStyles = {
     width: "200px",
@@ -52,14 +48,11 @@ function Ntidboard() {
   const handleStartDateChange = (e) => setStartDate(e.target.value);
   const handleEndDateChange = (e) => setEndDate(e.target.value);
 
- 
-
   const applyFilters = (dataToFilter) => {
     let filtered = dataToFilter;
     setMarkets(selectedMarket);
     setStartDateForContext(startDate);
     setEndDateForContext(endDate);
-    // Filter by market
     if (!isAllSelected && selectedMarket.length > 0) {
       filtered = filtered.filter((item) =>
         selectedMarket.includes(item.market)
@@ -68,12 +61,10 @@ function Ntidboard() {
 
     // Filter by date
     if (startDate && endDate) {
-      // Convert startDate and endDate to Date objects
       const startDateObj = new Date(startDate);
       const endDateObj = new Date(endDate);
 
       if (startDateObj && endDateObj) {
-        // Adjust to UTC for the start and end of the day
         const adjustedStartDateUTC = new Date(
           Date.UTC(
             startDateObj.getUTCFullYear(),
@@ -98,7 +89,6 @@ function Ntidboard() {
           )
         );
 
-        // Filter rows by checking if the joining date (in UTC) is within the range
         filtered = filtered.filter((item) => {
           const joiningDate = new Date(item.joining_date); // The row's joining_date should be in UTC format
 
@@ -107,12 +97,9 @@ function Ntidboard() {
             joiningDate <= adjustedEndDateUTC
           );
         });
-
-        // console.log("After Date Filter:", filtered);
       }
     }
 
-    setFilteredData(filtered);
     calculateCounts(filtered);
   };
 
@@ -134,10 +121,9 @@ function Ntidboard() {
     setCounts(counts);
   };
 
-
   useEffect(() => {
     applyFilters(data);
-  }, [selectedMarket, startDate, endDate, isAllSelected,data]);
+  }, [selectedMarket, startDate, endDate, isAllSelected, data]);
 
   const pieData = {
     labels: [
@@ -161,22 +147,20 @@ function Ntidboard() {
   };
 
   const handleClick = (title) => {
-    var status = "";
+    var captureStatus = "";
     if (title === "NTID Pending") {
-      status = "selected at Hr";
+      captureStatus = "selected at Hr";
     }
     if (title === "NTID Created") {
-      status = "mark_assigned";
+      captureStatus = "mark_assigned";
     }
     if (title === "Contract Signed") {
-      status = "contract_signed1";
+      captureStatus = "contract_signed1";
     }
     if (title === "Contract Unsigned") {
-      status = "contract_signed0";
+      captureStatus = "contract_signed0";
     }
-    setCaptureStatus(status);
-    // console.log(status,'sss')
-    navigate("/ntiddata");
+    navigate(`/ntiddata/${captureStatus}`);
   };
 
   if (loading) {
@@ -190,7 +174,6 @@ function Ntidboard() {
       </div>
     );
   }
-
 
   return (
     <div className="container">

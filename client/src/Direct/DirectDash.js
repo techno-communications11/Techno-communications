@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, Card, Typography, Grid ,Container} from '@mui/material'; // Use Grid instead of Col
 import dayjs from 'dayjs';
 import { useContext } from 'react';
 import { MyContext } from '../pages/MyContext';
 import Loader from '../utils/Loader';
+import { useNavigate } from 'react-router';
 
 export const DirectDash = () => {
     const {userData}=useContext(MyContext);
     const selectedUser = userData.name ; // Get the user name from token or fallback
     const [selectedProfiles, setSelectedProfiles] = useState([]);
     const [loading, setLoading] = useState(false);
+     const naviagte=useNavigate();
 
     useEffect(() => {
         fetchProfiles();
@@ -169,12 +171,18 @@ export const DirectDash = () => {
         <Loader/>
     )
  }
+  const handleCardClick=(captureStatus) => {
+     
+ naviagte(`/detailview/${captureStatus}`)
+
+  }
     return (
         <Container>
         <Grid container spacing={2} className='mt-4'>
             {Object.entries(finalStatusCounts).map(([status, count], index) => (
                 <Grid item xs={12} sm={6} md={3} lg={2} key={index}>
-                    <Card
+                    <Card 
+                      onClick={() => handleCardClick(status)} 
                         className="shadow-sm h-100"
                         style={{
                             backgroundColor: statusColors[status] || '#95a5a6',  // Fallback color if status is not mapped

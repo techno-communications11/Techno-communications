@@ -7,6 +7,7 @@ import Button from '../utils/Button';
 import Loader from '../utils/Loader';
 import Inputicons from '../utils/Inputicons';
 import { MyContext } from './MyContext';
+import API_URL from '../Constants/ApiUrl';
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,8 +24,6 @@ function Login() {
     event.preventDefault();
     setError('');
 
-    console.log('emailRef.current:', emailRef.current);
-    console.log('passwordRef.current:', passwordRef.current);
 
     if (!emailRef.current || !passwordRef.current) {
       setError('Form inputs are not properly initialized.');
@@ -34,7 +33,6 @@ function Login() {
     const email = emailRef.current.value.trim();
     const password = passwordRef.current.value.trim();
 
-    console.log('Login payload:', { email, password });
 
     if (!validateEmail(email)) {
       setError('Please enter a valid email address.');
@@ -51,10 +49,8 @@ function Login() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      console.log('API URL:', process.env.REACT_APP_API);
-      console.log('Sending login request:', { email });
       const loginResponse = await axios.post(
-        `${process.env.REACT_APP_API}/login`,
+        `${API_URL}/login`,
         { email, password },
         {
           withCredentials: true,
@@ -64,19 +60,17 @@ function Login() {
 
       clearTimeout(timeoutId);
 
-      console.log('Login response:', loginResponse.status, loginResponse.data);
 
       if (loginResponse.status !== 200) {
         throw new Error('Login failed. Please try again.');
       }
 
       console.log('Fetching user data...');
-      const userRes = await axios.get(`${process.env.REACT_APP_API}/user/me`, {
+      const userRes = await axios.get(`${API_URL}/user/me`, {
         withCredentials: true,
         signal: controller.signal,
       });
 
-      console.log('User response:', userRes.status, userRes.data);
 
       const userData = userRes.data;
       if (!userData?.id || !userData?.role) {
@@ -96,7 +90,6 @@ function Login() {
         market_manager: '/markethome',
         direct_hiring: '/directHiring',
       };
-       console.log(routeMap["hr"],'dimimd')
 
       navigate(routeMap[role] || '/');
     } catch (error) {
@@ -160,8 +153,9 @@ function Login() {
       </Form.Group>
 
       <Button
-        variant="btn-primary w-100"
+        variant=" w-100"
         type="submit"
+        code="#E10174"
         label="Login"
         disabled={loading}
       />

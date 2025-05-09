@@ -12,8 +12,8 @@ const useFetchMarkets = () => {
     const fetchMarkets = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`${API_URL}/markets`,{withCredentials:true});
-         console.log(data,'data')
+        const { data } = await axios.get(`${API_URL}/markets`);
+        //  console.log(data,'data')
         setMarkets(data);
         setError('');
       } catch {
