@@ -8,7 +8,16 @@ import Button from "../utils/Button";
 import useFetchNtidDashCount from "../Hooks/useFetchNtidDashCount";
 import Loader from "../utils/Loader";
 import { useParams } from "react-router";
-
+ const TableHeaders = [
+    "S.No",
+    "Applicant ID",
+    "Name",
+    "Joining Date",
+    "Market",
+    "Contract Signed",
+    "Status",
+    "NTID",
+  ];
 
 
 function NTIDData() {
@@ -100,16 +109,7 @@ function NTIDData() {
     XLSX.writeFile(workbook, "NTID_Data.xlsx");
   };
 
-   const TableHeaders = [
-    "S.No",
-    "Applicant ID",
-    "Name",
-    "Joining Date",
-    "Market",
-    "Contract Signed",
-    "Status",
-    "NTID",
-  ];
+  
   if (loading) {
     return <Loader />;
   }

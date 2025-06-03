@@ -15,12 +15,6 @@ import TableHead from "../utils/TableHead";
 import useGetMarketJobs from '../Hooks/useGetMarketJobs'
 import Loader from "../utils/Loader";
 
-const JobInfo = () => {
-  const [filteredMarkets, setFilteredMarkets] = useState([]);
-   const {loading,marketJobs,error}=useGetMarketJobs();
-
- 
-
   const userMarket = {
     "Ali Khan": "ARIZONA",
     "Rahim Nasir Khan": "BAY AREA",
@@ -35,6 +29,19 @@ const JobInfo = () => {
     "Hassan Saleem": "SAN DEIGIO",
     "Kamaran Mohammed": "SAN FRANCISCO",
   };
+
+   const TableHeaders = [
+    "S.No",
+    "Market",
+    "Openings",
+    "Posted By",
+    "Created At",
+    "Deadline",
+  ];
+  
+const JobInfo = () => {
+  const [filteredMarkets, setFilteredMarkets] = useState([]);
+   const {loading,marketJobs,error}=useGetMarketJobs();
 
   const [filters, setFilters] = useState({
     market: [],
@@ -84,14 +91,7 @@ const JobInfo = () => {
 
   const marketNames = Object.values(userMarket);
   const postedByNames = Object.keys(userMarket);
-  const TableHeaders = [
-    "S.No",
-    "Market",
-    "Openings",
-    "Posted By",
-    "Created At",
-    "Deadline",
-  ];
+ 
 
   if (loading) {
     return <Loader />;

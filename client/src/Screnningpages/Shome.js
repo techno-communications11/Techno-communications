@@ -11,8 +11,15 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { IoIosArrowForward } from "react-icons/io";
 import Loader from "../utils/Loader";
 
-// Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
+
+const filteredStatuses = [
+    { status: "pending at Screening", color: "#f0ad4e" },
+    { status: "no show at Screening", color: "#d9534f" },
+    { status: "Not Interested at screening", color: "#5bc0de" },
+    { status: "rejected at Screening", color: "#d9534f" },
+    { status: "moved to Interview", color: "#5cb85c" },
+  ];
 
 function ScreeningHome() {
   const [stats, setStats] = useState([]);
@@ -35,16 +42,7 @@ function ScreeningHome() {
     fetchStatusCounts();
   }, []);
 
-  // Statuses and their colors
-  const filteredStatuses = [
-    { status: "pending at Screening", color: "#f0ad4e" },
-    { status: "no show at Screening", color: "#d9534f" },
-    { status: "Not Interested at screening", color: "#5bc0de" },
-    { status: "rejected at Screening", color: "#d9534f" },
-    { status: "moved to Interview", color: "#5cb85c" },
-  ];
 
-  // Total count based on filtered statuses
   const TotalCount = stats
     .filter((stat) =>
       filteredStatuses.some((fStatus) => fStatus.status === stat.status)
@@ -66,7 +64,6 @@ function ScreeningHome() {
     ],
   };
 
-  // Handle click on a card to navigate to detailed view
   const handleShow = (captureStatus) => {
     try {
       if (captureStatus && typeof captureStatus === "string") {

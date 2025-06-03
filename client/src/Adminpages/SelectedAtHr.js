@@ -49,7 +49,6 @@ const useFilters = (
   const filteredData = useMemo(() => {
     if (!data) return [];
     let updatedData = data;
- console.log(updatedData,"lllllllllll")
     // Pre-compute lowercase values for efficiency
     const lowerCaseTokenMarket = tokenMarket?.toLowerCase().trim();
     const lowerCaseMarketFilter = marketFilter.map((market) =>

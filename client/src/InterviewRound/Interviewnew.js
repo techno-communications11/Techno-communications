@@ -9,13 +9,14 @@ import TableHead from "../utils/TableHead";
 import Loader from "../utils/Loader";
 import { useContext } from 'react';
 import { MyContext } from '.././pages/MyContext';
+import API_URL from "../Constants/ApiUrl";
 
 const InterViewHome = ({
   setApplicant_uuid,
   setApplicantEmail,
   setApplicantPhone,
 }) => {
-  const apiurl = process.env.REACT_APP_API;
+ 
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState([]);
   const [filteredProfiles, setFilteredProfiles] = useState([]);
@@ -30,7 +31,7 @@ const InterViewHome = ({
       setLoading(true); // Start loading
       try {
         const response = await axios.get(
-          `${apiurl}/users/${userData.id}/interviewapplicants`,
+          `${API_URL}/users/${userData.id}/interviewapplicants`,
           {
             withCredentials:true
           }
@@ -52,12 +53,12 @@ const InterViewHome = ({
       }
     };
     assignedToInterviewer();
-  }, [apiurl, userData.id]);
+  }, [API_URL, userData.id]);
 
   useEffect(() => {
     const fetchinterviewer = async () => {
       try {
-        const response = await axios.get(`${apiurl}/interviewer`, {
+        const response = await axios.get(`${API_URL}/interviewer`, {
           withCredentials:true
         });
         setinterviewer(response.data);
@@ -67,7 +68,7 @@ const InterViewHome = ({
     };
 
     fetchinterviewer();
-  }, [apiurl]);
+  }, [API_URL]);
 
   const handleFilterChange = (e) => {
     const { value } = e.target;
@@ -88,7 +89,7 @@ const InterViewHome = ({
   const handleSelect = async (selectedHRId, applicant_uuid) => {
     try {
       await axios.post(
-        `${apiurl}/newinterviewer`,
+        `${API_URL}/newinterviewer`,
         { applicantId: applicant_uuid, newUserId: selectedHRId },
         { withCredentials:true }
       );

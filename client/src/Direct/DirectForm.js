@@ -1,16 +1,15 @@
-import React, { useState, useRef } from 'react';
+import  { useState, useRef } from 'react';
 import { Button } from '@mui/material';
 import Form from 'react-bootstrap/Form';
-// import Dropdown from 'react-bootstrap/Dropdown';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import decodeToken from '../decodedDetails';
+import { useContext } from "react";
+import { MyContext } from '../pages/MyContext';
 
 function DirectForm() {
-  const userData = decodeToken();
+  const { userData } = useContext(MyContext);
   const [error, setError] = useState('');
-  // const [selectedMarket, setSelectedMarket] = useState('');
-  // const [markets, setMarkets] = useState([]);
+ 
   const nameRef = useRef();
   const emailRef = useRef();
   const phoneRef = useRef();
@@ -25,8 +24,7 @@ function DirectForm() {
 
     const nameValid = nameRef.current?.value.trim() !== '';
     const emailValid = regexEmail.test(emailRef.current?.value);
-    const phoneValid = phoneRef.current?.value.trim() !== ''; // Add phone validation if needed
-    // const marketValid = selectedMarket !== '';
+    const phoneValid = phoneRef.current?.value.trim() !== ''; 
     const referredByValid = referredByRef.current?.value.trim() !== '';
 
     if (!nameValid || !emailValid || !phoneValid || !referredByValid) {
@@ -56,14 +54,12 @@ function DirectForm() {
           icon: "success",
         });
 
-        // Reset the form fields on successful submission
         nameRef.current.value = "";
         emailRef.current.value = "";
         phoneRef.current.value = "";
         referredByRef.current.value = "";
         referenceNtidRef.current.value = "";
-        // setSelectedMarket("");
-        setError(''); // Clear any previous errors
+        setError(''); 
       } else {
         setError("Unexpected response status: " + response.status);
       }
@@ -72,22 +68,6 @@ function DirectForm() {
       setError('Failed to submit data. Please try again later.');
     }
   };
-
-
-  // useEffect(() => {
-  //   const fetchMarkets = async () => {
-  //     try {
-  //       const response = await axios.get(`${apiUrl}/markets`);
-  //       setMarkets(response.data);
-  //     } catch (error) {
-  //       setError('Failed to fetch markets. Please try again later.');
-  //     }
-  //   };
-
-  //   fetchMarkets();
-  // }, []);
-
-
 
   return (
     <div className='container-fluid d-flex justify-content-center align-items-center mt-4'>

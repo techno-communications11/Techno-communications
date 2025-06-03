@@ -1,5 +1,4 @@
-import React from 'react';
-import './Loader.css'; 
+import '../Styles/Loader.css'; 
 function Loader() {
   return (
     <div className="loader-wrapper">

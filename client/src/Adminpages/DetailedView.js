@@ -8,10 +8,9 @@ import {
   TableContainer,
   TableRow,
   Paper,
-
 } from "@mui/material";
 import { Form, Col, Row, Container } from "react-bootstrap";
-import { Dropdown,  } from "react-bootstrap";
+import { Dropdown } from "react-bootstrap";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import * as XLSX from "xlsx";
@@ -23,6 +22,20 @@ import Loader from "../utils/Loader";
 import API_URL from "../Constants/ApiUrl";
 import TableHead from "../utils/TableHead";
 import Button from "../utils/Button";
+
+const TableHeaders = [
+  "SI.No",
+  "Created At",
+  "Applicant Name",
+  "Referred by",
+  "Reference ids",
+  "Work Location",
+  "Screening Manager",
+  "Interviewer",
+  "HR Name",
+  "Status",
+  "Joining Date",
+];
 
 // FilterControls Component
 const FilterControls = ({
@@ -47,7 +60,9 @@ const FilterControls = ({
     if (checked) {
       setSelectedUsers((prev) => [...prev, { value: user, label: user }]);
     } else {
-      setSelectedUsers((prev) => prev.filter((selected) => selected.value !== user));
+      setSelectedUsers((prev) =>
+        prev.filter((selected) => selected.value !== user)
+      );
     }
   };
 
@@ -81,21 +96,30 @@ const FilterControls = ({
           >
             <span className="text-truncate">
               {selectedUsers.length > 0
-                ? `${selectedUsers.length} User${selectedUsers.length > 1 ? 's' : ''} Selected`
+                ? `${selectedUsers.length} User${
+                    selectedUsers.length > 1 ? "s" : ""
+                  } Selected`
                 : "Select Users"}
             </span>
-            <i className="fas fa-chevron-down ms-2 text-muted" style={{ fontSize: "0.75rem" }} />
+            <i
+              className="fas fa-chevron-down ms-2 text-muted"
+              style={{ fontSize: "0.75rem" }}
+            />
           </Dropdown.Toggle>
           <Dropdown.Menu className="w-100 mt-1 shadow border">
-            <div className="px-3 py-2 fw-bold border-bottom">Select User(s)</div>
+            <div className="px-3 py-2 fw-bold border-bottom">
+              Select User(s)
+            </div>
             {users.map((user) => (
               <div key={user} className="px-3 py-1">
                 <Form.Check
                   type="checkbox"
-                  id={`user-${user.replace(/\s+/g, '-').toLowerCase()}`}
+                  id={`user-${user.replace(/\s+/g, "-").toLowerCase()}`}
                   label={user}
                   value={user}
-                  checked={selectedUsers.some((selected) => selected.value === user)}
+                  checked={selectedUsers.some(
+                    (selected) => selected.value === user
+                  )}
                   onChange={(e) => handleUserChange(e, user)}
                 />
               </div>
@@ -122,13 +146,15 @@ const FilterControls = ({
 
       {/* Date Filter */}
       <div className="flex-grow-1" style={{ minWidth: "200px" }}>
-        <DateFilter dateFilter={dateRange} setDateFilter={setDateRange} className="w-100" />
+        <DateFilter
+          dateFilter={dateRange}
+          setDateFilter={setDateRange}
+          className="w-100"
+        />
       </div>
     </div>
   );
 };
-
-
 
 // ProfileCountCard Component
 const ProfileCountCard = ({ profileCount, onDownload }) => (
@@ -147,30 +173,12 @@ const ProfileCountCard = ({ profileCount, onDownload }) => (
         onClick={onDownload}
         label={"Download Data"}
       />
-       
     </Col>
   </Row>
 );
 
-
 const ProfileTable = ({ profiles, serialNumberStart }) => {
- 
-
   let serialNumber = serialNumberStart;
-
-   const TableHeaders=[
-    "SI.No",
-    "Created At",
-    "Applicant Name",
-    "Referred by",
-    "Reference ids",
-    "Work Location",
-    "Screening Manager",
-    "Interviewer",
-    "HR Name",
-    "Status",
-    "Joining Date",
-  ]
 
   return (
     <TableContainer
@@ -178,7 +186,7 @@ const ProfileTable = ({ profiles, serialNumberStart }) => {
       className="w-full shadow-lg rounded-lg max-h-[600px] overflow-y-auto"
     >
       <Table stickyHeader className="table-sm">
-        <TableHead headData={TableHeaders}/>
+        <TableHead headData={TableHeaders} />
         <TableBody>
           {profiles.map((profile, index) => (
             <TableRow key={index} className="hover:bg-gray-50">
@@ -361,11 +369,23 @@ const DetailedView = () => {
       dateRange,
     };
     localStorage.setItem("savedFilters", JSON.stringify(filters));
-  }, [selectedMarkets, selectedCategory, selectedStatus, selectedUsers, dateRange]);
+  }, [
+    selectedMarkets,
+    selectedCategory,
+    selectedStatus,
+    selectedUsers,
+    dateRange,
+  ]);
 
   useEffect(() => {
     fetchProfiles();
-  }, [selectedMarkets, selectedCategory, selectedStatus, selectedUsers, dateRange]);
+  }, [
+    selectedMarkets,
+    selectedCategory,
+    selectedStatus,
+    selectedUsers,
+    dateRange,
+  ]);
 
   const setMarketFilter = (markets) => {
     setSelectedMarkets(markets);
@@ -380,7 +400,9 @@ const DetailedView = () => {
         category: selectedCategory,
         status: selectedStatus,
         users: selectedUsers.map((u) => u.value),
-        startDate: dateRange[0] ? dayjs(dateRange[0]).format("YYYY-MM-DD") : null,
+        startDate: dateRange[0]
+          ? dayjs(dateRange[0]).format("YYYY-MM-DD")
+          : null,
         endDate: dateRange[1] ? dayjs(dateRange[1]).format("YYYY-MM-DD") : null,
       };
       const response = await axios.get(url, { params, withCredentials: true });
@@ -388,10 +410,10 @@ const DetailedView = () => {
         setSelectedProfiles(response.data.status_counts || []);
         setIsFilterApplied(
           selectedMarkets.length > 0 ||
-          selectedCategory ||
-          selectedStatus.length > 0 ||
-          selectedUsers.length > 0 ||
-          (dateRange[0] && dateRange[1])
+            selectedCategory ||
+            selectedStatus.length > 0 ||
+            selectedUsers.length > 0 ||
+            (dateRange[0] && dateRange[1])
         );
       } else {
         console.error("Error fetching profiles:", response);
@@ -456,16 +478,34 @@ const DetailedView = () => {
             : true;
 
         if (inMarket && inUsers && inDateRange && filteredByStatus) {
-          filteredData.applicant_names.push(currentStatus.applicant_names[index]);
+          filteredData.applicant_names.push(
+            currentStatus.applicant_names[index]
+          );
           filteredData.phone.push(currentStatus.phone[index]);
-          filteredData.applicant_emails.push(currentStatus.applicant_emails[index]);
-          filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by[index]);
-          filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids[index]);
-          filteredData.applicant_uuids.push(currentStatus.applicant_uuids[index]);
-          filteredData.created_at_dates.push(currentStatus.created_at_dates[index]);
-          filteredData.work_location_names.push(currentStatus.work_location_names[index]);
-          filteredData.screening_manager_names.push(currentStatus.screening_manager_names[index]);
-          filteredData.interviewer_names.push(currentStatus.interviewer_names[index]);
+          filteredData.applicant_emails.push(
+            currentStatus.applicant_emails[index]
+          );
+          filteredData.applicant_referred_by.push(
+            currentStatus.applicant_referred_by[index]
+          );
+          filteredData.applicant_reference_ids.push(
+            currentStatus.applicant_reference_ids[index]
+          );
+          filteredData.applicant_uuids.push(
+            currentStatus.applicant_uuids[index]
+          );
+          filteredData.created_at_dates.push(
+            currentStatus.created_at_dates[index]
+          );
+          filteredData.work_location_names.push(
+            currentStatus.work_location_names[index]
+          );
+          filteredData.screening_manager_names.push(
+            currentStatus.screening_manager_names[index]
+          );
+          filteredData.interviewer_names.push(
+            currentStatus.interviewer_names[index]
+          );
           filteredData.hr_names.push(currentStatus.hr_names[index]);
           filteredData.joining_dates.push(currentStatus.joining_dates[index]);
         }
@@ -491,16 +531,21 @@ const DetailedView = () => {
         hr_name: status.hr_names[index] || "N/A",
         status: status.status,
         joining_date:
-          status.joining_dates[index] && status.joining_dates[index] !== "0000-00-00"
+          status.joining_dates[index] &&
+          status.joining_dates[index] !== "0000-00-00"
             ? dayjs(status.joining_dates[index]).format("YYYY-MM-DD")
             : "N/A",
       }));
     })
     .sort((a, b) => {
       const statusAIndex =
-        statusOrder.indexOf(a.status) !== -1 ? statusOrder.indexOf(a.status) : 9999;
+        statusOrder.indexOf(a.status) !== -1
+          ? statusOrder.indexOf(a.status)
+          : 9999;
       const statusBIndex =
-        statusOrder.indexOf(b.status) !== -1 ? statusOrder.indexOf(b.status) : 9999;
+        statusOrder.indexOf(b.status) !== -1
+          ? statusOrder.indexOf(b.status)
+          : 9999;
 
       if (statusAIndex < statusBIndex) return -1;
       if (statusAIndex > statusBIndex) return 1;
@@ -513,7 +558,8 @@ const DetailedView = () => {
 
   const uniqueFlattenedProfiles = flattenedProfiles.filter(
     (profile, index, self) =>
-      index === self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
+      index ===
+      self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
   );
 
   const indexOfLastProfile = currentPage * profilesPerPage;
@@ -531,7 +577,9 @@ const DetailedView = () => {
 
   const handleDownloadExcel = () => {
     const worksheetData = uniqueFlattenedProfiles.map((profile, index) => ({
-      "Created At": dayjs(profile.created_at_date).format("YYYY-MM-DD HH:mm:ss"),
+      "Created At": dayjs(profile.created_at_date).format(
+        "YYYY-MM-DD HH:mm:ss"
+      ),
       "Applicant UUID": profile.applicant_uuid,
       "Applicant Name": profile.applicant_name,
       "Phone Number": profile.applicant_phone,

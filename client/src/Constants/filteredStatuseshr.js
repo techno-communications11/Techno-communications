@@ -8,8 +8,6 @@ const filteredStatuseshr = [
     { status: "Store Evaluation", bgColor: '#6e2c00', },  // Blue Violet
     { status: "Spanish Evaluation", bgColor: '#FF7F50', },  // Coral
     { status: "backOut", bgColor: '#FFCC00' } , // Light Sea Green
-
-     // Yellow
   ];
    
 

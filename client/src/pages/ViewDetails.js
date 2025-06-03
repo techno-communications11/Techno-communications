@@ -28,59 +28,6 @@ import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
 import { useParams } from "react-router";
 
-function ViewDetais() {
-  const [selectedProfiles, setSelectedProfiles] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const profilesPerPage = 100;
-  const [showModal, setShowModal] = useState(false);
-  const [updatedComment, setUpdatedComment] = useState("");
-  const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =
-    useState("");
-  const [commentprofilestatus, setCommentprofileStatus] = useState("");
-
-  const [selectedLocations, setSelectedLocations] = useState([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { captureStatus } = useParams();
-
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const { markets } = useFetchMarkets();
-
-  useEffect(() => {
-    fetchProfiles();
-  }, [captureStatus]); // Effect will run when myContext changes
-  // Effect will run when myContext changes
-
-  const fetchProfiles = async () => {
-    setLoading(true);
-    try {
-      const url = `${process.env.REACT_APP_API}/viewdetails`;
-      const response = await axios.get(url, { withCredentials: true });
-
-      if (response.status === 200) {
-        const profilesData = response.data.status_counts || [];
-        setSelectedProfiles(profilesData); // Set state to update the UI
-        // console.log(profilesData, "data is dipped");
-        localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
-      } else {
-        console.error("Error fetching profiles:", response);
-      }
-    } catch (error) {
-      console.error("API Error:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleStartDateChange = (event) => {
-    setStartDate(event.target.value);
-  };
-
-  // Handle end date change
-  const handleEndDateChange = (event) => {
-    setEndDate(event.target.value);
-  };
-  // console.log(setSelectedProfiles,'selecp')
 
   const statusMap = {
     Total1: [
@@ -137,6 +84,76 @@ function ViewDetais() {
     "Not recommeneded for Hiring": ["Not recommeneded for Hiring"],
     "Store Evaluation": ["Store Evaluation"],
   };
+  const tableHeaders = [
+    "S.No",
+    "Created At",
+    "Applicant Details",
+    "Referred by",
+    "Reference ID",
+    "Work Location",
+    "Screening Manager",
+    "Interviewer",
+    "HR Name",
+    "Status",
+    "Joining Date",
+    "Comments",
+    "Update Comment",
+  ];
+  
+function ViewDetais() {
+  const [selectedProfiles, setSelectedProfiles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const profilesPerPage = 100;
+  const [showModal, setShowModal] = useState(false);
+  const [updatedComment, setUpdatedComment] = useState("");
+  const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =
+    useState("");
+  const [commentprofilestatus, setCommentprofileStatus] = useState("");
+
+  const [selectedLocations, setSelectedLocations] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { captureStatus } = useParams();
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const { markets } = useFetchMarkets();
+
+  useEffect(() => {
+    fetchProfiles();
+  }, [captureStatus]); // Effect will run when myContext changes
+  // Effect will run when myContext changes
+
+  const fetchProfiles = async () => {
+    setLoading(true);
+    try {
+      const url = `${process.env.REACT_APP_API}/viewdetails`;
+      const response = await axios.get(url, { withCredentials: true });
+
+      if (response.status === 200) {
+        const profilesData = response.data.status_counts || [];
+        setSelectedProfiles(profilesData); // Set state to update the UI
+        // console.log(profilesData, "data is dipped");
+        localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
+      } else {
+        console.error("Error fetching profiles:", response);
+      }
+    } catch (error) {
+      console.error("API Error:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+
+  // Handle end date change
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
+  };
+
+
 
   // Handle checkbox change
   const handleCheckboxChange = (event) => {
@@ -402,21 +419,7 @@ function ViewDetais() {
     }
   };
 
-  const tableHeaders = [
-    "S.No",
-    "Created At",
-    "Applicant Details",
-    "Referred by",
-    "Reference ID",
-    "Work Location",
-    "Screening Manager",
-    "Interviewer",
-    "HR Name",
-    "Status",
-    "Joining Date",
-    "Comments",
-    "Update Comment",
-  ];
+
 
   return (
     <Container fluid className="mt-3">

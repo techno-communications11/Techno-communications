@@ -1,4 +1,3 @@
-import React from "react";
 import { Modal } from "react-bootstrap";
 import Button from "./Button";
 
@@ -13,7 +12,7 @@ function ConformationModal({
     <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
       <Modal.Header closeButton>
         <Modal.Title>Confirm Assignment</Modal.Title>
-      </Modal.Header>
+      </Modal.Header>w
       <Modal.Body>
         Are you sure you want to assign{" "}
         <strong>{selectedProfile?.applicant_name}</strong> to HR{" "}

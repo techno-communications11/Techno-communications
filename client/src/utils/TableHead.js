@@ -1,7 +1,4 @@
-import React from "react";
-
 function TableHead({ headData }) {
-  // Changed prop name to match usage
   return (
     <thead>
       <tr>

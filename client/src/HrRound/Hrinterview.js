@@ -1,29 +1,29 @@
-import axios from 'axios';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { Form, Row, Col, Button, Container, Modal } from 'react-bootstrap';
-import { toast, ToastContainer } from 'react-toastify';
-import Accordion from 'react-bootstrap/Accordion';
-import 'react-toastify/dist/ReactToastify.css';
-import { MyContext } from '../pages/MyContext';
-import { useContext } from 'react';
+import axios from "axios";
+import  { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
+import { Form, Row, Col, Button, Container, Modal } from "react-bootstrap";
+import { toast, ToastContainer } from "react-toastify";
+import Accordion from "react-bootstrap/Accordion";
+import "react-toastify/dist/ReactToastify.css";
+import { MyContext } from "../pages/MyContext";
+import { useContext } from "react";
 import Select from "react-select";
-import options from '../Constants/Days'
-import useFetchMarkets from '../Hooks/useFetchMarkets';
+import options from "../Constants/Days";
+import useFetchMarkets from "../Hooks/useFetchMarkets";
 
 const Hrinterview = () => {
-  const { applicant_uuid ,userData} = useContext(MyContext);
+  const { applicant_uuid, userData } = useContext(MyContext);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [errors, setErrors] = useState({});
-  const [jobId,setJobId]=useState('')
-   const {markets}=useFetchMarkets();
-  let applicant_uuidprops = applicant_uuid || sessionStorage.getItem('uuid');
-  const role = userData.role
+  const [jobId, setJobId] = useState("");
+  const { markets } = useFetchMarkets();
+  let applicant_uuidprops = applicant_uuid || sessionStorage.getItem("uuid");
+  const role = userData.role;
   const handleClose = () => setShowConfirmation(false);
 
   const handleConfirm = () => {
     // Show the toast message upon confirmation
-    toast.success('Action confirmed!');
+    toast.success("Action confirmed!");
     setShowConfirmation(false);
 
     setTimeout(() => {
@@ -38,65 +38,80 @@ const Hrinterview = () => {
   const validateForm = () => {
     const errors = {};
     const fields = [
-      'market', 'marketTraining', 'trainingLocation', 'compensationType',
-      'payroll', 'joiningDate', 'workHoursDays',
-      'recommend_hiring',
+      "market",
+      "marketTraining",
+      "trainingLocation",
+      "compensationType",
+      "payroll",
+      "joiningDate",
+      "workHoursDays",
+      "recommend_hiring",
     ];
 
-    fields.forEach(field => {
+    fields.forEach((field) => {
       const value = formData[field];
 
-      if (value === undefined || value === null || typeof value !== 'string' || value.trim() === '') {
-        errors[field] = `${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required.`;
+      if (
+        value === undefined ||
+        value === null ||
+        typeof value !== "string" ||
+        value.trim() === ""
+      ) {
+        errors[field] = `${field
+          .replace(/([A-Z])/g, " $1")
+          .toLowerCase()} is required.`;
       }
     });
 
-    const dateFields = ['joiningDate'];
-    dateFields.forEach(field => {
+    const dateFields = ["joiningDate"];
+    dateFields.forEach((field) => {
       const parsedDate = Date.parse(formData[field]);
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
       if (!isNaN(parsedDate)) {
         if (parsedDate < currentDate) {
-          errors[field] = `${field.replace(/([A-Z])/g, ' ')} must be today or in the future.`;
+          errors[field] = `${field.replace(
+            /([A-Z])/g,
+            " "
+          )} must be today or in the future.`;
         }
       } else {
-        errors[field] = `${field.replace(/([A-Z])/g, ' ')} is invalid.`;
+        errors[field] = `${field.replace(/([A-Z])/g, " ")} is invalid.`;
       }
     });
 
     return errors;
   };
- 
+
   const navigate = useNavigate();
-  const [firstRound, setFirstRound] = useState([])
+  const [firstRound, setFirstRound] = useState([]);
   const [formData, setFormData] = useState({
     applicantId: applicant_uuidprops,
-    market: '',
-    marketTraining: '',
-    trainingLocation: '',
-    compensationType: '',
-    offeredSalary: '',
-    payroll: '',
-    acceptOffer: '',
-    returnDate: '',
-    joiningDate: '',
-    notes: '',
-    workHoursDays: '',
-    backOut: '',
-    disclosed: '',
-    reasonBackOut: '',
-    // Job_id: '',
-    recommend_hiring: '',
-    evaluationDate: '',
+    market: "",
+    marketTraining: "",
+    trainingLocation: "",
+    compensationType: "",
+    offeredSalary: "",
+    payroll: "",
+    acceptOffer: "",
+    returnDate: "",
+    joiningDate: "",
+    notes: "",
+    workHoursDays: "",
+    backOut: "",
+    disclosed: "",
+    reasonBackOut: "",
+    recommend_hiring: "",
+    evaluationDate: "",
     offDays: [],
-
   });
-  
+
   const handleSelectChange = (selectedOptions) => {
     setFormData({
       ...formData,
-      offDays: selectedOptions ? selectedOptions.map(option => option.value) : []
+      offDays: selectedOptions
+        ? selectedOptions.map((option) => option.value)
+        : [],
     });
   };
 
@@ -109,88 +124,86 @@ const Hrinterview = () => {
             withCredentials: true,
           }
         );
-        
 
         if (response.status === 200) {
-          setJobId(response.data.id); 
+          setJobId(response.data.id);
         }
       } catch (error) {
         console.error("Error fetching job ID:", error); // Log the error for debugging
       }
     };
-  
+
     if (formData.market) {
       getJobId(); // Fetch job ID only if market is available
     }
   }, [formData.market]);
-  
-  
-
-
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    if (name === 'workHoursDays' && formData.timeType === 'days') {
+    if (name === "workHoursDays" && formData.timeType === "days") {
       if (value < 1 || value > 7) {
         setErrors({
           ...errors,
-          workHoursDays: 'Please enter a value between 1 and 7 for days',
+          workHoursDays: "Please enter a value between 1 and 7 for days",
         });
       } else {
-        setErrors({ ...errors, workHoursDays: '' });
+        setErrors({ ...errors, workHoursDays: "" });
         setFormData({ ...formData, [name]: value });
       }
     } else {
-      setErrors({ ...errors, workHoursDays: '' });
+      setErrors({ ...errors, workHoursDays: "" });
       setFormData({ ...formData, [name]: value });
     }
 
     if (errors[name]) {
-      if (type === 'checkbox') {
+      if (type === "checkbox") {
         if (checked) {
-          setErrors(prevErrors => ({
+          setErrors((prevErrors) => ({
             ...prevErrors,
-            [name]: "" // Clear the error for the checkbox field
+            [name]: "", // Clear the error for the checkbox field
           }));
         }
       } else {
         if (value.trim() !== "") {
-          if (name === 'joiningDate') {
+          if (name === "joiningDate") {
             const parsedDate = Date.parse(value);
             const currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0); // Set current date to midnight for comparison
             if (!isNaN(parsedDate)) {
               if (parsedDate >= currentDate) {
-                setErrors(prevErrors => ({
+                setErrors((prevErrors) => ({
                   ...prevErrors,
-                  [name]: "" // Clear the error for valid date fields
+                  [name]: "", // Clear the error for valid date fields
                 }));
               } else {
-                setErrors(prevErrors => ({
+                setErrors((prevErrors) => ({
                   ...prevErrors,
-                  [name]: `${name.replace(/([A-Z])/g, ' $1')} must be today or in the future.`
+                  [name]: `${name.replace(
+                    /([A-Z])/g,
+                    " $1"
+                  )} must be today or in the future.`,
                 }));
               }
             } else {
-              setErrors(prevErrors => ({
+              setErrors((prevErrors) => ({
                 ...prevErrors,
-                [name]: `${name.replace(/([A-Z])/g, ' ')} is invalid.`
+                [name]: `${name.replace(/([A-Z])/g, " ")} is invalid.`,
               }));
             }
           } else {
-            setErrors(prevErrors => ({
+            setErrors((prevErrors) => ({
               ...prevErrors,
-              [name]: "" // Clear the error for the other fields
+              [name]: "", // Clear the error for the other fields
             }));
           }
         } else {
-          setErrors(prevErrors => ({
+          setErrors((prevErrors) => ({
             ...prevErrors,
-            [name]: `${name.replace(/([A-Z])/g, ' ')} is required.` // Show error message
+            [name]: `${name.replace(/([A-Z])/g, " ")} is required.`, // Show error message
           }));
         }
       }
@@ -207,30 +220,33 @@ const Hrinterview = () => {
     }
 
     try {
-      const response = await axios.post(`${apiurl}/add-hrevaluation`, formData, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        `${apiurl}/add-hrevaluation`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
       setFormData({
-        applicantId: '',
-        market: '',
-        marketTraining: '',
-        trainingLocation: '',
-        compensationType: '',
-        offeredSalary: '',
-        payroll: '',
-        acceptOffer: '',
-        returnDate: '',
-        joiningDate: '',
-        notes: '',
-        workHoursDays: '',
-        backOut: '',
-        disclosed: '',
-        reasonBackOut: '',
-        recommend_hiring: '',
+        applicantId: "",
+        market: "",
+        marketTraining: "",
+        trainingLocation: "",
+        compensationType: "",
+        offeredSalary: "",
+        payroll: "",
+        acceptOffer: "",
+        returnDate: "",
+        joiningDate: "",
+        notes: "",
+        workHoursDays: "",
+        backOut: "",
+        disclosed: "",
+        reasonBackOut: "",
+        recommend_hiring: "",
         evaluationDate: "",
       });
       if (response.status === 200) {
-       
         toast.success(response.data.message);
         setTimeout(() => {
           if (role === "direct_hiring") {
@@ -239,39 +255,38 @@ const Hrinterview = () => {
             navigate("/hrtabs");
           }
         }, 1800);
-      
-        applicant_uuidprops = '';
+
+        applicant_uuidprops = "";
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
       toast.error("Failed to submit response.");
     }
   };
 
   useEffect(() => {
-    if (formData.recommend_hiring === 'selected at Hr'
-   
-      ) {
-      setFormData(prevFormData => ({
+    if (formData.recommend_hiring === "selected at Hr") {
+      setFormData((prevFormData) => ({
         ...prevFormData,
       }));
     }
   }, [jobId, formData.recommend_hiring]);
-  
-  
 
   useEffect(() => {
     let isMounted = true;
     const fetchingresponse = async () => {
       if (!applicant_uuidprops) {
-        console.log('No applicant UUID found.');
+        console.log("No applicant UUID found.");
         return;
       }
       try {
-        const response = await axios.get(`${apiurl}/first_round_res/${applicant_uuidprops}`, {
-          withCredentials: true,
-          timeout: 5000, // 5-second timeout
-        });
+        const response = await axios.get(
+          `${apiurl}/first_round_res/${applicant_uuidprops}`,
+          {
+            withCredentials: true,
+            timeout: 5000, // 5-second timeout
+          }
+        );
         if (isMounted && response.data && response.data.length > 0) {
           setFirstRound(response.data[0]);
         } else {
@@ -283,26 +298,25 @@ const Hrinterview = () => {
     };
     fetchingresponse();
     return () => {
-      isMounted = false;  // Cleanup flag to avoid state updates after unmount
+      isMounted = false; // Cleanup flag to avoid state updates after unmount
     };
   }, [applicant_uuidprops]);
 
-
-
-
   const noshowatinterview = async (applicant_uuidprops, action) => {
-
     const payload = {
       applicant_uuid: applicant_uuidprops,
       action,
       // Include other data if needed, such as a comment
-
     };
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API}/updatestatus`, payload, {
-        withCredentials: true,
-        timeout: 5000, // 5-second timeout
-      });
+      const res = await axios.post(
+        `${process.env.REACT_APP_API}/updatestatus`,
+        payload,
+        {
+          withCredentials: true,
+          timeout: 5000, // 5-second timeout
+        }
+      );
 
       if (res.status === 200) {
         // Show success message
@@ -310,7 +324,7 @@ const Hrinterview = () => {
           toast.success(res.data.message);
         } else {
           console.error("Toast is undefined");
-        };
+        }
         setTimeout(() => {
           if (role === "direct_hiring") {
             navigate("/directnew");
@@ -318,7 +332,6 @@ const Hrinterview = () => {
             navigate("/hrtabs");
           }
         }, 1800);
-       
       }
     } catch (error) {
       console.error("Error updating no-show to interview:", error);
@@ -328,29 +341,23 @@ const Hrinterview = () => {
   };
   const [trainers, setTrainers] = useState([]);
   const apiurl = process.env.REACT_APP_API; // Ensure this is set correctly
-  
 
   useEffect(() => {
     // Fetch trainers list when component mounts
     const fetchTrainers = async () => {
       try {
         const response = await axios.get(`${apiurl}/trainers`, {
-          withCredentials:true
+          withCredentials: true,
         });
         setTrainers(response.data);
       } catch (error) {
-        console.error('Error fetching trainers:', error);
+        console.error("Error fetching trainers:", error);
       }
     };
 
     fetchTrainers();
   }, [apiurl]);
 
-  
- 
-
-
- 
   const handleTimeTypeChange = (e) => {
     const { value } = e.target;
 
@@ -358,25 +365,24 @@ const Hrinterview = () => {
     setFormData({
       ...formData,
       timeType: value,
-      workHoursDays: '', // Clear the input field when switching between hours and days
+      workHoursDays: "", // Clear the input field when switching between hours and days
     });
-    setErrors({ ...errors, workHoursDays: '' }); // Reset errors when switching
+    setErrors({ ...errors, workHoursDays: "" }); // Reset errors when switching
   };
 
   return (
     <Container fluid className="d-flex justify-content-center  ">
-
-
-
       <Col md={8} lg={5} className="m-4 ">
-        <h2 className='m-2' style={{color:'#E10174'}}>{applicant_uuidprops} First Round Details</h2>
+        <h2 className="m-2" style={{ color: "#E10174" }}>
+          {applicant_uuidprops} First Round Details
+        </h2>
         {/* Accordion to display first round details */}
         <Accordion defaultActiveKey="0" className="mt-4 card shadow-lg">
           {Object.entries(firstRound).map(([key, value], index) => (
             <Accordion.Item eventKey={index.toString()} key={index}>
               <Accordion.Header>{key}</Accordion.Header>
               <Accordion.Body>
-                {value ? value.toString() : 'No data available'}
+                {value ? value.toString() : "No data available"}
               </Accordion.Body>
             </Accordion.Item>
           ))}
@@ -386,31 +392,34 @@ const Hrinterview = () => {
         <div className="d-flex justify-content-end gap-2">
           <Button
             variant="warning"
-            onClick={() => noshowatinterview(applicant_uuidprops, 'no show at Interview')}
+            onClick={() =>
+              noshowatinterview(applicant_uuidprops, "no show at Interview")
+            }
             className="mt-2 text-white fw-bolder"
           >
             No Show
           </Button>
           <Button
             variant="danger"
-            onClick={() => noshowatinterview(applicant_uuidprops, 'rejected at Hr')}
+            onClick={() =>
+              noshowatinterview(applicant_uuidprops, "rejected at Hr")
+            }
             className="mt-2"
           >
             Rejected
           </Button>
         </div>
 
-        <h2 className='m-2' style={{color:'#E10174'}}>HR Interview Questions</h2>
+        <h2 className="m-2" style={{ color: "#E10174" }}>
+          HR Interview Questions
+        </h2>
 
-
-        <Form onSubmit={handleSubmit} className='card shadow-lg p-5' >
-
-
-
+        <Form onSubmit={handleSubmit} className="card shadow-lg p-5">
           {/* PLEASE SELECT THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              1. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED FOR
+              1. PLEASE ENTER THE MARKET WHERE THE APPLICANT IS GETTING HIRED
+              FOR
             </Form.Label>
             <Col sm={6}>
               <Form.Select
@@ -419,8 +428,9 @@ const Hrinterview = () => {
                 onChange={handleChange}
                 isInvalid={!!errors.market}
               >
-                <option value="">Select Market</option> {/* Default empty option */}
-                {markets.map(location => (
+                <option value="">Select Market</option>{" "}
+                {/* Default empty option */}
+                {markets.map((location) => (
                   <option key={location.id} value={location.location_name}>
                     {location.location_name}
                   </option>
@@ -429,11 +439,11 @@ const Hrinterview = () => {
             </Col>
           </Form.Group>
 
-
           {/* WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              2. WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED FOR OR A DIFFERENT MARKET FOR TRAINING
+              2. WILL THE APPLICANT DIRECTLY GO TO THE MARKET HE IS BEING HIRED
+              FOR OR A DIFFERENT MARKET FOR TRAINING
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -462,8 +472,9 @@ const Hrinterview = () => {
                 onChange={handleChange}
                 isInvalid={!!errors.trainingLocation}
               >
-                <option value="">Select Training Location</option> {/* Default empty option */}
-                {markets.map(location => (
+                <option value="">Select Training Location</option>{" "}
+                {/* Default empty option */}
+                {markets.map((location) => (
                   <option key={location.id} value={location.location_name}>
                     {location.location_name}
                   </option>
@@ -471,7 +482,6 @@ const Hrinterview = () => {
               </Form.Select>
             </Col>
           </Form.Group>
-
 
           {/* COMPENSATION TYPE */}
           <Form.Group as={Row} className="mb-3">
@@ -482,13 +492,10 @@ const Hrinterview = () => {
               <Form.Control
                 type="name"
                 name="compensationType"
-
                 value={formData.compensationType}
                 isInvalid={!!errors.compensationType}
                 onChange={handleChange}
-              >
-
-              </Form.Control>
+              ></Form.Control>
             </Col>
           </Form.Group>
 
@@ -502,7 +509,6 @@ const Hrinterview = () => {
                 type="number"
                 name="offeredSalary"
                 placeholder="Enter salary"
-
                 onChange={handleChange}
               />
             </Col>
@@ -539,7 +545,7 @@ const Hrinterview = () => {
                 label="Yes"
                 name="acceptOffer"
                 value="Yes"
-                checked={formData.acceptOffer === 'Yes'}
+                checked={formData.acceptOffer === "Yes"}
                 isInvalid={!!errors.acceptOffer}
                 onChange={handleChange}
               />
@@ -548,7 +554,7 @@ const Hrinterview = () => {
                 label="No"
                 name="acceptOffer"
                 value="No"
-                checked={formData.acceptOffer === 'No'}
+                checked={formData.acceptOffer === "No"}
                 // isInvalid={!!errors.acceptOffer}
                 onChange={handleChange}
               />
@@ -558,7 +564,8 @@ const Hrinterview = () => {
           {/* IF THE APPLICANT HAS DECIDED TO THINK ABOUT IT PLEASE SELECT WHEN WILL HE RETURN BACK TO YOU */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              8. IF THE APPLICANT HAS DECIDED TO THINK ABOUT IT PLEASE SELECT WHEN WILL HE RETURN BACK TO YOU
+              8. IF THE APPLICANT HAS DECIDED TO THINK ABOUT IT PLEASE SELECT
+              WHEN WILL HE RETURN BACK TO YOU
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -589,11 +596,11 @@ const Hrinterview = () => {
             </Col>
           </Form.Group>
 
-
           {/* PLEASE ENTER THE HOURS/DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK */}
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              10. PLEASE SELECT HOURS OR DAYS THAT THE EMPLOYEE HAS PROMISED TO WORK
+              10. PLEASE SELECT HOURS OR DAYS THAT THE EMPLOYEE HAS PROMISED TO
+              WORK
             </Form.Label>
             <Col sm={6}>
               <Form.Select
@@ -611,9 +618,9 @@ const Hrinterview = () => {
 
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={6} className="text-start">
-              {formData.timeType === 'days'
-                ? 'Enter days (1-7)'
-                : 'Enter hours'}
+              {formData.timeType === "days"
+                ? "Enter days (1-7)"
+                : "Enter hours"}
             </Form.Label>
             <Col sm={6}>
               <Form.Control
@@ -626,13 +633,12 @@ const Hrinterview = () => {
                 disabled={!formData.timeType} // Disabled when no type selected
               />
               {errors.workHoursDays && (
-                <Form.Text style={{ color: 'red' }}>
+                <Form.Text style={{ color: "red" }}>
                   {errors.workHoursDays}
                 </Form.Text>
               )}
             </Col>
           </Form.Group>
-
 
           {/* DID THE EMPLOYEE BACK OUT? */}
           <Form.Group as={Row} className="mb-3">
@@ -645,7 +651,7 @@ const Hrinterview = () => {
                 label="Yes"
                 name="backOut"
                 value="Yes"
-                checked={formData.backOut === 'Yes'}
+                checked={formData.backOut === "Yes"}
                 // isInvalid={!!errors.backOut}
                 onChange={handleChange}
               />
@@ -654,7 +660,7 @@ const Hrinterview = () => {
                 label="No"
                 name="backOut"
                 value="No"
-                checked={formData.backOut === 'No'}
+                checked={formData.backOut === "No"}
                 isInvalid={!!errors.backOut}
                 onChange={handleChange}
               />
@@ -687,8 +693,8 @@ const Hrinterview = () => {
                 type="radio"
                 label="Yes"
                 name="recommend_hiring"
-                value="selected at Hr"  // Updated to send 'selected at Hr' as the value
-                checked={formData.recommend_hiring === 'selected at Hr'}
+                value="selected at Hr" // Updated to send 'selected at Hr' as the value
+                checked={formData.recommend_hiring === "selected at Hr"}
                 onChange={handleChange}
                 isInvalid={!!errors.recommend_hiring}
               />
@@ -696,12 +702,12 @@ const Hrinterview = () => {
                 type="radio"
                 label="No"
                 name="recommend_hiring"
-                value="rejected at Hr"  // Updated to send 'rejected at Hr' as the value
-                checked={formData.recommend_hiring === 'rejected at Hr'}
+                value="rejected at Hr" // Updated to send 'rejected at Hr' as the value
+                checked={formData.recommend_hiring === "rejected at Hr"}
                 onChange={handleChange}
                 isInvalid={!!errors.recommend_hiring}
               />
-              
+
               <Form.Group as={Row} className="mb-3">
                 <Col sm={12}>
                   <Form.Check
@@ -709,7 +715,7 @@ const Hrinterview = () => {
                     label="Store Evaluation"
                     name="recommend_hiring"
                     value="Store Evaluation"
-                    checked={formData.recommend_hiring === 'Store Evaluation'}
+                    checked={formData.recommend_hiring === "Store Evaluation"}
                     isInvalid={!!errors.recommend_hiring}
                     onChange={handleChange}
                   />
@@ -718,7 +724,7 @@ const Hrinterview = () => {
                     label="Spanish Evaluation"
                     name="recommend_hiring"
                     value="Spanish Evaluation"
-                    checked={formData.recommend_hiring === 'Spanish Evaluation'}
+                    checked={formData.recommend_hiring === "Spanish Evaluation"}
                     isInvalid={!!errors.recommend_hiring}
                     onChange={handleChange}
                   />
@@ -727,13 +733,16 @@ const Hrinterview = () => {
                     label="Will think about it"
                     name="recommend_hiring"
                     value="Applicant will think about It"
-                    checked={formData.recommend_hiring === 'Applicant will think about It'}
+                    checked={
+                      formData.recommend_hiring ===
+                      "Applicant will think about It"
+                    }
                     isInvalid={!!errors.recommend_hiring}
                     onChange={handleChange}
                   />
                 </Col>
               </Form.Group>
-              {formData.recommend_hiring === 'Store Evaluation' && (
+              {formData.recommend_hiring === "Store Evaluation" && (
                 <Form.Group as={Row} className="mb-3">
                   <Form.Label column sm={12} className="text-start">
                     Select evaluation date:
@@ -752,10 +761,7 @@ const Hrinterview = () => {
                     </Form.Control.Feedback>
                   </Col>
                 </Form.Group>
-
               )}
-
-             
             </Col>
           </Form.Group>
           {/* OTHER NOTES/POINTERS */}
@@ -785,7 +791,7 @@ const Hrinterview = () => {
                 label="Yes"
                 name="disclosed"
                 value="Yes"
-                checked={formData.disclosed === 'Yes'}
+                checked={formData.disclosed === "Yes"}
                 // isInvalid={!!errors.disclosed}
                 onChange={handleChange}
               />
@@ -794,7 +800,7 @@ const Hrinterview = () => {
                 label="No"
                 name="disclosed"
                 value="No"
-                checked={formData.disclosed === 'No'}
+                checked={formData.disclosed === "No"}
                 isInvalid={!!errors.disclosed}
                 onChange={handleChange}
               />
@@ -815,7 +821,6 @@ const Hrinterview = () => {
               />
             </Col>
           </Form.Group>
-          
 
           {/* Submit Button */}
           <Form.Group as={Row} className="mb-3">
@@ -823,8 +828,6 @@ const Hrinterview = () => {
               <Button type="submit">Submit Details</Button>
             </Col>
           </Form.Group>
-
-
         </Form>
       </Col>
       {/* Confirmation Modal */}
@@ -846,8 +849,8 @@ const Hrinterview = () => {
       {/* Toast Notification */}
 
       <ToastContainer />
-    </Container >
+    </Container>
   );
-}
+};
 
 export default Hrinterview;

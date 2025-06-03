@@ -288,7 +288,7 @@ function Public() {
               type="submit"
               disabled={loading}
               loading={loading}
-              label="Submit"
+              label=" Submit"
               icon={<FaRegHandPointer />}
             />
           </Form>
@@ -297,7 +297,7 @@ function Public() {
             <Button
               variant="w-100 mt-3"
               code="#E10174"
-              label="Login to Application"
+              label=" Login to Application"
               onClick={handleLoginModalShow}
               icon={<FaSignInAlt />}
               disabled={loading}

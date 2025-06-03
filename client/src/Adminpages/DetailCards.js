@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Row, Col, Form, Card } from "react-bootstrap";
 import { TextField } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -22,7 +22,7 @@ const DetailCards = () => {
   ]);
   const [loading, setLoading] = useState(false);
   const [isAllSelected, setIsAllSelected] = useState(false); // State to track Select All
-  const {setMarkets,setCaptureDate } = useContext(MyContext);
+  const { setMarkets, setCaptureDate } = useContext(MyContext);
   const navigate = useNavigate();
   const { markets } = useFetchMarkets();
 
@@ -225,7 +225,6 @@ const DetailCards = () => {
   return (
     <div className="mt-4">
       {loading && <Loader />}
-
       <Row className="d-flex justify-content-between align-items-center mb-4">
         <Col md={4}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>

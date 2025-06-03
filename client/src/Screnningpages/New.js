@@ -9,6 +9,7 @@ import { Button } from "@mui/material";
 import ConfirmationModal from "../pages/Confirm";
 import Loader from "../utils/Loader";
 import { MyContext } from "../pages/MyContext";
+import API_URL from "../Constants/ApiUrl";
 
 function New() {
   const [profiles, setProfiles] = useState([]);
@@ -38,7 +39,7 @@ function New() {
 
   const hasFetchedData = useRef(false);
 
-  const apiurl = process.env.REACT_APP_API || "http://localhost:5000/api";
+ 
 
   useEffect(() => {
     console.log("userData:", userData);
@@ -61,25 +62,25 @@ function New() {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        const screensPromise = axios.get(`${apiurl}/screening`, { withCredentials: true, timeout: 5000 })
+        const screensPromise = axios.get(`${API_URL}/screening`, { withCredentials: true, timeout: 5000 })
           .catch(err => {
             console.error("Error fetching /screening:", err);
             return { data: [] };
           });
 
-        const hostsPromise = axios.get(`${apiurl}/interviewer`, { withCredentials: true, timeout: 5000 })
+        const hostsPromise = axios.get(`${API_URL}/interviewer`, { withCredentials: true, timeout: 5000 })
           .catch(err => {
             console.error("Error fetching /interviewer:", err);
             return { data: [] };
           });
 
-        const hrsPromise = axios.get(`${apiurl}/hrs`, { withCredentials: true, timeout: 5000 })
+        const hrsPromise = axios.get(`${API_URL}/hrs`, { withCredentials: true, timeout: 5000 })
           .catch(err => {
             console.error("Error fetching /hrs:", err);
             return { data: [] };
           });
 
-        const profilesPromise = axios.get(`${apiurl}/users/${userData.id}/applicants`, { withCredentials: true, timeout: 5000 })
+        const profilesPromise = axios.get(`${API_URL}/users/${userData.id}/applicants`, { withCredentials: true, timeout: 5000 })
           .catch(err => {
             console.error("Error fetching /users/:id/applicants:", err);
             return { data: [] };
@@ -108,7 +109,7 @@ function New() {
     };
 
     fetchInitialData();
-  }, [apiurl, userData?.id, userDataLoading]);
+  }, [API_URL, userData?.id, userDataLoading]);
 
   useEffect(() => {
     localStorage.setItem("newcount", profiles.length);
@@ -172,7 +173,7 @@ function New() {
     console.log("Sending payload to /updatestatus:", payload);
 
     try {
-      const response = await axios.post(`${apiurl}/updatestatus`, payload, {
+      const response = await axios.post(`${API_URL}/updatestatus`, payload, {
         withCredentials: true,
         timeout: 5000,
       });
@@ -211,7 +212,7 @@ function New() {
     if (selected) {
       setActionLoading(true);
       try {
-        const response = await axios.post(`${apiurl}/assignapplicanttoUser`, {
+        const response = await axios.post(`${API_URL}/assignapplicanttoUser`, {
           newUserId: selected.id,
           applicantId: selectedProfile.applicant_uuid,
           comment,
@@ -249,7 +250,7 @@ function New() {
 
     setActionLoading(true);
     try {
-      const response = await axios.post(`${apiurl}/assign-interviewer`, formData, {
+      const response = await axios.post(`${API_URL}/assign-interviewer`, formData, {
         withCredentials: true,
         timeout: 5000,
       });
@@ -304,7 +305,7 @@ function New() {
     };
 
     try {
-      const response = await axios.post(`${apiurl}/updateemail`, payload, {
+      const response = await axios.post(`${API_URL}/updateemail`, payload, {
         withCredentials: true,
         timeout: 5000,
       });

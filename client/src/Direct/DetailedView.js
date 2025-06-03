@@ -1,16 +1,45 @@
-import React, { useEffect, useState } from "react";
-import decodeToken from "../decodedDetails";
+import  { useEffect, useState } from "react";
 import axios from "axios";
 import TableHead from "../utils/TableHead";
+import { useContext } from "react";
+import { MyContext } from "../pages/MyContext";
+
+
+ const TableHeaders = [
+    "Applicant UUID",
+    "Status",
+    "Compensation Type",
+    "Evaluation Date",
+    "Joining Date",
+    "Market",
+    "Market Training",
+    "Notes",
+    "Off Days",
+    "Offered Salary",
+    "Payroll",
+    "Reason for Back Out",
+    "Return Date",
+    "Training Location",
+    "Work Hours/Days",
+    "Contract Disclosed",
+    "Accept Offer",
+    "Back Out",
+    "Applicant ID",
+    "Selected Evaluation",
+  ];
 
 function DetailedView() {
   const [applicants, setApplicants] = useState([]);
+  const { userData } = useContext(MyContext); // Assuming userData is available in context
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         // Decode token to get user data
-        const userData = decodeToken();
+        if (!userData || !userData.id) {
+          console.error("User data is not available or incomplete.");
+          return;
+        }
         const userId = userData.id;
         // Send request to the server with userId
         const response = await axios.post(
@@ -52,28 +81,7 @@ function DetailedView() {
       "Sent for Evaluation",
     ].includes(applicant.status)
   );
-  const TableHeaders = [
-    "Applicant UUID",
-    "Status",
-    "Compensation Type",
-    "Evaluation Date",
-    "Joining Date",
-    "Market",
-    "Market Training",
-    "Notes",
-    "Off Days",
-    "Offered Salary",
-    "Payroll",
-    "Reason for Back Out",
-    "Return Date",
-    "Training Location",
-    "Work Hours/Days",
-    "Contract Disclosed",
-    "Accept Offer",
-    "Back Out",
-    "Applicant ID",
-    "Selected Evaluation",
-  ];
+ 
   return (
     <div>
       <h1>Applicant Details</h1>

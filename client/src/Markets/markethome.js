@@ -21,14 +21,9 @@ import axios from "axios";
 import Loader from "../utils/Loader";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
+import API_URL from "../Constants/ApiUrl";
 
-const Markethome = () => {
-  const apiurl = process.env.REACT_APP_API;
-  const {userData} = useContext(MyContext);
-  const [markets, setMarkets] = useState([]);
-  const [loading, setLoading] = useState(true); // Default to loading true
-
-  const userMarket = {
+ const userMarket = {
     "Ali Khan": "ARIZONA",
     "Rahim Nasir Khan": "BAY AREA",
     "Shah Noor Butt": "COLORADO",
@@ -44,12 +39,16 @@ const Markethome = () => {
     "EL Paso Market ":"EL Paso"
   };
 
+const Markethome = () => {
+
+  const {userData} = useContext(MyContext);
+  const [markets, setMarkets] = useState([]);
+  const [loading, setLoading] = useState(true); // Default to loading true
   const userMarketLocation = userMarket[userData.name];
 
   const [jobDetails, setJobDetails] = useState({
     location: userMarketLocation,
     openings: "",
-    // comments: "",
     deadline: "",
     posted_by: userData.name,
   });
@@ -68,7 +67,7 @@ const Markethome = () => {
 
     try {
       // console.log(jobDetails, "jbs");
-      const response = await axios.post(`${apiurl}/post-job`, jobDetails,{withCredentials:true});
+      const response = await axios.post(`${API_URL}/post-job`, jobDetails,{withCredentials:true});
       if (response.status === 200) {
         toast.success(response.data.message);
         setJobDetails({
@@ -91,7 +90,7 @@ const Markethome = () => {
   useEffect(() => {
     const fetchMarketJobs = async () => {
       try {
-        const response = await axios.get(`${apiurl}/getmarketjobs`,{withCredentials:true});
+        const response = await axios.get(`${API_URL}/getmarketjobs`,{withCredentials:true});
         const data = response.data;
         const filteredData = data.filter((val) => val.name === userMarketLocation);
         setMarkets(filteredData);

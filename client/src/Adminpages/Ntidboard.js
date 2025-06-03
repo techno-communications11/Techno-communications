@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import { useNavigate } from "react-router-dom";
 import MarketSelector from "./MarketSelector";
@@ -6,8 +6,13 @@ import { Pie } from "react-chartjs-2";
 import useFetchNtidDashCount from "../Hooks/useFetchNtidDashCount";
 import Loader from "../utils/Loader";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-
 ChartJS.register(ArcElement, Tooltip, Legend);
+const smallerFormStyles = {
+  width: "200px",
+  padding: "5px",
+  borderRadius: "5px",
+  border: "1px solid #ccc",
+};
 
 function Ntidboard() {
   const [selectedMarket, setSelectedMarket] = useState([]);
@@ -23,12 +28,10 @@ function Ntidboard() {
     () => new Date().toISOString().split("T")[0]
   );
   const { data, loading, error } = useFetchNtidDashCount();
+
   const navigate = useNavigate();
-  const {
-    setStartDateForContext,
-    setEndDateForContext,
-    setMarkets,
-  } = useContext(MyContext);
+  const { setStartDateForContext, setEndDateForContext, setMarkets } = useContext(MyContext);
+
   const [counts, setCounts] = useState({
     markAssigned: 0,
     selectedAtHr: 0,
@@ -36,15 +39,8 @@ function Ntidboard() {
     contractSigned1: 0,
   });
 
-  const smallerFormStyles = {
-    width: "200px",
-    padding: "5px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-  };
 
   const text = "Select Market";
-
   const handleStartDateChange = (e) => setStartDate(e.target.value);
   const handleEndDateChange = (e) => setEndDate(e.target.value);
 
@@ -55,7 +51,7 @@ function Ntidboard() {
     setEndDateForContext(endDate);
     if (!isAllSelected && selectedMarket.length > 0) {
       filtered = filtered.filter((item) =>
-        selectedMarket.includes(item.market)
+        selectedMarket?.toLowerCase()?.includes(item?.market?.toLowerCase())
       );
     }
 
@@ -90,8 +86,7 @@ function Ntidboard() {
         );
 
         filtered = filtered.filter((item) => {
-          const joiningDate = new Date(item.joining_date); // The row's joining_date should be in UTC format
-
+          const joiningDate = new Date(item.joining_date);
           return (
             joiningDate >= adjustedStartDateUTC &&
             joiningDate <= adjustedEndDateUTC
@@ -99,7 +94,6 @@ function Ntidboard() {
         });
       }
     }
-
     calculateCounts(filtered);
   };
 
@@ -120,7 +114,7 @@ function Ntidboard() {
 
     setCounts(counts);
   };
-
+  
   useEffect(() => {
     applyFilters(data);
   }, [selectedMarket, startDate, endDate, isAllSelected, data]);

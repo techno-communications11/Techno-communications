@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import  { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { MyContext } from '../pages/MyContext';
@@ -10,9 +10,9 @@ import Loader from '../utils/Loader';
 import useFetchHrs from '../Hooks/useFetchHrs';
 import ConfirmationModal from '../utils/ConformationModal';
 import { Button as MuiButton } from '@mui/material';
+import API_URL from '../Constants/ApiUrl';
 
 function HrNew() {
-  const apiUrl = process.env.REACT_APP_API || "http://localhost:5000/api";
   const navigate = useNavigate();
   const { userData, setapplicant_uuid } = useContext(MyContext);
   const [profiles, setProfiles] = useState([]);
@@ -37,7 +37,7 @@ function HrNew() {
 
       setLoading(true);
       try {
-        const fullUrl = `${apiUrl}/users/${userData.id}/hrinterviewapplicants`;
+        const fullUrl = `${API_URL}/users/${userData.id}/hrinterviewapplicants`;
         console.log("Fetching from URL:", fullUrl);
         const response = await axios.get(fullUrl, {
           withCredentials: true,
@@ -55,7 +55,7 @@ function HrNew() {
     };
 
     fetchInterviewApplicants();
-  }, [apiUrl, userData?.id]);
+  }, [API_URL, userData?.id]);
 
   // Handle HR selection from dropdown
   const handleSelect = (hrId, profile) => {
@@ -75,7 +75,7 @@ function HrNew() {
     setActionLoading(true);
     try {
       await axios.post(
-        `${apiUrl}/newhr`,
+        `${API_URL}/newhr`,
         { applicantId: selectedProfile.applicant_uuid, newUserId: selectedHRId },
         { withCredentials: true, timeout: 5000 }
       );

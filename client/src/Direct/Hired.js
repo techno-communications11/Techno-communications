@@ -5,6 +5,28 @@ import TableHead from "../utils/TableHead";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 
+ const tableHeadings = [
+    "Applicant UUID",
+    "Status",
+    "Compensation Type",
+    "Evaluation Date",
+    "Joining Date",
+    "Market",
+    "Market Training",
+    "Notes",
+    "Off Days",
+    "Offered Salary",
+    "Payroll",
+    "Reason for Back Out",
+    "Return Date",
+    "Training Location",
+    "Work Hours/Days",
+    "Contract Disclosed",
+    "Accept Offer",
+    "Back Out",
+    "Selected Evaluation",
+  ];
+
 function Hired() {
   const [applicants, setApplicants] = useState([]);
   const { userData } = useContext(MyContext);
@@ -50,27 +72,7 @@ function Hired() {
       applicant.hrevaluationData.length > 0
   );
 
-  const tableHeadings = [
-    "Applicant UUID",
-    "Status",
-    "Compensation Type",
-    "Evaluation Date",
-    "Joining Date",
-    "Market",
-    "Market Training",
-    "Notes",
-    "Off Days",
-    "Offered Salary",
-    "Payroll",
-    "Reason for Back Out",
-    "Return Date",
-    "Training Location",
-    "Work Hours/Days",
-    "Contract Disclosed",
-    "Accept Offer",
-    "Back Out",
-    "Selected Evaluation",
-  ];
+ 
 
   return (
     <div>

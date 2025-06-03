@@ -1,32 +1,48 @@
-import React, { useEffect, useState } from "react";
-import decodeToken from "../decodedDetails";
+import  { useEffect, useState } from "react";
 import axios from "axios";
+import TableHead from "../utils/TableHead";
+import { useContext } from "react";
+import {MyContext} from "../pages/MyContext";
+const TableHeaders = [
+  "Applicant UUID",
+  "Status",
+  "Compensation Type",
+  "Evaluation Date",
+  "Joining Date",
+  "Market",
+  "Market Training",
+  "Notes",
+  "Off Days",
+  "Offered Salary",
+  "Payroll",
+  "Reason for Back Out",
+  "Return Date",
+  "Training Location",
+  "Work Hours/Days",
+  "Contract Disclosed",
+  "Accept Offer",
+  "Back Out",
+  "Selected Evaluation"
+];
+
 
 function Pending() {
   const [applicants, setApplicants] = useState([]);
+  const { userData } = useContext(MyContext); // Assuming userData is available in context
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Decode token to get user data
-        const userData = decodeToken();
         const userId = userData.id;
-
-        // console.log("Decoded User ID:", userId);
-
-        // Send request to the server with userId
         const response = await axios.post(
           `${process.env.REACT_APP_API}/getdirecthiringdetails`,
           { assigned_user_id: userId },
           { withCredentials: true }
         );
-        // console.log("Fetched Applicants Data:", response.data);
-
-        // Update state with the fetched data
         setApplicants(response.data);
       } catch (error) {
         console.error("Error fetching user data:", error);
-        setApplicants([]); // Clear data on error
+        setApplicants([]); 
       }
     };
 
@@ -62,29 +78,7 @@ function Pending() {
           className="table table-striped"
           style={{ padding: "2px 4px", fontSize: "0.7rem" }}
         >
-          <thead style={{ backgroundColor: "#f8c6d1" }}>
-            <tr>
-              <th>Applicant UUID</th>
-              <th>Status</th>
-              <th>Compensation Type</th>
-              <th>Evaluation Date</th>
-              <th>Joining Date</th>
-              <th>Market</th>
-              <th>Market Training</th>
-              <th>Notes</th>
-              <th>Off Days</th>
-              <th>Offered Salary</th>
-              <th>Payroll</th>
-              <th>Reason for Back Out</th>
-              <th>Return Date</th>
-              <th>Training Location</th>
-              <th>Work Hours/Days</th>
-              <th>Contract Disclosed</th>
-              <th>Accept Offer</th>
-              <th>Back Out</th>
-              <th>Selected Evaluation</th>
-            </tr>
-          </thead>
+         <TableHead headData={TableHeaders} />  
           <tbody>
             {filteredApplicants.map((applicant, index) => (
               <tr key={index}>

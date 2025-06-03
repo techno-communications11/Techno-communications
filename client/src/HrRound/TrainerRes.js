@@ -8,9 +8,10 @@ import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
 import ConfirmationModal from "../utils/ConformationModal";
 import { MyContext } from "../pages/MyContext";
+import API_URL from "../Constants/ApiUrl";
 
 function TrainerRes({ setTrainerCount }) {
-  const apiurl = process.env.REACT_APP_API || "http://localhost:5000/api";
+ 
   const { userData } = useContext(MyContext);
   const [profiles, setProfiles] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -33,7 +34,7 @@ function TrainerRes({ setTrainerCount }) {
 
       setLoading(true);
       try {
-        const fullUrl = `${apiurl}/users/${userData.id}/getAllTrainerFeedbackApplicants`;
+        const fullUrl = `${API_URL}/users/${userData.id}/getAllTrainerFeedbackApplicants`;
         console.log("Fetching from URL:", fullUrl);
         const response = await axios.get(fullUrl, {
           withCredentials: true,
@@ -58,7 +59,7 @@ function TrainerRes({ setTrainerCount }) {
     };
 
     assignedToInterviewer();
-  }, [apiurl, userData?.id, setTrainerCount]);
+  }, [API_URL, userData?.id, setTrainerCount]);
 
   const handleActionClick = (profile, action) => {
     console.log("handleActionClick called with:", { profile, action });
@@ -81,7 +82,7 @@ function TrainerRes({ setTrainerCount }) {
     };
 
     try {
-      const res = await axios.post(`${apiurl}/updatestatus`, payload, {
+      const res = await axios.post(`${API_URL}/updatestatus`, payload, {
         withCredentials: true,
         timeout: 5000,
       });

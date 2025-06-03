@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -19,7 +19,6 @@ import New from "./Screnningpages/New";
 import Listprofile from "./Screnningpages/Screening";
 import Hrinterview from "./HrRound/Hrinterview";
 import ApplicantForm from "./InterviewRound/interviewForm";
-import HrNew from "./HrRound/HrNew";
 import "./App.css";
 import ScreeningHome from "./Screnningpages/Shome";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,14 +33,11 @@ import Markethome from "./Markets/markethome";
 import UpdatePassword from "./pages/UpdatePassword";
 import SelectedAtHr from "./Adminpages/SelectedAtHr";
 import DetailedView from "./Adminpages/DetailedView";
-import DetailCards from "./Adminpages/DetailCards";
 import { DirectDash } from "./Direct/DirectDash";
 import DirectForm from "./Direct/DirectForm";
 import DirectNew from "./Direct/DirectNew";
 import Edit from "./HrRound/Edit";
-import HrInterviewd from "./HrRound/HrInterviewd";
 import AdminTabs from "./Adminpages/Admintabs";
-import AdminHrEdit from "./Adminpages/AdminHrEdit";
 import StatsTicketView from "./Adminpages/StatsTicketView";
 import JobInfo from "./Adminpages/JobInfo";
 import Tabls from "./Direct/Tabs";
@@ -49,7 +45,7 @@ import ViewDetails from "./pages/ViewDetails";
 import Ntidboard from "./Adminpages/Ntidboard";
 import NTIDData from "./Adminpages/NTIDData";
 import { MyContext } from "./pages/MyContext";
-import { useContext } from 'react';
+import { useContext } from "react";
 function App() {
   return (
     <Router>
@@ -64,10 +60,7 @@ function AppComponent() {
   const [applicant_uuidProps, setApplicant_uuid] = useState("");
   const [applicantEmail, setApplicantEmail] = useState("");
   const [applicantPhone, setApplicantPhone] = useState("");
-   const {userData}=useContext(MyContext);
-
-  
-
+  const { userData } = useContext(MyContext);
   const location = useLocation();
   const normalizedPath = location.pathname.trim().toLowerCase();
   const showNavbar =
@@ -76,19 +69,18 @@ function AppComponent() {
     normalizedPath !== "/login";
 
   return (
-    <div className="App" >
+    <div className="App">
       {showNavbar && <Navbar />}
       <Routes>
         {!userData ? (
           <>
             <Route path="/" element={<Public />} />
-             <Route path="/memphis" element={<Public />} />
+            <Route path="/memphis" element={<Public />} />
             <Route path="/login" element={<Login />} />
-            
           </>
         ) : (
           <>
-          {userData.role === "screening_manager" ||
+            {userData.role === "screening_manager" ||
             userData.role === "hr" ||
             userData.role === "interviewer" ? (
               <Route path="/new" element={<New />} />
@@ -96,8 +88,8 @@ function AppComponent() {
 
             {userData.role === "admin" && (
               <>
-              <Route path="/ntiddata/:captureStatus" element={<NTIDData/>}/>
-              <Route path="/ntidDboard" element={<Ntidboard/>}/>
+                <Route path="/ntiddata/:captureStatus" element={<NTIDData />} />
+                <Route path="/ntidDboard" element={<Ntidboard />} />
                 <Route path="/jobinfo" element={<JobInfo />} />
                 <Route path="/adminTabs" element={<AdminTabs />} />
                 <Route path="/detail" element={<DetailedView />} />
@@ -106,14 +98,20 @@ function AppComponent() {
                 <Route path="/updatepassword" element={<UpdatePassword />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/edit" element={<Edit />} />
-                <Route path="/statusticketview/:captureStatus" element={<StatsTicketView />} />
+                <Route
+                  path="/statusticketview/:captureStatus"
+                  element={<StatsTicketView />}
+                />
               </>
             )}
             {userData.role === "hr" && (
               <>
-                <Route path="/detailview/:captureStatus" element={<ViewDetails />} />
+                <Route
+                  path="/detailview/:captureStatus"
+                  element={<ViewDetails />}
+                />
                 <Route path="/hrhome" element={<HrHome />} />
-                  <Route path="/hrtabs" element={<HrTabs />} />
+                <Route path="/hrtabs" element={<HrTabs />} />
                 <Route path="/edit" element={<Edit />} />
                 <Route path="/hrinterview" element={<Hrinterview />} />
                 <Route path="/updatepassword" element={<UpdatePassword />} />
@@ -129,7 +127,10 @@ function AppComponent() {
             )}
             {userData.role === "direct_hiring" && (
               <>
-                <Route path="/detailview/:captureStatus" element={<ViewDetails />} />
+                <Route
+                  path="/detailview/:captureStatus"
+                  element={<ViewDetails />}
+                />
                 <Route path="/directHiring" element={<DirectDash />} />
                 <Route path="/directtabs" element={<Tabls />} />
                 <Route path="/directform" element={<DirectForm />} />
@@ -140,7 +141,10 @@ function AppComponent() {
             )}
             {userData.role === "screening_manager" && (
               <>
-                <Route path="/detailview/:captureStatus" element={<ViewDetails />} />
+                <Route
+                  path="/detailview/:captureStatus"
+                  element={<ViewDetails />}
+                />
                 <Route path="/screeinghome" element={<ScreeningHome />} />
                 <Route path="/screening" element={<Listprofile />} />
                 <Route path="/screeningnew" element={<New />} />
@@ -158,7 +162,10 @@ function AppComponent() {
             )}
             {userData.role === "interviewer" && (
               <>
-                <Route path="/detailview/:captureStatus" element={<ViewDetails />} />
+                <Route
+                  path="/detailview/:captureStatus"
+                  element={<ViewDetails />}
+                />
                 <Route
                   path="/interviewhome"
                   element={
@@ -198,7 +205,6 @@ function AppComponent() {
           </>
         )}
         <Route path="*" element={<Navigate to={"/"} />} />
-        {/* <Route path="/memphis" element={<Memphis />} /> */}
       </Routes>
     </div>
   );

@@ -10,6 +10,9 @@ import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
+import TableHead from "../utils/TableHead";
+
+const TabaleHeaders=["SC.NO", "Name", "Phone", "Referred By", "Reference NTID", "Created At", "Action"];
 function DirectNew() {
   let userData = useContext(MyContext);
   const [profiles, setProfiles] = useState([]);
@@ -78,23 +81,17 @@ function DirectNew() {
   };
 
   const handleProceed = (profileId) => {
-    // Logic for proceeding the applicant, e.g., updating status
-    // console.log('Proceed clicked for profile ID:', profileId);
     setapplicant_uuid(profileId);
     navigate("/hrinterview");
-    // You can make an API call here to update the applicant status to 'Proceed'
   };
 
   const handleReject = async (applicant_uuid) => {
-    // console.log("Rejecting applicant with UUID:", applicant_uuid);
     const action = "rejected at Screening";
-
     const payload = {
       applicant_uuid: applicant_uuid,
       action,
     };
 
-    // console.log("Payload for rejection:", payload);
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API}/updatestatus`,
@@ -193,26 +190,7 @@ function DirectNew() {
         <Row>
           <Col>
             <Table striped>
-              <thead>
-                <tr>
-                  {[
-                    "SC.NO",
-                    "Name",
-                    "Phone",
-                    "Referred By",
-                    "Reference NTID",
-                    "Created At",
-                    "Action",
-                  ].map((header, index) => (
-                    <th
-                      key={index}
-                      style={{ backgroundColor: "#E10174", color: "white" }}
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+              <TableHead headData={TabaleHeaders} />
               <tbody>
                 {uniqueApplicants.length > 0 ? (
                   uniqueApplicants.map((profile, index) => (
