@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import  { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import { Modal, Dropdown, Form, Container, Row, Col, Table } from "react-bootstrap";
 import DatePicker from "react-datepicker";
@@ -10,6 +10,17 @@ import ConfirmationModal from "../pages/Confirm";
 import Loader from "../utils/Loader";
 import { MyContext } from "../pages/MyContext";
 import API_URL from "../Constants/ApiUrl";
+import TableHead from "../utils/TableHead";
+
+ const tableHeaders = [
+  "SC.NO",
+  "Name",
+  "Phone",
+  "Referred By",
+  "Reference NTID",
+  "Created At",
+  "Action", 
+];  
 
 function New() {
   const [profiles, setProfiles] = useState([]);
@@ -38,13 +49,7 @@ function New() {
   const { userData, isLoading: userDataLoading } = useContext(MyContext);
 
   const hasFetchedData = useRef(false);
-
- 
-
   useEffect(() => {
-    console.log("userData:", userData);
-    console.log("userDataLoading:", userDataLoading);
-
     if (userDataLoading) {
       return;
     }
@@ -123,7 +128,6 @@ function New() {
   };
 
   const handleShowModal = (profile) => {
-    console.log("handleShowModal called with profile:", profile);
     setSelectedProfile(profile);
     if (!profile.applicant_email) {
       setShowEmailModal(true);
@@ -170,7 +174,6 @@ function New() {
       action: actionToPerform,
       comments: comment || "No comment provided",
     };
-    console.log("Sending payload to /updatestatus:", payload);
 
     try {
       const response = await axios.post(`${API_URL}/updatestatus`, payload, {
@@ -178,7 +181,6 @@ function New() {
         timeout: 5000,
       });
 
-      console.log("API response:", response.data);
       if (response.status === 200) {
         toast.success(response.data.message);
         setTimeout(() => window.location.reload(), 1500);
@@ -364,26 +366,7 @@ function New() {
         <Col>
           <div className="table-responsive">
             <Table striped bordered hover className="text-sm">
-              <thead>
-                <tr>
-                  {[
-                    "SC.NO",
-                    "Name",
-                    "Phone",
-                    "Referred By",
-                    "Reference NTID",
-                    "Created At",
-                    "Action",
-                  ].map((header, index) => (
-                    <th
-                      key={index}
-                      style={{ backgroundColor: "#E10174", color: "white" }}
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+             <TableHead headData={tableHeaders} />
               <tbody>
                 {sortedProfiles.length > 0 ? (
                   sortedProfiles.map((profile, index) => (
@@ -632,7 +615,6 @@ function New() {
         handleConfirm={handleDateTimeSave}
         message="Have you scheduled the interview in the calendar? Please confirm before submitting."
       />
-
       <ToastContainer />
     </Container>
   );

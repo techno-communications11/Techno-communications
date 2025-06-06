@@ -4,7 +4,7 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import { Modal, Form } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
-import "../Adminpages/Styles/ModalStyles.css";
+import "../Styles/ModalStyles.css";
 import Pagination from "@mui/material/Pagination";
 import { IoIosArrowDown } from "react-icons/io";
 

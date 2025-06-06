@@ -1,13 +1,17 @@
-import React, { useState, useRef } from "react";
-import Button from "../utils/Button";
+import  { useState, useRef } from "react";
 import Form from "react-bootstrap/Form";
-import Dropdown from "react-bootstrap/Dropdown";
 import axios from "axios";
 import Swal from "sweetalert2";
 import SanitizePhoneNumber from "../utils/SanitizePhoneNumber";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import useFetchMarkets from "../Hooks/useFetchMarkets";
+import { FaUser, FaPhone, FaIdCard } from "react-icons/fa";
+
+import InputField from "../utils/InputField";
+import MarketDropdown from "../utils/MarketDropdown";
+import SubmitButton from "../utils/SubmitButton";
+
 
 function Screening() {
   const [error, setError] = useState("");
@@ -21,6 +25,7 @@ function Screening() {
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const { userData } = useContext(MyContext);
   const { markets } = useFetchMarkets();
+    const [formErrors, setFormErrors] = useState({});
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -53,7 +58,7 @@ function Screening() {
         sourcedBy: userData.name, // Directly assign the userData.name here
       };
 
-      const response = await axios.post(`${apiUrl}/submit`, formData, {
+      const response = await axios.post(`${apiUrl}/submit-public-form`, formData, {
         withCredentials: true,
       });
 
@@ -105,91 +110,57 @@ function Screening() {
               Register Candidate
             </h3>
 
-            <Form.Group className="mb-3" controlId="formBasicName">
-              <Form.Control
-                className="shadow-none border"
-                ref={nameRef}
-                type="text"
-                placeholder="Name"
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Control
-                ref={emailRef}
-                className="shadow-none border"
-                type="email"
-                placeholder="Email"
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formBasicPhone">
-              <Form.Control
-                ref={phoneRef}
-                className="shadow-none border"
-                type="tel"
-                placeholder="Phone Number"
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formBasicReferredBy">
-              <Form.Control
-                ref={referredByRef}
-                className="shadow-none border"
-                type="text"
-                placeholder="Referred By"
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formBasicReferenceNtid">
-              <Form.Control
-                ref={referenceNtidRef}
-                className="shadow-none border"
-                type="text"
-                placeholder="Reference NTID"
-              />
-            </Form.Group>
-
-            <Form.Group
-              className="mb-3 border-secondary"
-              controlId="formBasicMarket"
-            >
-              <Dropdown onSelect={handleSelectMarket}>
-                <Dropdown.Toggle
-                  className="w-100 bg-transparent text-dark border-secondary text-start text-secondary"
-                  id="dropdown-basic"
-                >
-                  {selectedMarket || "Select Market"}
-                </Dropdown.Toggle>
-                <Dropdown.Menu
-                  className="w-100 overflow-auto "
-                  style={{ height: "15rem" }}
-                >
-                  {markets
-                    .sort((a, b) =>
-                      (a.markets || "").localeCompare(b.markets || "")
-                    )
-                    .map((market, index) => (
-                      <Dropdown.Item
-                        key={market.location_name || index}
-                        eventKey={market.location_name}
-                        className="text-capitalize shadow "
-                      >
-                        {market.location_name.toLowerCase()}
-                      </Dropdown.Item>
-                    ))}
-                </Dropdown.Menu>
-              </Dropdown>
-            </Form.Group>
-
-            <Button
-              label={"Submit"}
-              variant="btn-primary w-100"
-              type="submit"
+            <InputField
+              icon={FaUser}
+              refProp={nameRef}
+              placeholder="Name"
+              error={formErrors.name}
+              onChange={() => handleInputChange("name")}
             />
+
+            <InputField
+              icon={FaUser}
+              refProp={emailRef}
+              placeholder="Email"
+              error={formErrors.email}
+              onChange={() => handleInputChange("email")}
+            />
+
+            
+
+            <InputField
+              icon={FaPhone}
+              refProp={phoneRef}
+              type="tel"
+              placeholder="Phone Number"
+              error={formErrors.phone}
+              onChange={() => handleInputChange("phone")}
+            />
+
+            <InputField
+              icon={FaUser}
+              refProp={referredByRef}
+              placeholder="Referred By"
+              error={formErrors.referredBy}
+              onChange={() => handleInputChange("referredBy")}
+            />
+
+            <InputField
+              icon={FaIdCard}
+              refProp={referenceNtidRef}
+              placeholder="Reference NTID (optional)"
+            />
+
+            <Form.Group className="mb-3">
+              <MarketDropdown
+                selectedMarket={selectedMarket}
+                handleSelectMarket={handleSelectMarket}
+                markets={markets}
+                formErrors={formErrors}
+              />
+            </Form.Group>
+
+            <SubmitButton loading={loading} />
             <div className="text-danger mt-3">{error}</div>
           </Form>
         </div>

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Form, Container, Row, Col, Table, Modal } from "react-bootstrap";
 import { Button } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../pages/loader.css";
+import "../Styles/Loader.css"; // Import your custom styles
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
@@ -12,7 +12,15 @@ import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import TableHead from "../utils/TableHead";
 
-const TabaleHeaders=["SC.NO", "Name", "Phone", "Referred By", "Reference NTID", "Created At", "Action"];
+const TabaleHeaders = [
+  "SC.NO",
+  "Name",
+  "Phone",
+  "Referred By",
+  "Reference NTID",
+  "Created At",
+  "Action",
+];
 function DirectNew() {
   let userData = useContext(MyContext);
   const [profiles, setProfiles] = useState([]);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Table, Button, Modal, Form, Alert, InputGroup, FormControl, Col } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
-import '../pages/loader.css';
+import '../Styles/Loader.css'; // Import your custom styles
 import { useContext } from 'react';
 import { MyContext } from '../pages/MyContext';
 

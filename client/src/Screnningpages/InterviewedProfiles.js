@@ -13,6 +13,109 @@ import ConfirmationModal from "../pages/Confirm";
 import TextField from "@mui/material/TextField";
 import { MyContext } from "../pages/MyContext";
 import Loader from "../utils/Loader";
+import formatKey  from "../utils/formatKey"; // Assuming you have a utility function for formatting keys
+
+const deriveCategory = (status) => {
+  if (!status) return "Unknown";
+  const statusLower = status.toLowerCase();
+  if (
+    [
+      "pending at screening",
+      "no show at screening",
+      "rejected at screening",
+      "not interested at screening",
+    ].includes(statusLower)
+  )
+    return "Screening";
+  if (
+    [
+      "moved to interview",
+      "no show at interview",
+      "rejected at interview",
+      "selected at interview",
+      "need second opinion at interview",
+      "put on hold at interview",
+    ].includes(statusLower)
+  )
+    return "Interview";
+  if (
+    [
+      "no show at hr",
+      "moved to hr",
+      "selected at hr",
+      "rejected at hr",
+      "sent for evaluation",
+      "applicant will think about it",
+    ].includes(statusLower)
+  )
+    return "HR";
+  return "Unknown";
+};
+
+const getButtonStyle = (status) => ({
+  backgroundColor:
+    {
+      "pending at Screening": "#FFA500",
+      "no show at Screening": "#ff0000",
+      "no show at Interview": "#ff0000",
+      "no show at Hr": "#ff0000",
+      "rejected at Screening": "red",
+      "rejected at Interview": "red",
+      "rejected at Hr": "red",
+      "moved to Interview": "#32CD32",
+      "selected at Interview": "#32CD32",
+      "selected at Hr": "#32CD32",
+      "Sent for Evaluation": "#4682B4",
+      "need second opinion at Interview": "#FFD700",
+      "put on hold at Interview": "#6A5ACD",
+      "Applicant will think about It": "#DAA520",
+      "Not Interested at screening": "#A9A9A9",
+    }[status] || "#808080",
+  color: ["need second opinion at Interview"].includes(status)
+    ? "black"
+    : "white",
+  padding: "6px 12px",
+  borderRadius: "4px",
+});
+
+const getStatusOptions = (category) => {
+  const options =
+    {
+      Screening: [
+        "pending at Screening",
+        "no show at Screening",
+        "rejected at Screening",
+        "Not Interested at screening",
+      ],
+      Interview: [
+        "moved to Interview",
+        "no show at Interview",
+        "rejected at Interview",
+        "selected at Interview",
+        "need second opinion at Interview",
+        "put on hold at Interview",
+      ],
+      HR: [
+        "no show at Hr",
+        "Moved to HR",
+        "selected at Hr",
+        "rejected at Hr",
+        "Sent for Evaluation",
+        "Applicant will think about It",
+      ],
+    }[category] || [];
+  return options;
+};
+
+const actionableStatuses = {
+  hr: [
+    "need second opinion at Interview",
+    "selected at Interview",
+    "no show at Hr",
+    "put on hold at Interview",
+  ],
+  interviewer: ["no show at Screening", "no show at Interview"],
+};
 
 
 
@@ -43,26 +146,30 @@ export default function InterviewedProfiles() {
       setError("User data not available. Please log in.");
       return;
     }
-
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        const [profilesResponse, hrsResponse, interviewersResponse] = await Promise.all([
-          axios.get(`${apiurl}/users/${userData.id}/applicantsatalllevel`, {
-            withCredentials: true,
-            timeout: 5000,
-          }),
-          axios.get(`${apiurl}/hrs`, { withCredentials: true, timeout: 5000 }),
-          axios.get(`${apiurl}/interviewer`, { withCredentials: true, timeout: 5000 }),
-        ]);
+        const [profilesResponse, hrsResponse, interviewersResponse] =
+          await Promise.all([
+            axios.get(`${apiurl}/users/${userData.id}/applicantsatalllevel`, {
+              withCredentials: true,
+              timeout: 5000,
+            }),
+            axios.get(`${apiurl}/hrs`, {
+              withCredentials: true,
+              timeout: 5000,
+            }),
+            axios.get(`${apiurl}/interviewer`, {
+              withCredentials: true,
+              timeout: 5000,
+            }),
+          ]);
 
         const profileData = profilesResponse.data || [];
-        // Derive category if not present in the API response
-        const enrichedProfiles = profileData.map(profile => ({
+        const enrichedProfiles = profileData.map((profile) => ({
           ...profile,
           category: deriveCategory(profile.status),
         }));
-        console.log("Fetched profiles:", enrichedProfiles);
         setProfiles(enrichedProfiles);
         setFilteredProfiles(enrichedProfiles);
         setHrs(hrsResponse.data || []);
@@ -79,48 +186,22 @@ export default function InterviewedProfiles() {
     fetchInitialData();
   }, [apiurl, userData?.id]);
 
-  useEffect(() => {
-    console.log("Filtered profiles:", filteredProfiles);
-  }, [filteredProfiles]);
-
-  // Derive category based on status if not provided by the API
-  const deriveCategory = (status) => {
-    if (!status) return "Unknown";
-    const statusLower = status.toLowerCase();
-    if ([
-      "pending at screening",
-      "no show at screening",
-      "rejected at screening",
-      "not interested at screening",
-    ].includes(statusLower)) return "Screening";
-    if ([
-      "moved to interview",
-      "no show at interview",
-      "rejected at interview",
-      "selected at interview",
-      "need second opinion at interview",
-      "put on hold at interview",
-    ].includes(statusLower)) return "Interview";
-    if ([
-      "no show at hr",
-      "moved to hr",
-      "selected at hr",
-      "rejected at hr",
-      "sent for evaluation",
-      "applicant will think about it",
-    ].includes(statusLower)) return "HR";
-    return "Unknown";
-  };
-
   const fetchResponse = async (applicantId) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${apiurl}/first_round_res/${applicantId}`, {
-        withCredentials: true,
-        timeout: 5000,
-      });
+      const response = await axios.get(
+        `${apiurl}/first_round_res/${applicantId}`,
+        {
+          withCredentials: true,
+          timeout: 5000,
+        }
+      );
 
-      if (response.status === 200 && Array.isArray(response.data) && response.data.length > 0) {
+      if (
+        response.status === 200 &&
+        Array.isArray(response.data) &&
+        response.data.length > 0
+      ) {
         setFirstRound(response.data[0]);
         setRow(response.data[0]);
         setShowMoreModal(true);
@@ -133,27 +214,28 @@ export default function InterviewedProfiles() {
       console.error("Error fetching response:", error);
       setFirstRound({ message: "No previous records found" });
       setRow(null);
-      toast.error(error.response?.data?.message || "No previous records found.");
+      toast.error(
+        error.response?.data?.message || "No previous records found."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleFilterApply = (status) => {
-    console.log("Applying filter - Category:", selectedCategory, "Status:", status);
     setSelectedStatus(status);
     let filtered = profiles;
     if (selectedCategory) {
-      filtered = filtered.filter((profile) => 
-        profile.category?.toLowerCase() === selectedCategory.toLowerCase()
+      filtered = filtered.filter(
+        (profile) =>
+          profile.category?.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
     if (status) {
-      filtered = filtered.filter((profile) => 
-        profile.status?.toLowerCase() === status.toLowerCase()
+      filtered = filtered.filter(
+        (profile) => profile.status?.toLowerCase() === status.toLowerCase()
       );
     }
-    console.log("Filtered profiles:", filtered);
     setFilteredProfiles(filtered);
   };
 
@@ -161,6 +243,42 @@ export default function InterviewedProfiles() {
     setSelectedProfile(profile);
     setShowModal(true);
   };
+
+  const columns = [
+  { field: "applicant_name", headerName: "Name", width: 130 },
+  { field: "applicant_phone", headerName: "Phone", width: 150 },
+  { field: "created_at", headerName: "Created At", width: 200 },
+  { field: "applicant_uuid", headerName: "UUID", width: 100 },
+  { field: "applicant_email", headerName: "Email", width: 200 },
+  {
+    field: "status",
+    headerName: "Action",
+    width: 300,
+    renderCell: (params) => (
+      <Button
+        style={getButtonStyle(params.value)}
+        onClick={() => handleShowModal(params.row)}
+        disabled={loading}
+      >
+        {params.value || "Unknown"}
+      </Button>
+    ),
+  },
+  {
+    field: "button",
+    headerName: "View",
+    width: 150,
+    renderCell: (params) => (
+      <Button
+        variant="contained"
+        onClick={() => fetchResponse(params.row.applicant_uuid)}
+        disabled={loading}
+      >
+        View
+      </Button>
+    ),
+  },
+];
 
   const handleCloseModal = () => {
     setSelectedProfile(null);
@@ -174,8 +292,9 @@ export default function InterviewedProfiles() {
   };
 
   const handleSelectHost = (eventKey) => {
-    const selected = hrs.find((hr) => hr.name === eventKey) || 
-                    interviewers.find((interviewer) => interviewer.name === eventKey);
+    const selected =
+      hrs.find((hr) => hr.name === eventKey) ||
+      interviewers.find((interviewer) => interviewer.name === eventKey);
     if (!selected || !selected.email) {
       toast.error("Selected host does not have a valid email.");
       return;
@@ -214,14 +333,21 @@ export default function InterviewedProfiles() {
     setLoading(true);
     try {
       const isHr = hrs.some((hr) => hr.name === selectedHost.name);
-      const url = isHr ? `${apiurl}/assigntohr` : `${apiurl}/assign-interviewer`;
+      const url = isHr
+        ? `${apiurl}/assigntohr`
+        : `${apiurl}/assign-interviewer`;
       const payload = {
         applicant_uuid: selectedProfile.applicant_uuid,
         ...(isHr
-          ? { hr_id: selectedHost.id, time_of_hrinterview: selectedDateTime.toISOString() }
-          : { interviewer_id: selectedHost.id, time_of_interview: selectedDateTime.toISOString() }),
+          ? {
+              hr_id: selectedHost.id,
+              time_of_hrinterview: selectedDateTime.toISOString(),
+            }
+          : {
+              interviewer_id: selectedHost.id,
+              time_of_interview: selectedDateTime.toISOString(),
+            }),
       };
-      console.log("Saving assignment - Payload:", payload, "URL:", url);
 
       const response = await axios.post(url, payload, {
         withCredentials: true,
@@ -233,56 +359,17 @@ export default function InterviewedProfiles() {
       }
     } catch (error) {
       console.error("Error scheduling interview:", error);
-      toast.error(error.response?.data?.message || "Error scheduling interview.");
+      toast.error(
+        error.response?.data?.message || "Error scheduling interview."
+      );
     } finally {
       setLoading(false);
       handleCloseModal();
     }
   };
 
-  const columns = [
-    { field: "applicant_name", headerName: "Name", width: 130 },
-    { field: "applicant_phone", headerName: "Phone", width: 150 },
-    { field: "created_at", headerName: "Created At", width: 200 },
-    { field: "applicant_uuid", headerName: "UUID", width: 100 },
-    { field: "applicant_email", headerName: "Email", width: 200 },
-    {
-      field: "status",
-      headerName: "Action",
-      width: 300,
-      renderCell: (params) => (
-        <Button
-          style={getButtonStyle(params.value)}
-          onClick={() => handleShowModal(params.row)}
-          disabled={loading}
-        >
-          {params.value || "Unknown"}
-        </Button>
-      ),
-    },
-    {
-      field: "button",
-      headerName: "View",
-      width: 150,
-      renderCell: (params) => (
-        <Button
-          variant="contained"
-          onClick={() => fetchResponse(params.row.applicant_uuid)}
-          disabled={loading}
-        >
-          View
-        </Button>
-      ),
-    },
-  ];
-
   const renderModalContent = () => {
     if (!selectedProfile) return <p>No profile selected.</p>;
-
-    const actionableStatuses = {
-      hr: ["need second opinion at Interview", "selected at Interview", "no show at Hr", "put on hold at Interview"],
-      interviewer: ["no show at Screening", "no show at Interview"],
-    };
 
     if (actionableStatuses.hr.includes(selectedProfile.status)) {
       return (
@@ -304,7 +391,9 @@ export default function InterviewedProfiles() {
                   <DateTimePicker
                     value={selectedDateTime}
                     onChange={setSelectedDateTime}
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    renderInput={(params) => (
+                      <TextField {...params} fullWidth />
+                    )}
                   />
                 </LocalizationProvider>
                 <Button
@@ -365,7 +454,9 @@ export default function InterviewedProfiles() {
                   <DateTimePicker
                     value={selectedDateTime}
                     onChange={setSelectedDateTime}
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    renderInput={(params) => (
+                      <TextField {...params} fullWidth />
+                    )}
                   />
                 </LocalizationProvider>
                 <Button
@@ -393,7 +484,10 @@ export default function InterviewedProfiles() {
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
                     {interviewers.map((interviewer) => (
-                      <Dropdown.Item key={interviewer.id} eventKey={interviewer.name}>
+                      <Dropdown.Item
+                        key={interviewer.id}
+                        eventKey={interviewer.name}
+                      >
                         {interviewer.name}
                       </Dropdown.Item>
                     ))}
@@ -409,63 +503,10 @@ export default function InterviewedProfiles() {
     return <p>No actions available for this status.</p>;
   };
 
-  const getButtonStyle = (status) => ({
-    backgroundColor: {
-      "pending at Screening": "#FFA500",
-      "no show at Screening": "#ff0000",
-      "no show at Interview": "#ff0000",
-      "no show at Hr": "#ff0000",
-      "rejected at Screening": "red",
-      "rejected at Interview": "red",
-      "rejected at Hr": "red",
-      "moved to Interview": "#32CD32",
-      "selected at Interview": "#32CD32",
-      "selected at Hr": "#32CD32",
-      "Sent for Evaluation": "#4682B4",
-      "need second opinion at Interview": "#FFD700",
-      "put on hold at Interview": "#6A5ACD",
-      "Applicant will think about It": "#DAA520",
-      "Not Interested at screening": "#A9A9A9",
-    }[status] || "#808080",
-    color: ["need second opinion at Interview"].includes(status) ? "black" : "white",
-    padding: "6px 12px",
-    borderRadius: "4px",
-  });
-
   const getRowId = (row) => row.applicant_id || row.applicant_uuid;
-
-  const getStatusOptions = (category) => {
-    const options = {
-      Screening: [
-        "pending at Screening",
-        "no show at Screening",
-        "rejected at Screening",
-        "Not Interested at screening",
-      ],
-      Interview: [
-        "moved to Interview",
-        "no show at Interview",
-        "rejected at Interview",
-        "selected at Interview",
-        "need second opinion at Interview",
-        "put on hold at Interview",
-      ],
-      HR: [
-        "no show at Hr",
-        "Moved to HR",
-        "selected at Hr",
-        "rejected at Hr",
-        "Sent for Evaluation",
-        "Applicant will think about It",
-      ],
-    }[category] || [];
-    console.log("Status options for", category, ":", options);
-    return options;
-  };
-
+  
   const handleCategoryChange = (e) => {
     const category = e.target.value;
-    console.log("Category changed:", category);
     setSelectedCategory(category);
     setSelectedStatus(""); // Reset status when category changes
     handleFilterApply(""); // Apply filter with no status to show all profiles in the category
@@ -478,7 +519,7 @@ export default function InterviewedProfiles() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <div className="container mt-4">
-        {loading && <Loader/>}
+        {loading && <Loader />}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <h5>Applicant Profiles</h5>
           <div className="d-flex align-items-center m-2">
@@ -548,7 +589,10 @@ export default function InterviewedProfiles() {
 
         <div style={{ height: 420, width: "100%" }}>
           <DataGrid
-            rows={filteredProfiles.map((profile) => ({ ...profile, button: "more" }))}
+            rows={filteredProfiles.map((profile) => ({
+              ...profile,
+              button: "more",
+            }))}
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}
@@ -570,10 +614,18 @@ export default function InterviewedProfiles() {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {loading ? <div className="text-center">Scheduling...</div> : renderModalContent()}
+            {loading ? (
+              <div className="text-center">Scheduling...</div>
+            ) : (
+              renderModalContent()
+            )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal} disabled={loading}>
+            <Button
+              variant="secondary"
+              onClick={handleCloseModal}
+              disabled={loading}
+            >
               Close
             </Button>
           </Modal.Footer>
@@ -587,7 +639,8 @@ export default function InterviewedProfiles() {
         >
           <Modal.Header closeButton>
             <Modal.Title>
-              Interview Results for Applicant UUID: {row?.applicant_uuid || "Unknown"}
+              Interview Results for Applicant UUID:{" "}
+              {row?.applicant_uuid || "Unknown"}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
@@ -611,7 +664,11 @@ export default function InterviewedProfiles() {
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal} disabled={loading}>
+            <Button
+              variant="secondary"
+              onClick={handleCloseModal}
+              disabled={loading}
+            >
               Close
             </Button>
           </Modal.Footer>
@@ -621,11 +678,4 @@ export default function InterviewedProfiles() {
       </div>
     </LocalizationProvider>
   );
-}
-
-function formatKey(key) {
-  return key
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
 }

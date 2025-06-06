@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Card, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import "../pages/loader.css";
+import "../Styles/Loader.css"; // Import your custom styles
 import getStatusCounts from "../pages/getStatusCounts";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";

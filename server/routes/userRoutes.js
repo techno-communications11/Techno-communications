@@ -54,7 +54,6 @@ const authMiddleware=require('../middleware/authMiddleware')
  const {getUser}=require('../controllers/getUser')
  const logout = require('../controllers/logout.js');
 
-// All routes below (no `io` passed)
 router.put('/hrevalution/:applicant_id', authMiddleware, updateform);
 router.put('/update-comment', authMiddleware, updateComment);
 router.get('/user/me', authMiddleware,getUser)
@@ -108,8 +107,7 @@ router.post('/contractsign', authMiddleware,ContractSign);
 router.get('/markets', getmarkets);
 router.get('/user-status',authMiddleware, getAllUsersStatus);
 
-// router.get('/testing', (req, res) => res.send('Test route is working!'));
-router.post('/submit',authMiddleware, createApplicantReferral);
+router.post('/submit-public-form', createApplicantReferral);
 router.post('/assigntohr',authMiddleware, assigningapplications.assignApplicanttohr);
 router.post('/assign-interviewer',authMiddleware, assigningapplications.assignApplicanttointerviewer);
 router.post('/assign-trainer',authMiddleware, assigningapplications.assigntoTrainer);
@@ -121,7 +119,6 @@ router.get("/getstatusnyphone/:mobileNumber",authMiddleware, getApplicantDetails
 router.get("/datadowload",authMiddleware, downloadApplicantsData);
 router.get("/getApplicantsForDirect/:userId",authMiddleware, getApplicantsForDirect);
 router.get("/directapplicants",authMiddleware, getWorkForLocDirect);
-// router.get('/test', (req, res) => res.send('Test route is working!'));
 router.post('/directform',authMiddleware, DirectReferal);
 router.get('/users/:userId/trainerapplicants',authMiddleware, getApplicationforTrainer);
 

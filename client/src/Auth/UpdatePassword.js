@@ -13,7 +13,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import API_URL from "../Constants/ApiUrl";
 import { useContext } from "react";
-import { MyContext } from "./MyContext";
+import { MyContext } from "../pages/MyContext";
 
 const UpdatePassword = () => {
   const { userData } = useContext(MyContext);

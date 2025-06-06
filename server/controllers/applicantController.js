@@ -12,7 +12,7 @@ const createApplicantReferral = async (req, res) => {
     const { name, email, phone, referred_by, reference_id, sourcedBy, work_location } = req.body;
     const currentYear = new Date().getFullYear();
     const uuid = generateShortID(name, phone, currentYear);
-    // console.log("Trying to submit..........", name, email, phone, referred_by, reference_id, work_location);
+    console.log("Trying to submit..........", name, phone, referred_by, reference_id, work_location);
 
     try {
         // Fetch the work location ID based on the location name

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import  { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MyContext } from "../pages/MyContext";
@@ -68,6 +68,7 @@ function AdminHrEdit() {
     setapplicant_uuid(profile.applicant_id); // If this is required
     navigate("/edit", { state: { profile } }); // Pass the full profile object in state
   };
+  
   if (loading) {
     return <Loader />; // Loading state
   }
