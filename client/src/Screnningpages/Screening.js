@@ -1,9 +1,8 @@
-import  { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 import Form from "react-bootstrap/Form";
 import axios from "axios";
 import Swal from "sweetalert2";
 import SanitizePhoneNumber from "../utils/SanitizePhoneNumber";
-import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import useFetchMarkets from "../Hooks/useFetchMarkets";
 import { FaUser, FaPhone, FaIdCard } from "react-icons/fa";
@@ -11,56 +10,73 @@ import { FaUser, FaPhone, FaIdCard } from "react-icons/fa";
 import InputField from "../utils/InputField";
 import MarketDropdown from "../utils/MarketDropdown";
 import SubmitButton from "../utils/SubmitButton";
-import { fi } from "date-fns/locale";
-
 
 function Screening() {
   const [error, setError] = useState("");
+  const [formErrors, setFormErrors] = useState({});
   const [selectedMarket, setSelectedMarket] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const nameRef = useRef();
   const emailRef = useRef();
   const phoneRef = useRef();
   const referredByRef = useRef();
   const referenceNtidRef = useRef();
+
   const apiUrl = process.env.REACT_APP_API;
-  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const { userData } = useContext(MyContext);
   const { markets } = useFetchMarkets();
-    const [formErrors, setFormErrors] = useState({});
-     const [loading, setLoading] = useState(false);
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const handleInputChange = (field) => {
+    setFormErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  const handleSelectMarket = (eventKey) => {
+    setSelectedMarket(eventKey);
+    setFormErrors((prev) => ({ ...prev, market: "" }));
+  };
 
   const handleSubmit = async (event) => {
-    setLoading(true); // Set loading to true when submission starts
     event.preventDefault();
     event.stopPropagation();
-    const nameValid = nameRef.current?.value.trim() !== "";
-    const emailValid = regexEmail.test(emailRef.current?.value);
-    const marketValid = selectedMarket !== "";
-    const referredByValid = referredByRef.current?.value.trim() !== "";
+    setLoading(true);
 
-    if (!nameValid || !emailValid || !marketValid || !referredByValid) {
-      setError("Please fill out all fields correctly.");
+    const name = nameRef.current?.value.trim();
+    const email = emailRef.current?.value;
+    const phone = phoneRef.current?.value;
+    const referredBy = referredByRef.current?.value.trim();
+    const referenceId = referenceNtidRef.current?.value;
+
+    const phoneNumber = SanitizePhoneNumber(phone);
+
+    const errors = {};
+    if (!name) errors.name = "Name is required.";
+    if (!regexEmail.test(email)) errors.email = "Invalid email format.";
+    if (!phoneNumber) errors.phone = "Phone must be 10 digits.";
+    if (!referredBy) errors.referredBy = "Referred By is required.";
+    if (!selectedMarket) errors.market = "Please select a market.";
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      setError("Please correct the highlighted errors.");
+      setLoading(false);
       return;
     }
-    const phoneNumber = SanitizePhoneNumber(phoneRef.current.value);
 
-    if (!phoneNumber) {
-      setError("Please enter a valid phone number with exactly 10 digits.");
-      return;
-    }
     setError("");
 
-    try {
-      const formData = {
-        name: nameRef.current.value,
-        email: emailRef.current.value,
-        phone: phoneNumber,
-        work_location: selectedMarket,
-        referred_by: referredByRef.current.value,
-        reference_id: referenceNtidRef.current.value,
-        sourcedBy: userData.name, // Directly assign the userData.name here
-      };
+    const formData = {
+      name,
+      email,
+      phone: phoneNumber,
+      work_location: selectedMarket,
+      referred_by: referredBy,
+      reference_id: referenceId,
+      sourcedBy: userData?.name || "Anonymous",
+    };
 
+    try {
       const response = await axios.post(`${apiUrl}/submit-public-form`, formData, {
         withCredentials: true,
       });
@@ -72,32 +88,28 @@ function Screening() {
           icon: "success",
         });
 
-        // Reset the form fields on successful submission
+        // Clear form fields
         nameRef.current.value = "";
         emailRef.current.value = "";
         phoneRef.current.value = "";
         referredByRef.current.value = "";
         referenceNtidRef.current.value = "";
         setSelectedMarket("");
+        setFormErrors({});
       } else {
         setError("Unexpected response status: " + response.status);
       }
-    } catch (error) {
-      console.error("Submission error:", error);
+    } catch (err) {
+      console.error("Submission error:", err);
       setError("Failed to submit data. Please try again later.");
     } finally {
-
-    setLoading(false); // Set loading to false when submission ends
+      setLoading(false);
     }
-  };
-
-  const handleSelectMarket = (eventKey) => {
-    setSelectedMarket(eventKey);
   };
 
   return (
     <div className="container-fluid d-flex justify-content-center align-items-center mt-4">
-      <div className="row  mx-5 rounded-3 mt-5">
+      <div className="row mx-5 rounded-3 mt-5">
         <div className="col-md-6 d-flex justify-content-center align-items-center">
           <img
             src="./registerUser.png"
@@ -109,10 +121,7 @@ function Screening() {
 
         <div className="col-md-6 border border-2 border-secondary shadow-lg">
           <Form className="bg-white p-4 rounded-3" onSubmit={handleSubmit}>
-            <h3
-              className="text-center mb-4 fw-bold"
-              style={{ color: "#E10174" }}
-            >
+            <h3 className="text-center mb-4 fw-bold" style={{ color: "#E10174" }}>
               Register Candidate
             </h3>
 
@@ -131,8 +140,6 @@ function Screening() {
               error={formErrors.email}
               onChange={() => handleInputChange("email")}
             />
-
-            
 
             <InputField
               icon={FaPhone}
