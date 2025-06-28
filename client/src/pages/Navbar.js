@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -17,7 +17,6 @@ function AppNavbar() {
   const [counts, setCounts] = useState(0);
   const [error, setError] = useState(null);
 
-  // Define role-based routes for reusability
   const roleRoutes = {
     interviewer: "/InterviewerDashboard",
     direct_hiring: "/directHiring",
@@ -30,13 +29,11 @@ function AppNavbar() {
 
   const handleLogout = async () => {
     try {
-      // Make logout API call to clear server-side session/cookie
       await axios.post(
         `${apiurl}/logout`,
         {},
         { withCredentials: true }
       );
-      // Clear client-side authentication state
       setIsAuthenticated(false);
       navigate("/");
     } catch (error) {
@@ -44,6 +41,7 @@ function AppNavbar() {
       setError("Failed to log out. Please try again.");
     }
   };
+
 
   useEffect(() => {
     const fetchCounts = async () => {

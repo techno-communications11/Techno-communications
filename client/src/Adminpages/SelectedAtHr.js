@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
+import  { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -28,8 +28,8 @@ import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import { debounce } from "lodash";
 import { FixedSizeList } from "react-window";
-import MarketSelector from "./MarketSelector";
-import DateFilter from "./DateFilter";
+import MarketSelector from "../utils/MarketSelector";
+import DateFilter from "../utils/DateFilter";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
@@ -46,6 +46,7 @@ const useFilters = (
   selectedTab,
   candidateFilter
 ) => {
+   
   const filteredData = useMemo(() => {
     if (!data) return [];
     let updatedData = data;
@@ -156,6 +157,7 @@ const Filters = memo(
     joiningDateFilter,
     setJoiningDateFilter,
     onDownload,
+    markets = [],
   }) => (
     <Row className="d-flex justify-content-between mt-2 mb-2">
       <Col className="col-md-4 d-flex align-items-end">
@@ -169,6 +171,7 @@ const Filters = memo(
                 setIsAllSelected={setIsAllSelected}
                 setMarketFilter={setMarketFilter}
                 text="Select Market"
+                markets={markets}
               />
             </div>
             <Button className="btn btn-success" onClick={onDownload}>
@@ -989,6 +992,8 @@ function SelectedAtHr({
           : 0
       );
   }, [filteredData]);
+  const marketsdata = uniqdata.map((row) => row.MarketHiringFor);
+  const uniqdataMarkets = [...new Set(marketsdata)];
 
   const open = Boolean(anchorEl);
 
@@ -1010,6 +1015,7 @@ function SelectedAtHr({
         joiningDateFilter={joiningDateFilter}
         setJoiningDateFilter={setJoiningDateFilter}
         onDownload={downloadAsExcel}
+        markets={uniqdataMarkets}
       />
 
       {data === null ? (

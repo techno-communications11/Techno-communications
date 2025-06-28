@@ -11,6 +11,7 @@ import { FaUser, FaPhone, FaIdCard } from "react-icons/fa";
 import InputField from "../utils/InputField";
 import MarketDropdown from "../utils/MarketDropdown";
 import SubmitButton from "../utils/SubmitButton";
+import { fi } from "date-fns/locale";
 
 
 function Screening() {
@@ -26,8 +27,10 @@ function Screening() {
   const { userData } = useContext(MyContext);
   const { markets } = useFetchMarkets();
     const [formErrors, setFormErrors] = useState({});
+     const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
+    setLoading(true); // Set loading to true when submission starts
     event.preventDefault();
     event.stopPropagation();
     const nameValid = nameRef.current?.value.trim() !== "";
@@ -82,6 +85,9 @@ function Screening() {
     } catch (error) {
       console.error("Submission error:", error);
       setError("Failed to submit data. Please try again later.");
+    } finally {
+
+    setLoading(false); // Set loading to false when submission ends
     }
   };
 

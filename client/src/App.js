@@ -20,7 +20,7 @@ import Listprofile from "./Screnningpages/Screening";
 import Hrinterview from "./HrRound/Hrinterview";
 import ApplicantForm from "./InterviewRound/interviewForm";
 import "./App.css";
-import ScreeningHome from "./Screnningpages/Shome";
+import ScreeningHome from "./Screnningpages/ScreeningHome";
 import "react-toastify/dist/ReactToastify.css";
 import CenteredTabs from "./Screnningpages/Tabs";
 import HrTabs from "./HrRound/HrTabs";
@@ -67,6 +67,7 @@ function AppComponent() {
     normalizedPath !== "/" &&
     normalizedPath !== "/memphis" &&
     normalizedPath !== "/login";
+    
 
   return (
     <div className="App">

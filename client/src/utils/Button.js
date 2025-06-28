@@ -2,7 +2,7 @@ function Button({ label, onClick, variant, icon, disabled, type = "button",code,
   return (
     <button
       onClick={onClick}
-      className={`btn ${variant} text-white flex items-center gap-2`}
+      className={`btn ${variant}  flex text-white items-center gap-2`}
       type={type}
       disabled={disabled}
       style={{backgroundColor:code}}

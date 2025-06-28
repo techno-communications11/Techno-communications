@@ -1,259 +1,22 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  Paper,
-} from "@mui/material";
-import { Form, Col, Row, Container } from "react-bootstrap";
-import { Dropdown } from "react-bootstrap";
-import Pagination from "@mui/material/Pagination";
-import Stack from "@mui/material/Stack";
+import { useState, useEffect } from "react";
+import { Typography } from "@mui/material";
 import * as XLSX from "xlsx";
 import dayjs from "dayjs";
 import axios from "axios";
-import MarketSelector from "./MarketSelector";
-import DateFilter from "./DateFilter";
+import DateFilter from "../utils/DateFilter";
 import Loader from "../utils/Loader";
 import API_URL from "../Constants/ApiUrl";
-import TableHead from "../utils/TableHead";
-import Button from "../utils/Button";
-
-const TableHeaders = [
-  "SI.No",
-  "Created At",
-  "Applicant Name",
-  "Referred by",
-  "Reference ids",
-  "Work Location",
-  "Screening Manager",
-  "Interviewer",
-  "HR Name",
-  "Status",
-  "Joining Date",
-];
-
-// FilterControls Component
-const FilterControls = ({
-  selectedMarkets,
-  setSelectedMarkets,
-  selectedUsers,
-  setSelectedUsers,
-  selectedGroupStatus,
-  setSelectedGroupStatus,
-  setSelectedStatus,
-  dateRange,
-  setDateRange,
+import ProfileTable from "./DetailedViewComponents/ProfileTable";
+import Sidebar from "./DetailedViewComponents/Sidebar";
+import {
   users,
   groupStatus,
   statusMap,
-  isAllSelected,
-  setIsAllSelected,
-  setMarketFilter,
-}) => {
-  const handleUserChange = (event, user) => {
-    const { checked } = event.target;
-    if (checked) {
-      setSelectedUsers((prev) => [...prev, { value: user, label: user }]);
-    } else {
-      setSelectedUsers((prev) =>
-        prev.filter((selected) => selected.value !== user)
-      );
-    }
-  };
+  statusOrder,
+} from "../Constants/DetailedViewConstants";
+import NoProfilesFound from "../utils/NoProfilesFound";
+import ReadyToSearch from "../utils/ReadyToSearch";
 
-  const handleFilterApply = (status) => {
-    setSelectedGroupStatus(status);
-    const relatedStatuses = statusMap[status] || [];
-    setSelectedStatus(relatedStatuses);
-  };
-
-  return (
-    <div className="d-flex flex-wrap align-items-center gap-5 p-3 bg-white border rounded shadow-sm ">
-      {/* Market Selector */}
-      <div className="flex-grow-1" style={{ minWidth: "250px" }}>
-        <MarketSelector
-          isAllSelected={isAllSelected}
-          selectedMarket={selectedMarkets}
-          setIsAllSelected={setIsAllSelected}
-          setSelectedMarket={setSelectedMarkets}
-          setMarketFilter={setMarketFilter}
-          text="Select Market"
-        />
-      </div>
-
-      {/* Users Dropdown */}
-      <div className="flex-grow-1" style={{ minWidth: "250px" }}>
-        <Dropdown as="div" className="w-100">
-          <Dropdown.Toggle
-            as="button"
-            className="btn btn-light w-100 d-flex justify-content-between align-items-center text-start"
-            id="dropdown-user"
-          >
-            <span className="text-truncate">
-              {selectedUsers.length > 0
-                ? `${selectedUsers.length} User${
-                    selectedUsers.length > 1 ? "s" : ""
-                  } Selected`
-                : "Select Users"}
-            </span>
-            <i
-              className="fas fa-chevron-down ms-2 text-muted"
-              style={{ fontSize: "0.75rem" }}
-            />
-          </Dropdown.Toggle>
-          <Dropdown.Menu className="w-100 mt-1 shadow border">
-            <div className="px-3 py-2 fw-bold border-bottom">
-              Select User(s)
-            </div>
-            {users.map((user) => (
-              <div key={user} className="px-3 py-1">
-                <Form.Check
-                  type="checkbox"
-                  id={`user-${user.replace(/\s+/g, "-").toLowerCase()}`}
-                  label={user}
-                  value={user}
-                  checked={selectedUsers.some(
-                    (selected) => selected.value === user
-                  )}
-                  onChange={(e) => handleUserChange(e, user)}
-                />
-              </div>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-
-      {/* Status Dropdown */}
-      <div className="flex-grow-1" style={{ minWidth: "200px" }}>
-        <select
-          className="form-select"
-          value={selectedGroupStatus}
-          onChange={(e) => handleFilterApply(e.target.value)}
-        >
-          <option value="">Status</option>
-          {groupStatus.map((status, index) => (
-            <option key={index} value={status}>
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Date Filter */}
-      <div className="flex-grow-1" style={{ minWidth: "200px" }}>
-        <DateFilter
-          dateFilter={dateRange}
-          setDateFilter={setDateRange}
-          className="w-100"
-        />
-      </div>
-    </div>
-  );
-};
-
-// ProfileCountCard Component
-const ProfileCountCard = ({ profileCount, onDownload }) => (
-  <Row className="mb-4 align-items-center justify-content-between g-3 mt-2">
-    {/* Left side: Profile Count */}
-    <Col xs="auto" className="d-flex align-items-center">
-      <span className="fs-5 fw-bold text-primary">
-        Total profiles: <span className="text-dark">{profileCount}</span>
-      </span>
-    </Col>
-
-    {/* Right side: Download Button */}
-    <Col xs="auto">
-      <Button
-        variant="btn-primary"
-        onClick={onDownload}
-        label={"Download Data"}
-      />
-    </Col>
-  </Row>
-);
-
-const ProfileTable = ({ profiles, serialNumberStart }) => {
-  let serialNumber = serialNumberStart;
-
-  return (
-    <TableContainer
-      component={Paper}
-      className="w-full shadow-lg rounded-lg max-h-[600px] overflow-y-auto"
-    >
-      <Table stickyHeader className="table-sm">
-        <TableHead headData={TableHeaders} />
-        <TableBody>
-          {profiles.map((profile, index) => (
-            <TableRow key={index} className="hover:bg-gray-50">
-              <TableCell className="text-center">{serialNumber++}</TableCell>
-              <TableCell className="text-center">
-                {profile.created_at_date
-                  ? dayjs(profile.created_at_date).format("YYYY-MM-DD")
-                  : "N/A"}
-              </TableCell>
-              <TableCell>
-                <Box className="flex">
-                  <Box className="ml-2">
-                    <Typography className="font-bold">
-                      {profile.applicant_name || "N/A"}
-                    </Typography>
-                    <Typography className="text-gray-500">
-                      {profile.applicant_phone}
-                    </Typography>
-                  </Box>
-                </Box>
-              </TableCell>
-              <TableCell className="text-center">
-                {profile.applicant_referred_by || "N/A"}
-              </TableCell>
-              <TableCell className="text-center">
-                {profile.applicant_reference_id || "N/A"}
-              </TableCell>
-              <TableCell className="text-center">
-                {profile.work_location_name || "N/A"}
-              </TableCell>
-              <TableCell className="text-center">
-                {profile.screening_manager_name || "N/A"}
-              </TableCell>
-              <TableCell className="text-center">
-                {profile.interviewer_name || "N/A"}
-              </TableCell>
-              <TableCell className="text-center">
-                {profile.hr_name || "N/A"}
-              </TableCell>
-              <TableCell className="text-center">
-                {profile.status || "N/A"}
-              </TableCell>
-              <TableCell className="text-center">
-                {profile.joining_date || "N/A"}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-};
-
-// PaginationControls Component
-const PaginationControls = ({ pageCount, currentPage, onPageChange }) => (
-  <Stack spacing={2} className="mt-6 d-flex justify-center">
-    <Pagination
-      count={pageCount}
-      page={currentPage}
-      onChange={onPageChange}
-      color="primary"
-      className="flex justify-center"
-    />
-  </Stack>
-);
-
-// Main DetailedView Component
 const DetailedView = () => {
   const [selectedMarkets, setSelectedMarkets] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -266,88 +29,8 @@ const DetailedView = () => {
   const [selectedGroupStatus, setSelectedGroupStatus] = useState("");
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [isAllSelected, setIsAllSelected] = useState(false);
-  const profilesPerPage = 100;
-
-  const users = [
-    "Alishba Ahmed",
-    "ALISHA PADANIYA",
-    "Roshan Interview",
-    "Roshan Screening",
-    "Roshan Shaikh",
-    "Bilal Interview",
-    "Qamar Shahzad",
-    "Shafaque Qureshi",
-    "Sultan Interview",
-    "Shoaib",
-    "Kamaran Mohammed",
-  ];
-
-  const groupStatus = [
-    "Rejected",
-    "Pending",
-    "pending at Screening",
-    "1st Round - Pending",
-    "HR Round - Pending",
-    "Pending at NTID",
-    "NTID Created",
-  ];
-
-  const statusMap = {
-    Pending: [
-      "pending at Screening",
-      "moved to Interview",
-      "put on hold at Interview",
-      "selected at Interview",
-      "Recommended For Hiring",
-      "Sent for Evaluation",
-      "need second opinion at Interview",
-      "Applicant will think about It",
-      "Moved to HR",
-      "selected at Hr",
-      "Store Evaluation",
-      "Spanish Evaluation",
-    ],
-    Rejected: [
-      "rejected at Screening",
-      "no show at Screening",
-      "Not Interested at screening",
-      "rejected at Interview",
-      "no show at Interview",
-      "no show at Hr",
-      "Not Recommended For Hiring",
-      "backOut",
-      "rejected at Hr",
-    ],
-    "pending at Screening": ["pending at Screening"],
-    "1st Round - Pending": ["moved to Interview", "put on hold at Interview"],
-    "HR Round - Pending": [
-      "selected at Interview",
-      "Sent for Evaluation",
-      "need second opinion at Interview",
-      "Applicant will think about It",
-      "Moved to HR",
-      "Recommended For Hiring",
-      "Store Evaluation",
-      "Spanish Evaluation",
-    ],
-    "Pending at NTID": ["selected at Hr"],
-    "NTID Created": ["mark_assigned"],
-  };
-
-  const statusOrder = [
-    "pending at Screening",
-    "no show at Screening",
-    "rejected at Screening",
-    "Not Interested at screening",
-    "moved to Interview",
-    "no show at Interview",
-    "rejected at Interview",
-    "selected at Interview",
-    "no show at Hr",
-    "Moved to HR",
-    "selected at Hr",
-    "rejected at Hr",
-  ];
+  const [markets, setMarkets] = useState([]);
+  const profilesPerPage = 50;
 
   useEffect(() => {
     const savedFilters = JSON.parse(localStorage.getItem("savedFilters"));
@@ -386,6 +69,16 @@ const DetailedView = () => {
     selectedUsers,
     dateRange,
   ]);
+
+  useEffect(() => {
+    if (selectedProfiles.length > 0) {
+      const allMarkets = selectedProfiles
+        .flatMap((status) => status.work_location_names || [])
+        .filter((name, index, self) => name && self.indexOf(name) === index)
+        .map((name, index) => ({ id: index, location_name: name }));
+      setMarkets(allMarkets);
+    }
+  }, [selectedProfiles]);
 
   const setMarketFilter = (markets) => {
     setSelectedMarkets(markets);
@@ -569,12 +262,6 @@ const DetailedView = () => {
     indexOfLastProfile
   );
 
-  const pageCount = Math.ceil(uniqueFlattenedProfiles.length / profilesPerPage);
-
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
-  };
-
   const handleDownloadExcel = () => {
     const worksheetData = uniqueFlattenedProfiles.map((profile, index) => ({
       "Created At": dayjs(profile.created_at_date).format(
@@ -601,8 +288,14 @@ const DetailedView = () => {
   };
 
   return (
-    <Container fluid className="p-6">
-      <FilterControls
+    <div
+      style={{
+        height: "100vh",
+        backgroundColor: "#F4F5F7",
+        display: "flex",
+      }}
+    >
+      <Sidebar
         selectedMarkets={selectedMarkets}
         setSelectedMarkets={setSelectedMarkets}
         selectedUsers={selectedUsers}
@@ -618,38 +311,91 @@ const DetailedView = () => {
         isAllSelected={isAllSelected}
         setIsAllSelected={setIsAllSelected}
         setMarketFilter={setMarketFilter}
+        markets={markets}
+        profileCount={uniqueFlattenedProfiles.length}
+        onDownload={handleDownloadExcel}
+        currentPage={currentPage}
+        uniqueFlattenedProfiles={uniqueFlattenedProfiles}
+        profilesPerPage={profilesPerPage}
+        setCurrentPage={setCurrentPage}
       />
-      {loading ? (
-        <Loader />
-      ) : isFilterApplied ? (
-        uniqueFlattenedProfiles.length > 0 ? (
-          <>
-            <ProfileCountCard
-              profileCount={uniqueFlattenedProfiles.length}
-              onDownload={handleDownloadExcel}
-            />
-            <ProfileTable
-              profiles={currentProfiles}
-              serialNumberStart={indexOfFirstProfile + 1}
-            />
-            <PaginationControls
-              pageCount={pageCount}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
-          </>
-        ) : (
-          <Typography className="text-xl text-red-600">
-            No profiles found for the applied filters
-          </Typography>
-        )
-      ) : (
-        <Typography className="text-xl text-gray-500">
-          Please apply filters to view profiles
-        </Typography>
-      )}
-    </Container>
+
+      {/* Main Content Area */}
+      <div
+        style={{
+          flex: 1,
+          padding: "16px",
+          overflow: "auto",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {/* Header Section */}
+        <div
+          style={{
+            backgroundColor: "white",
+            borderRadius: "8px",
+            padding: "16px",
+            marginBottom: "16px",
+            border: "1px solid #DFE1E6",
+            boxShadow: "0 1px 2px rgba(9, 30, 66, 0.08)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "12px",
+            }}
+          >
+            <Typography
+              variant="h5"
+              style={{
+                color: "#172B4D",
+                fontWeight: 600,
+                fontSize: "20px",
+                margin: 0,
+              }}
+            >
+              Recruitment Dashboard
+            </Typography>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <Typography
+                style={{
+                  color: "#5E6C84",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                }}
+              >
+                {uniqueFlattenedProfiles.length} profiles found
+              </Typography>
+            </div>
+          </div>
+
+          {/* Date Filter */}
+          <DateFilter dateFilter={dateRange} setDateFilter={setDateRange} />
+        </div>
+
+        {/* Content Area */}
+        <div style={{ flex: 1, overflow: "auto" }}>
+          {loading ? (
+              <Loader />
+          ) : isFilterApplied ? (
+            uniqueFlattenedProfiles.length > 0 ? (
+              <ProfileTable
+                profiles={currentProfiles}
+                serialNumberStart={indexOfFirstProfile + 1}
+              />
+            ) : (
+              <NoProfilesFound />
+            )
+          ) : (
+           <ReadyToSearch />
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
-
 export default DetailedView;

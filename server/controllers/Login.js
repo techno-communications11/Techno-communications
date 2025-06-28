@@ -23,7 +23,7 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const tokenExpiration = '1h';
+    const tokenExpiration = '2h'; // Set token expiration to 2 minutes
     const token = jwt.sign(
       { id: user.id, role: user.role, name: user.name },
       process.env.JWT_SECRET_KEY,

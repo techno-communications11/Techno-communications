@@ -2,14 +2,12 @@ import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
 import * as XLSX from "xlsx";
-import { Modal, Form } from "react-bootstrap";
+import { Modal, Form, Container } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "../Styles/ModalStyles.css";
 import Pagination from "@mui/material/Pagination";
-import { IoIosArrowDown } from "react-icons/io";
-
+import Button from "../utils/Button";
 import {
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -21,85 +19,80 @@ import {
   Stack,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import { Container } from "react-bootstrap";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
 import useFetchMarkets from "../Hooks/useFetchMarkets";
 import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
 import { useParams } from "react-router";
+import MarketSelector from "../utils/MarketSelector";
+import { FaRegEdit } from "react-icons/fa";
 
+const statusMap = {
+  Total1: [
+    "pending at Screening",
+    "Not Interested at screening",
+    "moved to Interview",
+    "rejected at Screening",
+    "no show at Screening",
+  ],
+  Total2: [
+    "put on hold at Interview",
+    "selected at Interview",
+    "need second opinion at Interview",
+    "rejected at Interview",
+    "no show at Interview",
+    "Moved to HR",
+  ],
+  Total3: [
+    "Sent for Evaluation",
+    "Applicant will think about It",
+    "selected at Hr",
+    "no show at Hr",
+    "rejected at Hr",
+    "mark_assigned",
+    "Spanish Evaluation",
+    "backOut",
+    "Not Recommended For Hiring",
+    "Store Evaluation",
+  ],
+  // Flattened individual statuses
+  "pending at Screening": ["pending at Screening"],
+  "No Response At Screening": ["No Response At Screening"],
+  "Not Interested at screening": ["Not Interested at screening"],
+  "moved to Interview": ["moved to Interview"],
+  "rejected at Screening": ["rejected at Screening"],
+  "no show at Screening": ["no show at Screening"],
+  "put on hold at Interview": ["put on hold at Interview"],
+  "selected at Interview": ["selected at Interview"],
+  "need second opinion at Interview": ["need second opinion at Interview"],
+  "rejected at Interview": ["rejected at Interview"],
+  "no show at Interview": ["no show at Interview"],
+  "Moved to HR": ["Moved to HR"],
+  "Sent for Evaluation": ["Sent for Evaluation"],
+  "Applicant will think about It": ["Applicant will think about It"],
+  "selected at Hr": ["selected at Hr"],
+  "no show at Hr": ["no show at Hr"],
+  "rejected at Hr": ["rejected at Hr"],
+  mark_assigned: ["mark_assigned"],
+  "Spanish Evaluation": ["Spanish for Evaluation"],
+  backOut: ["backOut"],
+  "Not recommeneded for Hiring": ["Not recommeneded for Hiring"],
+  "Store Evaluation": ["Store Evaluation"],
+};
+const tableHeaders = [
+  "SI.No",
+  "Created At",
+  "Applicant",
+  "Ref by",
+  "Ref ID",
+  "Location",
+  "Screener",
+  "Interviewer",
+  "HR",
+  "Status",
+  "View/ Update",
+];
 
-  const statusMap = {
-    Total1: [
-      "pending at Screening",
-      "Not Interested at screening",
-      "moved to Interview",
-      "rejected at Screening",
-      "no show at Screening",
-    ],
-    Total2: [
-      "put on hold at Interview",
-      "selected at Interview",
-      "need second opinion at Interview",
-      "rejected at Interview",
-      "no show at Interview",
-      "Moved to HR",
-    ],
-    Total3: [
-      "Sent for Evaluation",
-      "Applicant will think about It",
-      "selected at Hr",
-      "no show at Hr",
-      "rejected at Hr",
-      "mark_assigned",
-      "Spanish Evaluation",
-      "backOut",
-      "Not Recommended For Hiring",
-      "Store Evaluation",
-    ],
-
-    // Flattened individual statuses
-    "pending at Screening": ["pending at Screening"],
-    "No Response At Screening": ["No Response At Screening"],
-    "Not Interested at screening": ["Not Interested at screening"],
-    "moved to Interview": ["moved to Interview"],
-    "rejected at Screening": ["rejected at Screening"],
-    "no show at Screening": ["no show at Screening"],
-
-    "put on hold at Interview": ["put on hold at Interview"],
-    "selected at Interview": ["selected at Interview"],
-    "need second opinion at Interview": ["need second opinion at Interview"],
-    "rejected at Interview": ["rejected at Interview"],
-    "no show at Interview": ["no show at Interview"],
-    "Moved to HR": ["Moved to HR"],
-
-    "Sent for Evaluation": ["Sent for Evaluation"],
-    "Applicant will think about It": ["Applicant will think about It"],
-    "selected at Hr": ["selected at Hr"],
-    "no show at Hr": ["no show at Hr"],
-    "rejected at Hr": ["rejected at Hr"],
-    mark_assigned: ["mark_assigned"],
-    "Spanish Evaluation": ["Spanish for Evaluation"],
-    backOut: ["backOut"],
-    "Not recommeneded for Hiring": ["Not recommeneded for Hiring"],
-    "Store Evaluation": ["Store Evaluation"],
-  };
-  const tableHeaders = [
-    "S.No",
-    "Created At",
-    "Applicant Details",
-    "Referred by",
-    "Reference ID",
-    "Work Location",
-    "Screening Manager",
-    "Interviewer",
-    "HR Name",
-    "Status",
-    "Joining Date",
-    "Comments",
-    "Update Comment",
-  ];
-  
 function ViewDetais() {
   const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -110,19 +103,16 @@ function ViewDetais() {
   const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =
     useState("");
   const [commentprofilestatus, setCommentprofileStatus] = useState("");
-
-  const [selectedLocations, setSelectedLocations] = useState([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedMarket, setSelectedMarket] = useState([]);
+  const [isAllSelected, setIsAllSelected] = useState(false);
   const { captureStatus } = useParams();
-
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const { markets } = useFetchMarkets();
 
   useEffect(() => {
     fetchProfiles();
-  }, [captureStatus]); // Effect will run when myContext changes
-  // Effect will run when myContext changes
+  }, [captureStatus]);
 
   const fetchProfiles = async () => {
     setLoading(true);
@@ -132,8 +122,7 @@ function ViewDetais() {
 
       if (response.status === 200) {
         const profilesData = response.data.status_counts || [];
-        setSelectedProfiles(profilesData); // Set state to update the UI
-        // console.log(profilesData, "data is dipped");
+        setSelectedProfiles(profilesData);
         localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
       } else {
         console.error("Error fetching profiles:", response);
@@ -144,40 +133,13 @@ function ViewDetais() {
       setLoading(false);
     }
   };
+
   const handleStartDateChange = (event) => {
     setStartDate(event.target.value);
   };
 
-  // Handle end date change
   const handleEndDateChange = (event) => {
     setEndDate(event.target.value);
-  };
-
-
-
-  // Handle checkbox change
-  const handleCheckboxChange = (event) => {
-    const { value, checked } = event.target;
-    if (checked) {
-      setSelectedLocations([...selectedLocations, value]);
-    } else {
-      setSelectedLocations(selectedLocations.filter((name) => name !== value));
-    }
-  };
-
-  // Handle dropdown toggle
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  // Handle "Select All" functionality
-  const handleSelectAllChange = (event) => {
-    const { checked } = event.target;
-    if (checked) {
-      setSelectedLocations(markets.map((loc) => loc.location_name?.toString()));
-    } else {
-      setSelectedLocations([]);
-    }
   };
 
   const filteredProfiles = selectedProfiles
@@ -209,7 +171,7 @@ function ViewDetais() {
             dateToCheck <= new Date(endDate)
           );
         }
-        return true; // No date filtering if either date is missing
+        return true;
       };
 
       if (
@@ -224,8 +186,8 @@ function ViewDetais() {
             currentStatus.created_at_dates?.[index]
           );
           const inMarket =
-            selectedLocations.length > 0
-              ? selectedLocations.some(
+            selectedMarket.length > 0
+              ? selectedMarket.some(
                   (market) =>
                     currentStatus.work_location_names?.[index] === market
                 )
@@ -285,7 +247,7 @@ function ViewDetais() {
 
       return filteredData;
     })
-    .filter((data) => data.applicant_names.length > 0); // Filter out profiles with no names
+    .filter((data) => data.applicant_names.length > 0);
 
   const flattenedProfiles = filteredProfiles.flatMap((status) => {
     return status.applicant_names.map((name, index) => ({
@@ -387,7 +349,7 @@ function ViewDetais() {
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include", // ✅ Correct way for fetch to send cookies
+          credentials: "include",
           body: JSON.stringify(data),
         }
       );
@@ -419,247 +381,535 @@ function ViewDetais() {
     }
   };
 
-
-
   return (
-    <Container fluid className="mt-3">
+    <Container
+      fluid
+      style={{
+        backgroundColor: "#F4F5F7",
+        minHeight: "100vh",
+        padding: "16px",
+      }}
+    >
+      <style>
+        {`
+          .jira-container {
+            background-color: #FFFFFF;
+            border-radius: 3px;
+            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+            border: 1px solid #DFE1E6;
+          }
+          
+          .jira-header {
+            background-color: #FAFBFC;
+            border-bottom: 1px solid #DFE1E6;
+            padding: 16px 24px;
+          }
+          
+          .jira-sidebar {
+            background-color: #FFFFFF;
+            border-right: 1px solid #DFE1E6;
+            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+          }
+          
+          .jira-table {
+            background-color: #FFFFFF;
+          }
+          
+          .jira-table-header {
+            background-color: #F4F5F7;
+            border-bottom: 2px solid #DFE1E6;
+            font-weight: 600;
+            color: #5E6C84;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          
+          .jira-table-row {
+            border-bottom: 1px solid #DFE1E6;
+            transition: background-color 0.2s;
+          }
+          
+          .jira-table-row:hover {
+            background-color: #F4F5F7;
+          }
+          
+          .jira-table-cell {
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #172B4D;
+            vertical-align: middle;
+          }
+          
+          .jira-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+          }
+          
+          .jira-button {
+            background-color: #0052CC;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 3px;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .jira-button:hover {
+            background-color: #0747A6;
+          }
+          
+          .jira-button-secondary {
+            background-color: #FAFBFC;
+            color: #42526E;
+            border: 1px solid #DFE1E6;
+          }
+          
+          .jira-button-secondary:hover {
+            background-color: #EBECF0;
+          }
+          
+          .jira-action-button {
+            background: none;
+            border: none;
+            color: #5E6C84;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 3px;
+            transition: all 0.2s;
+          }
+          
+          .jira-action-button:hover {
+            background-color: #F4F5F7;
+            color: #0052CC;
+          }
+          
+          .jira-modal {
+            background-color: #FFFFFF;
+            border-radius: 3px;
+            box-shadow: 0 10px 50px rgba(9, 30, 66, 0.54);
+          }
+          
+          .jira-modal-header {
+            background-color: #FAFBFC;
+            border-bottom: 1px solid #DFE1E6;
+            padding: 16px 24px;
+            border-radius: 3px 3px 0 0;
+          }
+          
+          .jira-input {
+            border: 2px solid #DFE1E6;
+            border-radius: 3px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            background-color: #FAFBFC;
+            width: 100%;
+            margin-bottom: 8px;
+          }
+          
+          .jira-input:focus {
+            border-color: #4C9AFF;
+            background-color: #FFFFFF;
+            outline: none;
+          }
+          
+          .jira-count-badge {
+            background-color: #0052CC;
+            color: #FFFFFF;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+          }
+        `}
+      </style>
+
       {loading ? (
-        <Loader />
+        <div style={{ padding: "40px", textAlign: "center" }}>
+          <Loader />
+        </div>
       ) : uniqueFlattenedProfiles.length > 0 ? (
-        <>
-          <div className="justify-content-between d-flex m-1">
-            <h3 style={{ color: "#E10174" }}>
-              Total: {uniqueFlattenedProfiles.length}
-            </h3>
-            <div className="dropdown-container">
-              {/* Dropdown Button */}
-              <div className="dropdown-button" onClick={toggleDropdown}>
-                <span>Select Market</span>
-                <span className="dropdown-arrow">
-                  <IoIosArrowDown />
+        <div style={{ display: "flex", gap: "16px" }}>
+          {/* Sidebar */}
+          <div
+            className="jira-sidebar jira-container"
+            style={{ width: "280px", height: "fit-content" }}
+          >
+            <div className="jira-header">
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "16px",
+                }}
+              >
+                <h5
+                  style={{
+                    margin: 0,
+                    color: "#172B4D",
+                    fontSize: "16px",
+                    fontWeight: "600",
+                  }}
+                >
+                  Summary
+                </h5>
+                <span className="jira-count-badge">
+                  {uniqueFlattenedProfiles.length}
                 </span>
               </div>
-
-              {/* Dropdown content (checkboxes) */}
-              {isDropdownOpen && (
-                <div className="checkbox-dropdown">
-                  <div className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      id="select-all"
-                      checked={selectedLocations.length === markets.length}
-                      onChange={handleSelectAllChange}
-                    />
-                    <label htmlFor="select-all">Select All</label>
-                  </div>
-
-                  {markets.map((location) => (
-                    <div key={location.location_name} className="checkbox-item">
-                      <input
-                        type="checkbox"
-                        id={`location-${location.location_name}`}
-                        value={location.location_name}
-                        checked={selectedLocations.includes(
-                          location.location_name.toString()
-                        )}
-                        onChange={handleCheckboxChange}
-                      />
-                      <label
-                        htmlFor={`location-${location.location_name}`}
-                        className="text-capitalize"
-                      >
-                        {location.location_name.toLowerCase()}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="date-picker">
-              <label htmlFor="start-date">Start Date:</label>
-              <input
-                type="date"
-                id="start-date"
-                value={startDate}
-                onChange={handleStartDateChange}
+              <button
+                className="jira-button"
+                onClick={() => handleDownloadExcel(uniqueFlattenedProfiles)}
+              >
+                <FileDownloadIcon
+                  style={{ marginRight: "8px", fontSize: "16px" }}
+                />
+                Export Data
+              </button>
+              <div style={{ marginTop: "16px" }}>
+                <label
+                  style={{
+                    color: "#5E6C84",
+                    fontSize: "12px",
+                    marginBottom: "4px",
+                    display: "block",
+                  }}
+                >
+                  Market
+                </label>
+                <MarketSelector
+                  selectedMarket={selectedMarket}
+                  setSelectedMarket={setSelectedMarket}
+                  isAllSelected={isAllSelected}
+                  setIsAllSelected={setIsAllSelected}
+                  markets={markets}
+                  text="Select Market"
+                  className="jira-input"
+                />
+                <label
+                  style={{
+                    color: "#5E6C84",
+                    fontSize: "12px",
+                    marginBottom: "4px",
+                    display: "block",
+                    marginTop: "8px",
+                  }}
+                >
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  className="jira-input"
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                />
+                <label
+                  style={{
+                    color: "#5E6C84",
+                    fontSize: "12px",
+                    marginBottom: "4px",
+                    display: "block",
+                    marginTop: "8px",
+                  }}
+                >
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  className="jira-input"
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                />
+              </div>
+              <div style={{ marginTop: "16px", textAlign: "center" }}>
+                 <label
+                  style={{
+                    color: "#5E6C84",
+                    fontSize: "12px",
+                    marginBottom: "4px",
+                    display: "block",
+                    marginTop: "8px",
+                  }}
+                >
+                  Pages
+                </label>
+              <Pagination
+                count={pageCount}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+                className="d-flex justify-content-center"
               />
             </div>
-
-            {/* End Date Picker */}
-            <div className="date-picker">
-              <label htmlFor="end-date">End Date:</label>
-              <input
-                type="date"
-                id="end-date"
-                value={endDate}
-                onChange={handleEndDateChange}
-              />
             </div>
-            <Button
-              variant="outlined"
-              color="success"
-              startIcon={<FileDownloadIcon />}
-              onClick={() => handleDownloadExcel(uniqueFlattenedProfiles)}
-            >
-              Download Data Excel
-            </Button>
           </div>
 
-          <TableContainer
-            component={Paper}
-            sx={{
-              width: "100%",
-              boxShadow: 2,
-              borderRadius: 2,
-              maxHeight: "600px", // Define height for scrollable content
-            }}
-          >
-            <Table stickyHeader className="table-sm">
-              <TableHead headData={tableHeaders} />
+          {/* Main Content */}
+          <div className="jira-container" style={{ flex: 1 }}>
+            <div className="jira-header">
+              <h6
+                style={{
+                  margin: 0,
+                  color: "#172B4D",
+                  fontSize: "18px",
+                  fontWeight: "600",
+                }}
+              >
+                Applicant Details - {captureStatus}
+              </h6>
+              <p
+                style={{
+                  margin: "4px 0 0 0",
+                  color: "#5E6C84",
+                  fontSize: "14px",
+                }}
+              >
+                Showing {indexOfFirstProfile + 1} to{" "}
+                {Math.min(indexOfLastProfile, uniqueFlattenedProfiles.length)}{" "}
+                of {uniqueFlattenedProfiles.length} applications
+              </p>
+            </div>
 
-              <TableBody>
-                {currentProfiles.map((profile, index) => (
-                  <TableRow key={index}>
-                    <TableCell
-                      style={{ padding: "2px 8px", fontSize: "0.9rem" }}
-                      className="text-center"
-                    >
-                      {indexOfFirstProfile + index + 1}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {profile.created_at_date.slice(0, 10)}
-                    </TableCell>
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      <Box display="flex">
-                        <Box ml={2}>
-                          <Typography
-                            variant="body1"
-                            style={{ fontWeight: "bold" }}
-                          >
-                            {" "}
-                            {profile.applicant_name?.toLowerCase() || "N/A"}
-                          </Typography>
-                          <Typography variant="body1" color="textSecondary">
-                            {profile.applicant_phone}
-                          </Typography>
+            <TableContainer
+              component={Paper}
+              className="jira-table"
+              style={{ overflowX: "auto", maxHeight: "600px" }}
+            >
+              <Table stickyHeader>
+                <TableHead headData={tableHeaders} />
+                <TableBody>
+                  {currentProfiles.map((profile, index) => (
+                    <TableRow key={index} className="jira-table-row">
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ textAlign: "center" }}
+                      >
+                        {indexOfFirstProfile + index + 1}
+                      </TableCell>
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ textAlign: "center", textWrap: "nowrap" }}
+                      >
+                        {profile.created_at_date.slice(0, 10)}
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        <Box display="flex">
+                          <Box ml={2}>
+                            <Typography
+                              variant="body1"
+                              style={{
+                                fontWeight: "600",
+                                color: "#172B4D",
+                                marginBottom: "2px",
+                              }}
+                            >
+                              {profile.applicant_name?.toLowerCase() || "N/A"}
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              style={{ fontSize: "12px", color: "#5E6C84" }}
+                            >
+                              {profile.applicant_phone}
+                            </Typography>
+                          </Box>
                         </Box>
-                      </Box>
-                    </TableCell>
-                    <TableCell
-                      className="text-center text-capitalize"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.applicant_referred_by?.toLowerCase() || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      className="text-center"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.applicant_reference_id || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      className="text-center text-capitalize"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.work_location_name?.toLowerCase() || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      className="text-center text-capitalize"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.screening_manager_name?.toLowerCase() || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      className="text-center text-capitalize"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.interviewer_name?.toLowerCase() || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      className="text-center"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.hr_name || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      className="text-center"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.status || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      className="text-center"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      {profile.joining_date || "N/A"}
-                    </TableCell>
+                      </TableCell>
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ textAlign: "center" }}
+                      >
+                        {profile.applicant_referred_by?.toLowerCase() || "N/A"}
+                      </TableCell>
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ textAlign: "center" }}
+                      >
+                        <span
+                          style={{
+                            backgroundColor: "#F4F5F7",
+                            color: "#5E6C84",
+                            padding: "2px 6px",
+                            borderRadius: "3px",
+                            fontSize: "12px",
+                            fontFamily: "monospace",
+                          }}
+                        >
+                          {profile.applicant_reference_id || "N/A"}
+                        </span>
+                      </TableCell>
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ textAlign: "center" }}
+                      >
+                        {profile.work_location_name?.toLowerCase() || "N/A"}
+                      </TableCell>
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ textAlign: "center" }}
+                      >
+                        {profile.screening_manager_name?.toLowerCase() || "N/A"}
+                      </TableCell>
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ textAlign: "center" }}
+                      >
+                        {profile.interviewer_name?.toLowerCase() || "N/A"}
+                      </TableCell>
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ textAlign: "center" }}
+                      >
+                        {profile.hr_name || "N/A"}
+                      </TableCell>
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ textAlign: "center" }}
+                      >
+                        <span
+                          className="jira-status-badge"
+                          style={{
+                            backgroundColor:
+                              profile.status.includes("selected") ||
+                              profile.status.includes("Recommended")
+                                ? "#E3FCEF"
+                                : profile.status.includes("rejected") ||
+                                  profile.status.includes("no show")
+                                ? "#FFEBE6"
+                                : profile.status.includes("pending") ||
+                                  profile.status.includes("moved")
+                                ? "#DEEBFF"
+                                : profile.status.includes("hold")
+                                ? "#FFFAE6"
+                                : "#F4F5F7",
+                            color:
+                              profile.status.includes("selected") ||
+                              profile.status.includes("Recommended")
+                                ? "#006644"
+                                : profile.status.includes("rejected") ||
+                                  profile.status.includes("no show")
+                                ? "#BF2600"
+                                : profile.status.includes("pending") ||
+                                  profile.status.includes("moved")
+                                ? "#0747A6"
+                                : profile.status.includes("hold")
+                                ? "#974F0C"
+                                : "#5E6C84",
+                            border:
+                              "1px solid " +
+                              (profile.status.includes("selected") ||
+                              profile.status.includes("Recommended")
+                                ? "#79F2C0"
+                                : profile.status.includes("rejected") ||
+                                  profile.status.includes("no show")
+                                ? "#FFBDAD"
+                                : profile.status.includes("pending") ||
+                                  profile.status.includes("moved")
+                                ? "#4C9AFF"
+                                : profile.status.includes("hold")
+                                ? "#FFCC33"
+                                : "#DFE1E6"),
+                          }}
+                        >
+                          {profile.status || "N/A"}
+                        </span>
+                      </TableCell>
 
-                    <TableCell
-                      className="text-center"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      <OverlayTrigger
-                        placement="top"
-                        overlay={
-                          <Tooltip>
-                            {[
+                      <TableCell
+                        className="jira-table-cell d-flex justify-content-center"
+                        style={{ textAlign: "center" }}
+                      >
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={
+                            <Tooltip>
+                              {(() => {
+                                const { status } = profile;
+                                if (
+                                  [
+                                    "pending at Screening",
+                                    "rejected at Screening",
+                                    "no show at Screening",
+                                    "Not Interested at screening",
+                                    "moved to Interview",
+                                  ].includes(status)
+                                ) {
+                                  return (
+                                    profile.applicant_referrals_comments ||
+                                    "N/A"
+                                  );
+                                }
+
+                                if (
+                                  [
+                                    "put on hold at Interview",
+                                    "Moved to HR",
+                                    "selected at Interview",
+                                    "need second opinion at Interview",
+                                    "rejected at Interview",
+                                    "no show at Interview",
+                                  ].includes(status)
+                                ) {
+                                  return profile.first_round_comments || "N/A";
+                                }
+
+                                if (
+                                  [
+                                    "Recommended For Hiring",
+                                    "Sent for Evaluation",
+                                    "Applicant will think about It",
+                                    "selected at Hr",
+                                    "Store Evaluation",
+                                    "Spanish Evaluation",
+                                    "Not Recommended For Hiring",
+                                    "rejected at Hr",
+                                    "backOut",
+                                    "mark_assigned",
+                                  ].includes(status)
+                                ) {
+                                  return profile.notes || "N/A";
+                                }
+
+                                return "N/A";
+                              })()}
+                            </Tooltip>
+                          }
+                        >
+                          {(() => {
+                            const { status } = profile;
+
+                            const screeningStatuses = [
                               "pending at Screening",
                               "rejected at Screening",
                               "no show at Screening",
                               "Not Interested at screening",
                               "moved to Interview",
-                            ].includes(profile.status)
-                              ? profile.applicant_referrals_comments
-                              : [
-                                  "put on hold at Interview",
-                                  "Moved to HR",
-                                  "selected at Interview",
-                                  "need second opinion at Interview",
-                                  "rejected at Interview",
-                                  "no show at Interview",
-                                ].includes(profile.status)
-                              ? profile.first_round_comments
-                              : [
-                                  "Recommended For Hiring",
-                                  "Sent for Evaluation",
-                                  "Applicant will think about It",
-                                  "selected at Hr",
-                                  "Store Evaluation",
-                                  "Spanish Evaluation",
-                                  "Not Recommended For Hiring",
-                                  "rejected at Hr",
-                                  "backOut",
-                                  "mark_assigned",
-                                ].includes(profile.status)
-                              ? profile.notes
-                              : "N/A"}
-                          </Tooltip>
-                        }
-                      >
-                        {
-                          // Check if the comment data is "N/A" or not, to conditionally render the text
-                          [
-                            "pending at Screening",
-                            "rejected at Screening",
-                            "no show at Screening",
-                            "Not Interested at screening",
-                            "moved to Interview",
-                          ].includes(profile.status) &&
-                          profile.applicant_referrals_comments !== "N/A" ? (
-                            <span style={{ color: "green" }}>View </span>
-                          ) : [
+                            ];
+
+                            const interviewStatuses = [
                               "put on hold at Interview",
                               "Moved to HR",
                               "selected at Interview",
                               "need second opinion at Interview",
                               "rejected at Interview",
                               "no show at Interview",
-                            ].includes(profile.status) &&
-                            profile.first_round_comments !== "N/A" ? (
-                            <span style={{ color: "green" }}>View </span>
-                          ) : [
+                            ];
+
+                            const hrStatuses = [
                               "Recommended For Hiring",
                               "Sent for Evaluation",
                               "Applicant will think about It",
@@ -670,52 +920,63 @@ function ViewDetais() {
                               "rejected at Hr",
                               "backOut",
                               "mark_assigned",
-                            ].includes(profile.status) &&
-                            profile.notes !== "N/A" ? (
-                            <span style={{ color: "green" }}>View </span>
-                          ) : (
-                            <span style={{ color: "red" }}>No data</span>
-                          )
-                        }
-                      </OverlayTrigger>
-                    </TableCell>
+                            ];
 
-                    <TableCell
-                      className="text-center"
-                      style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                    >
-                      <Button
-                        className="text-white bg-primary "
-                        style={{ fontSize: "10px" }}
-                        onClick={() => handleOpenModal(profile)}
-                      >
-                        Update
-                      </Button>{" "}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                            const hasComment =
+                              (screeningStatuses.includes(status) &&
+                                profile.applicant_referrals_comments &&
+                                profile.applicant_referrals_comments !==
+                                  "N/A") ||
+                              (interviewStatuses.includes(status) &&
+                                profile.first_round_comments &&
+                                profile.first_round_comments !== "N/A") ||
+                              (hrStatuses.includes(status) &&
+                                profile.notes &&
+                                profile.notes !== "N/A");
 
-          <Stack spacing={2} sx={{ marginTop: 3 }}>
-            <Pagination
-              count={pageCount}
-              page={currentPage}
-              onChange={handlePageChange}
-              color="primary"
-              className="d-flex justify-content-center"
-            />
-          </Stack>
-        </>
+                            return (
+                              <button className="jira-action-button">
+                                <span
+                                  style={{
+                                    color: hasComment ? "green" : "red",
+                                  }}
+                                >
+                                  {hasComment ? "View" : "No data"}
+                                </span>
+                              </button>
+                            );
+                          })()}
+                        </OverlayTrigger>
+
+                        <Button
+                          icon={<FaRegEdit />}
+                          variant="bg-primary btn-sm"
+                          style={{
+                            fontSize: "12px",
+                            marginLeft: "8px",
+                          }}
+                          onClick={() => handleOpenModal(profile)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            
+          </div>
+        </div>
       ) : (
-        <Typography variant="h6" color="error">
-          No profiles found for the selected filters
-        </Typography>
+        <div style={{ padding: "40px", textAlign: "center" }}>
+          <Typography variant="h6" color="error">
+            No profiles found for the selected filters
+          </Typography>
+        </div>
       )}
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Update Comment</Modal.Title>
+
+      <Modal show={showModal} onHide={handleCloseModal} className="jira-modal">
+        <Modal.Header closeButton className="jira-modal-header">
+          <Modal.Title className="fs-6">Update Comment</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
@@ -727,16 +988,16 @@ function ViewDetais() {
                 value={updatedComment}
                 onChange={(e) => setUpdatedComment(e.target.value)}
                 required
+                className="jira-input"
               />
             </Form.Group>
             <div className="mt-3">
               <Button
                 type="submit"
-                className="bg-primary text-white"
+                className="jira-button"
                 disabled={loading}
-              >
-                {loading ? "Updating..." : "Update Comment"}
-              </Button>
+                label={loading ? "Updating..." : "Update Comment"}
+              />
             </div>
           </Form>
         </Modal.Body>

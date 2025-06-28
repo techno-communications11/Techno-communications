@@ -3,9 +3,8 @@ import { MyContext } from "../pages/MyContext";
 import dayjs from "dayjs";
 import axios from "axios";
 import * as XLSX from "xlsx";
-import { Modal, Form } from "react-bootstrap";
+import { Modal, Form, Container } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
-import Pagination from "@mui/material/Pagination";
 import {
   Table,
   TableBody,
@@ -15,31 +14,32 @@ import {
   Paper,
   Typography,
   Box,
-  Stack,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import { Container } from "react-bootstrap";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
 import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
 import API_URL from "../Constants/ApiUrl";
 import Button from "../utils/Button";
 import { useParams } from "react-router";
+import CustomPagination from "../utils/CustomPagination";
+import { FaEye } from "react-icons/fa";
+import { FiEdit } from "react-icons/fi";
+import { IoIosEyeOff } from "react-icons/io";
+import NoProfilesFound from "../utils/NoProfilesFound";
 
 const TableHeader = [
   "S.No",
-  "Created At",
-  "Applicant Details",
-  "Referred By",
-  "Reference ID",
-  "Work Location",
-  "Screening Manager",
+  "Applicant",
+  "ReferredBy",
+  "ReferID",
+  "Location",
+  "Screener",
   "Interviewer",
-  "HR Name",
+  "HR",
   "Status",
-  "Joining Date",
-  "Comments",
-  "Update Comment",
+  "Created At",
+  "Actions",
 ];
 
 const statusMap = {
@@ -111,117 +111,57 @@ const statusMap = {
 function StatsTicketView() {
   const [selectedProfiles, setSelectedProfiles] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const profilesPerPage = 100;
   const [showModal, setShowModal] = useState(false);
   const [updatedComment, setUpdatedComment] = useState("");
-  const [commentprofileapplicant_uuid, setCommentProfileApplicant_uuid] =
-    useState("");
-  const [commentprofilestatus, setCommentprofileStatus] = useState("");
+  const [commentProfileApplicantUuid, setCommentProfileApplicantUuid] = useState("");
+  const [commentProfileStatus, setCommentProfileStatus] = useState("");
   const myContext = useContext(MyContext);
-  const { markets, captureDate } = myContext;
-  const { captureStatus } = useParams();
+  const { markets = [], captureDate = [], setMarkets, setCaptureStatus, setCaptureDate } = myContext || {};
+  const { captureStatus: urlCaptureStatus } = useParams();
+  const [currentPage, setCurrentPage] = useState(1);
+  const profilesPerPage = 50;
+  const [selectedMarket, setSelectedMarket] = useState("");
+  const [selectedStartDate, setSelectedStartDate] = useState(captureDate[0] || "");
+  const [selectedEndDate, setSelectedEndDate] = useState(captureDate[1] || "");
+  const [selectedStatus, setSelectedStatus] = useState(urlCaptureStatus || "Total");
 
   useEffect(() => {
-    const { markets, captureStatus, captureDate } = myContext;
-    let parsedMarkets = markets && markets.length > 0 ? markets : [];
-    let parsedCaptureStatus = captureStatus || "";
-    let parsedCaptureDate =
-      captureDate && captureDate.length > 0 ? captureDate : [];
-
-    // If context values are not available, get them from localStorage
-    if (
-      parsedMarkets.length === 0 ||
-      !parsedCaptureStatus ||
-      parsedCaptureDate.length === 0
-    ) {
-      const storedMarkets = localStorage.getItem("marketsData");
-      const storedCaptureStatus = localStorage.getItem("captureStatusData");
-      const storedCaptureDate = localStorage.getItem("captureDateData");
-
+    // Only fetch when filters change, avoiding myContext dependency
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        if (storedMarkets) {
-          parsedMarkets = JSON.parse(storedMarkets);
-        }
-        if (storedCaptureStatus) {
-          parsedCaptureStatus = JSON.parse(storedCaptureStatus);
-        }
-        if (storedCaptureDate) {
-          parsedCaptureDate = JSON.parse(storedCaptureDate);
+        const parsedMarkets = Array.isArray(markets) ? markets : [];
+        const parsedCaptureStatus = selectedStatus || "";
+        const parsedCaptureDate = [selectedStartDate, selectedEndDate].filter(Boolean);
+
+        const url = `${API_URL}/Detailstatus`;
+        const params = {
+          market: selectedMarket ? [selectedMarket] : parsedMarkets,
+          status: statusMap[parsedCaptureStatus] || [],
+          startDate: parsedCaptureDate[0] ? dayjs(parsedCaptureDate[0]).format("YYYY-MM-DD") : null,
+          endDate: parsedCaptureDate[1] ? dayjs(parsedCaptureDate[1]).format("YYYY-MM-DD") : null,
+        };
+
+        console.log("Fetching with params:", params); // Debug log
+        const response = await axios.get(url, { params, withCredentials: true });
+
+        if (response.status === 200) {
+          const profilesData = response.data.status_counts || [];
+          console.log("Fetched data:", profilesData); // Debug log
+          setSelectedProfiles(profilesData);
+          localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
+        } else {
+          console.error("Error fetching profiles:", response.status, response.data);
         }
       } catch (error) {
-        console.error("Error parsing data from localStorage:", error);
-        // Optionally, clear invalid data in localStorage
-        localStorage.removeItem("marketsData");
-        localStorage.removeItem("captureStatusData");
-        localStorage.removeItem("captureDateData");
+        console.error("API Error:", error.message, error.response?.data);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    // If data exists, update context and localStorage
-    if (
-      parsedMarkets.length > 0 &&
-      parsedCaptureStatus &&
-      parsedCaptureDate.length > 0
-    ) {
-      // Update context values
-      myContext.setMarkets(parsedMarkets);
-      myContext.setCaptureStatus(parsedCaptureStatus);
-      myContext.setCaptureDate(parsedCaptureDate);
-
-      // Store in localStorage for future use
-      localStorage.setItem("marketsData", JSON.stringify(parsedMarkets));
-      localStorage.setItem(
-        "captureStatusData",
-        JSON.stringify(parsedCaptureStatus)
-      );
-      localStorage.setItem(
-        "captureDateData",
-        JSON.stringify(parsedCaptureDate)
-      );
-    }
-
-    // Fetch profiles after loading data
-    fetchProfiles(parsedMarkets, parsedCaptureStatus, parsedCaptureDate);
-  }, [myContext]); // Dependency on myContext
-
-  const fetchProfiles = async (
-    markets = [],
-    captureStatus = "",
-    captureDate = []
-  ) => {
-    setLoading(true);
-    try {
-      const url = `${API_URL}/Detailstatus`;
-      const params = {
-        market: markets,
-        status: statusMap[captureStatus], // Ensure that the `statusMap` exists
-        startDate:
-          captureDate.length > 0
-            ? dayjs(captureDate[0]).format("YYYY-MM-DD")
-            : null,
-        endDate:
-          captureDate.length > 0
-            ? dayjs(captureDate[1]).format("YYYY-MM-DD")
-            : null,
-      };
-
-      const response = await axios.get(url, { params, withCredentials: true });
-
-      if (response.status === 200) {
-        const profilesData = response.data.status_counts || [];
-        setSelectedProfiles(profilesData); // Set state to update the UI
-        // Update localStorage with the latest selected profiles data
-        localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
-      } else {
-        console.error("Error fetching profiles:", response);
-      }
-    } catch (error) {
-      console.error("API Error:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchData();
+  }, [selectedMarket, selectedStartDate, selectedEndDate, selectedStatus]); // Removed myContext from dependencies
 
   const filteredProfiles = selectedProfiles
     .map((currentStatus) => {
@@ -244,90 +184,48 @@ function StatsTicketView() {
         applicant_referrals_comments: [],
       };
 
-      if (
-        currentStatus.applicant_names &&
-        currentStatus.applicant_names.forEach
-      ) {
+      if (currentStatus.applicant_names && currentStatus.applicant_names.forEach) {
         currentStatus.applicant_names.forEach((_, index) => {
-          // Market filter
-          const inMarket =
-            markets.length > 0
-              ? markets.some(
-                  (market) =>
-                    currentStatus.work_location_names?.[index] === market
-                )
-              : true;
+          const inMarket = selectedMarket
+            ? currentStatus.work_location_names?.[index] === selectedMarket
+            : markets.length > 0
+            ? markets.some((market) => currentStatus.work_location_names?.[index] === market)
+            : true;
 
-          const createdDate = new Date(currentStatus.created_at_dates?.[index]);
-          const [startDate, endDate] = captureDate;
-          const startDateObj = startDate ? new Date(startDate) : null;
-          const endDateObj = endDate ? new Date(endDate) : null;
-          if (startDateObj && endDateObj) {
-            if (startDateObj.toDateString() === endDateObj.toDateString()) {
-              startDateObj.setHours(0, 0, 0, 0); // Local start of the day
-              endDateObj.setHours(23, 59, 59, 999); // Local end of the day
+          const createdDate = new Date(currentStatus.created_at_dates?.[index] || "");
+          const [startDate, endDate] = [selectedStartDate, selectedEndDate].map(d => d ? new Date(d) : null);
+          if (startDate && endDate) {
+            if (startDate.toDateString() === endDate.toDateString()) {
+              startDate.setHours(0, 0, 0, 0);
+              endDate.setHours(23, 59, 59, 999);
             } else {
-              startDateObj.setHours(0, 0, 0, 0); // UTC start of the start day
-              endDateObj.setHours(23, 59, 59, 999); // UTC end of the end day
+              startDate.setHours(0, 0, 0, 0);
+              endDate.setHours(23, 59, 59, 999);
             }
           }
 
-          // Compare timestamps to check if createdDate falls within the range
-          const inDateRange =
-            startDateObj && endDateObj
-              ? createdDate >= startDateObj && createdDate <= endDateObj
-              : true; // Default to true if no date range is provided
+          const inDateRange = startDate && endDate
+            ? !isNaN(createdDate) && createdDate >= startDate && createdDate <= endDate
+            : true;
 
-          // Status filter
-          const filteredByStatus = statusMap[captureStatus]?.includes(
-            currentStatus.status
-          );
+          const filteredByStatus = statusMap[selectedStatus]?.includes(currentStatus.status);
 
-          // Only add profile data if it matches the filters
           if (inMarket && inDateRange && filteredByStatus) {
-            filteredData.applicant_names.push(
-              currentStatus.applicant_names?.[index] || ""
-            );
+            filteredData.applicant_names.push(currentStatus.applicant_names?.[index] || "");
             filteredData.phone.push(currentStatus.phone?.[index] || "");
-            filteredData.applicant_emails.push(
-              currentStatus.applicant_emails?.[index] || ""
-            );
-            filteredData.applicant_referred_by.push(
-              currentStatus.applicant_referred_by?.[index] || ""
-            );
-            filteredData.applicant_reference_ids.push(
-              currentStatus.applicant_reference_ids?.[index] || ""
-            );
-            filteredData.applicant_uuids.push(
-              currentStatus.applicant_uuids?.[index] || ""
-            );
-            filteredData.created_at_dates.push(
-              currentStatus.created_at_dates?.[index] || ""
-            );
-            filteredData.work_location_names.push(
-              currentStatus.work_location_names?.[index] || ""
-            );
-            filteredData.screening_manager_names.push(
-              currentStatus.screening_manager_names?.[index] || "N/A"
-            );
-            filteredData.interviewer_names.push(
-              currentStatus.interviewer_names?.[index] || "N/A"
-            );
-            filteredData.hr_names.push(
-              currentStatus.hr_names?.[index] || "N/A"
-            );
-            filteredData.joining_dates.push(
-              currentStatus.joining_dates?.[index] || "N/A"
-            );
-            filteredData.notes.push(
-              (currentStatus.notes || [])[index] || "N/A"
-            );
-            filteredData.first_round_comments.push(
-              (currentStatus.first_round_comments || [])[index] || "N/A"
-            );
-            filteredData.applicant_referrals_comments.push(
-              (currentStatus.applicant_referrals_comments || [])[index] || "N/A"
-            );
+            filteredData.applicant_emails.push(currentStatus.applicant_emails?.[index] || "");
+            filteredData.applicant_referred_by.push(currentStatus.applicant_referred_by?.[index] || "");
+            filteredData.applicant_reference_ids.push(currentStatus.applicant_reference_ids?.[index] || "");
+            filteredData.applicant_uuids.push(currentStatus.applicant_uuids?.[index] || "");
+            filteredData.created_at_dates.push(currentStatus.created_at_dates?.[index] || "");
+            filteredData.work_location_names.push(currentStatus.work_location_names?.[index] || "");
+            filteredData.screening_manager_names.push(currentStatus.screening_manager_names?.[index] || "N/A");
+            filteredData.interviewer_names.push(currentStatus.interviewer_names?.[index] || "N/A");
+            filteredData.hr_names.push(currentStatus.hr_names?.[index] || "N/A");
+            filteredData.joining_dates.push(currentStatus.joining_dates?.[index] || "N/A");
+            filteredData.notes.push((currentStatus.notes || [])[index] || "N/A");
+            filteredData.first_round_comments.push((currentStatus.first_round_comments || [])[index] || "N/A");
+            filteredData.applicant_referrals_comments.push((currentStatus.applicant_referrals_comments || [])[index] || "N/A");
           }
         });
       }
@@ -336,8 +234,8 @@ function StatsTicketView() {
     })
     .filter((data) => data.applicant_names.length > 0);
 
-  const flattenedProfiles = filteredProfiles.flatMap((status) => {
-    return status.applicant_names.map((name, index) => ({
+  const flattenedProfiles = filteredProfiles.flatMap((status) =>
+    status.applicant_names.map((name, index) => ({
       applicant_name: name,
       applicant_phone: status.phone[index],
       applicant_email: status.applicant_emails[index],
@@ -353,36 +251,24 @@ function StatsTicketView() {
       applicant_referrals_comments: status.applicant_referrals_comments[index],
       first_round_comments: status.first_round_comments[index],
       status: status.status,
-      joining_date:
-        status.joining_dates[index] !== "0000-00-00"
-          ? dayjs(status.joining_dates[index]).format("YYYY-MM-DD")
-          : "N/A",
-    }));
-  });
+      joining_date: status.joining_dates[index] !== "0000-00-00"
+        ? dayjs(status.joining_dates[index]).format("YYYY-MM-DD")
+        : "N/A",
+    }))
+  );
 
   const uniqueFlattenedProfiles = flattenedProfiles.filter(
     (profile, index, self) =>
-      index ===
-      self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
+      index === self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
   );
 
   const indexOfLastProfile = currentPage * profilesPerPage;
   const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
-  const currentProfiles = uniqueFlattenedProfiles.slice(
-    indexOfFirstProfile,
-    indexOfLastProfile
-  );
-  const pageCount = Math.ceil(uniqueFlattenedProfiles.length / profilesPerPage);
-
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
-  };
+  const currentProfiles = uniqueFlattenedProfiles.slice(indexOfFirstProfile, indexOfLastProfile);
 
   const handleDownloadExcel = (profiles) => {
     const worksheetData = profiles.map((profile) => ({
-      "Created At": dayjs(profile.created_at_date).format(
-        "YYYY-MM-DD HH:mm:ss"
-      ),
+      "Created At": dayjs(profile.created_at_date).format("YYYY-MM-DD HH:mm:ss"),
       "Applicant UUID": profile.applicant_uuid,
       "Applicant Name": profile.applicant_name,
       "Phone Number": profile.applicant_phone,
@@ -411,8 +297,8 @@ function StatsTicketView() {
         ? profile.first_round_comments
         : profile.notes
     );
-    setCommentProfileApplicant_uuid(profile.applicant_uuid);
-    setCommentprofileStatus(profile.status);
+    setCommentProfileApplicantUuid(profile.applicant_uuid);
+    setCommentProfileStatus(profile.status);
     setShowModal(true);
   };
 
@@ -424,310 +310,377 @@ function StatsTicketView() {
     e.preventDefault();
 
     const data = {
-      applicant_uuid: commentprofileapplicant_uuid,
-      status: commentprofilestatus,
+      applicant_uuid: commentProfileApplicantUuid,
+      status: commentProfileStatus,
       comment: updatedComment,
     };
 
     try {
       const response = await fetch(`${API_URL}/update-comment`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(data),
       });
 
-      // Log the server's response to understand what's going wrong
       const responseData = await response.json();
-      // console.log("Server Response:", responseData);
       if (response.ok) {
         handleCloseModal();
         toast.success("Comment updated successfully!");
-        setTimeout(() => {
-          window.location.reload();
-        }, 3000);
+        setTimeout(() => window.location.reload(), 3000);
       } else {
-        toast.error(
-          `Failed to update the comment: ${
-            responseData.error || "Unknown error"
-          }`
-        );
+        toast.error(`Failed to update the comment: ${responseData.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Error updating comment:", error);
-      toast.error(
-        `An error occurred while updating the comment: ${error.message}`
-      );
+      toast.error(`An error occurred while updating the comment: ${error.message}`);
     } finally {
       setUpdatedComment("");
-      setCommentProfileApplicant_uuid("");
-      setCommentprofileStatus("");
+      setCommentProfileApplicantUuid("");
+      setCommentProfileStatus("");
     }
   };
 
+  const getStatusStyle = (status) => {
+    if (status.includes("selected") || status.includes("Recommended")) {
+      return { backgroundColor: "#E3FCEF", color: "#006644", border: "1px solid #79F2C0" };
+    } else if (status.includes("rejected") || status.includes("no show")) {
+      return { backgroundColor: "#FFEBE6", color: "#BF2600", border: "1px solid #FFBDAD" };
+    } else if (status.includes("pending") || status.includes("moved")) {
+      return { backgroundColor: "#DEEBFF", color: "#0747A6", border: "1px solid #4C9AFF" };
+    } else if (status.includes("hold")) {
+      return { backgroundColor: "#FFFAE6", color: "#974F0C", border: "1px solid #FFCC33" };
+    }
+    return { backgroundColor: "#F4F5F7", color: "#5E6C84", border: "1px solid #DFE1E6" };
+  };
+
   return (
-    <Container fluid className="mt-3">
+    <Container fluid style={{ backgroundColor: "#F4F5F7", minHeight: "100vh", padding: "16px" }}>
+      <style>
+        {`
+          .jira-container {
+            background-color: #FFFFFF;
+            border-radius: 3px;
+            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+            border: 1px solid #DFE1E6;
+          }
+          
+          .jira-header {
+            background-color: #FAFBFC;
+            border-bottom: 1px solid #DFE1E6;
+            padding: 16px 24px;
+          }
+          
+          .jira-sidebar {
+            background-color: #FFFFFF;
+            border-right: 1px solid #DFE1E6;
+            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+          }
+          
+          .jira-table {
+            background-color: #FFFFFF;
+          }
+          
+          .jira-table-header {
+            background-color: #F4F5F7;
+            border-bottom: 2px solid #DFE1E6;
+            font-weight: 600;
+            color: #5E6C84;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          
+          .jira-table-row {
+            border-bottom: 1px solid #DFE1E6;
+            transition: background-color 0.2s;
+          }
+          
+          .jira-table-row:hover {
+            background-color: #F4F5F7;
+          }
+          
+          .jira-table-cell {
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #172B4D;
+            vertical-align: middle;
+          }
+          
+          .jira-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+          }
+          
+          .jira-button {
+            background-color: #0052CC;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 3px;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .jira-button:hover {
+            background-color: #0747A6;
+          }
+          
+          .jira-button-secondary {
+            background-color: #FAFBFC;
+            color: #42526E;
+            border: 1px solid #DFE1E6;
+          }
+          
+          .jira-button-secondary:hover {
+            background-color: #EBECF0;
+          }
+          
+          .jira-action-button {
+            background: none;
+            border: none;
+            color: #5E6C84;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 3px;
+            transition: all 0.2s;
+          }
+          
+          .jira-action-button:hover {
+            background-color: #F4F5F7;
+            color: #0052CC;
+          }
+          
+          .jira-modal {
+            background-color: #FFFFFF;
+            border-radius: 3px;
+            box-shadow: 0 10px 50px rgba(9, 30, 66, 0.54);
+          }
+          
+          .jira-modal-header {
+            background-color: #FAFBFC;
+            border-bottom: 1px solid #DFE1E6;
+            padding: 16px 24px;
+            border-radius: 3px 3px 0 0;
+          }
+          
+          .jira-input {
+            border: 2px solid #DFE1E6;
+            border-radius: 3px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            background-color: #FAFBFC;
+            width: 100%;
+            margin-bottom: 8px;
+          }
+          
+          .jira-input:focus {
+            border-color: #4C9AFF;
+            background-color: #FFFFFF;
+            outline: none;
+          }
+          
+          .jira-count-badge {
+            background-color: #0052CC;
+            color: #FFFFFF;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+          }
+        `}
+      </style>
+
       {loading ? (
-        <Loader />
+        <div style={{ padding: "40px", textAlign: "center" }}>
+          <Loader />
+        </div>
       ) : uniqueFlattenedProfiles.length > 0 ? (
-        <>
-          <div className="justify-content-between d-flex m-1">
-            <h3 style={{ color: "#E10174" }}>
-              Total: {uniqueFlattenedProfiles.length}
-            </h3>
-            <Button
-              variant="btn-success"
-              icon={<FileDownloadIcon />}
-              onClick={() => handleDownloadExcel(uniqueFlattenedProfiles)}
-              label=" Download Data Excel"
-            />
+        <div style={{ display: "flex", gap: "16px" }}>
+          {/* Sidebar */}
+          <div className="jira-sidebar jira-container" style={{ width: "280px", height: "fit-content" }}>
+            <div className="jira-header">
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+                <h5 style={{ margin: 0, color: "#172B4D", fontSize: "16px", fontWeight: "600" }}>Summary</h5>
+                <span className="jira-count-badge">{uniqueFlattenedProfiles.length}</span>
+              </div>
+              <button
+                className="jira-button"
+                onClick={() => handleDownloadExcel(uniqueFlattenedProfiles)}
+              >
+                <FileDownloadIcon style={{ marginRight: "8px", fontSize: "16px" }} />
+                Export Data
+              </button>
+              <div style={{ marginTop: "16px" }}>
+                <label style={{ color: "#5E6C84", fontSize: "16px", marginBottom: "4px", display: "block" }}>Market</label>
+                <select
+                  className="jira-input"
+                  value={selectedMarket}
+                  onChange={(e) => setSelectedMarket(e.target.value)}
+                >
+                  <option value="">All Markets</option>
+                  {Array.from(new Set(markets)).map((market, index) => (
+                    <option key={index} value={market}>{market}</option>
+                  ))}
+                </select>
+                <label style={{ color: "#5E6C84", fontSize: "16px", marginBottom: "4px", display: "block", marginTop: "8px" }}>Start Date</label>
+                <input
+                  type="date"
+                  className="jira-input"
+                  value={selectedStartDate}
+                  onChange={(e) => setSelectedStartDate(e.target.value)}
+                />
+                <label style={{ color: "#5E6C84", fontSize: "16px", marginBottom: "4px", display: "block", marginTop: "8px" }}>End Date</label>
+                <input
+                  type="date"
+                  className="jira-input"
+                  value={selectedEndDate}
+                  onChange={(e) => setSelectedEndDate(e.target.value)}
+                />
+                <label style={{ color: "#5E6C84", fontSize: "16px", marginBottom: "4px", display: "block", marginTop: "8px" }}>Status</label>
+                <select
+                  className="jira-input"
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                >
+                  {Object.keys(statusMap).map((status) => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ marginTop: "16px", textAlign: "center" }}>
+                                <label style={{ color: "#5E6C84", fontSize: "16px", marginBottom: "4px", display: "block", marginTop: "8px" }}>Pages</label>
+              <CustomPagination
+                totalProfiles={uniqueFlattenedProfiles.length}
+                profilesPerPage={profilesPerPage}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+              />
+            </div>
+            </div>
           </div>
 
-          <TableContainer
-            component={Paper}
-            sx={{
-              width: "100%",
-              boxShadow: 2,
-              borderRadius: 2,
-              overflowY: "auto",
-              maxHeight: "700px", // Define height for scrollable content
-            }}
-          >
-            <Table stickyHeader className="table-condensed table-sm">
-              <TableHead headData={TableHeader} />
-              <TableBody>
-                {currentProfiles.map((profile, index) => (
-                  <TableRow key={index}>
-                    {/* S.No */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      {indexOfFirstProfile + index + 1}
-                    </TableCell>
+          {/* Main Content */}
+          <div className="jira-container" style={{ flex: 1 }}>
+            <div className="jira-header">
+              <h6 style={{ margin: 0, color: "#172B4D", fontSize: "18px", fontWeight: "600" }}>
+                Applicant Details - {selectedStatus}
+              </h6>
+              <p style={{ margin: "4px 0 0 0", color: "#5E6C84", fontSize: "14px" }}>
+                Showing {indexOfFirstProfile + 1} to {Math.min(indexOfLastProfile, uniqueFlattenedProfiles.length)} of {uniqueFlattenedProfiles.length} applications
+              </p>
+            </div>
 
-                    {/* Created At */}
-                    <TableCell
-                      style={{ padding: "4px 9px", fontSize: "0.6rem" }}
-                      className="text-center"
-                    >
-                      {profile.created_at_date.slice(0, 10) || "N/A"}
-                    </TableCell>
-
-                    {/* Applicant Details */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      <Box ml={2}>
-                        <Typography
-                          variant="body1"
-                          style={{
-                            fontWeight: "bold",
-                            fontSize: "0.8rem",
-                          }}
-                          className="text-center"
-                        >
-                          {profile.applicant_name || "N/A"}
-                          <span className="d-block text-muted">
+            <TableContainer component={Paper} className="jira-table" style={{ overflowX: "auto", maxHeight: "600px",textWrap:'wrap' }}>
+              <Table stickyHeader>
+                <TableHead headData={TableHeader} />
+                <TableBody>
+                  {currentProfiles.map((profile, index) => (
+                    <TableRow key={index} className="jira-table-row">
+                      <TableCell className="jira-table-cell" style={{ textAlign: "center" }}>
+                        {indexOfFirstProfile + index + 1}
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        <div>
+                          <div style={{ fontWeight: "600", color: "#172B4D", marginBottom: "2px" }}>
+                            {profile.applicant_name || "N/A"}
+                          </div>
+                          <div style={{ fontSize: "12px", color: "#5E6C84" }}>
                             {profile.applicant_phone}
-                          </span>
-                        </Typography>
-                      </Box>
-                    </TableCell>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        {profile.applicant_referred_by || "N/A"}
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        <span style={{ backgroundColor: "#F4F5F7", color: "#5E6C84", padding: "2px 6px", borderRadius: "3px", fontSize: "12px", fontFamily: "monospace" }}>
+                          {profile.applicant_reference_id || "N/A"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        {profile.work_location_name?.toLowerCase() || "N/A"}
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        {profile.screening_manager_name || "N/A"}
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        {profile.interviewer_name || "N/A"}
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        {profile.hr_name || "N/A"}
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        <span className="jira-status-badge" style={getStatusStyle(profile.status)}>
+                          {profile.status || "N/A"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="jira-table-cell text-nowrap">
+                        <div style={{ fontSize: "12px", color: "#5E6C84" }}>
+                          {profile.created_at_date.slice(0, 10) || "N/A"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="jira-table-cell">
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                          {(() => {
+                            let comment = "N/A";
+                            let tooltipId = `tooltip-na-${profile.applicant_uuid}`;
 
-                    {/* Referred_by */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      {profile.applicant_referred_by || "N/A"}
-                    </TableCell>
+                            if (["pending at Screening", "rejected at Screening", "no show at Screening", "Not Interested at screening", "moved to Interview"].includes(profile.status)) {
+                              comment = profile.applicant_referrals_comments;
+                              tooltipId = `tooltip-screening-${profile.applicant_uuid}`;
+                            } else if (["put on hold at Interview", "Moved to HR", "selected at Interview", "need second opinion at Interview", "rejected at Interview", "no show at Interview"].includes(profile.status)) {
+                              comment = profile.first_round_comments;
+                              tooltipId = `tooltip-interview-${profile.applicant_uuid}`;
+                            } else if (["Recommended For Hiring", "Sent for Evaluation", "Applicant will think about It", "selected at Hr", "Store Evaluation", "Spanish Evaluation", "Not Recommended For Hiring", "rejected at Hr", "backOut", "mark_assigned"].includes(profile.status)) {
+                              comment = profile.notes;
+                              tooltipId = `tooltip-final-${profile.applicant_uuid}`;
+                            }
 
-                    {/* Reference ID */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      {profile.applicant_reference_id || "N/A"}
-                    </TableCell>
+                            const hasComment = comment && comment !== "N/A";
 
-                    {/* Work Location */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-capitalize text-center"
-                    >
-                      {profile.work_location_name?.toLowerCase() || "N/A"}
-                    </TableCell>
-
-                    {/* Screening Manager */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      {profile.screening_manager_name || "N/A"}
-                    </TableCell>
-
-                    {/* Interviewer */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      {profile.interviewer_name || "N/A"}
-                    </TableCell>
-
-                    {/* HR Name */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      {profile.hr_name || "N/A"}
-                    </TableCell>
-
-                    {/* Status */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      {profile.status || "N/A"}
-                    </TableCell>
-
-                    {/* Joining Date */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      {profile.joining_date || "N/A"}
-                    </TableCell>
-
-                    {/* Comments */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      <OverlayTrigger
-                        placement="top"
-                        overlay={
-                          <Tooltip>
-                            {[
-                              "pending at Screening",
-                              "rejected at Screening",
-                              "no show at Screening",
-                              "Not Interested at screening",
-                              "moved to Interview",
-                            ].includes(profile.status)
-                              ? profile.applicant_referrals_comments
-                              : [
-                                  "put on hold at Interview",
-                                  "Moved to HR",
-                                  "selected at Interview",
-                                  "need second opinion at Interview",
-                                  "rejected at Interview",
-                                  "no show at Interview",
-                                ].includes(profile.status)
-                              ? profile.first_round_comments
-                              : [
-                                  "Recommended For Hiring",
-                                  "Sent for Evaluation",
-                                  "Applicant will think about It",
-                                  "selected at Hr",
-                                  "Store Evaluation",
-                                  "Spanish Evaluation",
-                                  "Not Recommended For Hiring",
-                                  "rejected at Hr",
-                                  "backOut",
-                                  "mark_assigned",
-                                ].includes(profile.status)
-                              ? profile.notes
-                              : "N/A"}
-                          </Tooltip>
-                        }
-                      >
-                        {
-                          // Check if the comment data is "N/A" or not, to conditionally render the text
-                          [
-                            "pending at Screening",
-                            "rejected at Screening",
-                            "no show at Screening",
-                            "Not Interested at screening",
-                            "moved to Interview",
-                          ].includes(profile.status) &&
-                          profile.applicant_referrals_comments !== "N/A" ? (
-                            <span style={{ color: "green" }}>View </span>
-                          ) : [
-                              "put on hold at Interview",
-                              "Moved to HR",
-                              "selected at Interview",
-                              "need second opinion at Interview",
-                              "rejected at Interview",
-                              "no show at Interview",
-                            ].includes(profile.status) &&
-                            profile.first_round_comments !== "N/A" ? (
-                            <span style={{ color: "green" }}>View </span>
-                          ) : [
-                              "Recommended For Hiring",
-                              "Sent for Evaluation",
-                              "Applicant will think about It",
-                              "selected at Hr",
-                              "Store Evaluation",
-                              "Spanish Evaluation",
-                              "Not Recommended For Hiring",
-                              "rejected at Hr",
-                              "backOut",
-                              "mark_assigned",
-                            ].includes(profile.status) &&
-                            profile.notes !== "N/A" ? (
-                            <span style={{ color: "green" }}>View </span>
-                          ) : (
-                            <span style={{ color: "red" }}>No data</span>
-                          )
-                        }
-                      </OverlayTrigger>
-                    </TableCell>
-
-                    {/* Update Comment */}
-                    <TableCell
-                      style={{ padding: "4px 8px", fontSize: "0.8rem" }}
-                      className="text-center"
-                    >
-                      <Button
-                        variant=" bg-primary"
-                        onClick={() => handleOpenModal(profile)}
-                        label="Update"
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          <Stack
-            spacing={2}
-            sx={{
-              marginTop: 1,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Pagination
-              count={pageCount}
-              page={currentPage}
-              onChange={handlePageChange}
-              color="primary"
-            />
-          </Stack>
-        </>
+                            return (
+                              <>
+                                <OverlayTrigger placement="top" overlay={<Tooltip id={tooltipId}>{hasComment ? comment : "No comments available"}</Tooltip>}>
+                                  <button className="jira-action-button">
+                                    {hasComment ? <FaEye style={{ fontSize: "14px" }} /> : <IoIosEyeOff style={{ fontSize: "14px" }} />}
+                                  </button>
+                                </OverlayTrigger>
+                                <button className="jira-action-button" onClick={() => handleOpenModal(profile)}>
+                                  <FiEdit style={{ fontSize: "14px" }} />
+                                </button>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            
+          </div>
+        </div>
       ) : (
-        <Typography variant="h6" color="error">
-          No profiles found for the selected filters
-        </Typography>
+        <NoProfilesFound/>
       )}
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
+
+      <Modal show={showModal} onHide={handleCloseModal} className="jira-modal">
+        <Modal.Header closeButton className="jira-modal-header">
           <Modal.Title className="fs-6">Update Comment</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -736,7 +689,7 @@ function StatsTicketView() {
               <Form.Control
                 as="textarea"
                 rows={3}
-                className="border shadow-none"
+                className="jira-input"
                 placeholder="Enter Comment"
                 value={updatedComment}
                 onChange={(e) => setUpdatedComment(e.target.value)}
@@ -746,7 +699,7 @@ function StatsTicketView() {
             <div className="mt-3">
               <Button
                 type="submit"
-                variant="bg-primary small"
+                variant="jira-button"
                 disabled={loading}
                 label={loading ? "Updating..." : "Update Comment"}
               />

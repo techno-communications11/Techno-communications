@@ -1,0 +1,418 @@
+/* Card Styling */
+.card {
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border: 1px solid #e9ecef;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Header Section (Total Count) */
+.fonts-4 {
+  background-color: #fff5f9;
+  border: 1px solid #f8d7e3 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px;
+  font-size: 1.25rem;
+  color: #e10174 !important;
+  box-shadow: 0 4px 12px rgba(225, 1, 116, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.fonts-4:hover {
+  background-color: #ffebf2;
+  transform: scale(1.02);
+}
+
+/* Download Button */
+.bg-success {
+  background-color: #28a745 !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.3s ease;
+}
+
+.bg-success:hover {
+  background-color: #218838 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
+}
+
+.bg-success:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+}
+
+/* Pagination Section */
+.mt-auto.mb-5 {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  padding: 12px 0;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom Pagination Styling (for buttons like Previous/Next) */
+.MuiPagination-root {
+  display: flex;
+  justify-content: center;
+}
+
+.MuiPaginationItem-root {
+  color: #495057;
+  font-weight: 500;
+  border-radius: 6px;
+  margin: 0 4px;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.MuiPaginationItem-root:hover {
+  background-color: #e9ecef;
+  transform: scale(1.1);
+}
+
+.MuiPaginationItem-page.Mui-selected {
+  background-color: #e10174 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(225, 1, 116, 0.3);
+}
+
+.MuiPaginationItem-page.Mui-selected:hover {
+  background-color: #c90165 !important;
+}
+
+.MuiPaginationItem-previousNext {
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  color: #e10174;
+  font-weight: 600;
+}
+
+.MuiPaginationItem-previousNext:hover {
+  background-color: #f8d7e3;
+  border-color: #e10174;
+  transform: scale(1.05);
+}
+
+/* Table Container Styling */
+.mt-4.border.shadow-xl.border-gray {
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border: 1px solid #dee2e6 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.mt-4.border.shadow-xl.border-gray:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Table Header Section */
+.flex.justify-between.items-center.p-2 {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 12px 16px !important;
+}
+
+.flex.justify-between.items-center.p-2 h6 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0;
+}
+
+/* Table Styling */
+.table-condensed {
+  background-color: #ffffff;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Table Header Styling */
+.MuiTableHead-root {
+  background-color: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.MuiTableCell-head {
+  font-weight: 600;
+  color: #343a40;
+  background-color: #e9ecef;
+  border-bottom: 2px solid #dee2e6;
+  padding: 12px 8px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Table Row Styling */
+.table-row {
+  transition: background-color 0.3s ease;
+}
+
+.table-row:hover {
+  background-color: #f1f3f5;
+}
+
+.MuiTableCell-body {
+  color: #495057;
+  border-bottom: 1px solid #e9ecef;
+  padding: 8px;
+  font-size: 0.8rem;
+}
+
+/* Status Colors */
+.MuiTableCell-body[data-status*="pending"],
+.MuiTableCell-body[data-status*="Applicant"],
+.MuiTableCell-body[data-status*="put on hold at Interview"],
+.MuiTableCell-body[data-status*="Evaluation"],
+
+.MuiTableCell-body[data-status*="Pending"] {
+  color: #e67e22;
+  font-weight: 500;
+}
+
+.MuiTableCell-body[data-status*="pending"]::before,
+.MuiTableCell-body[data-status*="Applicant"]::before,
+.MuiTableCell-body[data-status*="put on hold at Interview"]::before,
+.MuiTableCell-body[data-status*="Evaluation"]::before,
+.MuiTableCell-body[data-status*="Pending"]::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background-color: #e67e22;
+  vertical-align: middle;
+}
+
+.MuiTableCell-body[data-status*="rejected"],
+.MuiTableCell-body[data-status*="no show"],
+.MuiTableCell-body[data-status*="Not Interested"],
+.MuiTableCell-body[data-status*="Not Recommended"],
+.MuiTableCell-body[data-status*="backOut"] {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.MuiTableCell-body[data-status*="rejected"]::before,
+.MuiTableCell-body[data-status*="no show"]::before,
+.MuiTableCell-body[data-status*="Not Interested"]::before,
+.MuiTableCell-body[data-status*="Not Recommended"]::before,
+.MuiTableCell-body[data-status*="backOut"]::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background-color: #dc3545;
+  vertical-align: middle;
+}
+.MuiTableCell-body[data-status*="Moved"],
+.MuiTableCell-body[data-status*="moved"],
+.MuiTableCell-body[data-status*="selected"],
+.MuiTableCell-body[data-status*="Recommended"],
+.MuiTableCell-body[data-status*="mark_assigned"] {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.MuiTableCell-body[data-status*="moved"]::before,
+.MuiTableCell-body[data-status*="Moved"]::before,
+.MuiTableCell-body[data-status*="selected"]::before,
+.MuiTableCell-body[data-status*="Recommended"]::before,
+.MuiTableCell-body[data-status*="mark_assigned"]::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background-color: #28a745;
+  vertical-align: middle;
+}
+
+/* Action Icons */
+.text-success {
+  color: #28a745 !important;
+  padding: 4px;
+  border-radius: 6px;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.bg-success-nd {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.text-success:hover {
+  background-color: rgba(40, 167, 69, 0.2);
+  transform: scale(1.1);
+}
+
+.border-3.border-success {
+  border: 2px solid #28a745 !important;
+  padding: 2px;
+  border-radius: 6px;
+}
+
+.text-primary {
+  color: #007bff !important;
+  padding: 4px;
+  border: 2px solid #007bff;
+  border-radius: 6px;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.text-primary:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.text-danger {
+  color: #dc3545 !important;
+  padding: 4px;
+  font-size: medium;
+  /* border: 2px solid #dc3545; */
+  /* border-radius: 6px; */
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.text-danger:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  transform: scale(1.1);
+}
+
+.text-lg {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Modal Styling */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-title {
+  color: #343a40;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.form-control {
+  border: 1px solid #ced4da !important;
+  border-radius: 6px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #e10174 !important;
+  box-shadow: 0 0 5px rgba(225, 1, 116, 0.2);
+}
+
+/* Update Comment Button */
+.bg-primary {
+  background-color: #e10174 !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(225, 1, 116, 0.2);
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.3s ease;
+}
+
+.bg-primary:hover {
+  background-color: #c90165 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(225, 1, 116, 0.3);
+}
+
+.bg-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(225, 1, 116, 0.2);
+}
+
+
+
+/* No Profiles Message */
+.MuiTypography-h6[color="error"] {
+  text-align: center;
+  margin-top: 20px;
+  font-weight: 500;
+  color: #dc3545;
+  background-color: #f8d7e3;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.1);
+}
+.background-image-section {
+      width: 100% !important; /* Adjusted to fill the card's width */
+      height: 100% !important; /* Adjusted to fill the remaining space */
+      background-size: cover; /* Ensures the image covers the entire area */
+      background-position: center; /* Centers the image */
+      background-repeat: no-repeat; /* Prevents image repetition */
+      position: relative; /* For overlay positioning */
+      border-radius: 0; /* Matches the card's rounded corners */
+      overflow: hidden; /* Ensures no overflow of the image */
+      transition: opacity 0.3s ease;
+    }
+
+    /* Subtle Overlay for Better Contrast */
+    .background-image-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2); /* Dark overlay for better text visibility */
+      z-index: 1;
+      transition: background 0.3s ease;
+    }
+
+    /* Hover Effect for Background Image */
+    .background-image-section:hover {
+      opacity: 0.95;
+    }
+
+    .background-image-section:hover::before {
+      background: rgba(0, 0, 0, 0.3); /* Slightly darker overlay on hover */
+    }
+
+    /* Ensure content inside the background section is visible */
+    .background-image-section > * {
+      position: relative;
+      z-index: 2;
+      color: #ffffff; /* White text for better contrast */
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Subtle shadow for readability */
+    }

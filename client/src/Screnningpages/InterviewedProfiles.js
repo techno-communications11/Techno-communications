@@ -185,6 +185,7 @@ export default function InterviewedProfiles() {
 
     fetchInitialData();
   }, [apiurl, userData?.id]);
+  
 
   const fetchResponse = async (applicantId) => {
     setLoading(true);
@@ -518,7 +519,7 @@ export default function InterviewedProfiles() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <div className="container mt-4">
+      <div className="container-fluid mt-4">
         {loading && <Loader />}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <h5>Applicant Profiles</h5>

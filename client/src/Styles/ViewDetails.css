@@ -1,0 +1,43 @@
+/* Styles/ViewDetails.css */
+.bg-primary {
+  background-color: #0077b6 !important;
+}
+
+.bg-primary-subtle {
+  background-color: #e6f3fa !important;
+}
+
+.text-primary {
+  color: #0077b6 !important;
+}
+
+.avatar-circle {
+  font-size: 1.2rem;
+}
+
+.table-responsive-custom {
+  overflow-x: auto;
+}
+
+.custom-tooltip .tooltip-inner {
+  max-width: 300px;
+  text-align: left;
+  background-color: #333;
+  padding: 10px;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.form-control.border-2 {
+  border-width: 2px;
+}
+
+.btn-sm {
+  font-size: 0.85rem;
+}
+
+.vh-50 {
+  height: 50vh;
+}

@@ -1,4 +1,4 @@
-const filteredStatuseshr = [
+const FilteredStatuseshr = [
     { status: "selected at Hr", bgColor: '#FF5733',  },  // Hot Pink
     { status: "rejected at Hr", bgColor: '#28A745', },  // Orange Red
     { status: "Sent for Evaluation", bgColor: '#DC3545', },  // Gold
@@ -13,4 +13,4 @@ const filteredStatuseshr = [
 
 
 
-export default filteredStatuseshr;
+export default FilteredStatuseshr;
