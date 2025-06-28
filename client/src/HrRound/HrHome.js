@@ -10,6 +10,7 @@ import Loader from "../utils/Loader";
 import FilteredStatuseshr from '../Constants/FilteredStatuseshr';
 
 
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function HrHome() {
