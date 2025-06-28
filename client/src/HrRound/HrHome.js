@@ -6,8 +6,9 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import filteredStatuses from "../Constants/FilteredStatuseshr";
+
 import Loader from "../utils/Loader";
+import FilteredStatuseshr from "../Constants/FilteredStatuseshr";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -45,20 +46,20 @@ function HrHome() {
 
   const TotalCount = stats
     .filter((stat) =>
-      filteredStatuses.some((fStatus) => fStatus.status === stat.status)
+      FilteredStatuseshr.some((fStatus) => fStatus.status === stat.status)
     ) 
     .reduce((total, stat) => total + stat.count, 0); // Sum the count for matching statuses
 
   const pieChartData = {
-    labels: filteredStatuses.map(({ status }) => status),
+    labels: FilteredStatuseshr.map(({ status }) => status),
     datasets: [
       {
-        data: filteredStatuses.map(({ status }) => {
+        data: FilteredStatuseshr.map(({ status }) => {
           const stat = stats.find((stat) => stat.status === status);
           return stat ? stat.count : 0;
         }),
-        backgroundColor: filteredStatuses.map(({ bgColor }) => bgColor),
-        borderColor: filteredStatuses.map(() => "#fff"),
+        backgroundColor: FilteredStatuseshr.map(({ bgColor }) => bgColor),
+        borderColor: FilteredStatuseshr.map(() => "#fff"),
         borderWidth: 1,
       },
     ],
@@ -98,7 +99,7 @@ function HrHome() {
                 </Card>
               </Col>
 
-              {filteredStatuses.map(({ status, bgColor }) => {
+              {FilteredStatuseshr.map(({ status, bgColor }) => {
                 const stat = stats.find((stat) => stat.status === status);
                 return (
                   <Col
