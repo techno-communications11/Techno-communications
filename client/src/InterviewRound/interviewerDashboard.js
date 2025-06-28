@@ -7,7 +7,7 @@ import { MyContext } from "../pages/MyContext";
 import { useNavigate } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import FilteredStatusesinterviewer from "../Constants/FilteredStatusesinterviewer";
+import FilteredStatusesinterviewer from "../Constants/temp";
 import Loader from "../utils/Loader";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
