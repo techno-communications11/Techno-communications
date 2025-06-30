@@ -833,7 +833,7 @@ function SelectedAtHr({
           addedToSchedule,
           markAsAssigned: true,
           applicant_uuid,
-        });
+        },{withCredentials: true});
         if (response.status === 201) {
           toast.success("NTID entry created successfully!");
           setTimeout(() => window.location.reload(), 2000);
@@ -865,7 +865,7 @@ function SelectedAtHr({
         const res = await axios.post(`${API_URL}/updatestatus`, {
           applicant_uuid,
           action,
-        });
+        },{withCredentials: true});
         if (res.status === 200) {
           toast.success(res.data.message || "Status updated successfully");
           setTimeout(() => window.location.reload(), 1800);
@@ -897,7 +897,7 @@ function SelectedAtHr({
       try {
         const res = await axios.post(`${API_URL}/contractsign`, {
           applicant_uuid,
-        });
+        },{withCredentials: true});
         if (res.status === 200) {
           toast.success(res.data.message || "Contract signed successfully");
           setTimeout(() => window.location.reload(), 1800);

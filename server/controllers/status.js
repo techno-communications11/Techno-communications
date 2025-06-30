@@ -4,6 +4,7 @@ const db = require("../testConnection")
 const statusupdate = async (req, res) => {
   const { applicant_uuid, action, comments } = req.body;
 
+   console.log("Request Body:", req.body);
   // console.log("Status update request received for applicant:", applicant_uuid, "with action:", action, "comments:", comments);
 
   try {

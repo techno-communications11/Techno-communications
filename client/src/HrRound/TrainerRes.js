@@ -6,7 +6,7 @@ import { Table } from "react-bootstrap";
 import { Button as MuiButton } from "@mui/material";
 import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
-import ConfirmationModal from "../utils/ConformationModal";
+import ConfirmationModal from "../utils/ConfirmationModal";
 import { MyContext } from "../pages/MyContext";
 import API_URL from "../Constants/ApiUrl";
 

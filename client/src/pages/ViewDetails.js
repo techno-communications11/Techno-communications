@@ -74,9 +74,9 @@ const statusMap = {
   "no show at Hr": ["no show at Hr"],
   "rejected at Hr": ["rejected at Hr"],
   mark_assigned: ["mark_assigned"],
-  "Spanish Evaluation": ["Spanish for Evaluation"],
+  "Spanish Evaluation": ["Spanish Evaluation"],
   backOut: ["backOut"],
-  "Not recommeneded for Hiring": ["Not recommeneded for Hiring"],
+  "Not Recommended For Hiring": ["Not Recommended For Hiring"],
   "Store Evaluation": ["Store Evaluation"],
 };
 const tableHeaders = [
@@ -109,6 +109,7 @@ function ViewDetais() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const { markets } = useFetchMarkets();
+   console.log(captureStatus);
 
   useEffect(() => {
     fetchProfiles();

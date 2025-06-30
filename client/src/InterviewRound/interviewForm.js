@@ -208,7 +208,7 @@ const ApplicantForm = ({
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API}/updatestatus`,
-        payload
+        payload, {withCredentials:true}
       );
 
       if (res.status === 200) {
