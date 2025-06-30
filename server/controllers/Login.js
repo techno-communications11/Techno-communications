@@ -11,7 +11,7 @@ const login = async (req, res) => {
   }
 
   try {
-    const [rows] = await db.query('SELECT id, password, role, work_location_id AS market, name FROM users WHERE email = ?', [email]);
+    const [rows] = await db.query('SELECT id, password, role AS market, name FROM users WHERE email = ?', [email]);
     const user = rows[0];
 
     if (!user) {
