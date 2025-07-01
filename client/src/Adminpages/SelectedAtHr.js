@@ -9,7 +9,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  Popover,
   TableContainer,
   TableHead,
   TableRow,
@@ -20,7 +19,6 @@ import {
   IconButton,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { MdOutlineArrowDropDown } from "react-icons/md";
 import CheckCircleSharpIcon from "@mui/icons-material/CheckCircleSharp";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import Tooltip from "@mui/material/Tooltip";
@@ -35,6 +33,8 @@ import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import Loader from "../utils/Loader";
 import API_URL from "../Constants/ApiUrl";
+import Search from "../utils/Search";
+import NoProfilesFound from "../utils/NoProfilesFound";
 
 // Reusable Hook for Filtering Logic
 const useFilters = (
@@ -59,6 +59,7 @@ const useFilters = (
       market.toLowerCase().trim()
     );
     const lowerCaseCandidateFilter = candidateFilter?.toLowerCase().trim();
+     console.log(lowerCaseCandidateFilter);
 
     // Single-pass filtering
     updatedData = updatedData.filter((row) => {
@@ -157,6 +158,7 @@ const Filters = memo(
     joiningDateFilter,
     setJoiningDateFilter,
     onDownload,
+    setCandidateFilter,
     markets = [],
   }) => (
     <Row className="d-flex justify-content-between mt-2 mb-2">
@@ -180,7 +182,10 @@ const Filters = memo(
           </>
         )}
       </Col>
-      <Col className="col-md-4"></Col>
+
+      <Col className="col-md-4">
+      <Search setcandidateFilter={setCandidateFilter}/>
+      </Col>
       <Col className="col-md-4">
         <DateFilter
           dateFilter={joiningDateFilter}
@@ -490,6 +495,8 @@ const RenderRow = memo(
       (a, b) => new Date(b.ntidCreatedDate) - new Date(a.ntidCreatedDate)
     );
     const row = data[index]
+
+   
     return (
       <TableRow
         key={row.applicant_uuid}
@@ -675,6 +682,7 @@ const RenderRow = memo(
           formatDate={formatDate}
           columns={columns}
         />
+        
       </TableRow>
     );
   }
@@ -693,7 +701,6 @@ function SelectedAtHr({
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [joiningDateFilter, setJoiningDateFilter] = useState([null, null]);
   const [candidateFilter, setCandidateFilter] = useState("");
-  const [anchorEl, setAnchorEl] = useState(null);
   const { userData } = useContext(MyContext);
 
   const userMarket = {
@@ -775,18 +782,7 @@ function SelectedAtHr({
     setSelectedTab(newValue);
   }, []);
 
-  const handleClick = useCallback((event) => {
-    setAnchorEl(event.currentTarget);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setAnchorEl(null);
-  }, []);
-
-  const debouncedSetCandidateFilter = useMemo(
-    () => debounce((value) => setCandidateFilter(value), 300),
-    []
-  );
+ 
 
   const handleInputChange = useCallback((uuid, field, value) => {
     setData(
@@ -995,7 +991,6 @@ function SelectedAtHr({
   const marketsdata = uniqdata.map((row) => row.MarketHiringFor);
   const uniqdataMarkets = [...new Set(marketsdata)];
 
-  const open = Boolean(anchorEl);
 
   return (
     <div dateAdapter={AdapterDateFns}>
@@ -1016,6 +1011,7 @@ function SelectedAtHr({
         setJoiningDateFilter={setJoiningDateFilter}
         onDownload={downloadAsExcel}
         markets={uniqdataMarkets}
+        setCandidateFilter={setCandidateFilter}
       />
 
       {data === null ? (
@@ -1061,38 +1057,7 @@ function SelectedAtHr({
                         >
                           {header}
                         </Typography>
-                        {header === "CandidateDetails" && (
-                          <>
-                            <IconButton onClick={handleClick}>
-                              <MdOutlineArrowDropDown className="text-secondary" />
-                            </IconButton>
-                            <Popover
-                              id={open ? "simple-popover" : undefined}
-                              open={open}
-                              anchorEl={anchorEl}
-                              onClose={handleClose}
-                              anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "center",
-                              }}
-                              transformOrigin={{
-                                vertical: "top",
-                                horizontal: "center",
-                              }}
-                            >
-                              <TextField
-                                variant="outlined"
-                                size="small"
-                                placeholder="Search Candidate..."
-                                value={candidateFilter}
-                                onChange={(e) =>
-                                  debouncedSetCandidateFilter(e.target.value)
-                                }
-                                style={{ width: "200px" }}
-                              />
-                            </Popover>
-                          </>
-                        )}
+                        
                       </div>
                     </TableCell>
                   ) : null;
@@ -1132,11 +1097,13 @@ function SelectedAtHr({
                     >
                       {RenderRow}
                     </FixedSizeList>
+                    
                   </div>
                 </TableCell>
               </TableRow>
             </TableBody>
           </Table>
+          
           <ToastContainer />
         </TableContainer>
       )}
