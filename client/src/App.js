@@ -65,7 +65,7 @@ function AppComponent() {
   const normalizedPath = location.pathname.trim().toLowerCase();
   const showNavbar =
     normalizedPath !== "/" &&
-    normalizedPath !== "/memphis" &&
+    normalizedPath !== "/memphis" && normalizedPath !== "/dubai" &&
     normalizedPath !== "/login";
     
 
@@ -77,6 +77,7 @@ function AppComponent() {
           <>
             <Route path="/" element={<Public />} />
             <Route path="/memphis" element={<Public />} />
+              <Route path="/dubai" element={<Public />} />
             <Route path="/login" element={<Login />} />
           </>
         ) : (

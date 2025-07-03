@@ -195,7 +195,7 @@ function PublicForm() {
             <SubmitButton loading={loading} />
           </Form>
 
-          {pathname !== "/memphis" && (
+          {pathname !== "/memphis" && pathname !== "/dubai" && (
             <Button
               variant="w-100 mt-3"
               code="#E10174"

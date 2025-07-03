@@ -3,6 +3,7 @@ import { FaBuilding } from "react-icons/fa";
 
 const MarketDropdown = ({ selectedMarket, handleSelectMarket, markets, formErrors, pathname }) => {
   const memphisArray = ["memphis", "relocation"];
+  const dubaiArray = ["dubai",  "relocation"];
   return (
     <div className={`rounded ${formErrors.market ? "border-danger" : "border"}`}>
       <Dropdown onSelect={handleSelectMarket}>
@@ -17,6 +18,7 @@ const MarketDropdown = ({ selectedMarket, handleSelectMarket, markets, formError
         <Dropdown.Menu className="w-100 overflow-auto shadow-none border" style={{ height: "15rem" }}>
           {markets
             .filter((m) => pathname === "/memphis" ? memphisArray.includes(m.location_name.toLowerCase()) : true)
+            .filter((m) => pathname === "/dubai" ? dubaiArray.includes(m.location_name.toLowerCase()) : true)
             .sort((a, b) => (a.location_name || "").localeCompare(b.location_name || ""))
             .map((market) => (
               <Dropdown.Item key={market.id} eventKey={market.location_name} className="text-capitalize border fw-medium mt-1">   
