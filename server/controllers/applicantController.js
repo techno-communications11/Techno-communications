@@ -20,19 +20,21 @@ const createApplicantReferral = async (req, res) => {
             'SELECT id FROM work_locations WHERE location_name = ?',
             [work_location]
         );
-
+ console.log("Location Result:", locationResult);
         // Check if the location was found
         if (locationResult.length === 0) {
             return res.status(400).json({ error: 'Invalid work location' });
         }
 
         const locationId = locationResult[0].id;
+         console.log("Location ID:", locationId);
 
         // Check for duplicate phone number or email
         const [existingApplicants] = await db.query(
             'SELECT * FROM applicant_referrals WHERE  phone = ?',
             [phone]
         );
+        console.log("Existing Applicants:", existingApplicants);
 
         if (existingApplicants.length > 0) {
             return res.status(400).json({ error: 'Applicant with the same phone number  already exists' });
@@ -43,6 +45,7 @@ const createApplicantReferral = async (req, res) => {
             'INSERT INTO applicant_referrals (applicant_uuid, name, email, phone, referred_by, sourced_by, reference_id, work_location, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
             [uuid, name, email, phone, referred_by, sourcedBy, reference_id, locationId]
         );
+        console.log("Insert Result:", result);
 
         res.status(201).json({ message: 'Applicant referral created successfully', referralId: result.insertId });
     } catch (error) {

@@ -84,7 +84,7 @@ function New() {
             console.error("Error fetching /hrs:", err);
             return { data: [] };
           });
-
+            console.log("Fetching profiles for user ID:", userData.id);
         const profilesPromise = axios.get(`${API_URL}/users/${userData.id}/applicants`, { withCredentials: true, timeout: 5000 })
           .catch(err => {
             console.error("Error fetching /users/:id/applicants:", err);

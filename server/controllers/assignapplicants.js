@@ -50,12 +50,10 @@ WHERE applicant_uuid = ?
       ]);
 
       if (updateStatusResult.affectedRows > 0) {
-        res
-          .status(200)
-          .json({
-            message:
-              "Applicant assigned to interviewer successfully and applicant status updated",
-          });
+        res.status(200).json({
+          message:
+            "Applicant assigned to interviewer successfully and applicant status updated",
+        });
       } else {
         res.status(404).json({ message: "Applicant not found." });
       }
@@ -66,11 +64,9 @@ WHERE applicant_uuid = ?
     }
   } catch (error) {
     console.error("Error assigning applicant to interviewer:", error);
-    res
-      .status(500)
-      .json({
-        message: "An error occurred while assigning applicant to interviewer.",
-      });
+    res.status(500).json({
+      message: "An error occurred while assigning applicant to interviewer.",
+    });
   }
 };
 
@@ -118,12 +114,10 @@ const assignApplicanttohr = async (req, res) => {
       ]);
 
       if (updateStatusResult.affectedRows > 0) {
-        res
-          .status(200)
-          .json({
-            message:
-              "Applicant assigned to Hr successfully and applicant status updated",
-          });
+        res.status(200).json({
+          message:
+            "Applicant assigned to Hr successfully and applicant status updated",
+        });
       } else {
         res.status(404).json({ message: "Applicant not found." });
       }
@@ -178,12 +172,10 @@ const assigntoTrainer = async (req, res) => {
       ]);
 
       if (updateStatusResult.affectedRows > 0) {
-        res
-          .status(200)
-          .json({
-            message:
-              "Applicant assigned to trainer successfully and applicant status updated.",
-          });
+        res.status(200).json({
+          message:
+            "Applicant assigned to trainer successfully and applicant status updated.",
+        });
       } else {
         res.status(404).json({ message: "Applicant not found." });
       }
@@ -194,11 +186,9 @@ const assigntoTrainer = async (req, res) => {
     }
   } catch (error) {
     console.error("Error assigning applicant to trainer:", error);
-    res
-      .status(500)
-      .json({
-        message: "An error occurred while assigning applicant to trainer.",
-      });
+    res.status(500).json({
+      message: "An error occurred while assigning applicant to trainer.",
+    });
   }
 };
 

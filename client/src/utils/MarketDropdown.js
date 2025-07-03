@@ -3,7 +3,7 @@ import { FaBuilding } from "react-icons/fa";
 
 const MarketDropdown = ({ selectedMarket, handleSelectMarket, markets, formErrors, pathname }) => {
   const memphisArray = ["memphis", "relocation"];
-  const dubaiArray = ["dubai",  "relocation"];
+  const dubaiArray = ["dubai"];
   return (
     <div className={`rounded ${formErrors.market ? "border-danger" : "border"}`}>
       <Dropdown onSelect={handleSelectMarket}>
