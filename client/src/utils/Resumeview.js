@@ -51,23 +51,37 @@ function ResumeView() {
       <iframe
         src={googleDocsUrl}
         title="Resume"
-        style={{ width: "100%", height: "800px", border: "none" }} // Increased height for better viewing
+        className="w-full h-[800px] border-none"
         onError={() => setError("Failed to load resume")}
       />
     );
   }
 
+  // 404 Not Found design for missing UUID or errors
+  const notFoundContent = (
+    <div className="flex flex-col items-center justify-center mt-8">
+      <img
+        src="/404.webp"
+        alt="404 Not Found"
+        className="w-full max-w-md rounded-lg shadow-md mb-4"
+      />
+      
+    </div>
+  );
+
   return (
-    <div className="p-6">
+    <div className="p-6 min-h-screen flex flex-col items-center">
       <h1 className="text-2xl font-bold mb-4">Resume View</h1>
-      <p className="text-gray-800 mb-2">
-        Applicant UUID: <strong>{applicant_uuid}</strong>
-      </p>
+      {applicant_uuid && (
+        <p className="text-gray-800 mb-4">
+          Applicant UUID: <strong>{applicant_uuid}</strong>
+        </p>
+      )}
 
-      {loading && <loader/>}
-      {error && <p className="text-red-600">Error: {error}</p>}
-
-      {resumeContent}
+      {loading && <Loader />}
+      {error || (!loading && !resumeContent && !applicant_uuid)
+        ? notFoundContent
+        : resumeContent}
     </div>
   );
 }
