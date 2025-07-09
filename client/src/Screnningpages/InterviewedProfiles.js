@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import  { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { Modal, Form, Dropdown } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
@@ -153,15 +153,12 @@ export default function InterviewedProfiles() {
           await Promise.all([
             axios.get(`${apiurl}/users/${userData.id}/applicantsatalllevel`, {
               withCredentials: true,
-              timeout: 5000,
             }),
             axios.get(`${apiurl}/hrs`, {
               withCredentials: true,
-              timeout: 5000,
             }),
             axios.get(`${apiurl}/interviewer`, {
               withCredentials: true,
-              timeout: 5000,
             }),
           ]);
 
@@ -194,7 +191,6 @@ export default function InterviewedProfiles() {
         `${apiurl}/first_round_res/${applicantId}`,
         {
           withCredentials: true,
-          timeout: 5000,
         }
       );
 
@@ -352,7 +348,6 @@ export default function InterviewedProfiles() {
 
       const response = await axios.post(url, payload, {
         withCredentials: true,
-        timeout: 5000,
       });
       if (response.status === 200) {
         toast.success(response.data.message || "Assignment successful.");

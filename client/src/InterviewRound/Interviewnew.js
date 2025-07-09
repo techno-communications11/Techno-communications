@@ -10,6 +10,7 @@ import Loader from "../utils/Loader";
 import { useContext } from 'react';
 import { MyContext } from '.././pages/MyContext';
 import API_URL from "../Constants/ApiUrl";
+import { Button } from "@mui/material";
 
 const InterViewHome = ({
   setApplicant_uuid,
@@ -113,7 +114,7 @@ const InterViewHome = ({
     )
   }
 
-   const TableHeader = ["SI.No", "Applicant Name", "Applicant UUID", "Applicant Phone", "Applicant email", "Interview Time","Action","Assign New Interviewer"];
+   const TableHeader = ["SI.No", "Applicant Name", "Applicant UUID", "Applicant Phone", "Applicant email", "Interview Time", "Resume","Action","Assign New Interviewer"];
 
   return (
     <div className="container-fluid my-3">
@@ -148,6 +149,8 @@ const InterViewHome = ({
                   "MM/dd/yyyy hh:mm a"
                 )}
               </td>
+               <td><Button variant="contained" color="success" onClick={() => navigate(`/resumeview?applicant_uuid=${profile.applicant_uuid}`)}>View resume</Button></td>
+
               <td className="p-2">
                 <button
                   className="btn btn-primary"

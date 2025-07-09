@@ -10,6 +10,7 @@ const {
   getAllTrainerFeedbackApplicants,getAllTrainerFeedbackApplicantDetails
 } = require('../controllers/screening');
 const { login } = require('../controllers/Login');
+const upload = require('../utils/multerConfig.js'); //
 const {
   getApplicantsForScreening,
   assignApplicantToUser,
@@ -27,6 +28,7 @@ const { createApplicantReferral, updatemail } = require('../controllers/applican
 const { getmarkets } = require('../controllers/Markets');
 const { addFirstRoundEvaluation, getHREvaluationById } = require('../controllers/interviewevaluation');
 const { addHREvaluation } = require('../controllers/hrevaluationController');
+const {getResumeSignedUrl}=require('../services/ReadResume.js')
 const {
   ContractSign,
   getStatusCounts,
@@ -57,6 +59,8 @@ const authMiddleware=require('../middleware/authMiddleware')
 router.put('/hrevalution/:applicant_id', authMiddleware, updateform);
 router.put('/update-comment', authMiddleware, updateComment);
 router.get('/user/me', authMiddleware,getUser)
+router.get('/resume/:applicant_uuid', authMiddleware, getResumeSignedUrl);
+
 
 router.get('/applicants/selected-at-hr', authMiddleware, getSelectedAtHr);
 router.get('/applicants/ntidDashboardCount', authMiddleware, getNtidDashboardCounts);
@@ -107,7 +111,7 @@ router.post('/contractsign', authMiddleware,ContractSign);
 router.get('/markets', getmarkets);
 router.get('/user-status',authMiddleware, getAllUsersStatus);
 
-router.post('/submit-public-form', createApplicantReferral);
+router.post('/submit-public-form', upload.single("file"), createApplicantReferral);
 router.post('/assigntohr',authMiddleware, assigningapplications.assignApplicanttohr);
 router.post('/assign-interviewer',authMiddleware, assigningapplications.assignApplicanttointerviewer);
 router.post('/assign-trainer',authMiddleware, assigningapplications.assigntoTrainer);

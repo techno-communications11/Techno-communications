@@ -12,6 +12,7 @@ import ConfirmationModal from '../utils/ConfirmationModal'; // Corrected import 
 import { Button as MuiButton } from '@mui/material';
 import API_URL from '../Constants/ApiUrl';
 
+
 function HrNew() {
   const navigate = useNavigate();
   const { userData, setapplicant_uuid } = useContext(MyContext) || {};
@@ -153,6 +154,7 @@ function HrNew() {
     'Applicant Name',
     'Applicant UUID',
     'Time of Interview',
+    'Resume',
     'Action',
     'Assign New HR',
   ];
@@ -182,6 +184,8 @@ function HrNew() {
                         })
                       : '-'}
                   </td>
+                      <td><MuiButton variant="contained" color="success" onClick={() => navigate(`/resumeview?applicant_uuid=${profile.applicant_uuid}`)}>View resume</MuiButton></td>
+                  
                   <td className="p-2">
                     <MuiButton
                       variant="contained"

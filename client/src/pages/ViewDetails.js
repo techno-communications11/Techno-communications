@@ -16,7 +16,6 @@ import {
   Paper,
   Typography,
   Box,
-  Stack,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
@@ -26,6 +25,8 @@ import TableHead from "../utils/TableHead";
 import { useParams } from "react-router";
 import MarketSelector from "../utils/MarketSelector";
 import { FaRegEdit } from "react-icons/fa";
+import { useNavigate } from "react-router";
+import "../Styles/detailview.css";
 
 const statusMap = {
   Total1: [
@@ -88,6 +89,7 @@ const tableHeaders = [
   "Location",
   "Screener",
   "Interviewer",
+  "Resume",
   "HR",
   "Status",
   "View/ Update",
@@ -109,8 +111,7 @@ function ViewDetais() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const { markets } = useFetchMarkets();
-   console.log(captureStatus);
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchProfiles();
   }, [captureStatus]);
@@ -391,154 +392,6 @@ function ViewDetais() {
         padding: "16px",
       }}
     >
-      <style>
-        {`
-          .jira-container {
-            background-color: #FFFFFF;
-            border-radius: 3px;
-            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
-            border: 1px solid #DFE1E6;
-          }
-          
-          .jira-header {
-            background-color: #FAFBFC;
-            border-bottom: 1px solid #DFE1E6;
-            padding: 16px 24px;
-          }
-          
-          .jira-sidebar {
-            background-color: #FFFFFF;
-            border-right: 1px solid #DFE1E6;
-            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
-          }
-          
-          .jira-table {
-            background-color: #FFFFFF;
-          }
-          
-          .jira-table-header {
-            background-color: #F4F5F7;
-            border-bottom: 2px solid #DFE1E6;
-            font-weight: 600;
-            color: #5E6C84;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          
-          .jira-table-row {
-            border-bottom: 1px solid #DFE1E6;
-            transition: background-color 0.2s;
-          }
-          
-          .jira-table-row:hover {
-            background-color: #F4F5F7;
-          }
-          
-          .jira-table-cell {
-            padding: 8px 12px;
-            font-size: 14px;
-            color: #172B4D;
-            vertical-align: middle;
-          }
-          
-          .jira-status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-          }
-          
-          .jira-button {
-            background-color: #0052CC;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 3px;
-            padding: 6px 12px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          
-          .jira-button:hover {
-            background-color: #0747A6;
-          }
-          
-          .jira-button-secondary {
-            background-color: #FAFBFC;
-            color: #42526E;
-            border: 1px solid #DFE1E6;
-          }
-          
-          .jira-button-secondary:hover {
-            background-color: #EBECF0;
-          }
-          
-          .jira-action-button {
-            background: none;
-            border: none;
-            color: #5E6C84;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 3px;
-            transition: all 0.2s;
-          }
-          
-          .jira-action-button:hover {
-            background-color: #F4F5F7;
-            color: #0052CC;
-          }
-          
-          .jira-modal {
-            background-color: #FFFFFF;
-            border-radius: 3px;
-            box-shadow: 0 10px 50px rgba(9, 30, 66, 0.54);
-          }
-          
-          .jira-modal-header {
-            background-color: #FAFBFC;
-            border-bottom: 1px solid #DFE1E6;
-            padding: 16px 24px;
-            border-radius: 3px 3px 0 0;
-          }
-          
-          .jira-input {
-            border: 2px solid #DFE1E6;
-            border-radius: 3px;
-            padding: 8px 12px;
-            font-size: 14px;
-            transition: border-color 0.2s;
-            background-color: #FAFBFC;
-            width: 100%;
-            margin-bottom: 8px;
-          }
-          
-          .jira-input:focus {
-            border-color: #4C9AFF;
-            background-color: #FFFFFF;
-            outline: none;
-          }
-          
-          .jira-count-badge {
-            background-color: #0052CC;
-            color: #FFFFFF;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-          }
-        `}
-      </style>
-
       {loading ? (
         <div style={{ padding: "40px", textAlign: "center" }}>
           <Loader />
@@ -638,7 +491,7 @@ function ViewDetais() {
                 />
               </div>
               <div style={{ marginTop: "16px", textAlign: "center" }}>
-                 <label
+                <label
                   style={{
                     color: "#5E6C84",
                     fontSize: "12px",
@@ -649,14 +502,14 @@ function ViewDetais() {
                 >
                   Pages
                 </label>
-              <Pagination
-                count={pageCount}
-                page={currentPage}
-                onChange={handlePageChange}
-                color="primary"
-                className="d-flex justify-content-center"
-              />
-            </div>
+                <Pagination
+                  count={pageCount}
+                  page={currentPage}
+                  onChange={handlePageChange}
+                  color="primary"
+                  className="d-flex justify-content-center"
+                />
+              </div>
             </div>
           </div>
 
@@ -685,32 +538,48 @@ function ViewDetais() {
                 of {uniqueFlattenedProfiles.length} applications
               </p>
             </div>
-
             <TableContainer
               component={Paper}
               className="jira-table"
-              style={{ overflowX: "auto", maxHeight: "600px" }}
+              style={{
+                overflowX: "auto",
+                maxHeight: "600px",
+                maxWidth: "1200px",
+              }}
             >
-              <Table stickyHeader>
+              <Table stickyHeader style={{ tableLayout: "auto" }}>
+                {" "}
+                {/* Added tableLayout: "fixed" */}
                 <TableHead headData={tableHeaders} />
-                <TableBody>
+                <TableBody className="text-nowrap gap-1">
                   {currentProfiles.map((profile, index) => (
                     <TableRow key={index} className="jira-table-row">
                       <TableCell
                         className="jira-table-cell"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", padding: "4px 6px" }} // Reduced padding
                       >
                         {indexOfFirstProfile + index + 1}
                       </TableCell>
                       <TableCell
                         className="jira-table-cell"
-                        style={{ textAlign: "center", textWrap: "nowrap" }}
+                        style={{
+                          textAlign: "center",
+                          textWrap: "nowrap",
+                          padding: "4px 6px",
+                        }} // Reduced padding
                       >
                         {profile.created_at_date.slice(0, 10)}
                       </TableCell>
-                      <TableCell className="jira-table-cell">
-                        <Box display="flex">
-                          <Box ml={2}>
+                      <TableCell
+                        className="jira-table-cell"
+                        style={{ padding: "4px 6px" }}
+                      >
+                        <Box display="flex" style={{ margin: 0 }}>
+                          {" "}
+                          {/* Removed extra margin */}
+                          <Box ml={1}>
+                            {" "}
+                            {/* Reduced margin-left */}
                             <Typography
                               variant="body1"
                               style={{
@@ -732,13 +601,13 @@ function ViewDetais() {
                       </TableCell>
                       <TableCell
                         className="jira-table-cell"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", padding: "4px 6px" }} // Reduced padding
                       >
                         {profile.applicant_referred_by?.toLowerCase() || "N/A"}
                       </TableCell>
                       <TableCell
                         className="jira-table-cell"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", padding: "4px 6px" }} // Reduced padding
                       >
                         <span
                           style={{
@@ -755,31 +624,44 @@ function ViewDetais() {
                       </TableCell>
                       <TableCell
                         className="jira-table-cell"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", padding: "4px 6px" }} // Reduced padding
                       >
                         {profile.work_location_name?.toLowerCase() || "N/A"}
                       </TableCell>
                       <TableCell
                         className="jira-table-cell"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", padding: "4px 6px" }} // Reduced padding
                       >
                         {profile.screening_manager_name?.toLowerCase() || "N/A"}
                       </TableCell>
                       <TableCell
                         className="jira-table-cell"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", padding: "4px 6px" }} // Reduced padding
                       >
                         {profile.interviewer_name?.toLowerCase() || "N/A"}
                       </TableCell>
+                      <TableCell style={{ padding: "4px 6px" }}>
+                        <Button
+                          variant="bg-primary btn-sm"
+                          label="View Resume"
+                          onClick={() =>
+                            navigate(
+                              `/resumeview?applicant_uuid=${profile.applicant_uuid}`
+                            )
+                          }
+                        >
+                          View Resume
+                        </Button>
+                      </TableCell>
                       <TableCell
                         className="jira-table-cell"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", padding: "4px 6px" }} // Reduced padding
                       >
                         {profile.hr_name || "N/A"}
                       </TableCell>
                       <TableCell
                         className="jira-table-cell"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", padding: "4px 6px" }} // Reduced padding
                       >
                         <span
                           className="jira-status-badge"
@@ -829,10 +711,9 @@ function ViewDetais() {
                           {profile.status || "N/A"}
                         </span>
                       </TableCell>
-
                       <TableCell
                         className="jira-table-cell d-flex justify-content-center"
-                        style={{ textAlign: "center" }}
+                        style={{ textAlign: "center", padding: "4px 6px" }} // Reduced padding
                       >
                         <OverlayTrigger
                           placement="top"
@@ -854,7 +735,6 @@ function ViewDetais() {
                                     "N/A"
                                   );
                                 }
-
                                 if (
                                   [
                                     "put on hold at Interview",
@@ -867,7 +747,6 @@ function ViewDetais() {
                                 ) {
                                   return profile.first_round_comments || "N/A";
                                 }
-
                                 if (
                                   [
                                     "Recommended For Hiring",
@@ -884,7 +763,6 @@ function ViewDetais() {
                                 ) {
                                   return profile.notes || "N/A";
                                 }
-
                                 return "N/A";
                               })()}
                             </Tooltip>
@@ -892,7 +770,6 @@ function ViewDetais() {
                         >
                           {(() => {
                             const { status } = profile;
-
                             const screeningStatuses = [
                               "pending at Screening",
                               "rejected at Screening",
@@ -900,7 +777,6 @@ function ViewDetais() {
                               "Not Interested at screening",
                               "moved to Interview",
                             ];
-
                             const interviewStatuses = [
                               "put on hold at Interview",
                               "Moved to HR",
@@ -909,7 +785,6 @@ function ViewDetais() {
                               "rejected at Interview",
                               "no show at Interview",
                             ];
-
                             const hrStatuses = [
                               "Recommended For Hiring",
                               "Sent for Evaluation",
@@ -922,7 +797,6 @@ function ViewDetais() {
                               "backOut",
                               "mark_assigned",
                             ];
-
                             const hasComment =
                               (screeningStatuses.includes(status) &&
                                 profile.applicant_referrals_comments &&
@@ -948,13 +822,12 @@ function ViewDetais() {
                             );
                           })()}
                         </OverlayTrigger>
-
                         <Button
                           icon={<FaRegEdit />}
                           variant="bg-primary btn-sm"
                           style={{
                             fontSize: "12px",
-                            marginLeft: "8px",
+                            marginLeft: "4px", // Reduced margin
                           }}
                           onClick={() => handleOpenModal(profile)}
                         />
@@ -964,7 +837,6 @@ function ViewDetais() {
                 </TableBody>
               </Table>
             </TableContainer>
-            
           </div>
         </div>
       ) : (

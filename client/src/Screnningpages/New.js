@@ -11,6 +11,7 @@ import Loader from "../utils/Loader";
 import { MyContext } from "../pages/MyContext";
 import API_URL from "../Constants/ApiUrl";
 import TableHead from "../utils/TableHead";
+import { useNavigate } from "react-router";
 
  const tableHeaders = [
   "SC.NO",
@@ -19,6 +20,7 @@ import TableHead from "../utils/TableHead";
   "Referred By",
   "Reference NTID",
   "Created At",
+  "Resume",
   "Action", 
 ];  
 
@@ -49,6 +51,7 @@ function New() {
   const { userData, isLoading: userDataLoading } = useContext(MyContext);
 
   const hasFetchedData = useRef(false);
+  const navigate=useNavigate();
   useEffect(() => {
     if (userDataLoading) {
       return;
@@ -67,25 +70,25 @@ function New() {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        const screensPromise = axios.get(`${API_URL}/screening`, { withCredentials: true, timeout: 5000 })
+        const screensPromise = axios.get(`${API_URL}/screening`, { withCredentials: true, })
           .catch(err => {
             console.error("Error fetching /screening:", err);
             return { data: [] };
           });
 
-        const hostsPromise = axios.get(`${API_URL}/interviewer`, { withCredentials: true, timeout: 5000 })
+        const hostsPromise = axios.get(`${API_URL}/interviewer`, { withCredentials: true, })
           .catch(err => {
             console.error("Error fetching /interviewer:", err);
             return { data: [] };
           });
 
-        const hrsPromise = axios.get(`${API_URL}/hrs`, { withCredentials: true, timeout: 5000 })
+        const hrsPromise = axios.get(`${API_URL}/hrs`, { withCredentials: true, })
           .catch(err => {
             console.error("Error fetching /hrs:", err);
             return { data: [] };
           });
             console.log("Fetching profiles for user ID:", userData.id);
-        const profilesPromise = axios.get(`${API_URL}/users/${userData.id}/applicants`, { withCredentials: true, timeout: 5000 })
+        const profilesPromise = axios.get(`${API_URL}/users/${userData.id}/applicants`, { withCredentials: true, })
           .catch(err => {
             console.error("Error fetching /users/:id/applicants:", err);
             return { data: [] };
@@ -178,7 +181,7 @@ function New() {
     try {
       const response = await axios.post(`${API_URL}/updatestatus`, payload, {
         withCredentials: true,
-        timeout: 5000,
+        
       });
 
       if (response.status === 200) {
@@ -218,7 +221,7 @@ function New() {
           newUserId: selected.id,
           applicantId: selectedProfile.applicant_uuid,
           comment,
-        }, { withCredentials: true, timeout: 5000 });
+        }, { withCredentials: true, });
 
         if (response.status === 200) {
           toast.success(response.data.message);
@@ -254,7 +257,7 @@ function New() {
     try {
       const response = await axios.post(`${API_URL}/assign-interviewer`, formData, {
         withCredentials: true,
-        timeout: 5000,
+        
       });
 
       if (response.status === 200) {
@@ -309,7 +312,7 @@ function New() {
     try {
       const response = await axios.post(`${API_URL}/updateemail`, payload, {
         withCredentials: true,
-        timeout: 5000,
+        
       });
 
       if (response.status === 200) {
@@ -372,9 +375,9 @@ function New() {
                   sortedProfiles.map((profile, index) => (
                     <tr key={profile.applicant_uuid || index}>
                       <td className="p-2">{index + 1}</td>
-                      <td className="p-2">{profile.applicant_name || "-"}</td>
+                      <td className="p-2 text-capitalize">{profile.applicant_name?.toLowerCase() || "-"}</td>
                       <td className="p-2">{profile.applicant_phone || "-"}</td>
-                      <td className="p-2">{profile.referred_by || "-"}</td>
+                      <td className="p-2 text-capitalize">{profile.referred_by?.toLowerCase()|| "-"}</td>
                       <td className="p-2">{profile.reference_id || "-"}</td>
                       <td className="p-2">
                         {profile.created_at
@@ -383,6 +386,7 @@ function New() {
                             })
                           : "-"}
                       </td>
+                       <td><Button variant="contained" color="success" onClick={() => navigate(`/resumeview?applicant_uuid=${profile.applicant_uuid}`)}>View resume</Button></td>
                       <td className="p-2">
                         <Button
                           variant="contained"

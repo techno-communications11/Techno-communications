@@ -1,5 +1,6 @@
 const db = require('../testConnection');
 const crypto = require('crypto');
+const { uploadResumeForApplicant } = require("../services/resumeService");
 
 const generateShortID = (name, phoneNumber, currentYear) => {
     const rawString = `${name}-${phoneNumber}-${currentYear}`;
@@ -9,50 +10,68 @@ const generateShortID = (name, phoneNumber, currentYear) => {
 };
 
 const createApplicantReferral = async (req, res) => {
+  const connection = await db.getConnection();
+  await connection.beginTransaction();
+
+  try {
     const { name, email, phone, referred_by, reference_id, sourcedBy, work_location } = req.body;
+    const file = req.file; // from multer
     const currentYear = new Date().getFullYear();
     const uuid = generateShortID(name, phone, currentYear);
-    console.log("Trying to submit..........", name, phone, referred_by, reference_id, work_location);
+     console.log(file);
+      console.log(req.body);
 
-    try {
-        // Fetch the work location ID based on the location name
-        const [locationResult] = await db.query(
-            'SELECT id FROM work_locations WHERE location_name = ?',
-            [work_location]
-        );
- console.log("Location Result:", locationResult);
-        // Check if the location was found
-        if (locationResult.length === 0) {
-            return res.status(400).json({ error: 'Invalid work location' });
-        }
-
-        const locationId = locationResult[0].id;
-         console.log("Location ID:", locationId);
-
-        // Check for duplicate phone number or email
-        const [existingApplicants] = await db.query(
-            'SELECT * FROM applicant_referrals WHERE  phone = ?',
-            [phone]
-        );
-        console.log("Existing Applicants:", existingApplicants);
-
-        if (existingApplicants.length > 0) {
-            return res.status(400).json({ error: 'Applicant with the same phone number  already exists' });
-        }
-
-        // Insert the applicant details into the applicant_referrals table
-        const result = await db.query(
-            'INSERT INTO applicant_referrals (applicant_uuid, name, email, phone, referred_by, sourced_by, reference_id, work_location, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-            [uuid, name, email, phone, referred_by, sourcedBy, reference_id, locationId]
-        );
-        console.log("Insert Result:", result);
-
-        res.status(201).json({ message: 'Applicant referral created successfully', referralId: result.insertId });
-    } catch (error) {
-        console.error('Error creating applicant referral:', error);
-        res.status(500).json({ error: error.message });
+    // 1. Validate location
+    const [locationResult] = await connection.query(
+      'SELECT id FROM work_locations WHERE location_name = ?',
+      [work_location]
+    );
+    if (locationResult.length === 0) {
+      await connection.rollback();
+      return res.status(400).json({ error: 'Invalid work location' });
     }
+    const locationId = locationResult[0].id;
+
+    // 2. Duplicate check
+    const [existing] = await connection.query(
+      'SELECT id FROM applicant_referrals WHERE phone = ?',
+      [phone]
+    );
+    if (existing.length > 0) {
+      await connection.rollback();
+      return res.status(400).json({ error: 'Applicant already exists' });
+    }
+
+    // 3. Insert applicant
+    await connection.query(
+      `INSERT INTO applicant_referrals 
+        (applicant_uuid, name, email, phone, referred_by, sourced_by, reference_id, work_location, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [uuid, name, email, phone, referred_by, sourcedBy, reference_id, locationId]
+    );
+
+    // 4. Call resume upload service
+    if (file) {
+      await uploadResumeForApplicant({
+        file,
+        applicant_uuid: uuid,
+        uploaded_by: req.user?.id || null,
+        db: connection,
+      });
+    }
+
+    await connection.commit();
+    res.status(201).json({ message: "Referral + Resume created", applicant_uuid: uuid });
+
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error:", error);
+    res.status(500).json({ error: "Something went wrong" });
+  } finally {
+    connection.release();
+  }
 };
+
 
 
 const updatemail = async (req, res) => {

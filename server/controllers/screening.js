@@ -1,10 +1,8 @@
 const db = require("../testConnection");
-// const { io } = require('../../app');
-
-// module.exports = { getApplicantsForScreening };
 
 const getApplicantsofScreening = async (req, res) => {
   const { userId } = req.params;
+  console.log(userId,"ids");
 
   try {
     // Step 1: Get Work Locations for the User
@@ -54,11 +52,9 @@ const getApplicantsofScreening = async (req, res) => {
       }), // Format as desired
       // {new Date(profile.time_of_hrinterview).toLocaleString('en-US', { hour12: true })}
     }));
+     console.log(formattedApplicantsResult,"ddddddddd");
 
-    // Log the formatted results (for debugging)
-    // console.log(formattedApplicantsResult);
-
-    // Send the formatted data as the response
+  
     res.status(200).json(formattedApplicantsResult);
   } catch (error) {
     console.error("Error:", error);

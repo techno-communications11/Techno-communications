@@ -46,6 +46,7 @@ import Ntidboard from "./Adminpages/Ntidboard";
 import NTIDData from "./Adminpages/NTIDData";
 import { MyContext } from "./pages/MyContext";
 import { useContext } from "react";
+import Resumeview from "./utils/Resumeview";
 function App() {
   return (
     <Router>
@@ -85,7 +86,10 @@ function AppComponent() {
             {userData.role === "screening_manager" ||
             userData.role === "hr" ||
             userData.role === "interviewer" ? (
+              <>
               <Route path="/new" element={<New />} />
+              <Route path="/resumeview" element={<Resumeview/>}/>
+              </>
             ) : null}
 
             {userData.role === "admin" && (
