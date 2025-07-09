@@ -48,40 +48,129 @@ function ResumeView() {
   if (resumeUrl) {
     const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(resumeUrl)}&embedded=true`;
     resumeContent = (
-      <iframe
-        src={googleDocsUrl}
-        title="Resume"
-        className="w-full h-[800px] border-none"
-        onError={() => setError("Failed to load resume")}
-      />
+      <div className="card">
+        <div className="card-body p-0">
+          <iframe
+            src={googleDocsUrl}
+            title="Resume"
+            className="w-100 border-0"
+            style={{ height: "800px" }}
+            onError={() => setError("Failed to load resume")}
+          />
+        </div>
+      </div>
     );
   }
 
-  // 404 Not Found design for missing UUID or errors
-  const notFoundContent = (
-    <div className="flex flex-col items-center justify-center mt-8">
-      <img
-        src="/404.webp"
-        alt="404 Not Found"
-        className="w-full max-w-md rounded-lg shadow-md mb-4"
-      />
+  return (
+    <div className="container-fluid py-4">
+      <div className="row">
+        <div className="col-12">
+          {/* Header Section */}
+          <div className="card mb-4">
+            <div className="card-header bg-primary text-white">
+              <h1 className="h3 mb-0">
+                <i className="fas fa-file-alt me-2"></i>
+                Resume View
+              </h1>
+            </div>
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <span className="badge bg-secondary me-2">Applicant UUID:</span>
+                <span className="fw-bold text-dark">{applicant_uuid}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Loading State */}
+          {loading && (
+            <div className="d-flex justify-content-center align-items-center py-5">
+              <div className="text-center">
+                <Loader />
+                <p className="mt-3 text-muted">Loading resume...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+         {error && (
+  <div className="flex flex-col items-center justify-center min-h-[30vh] text-center p-6">
+    <div className="max-w-md mx-auto">
+    
+      
+      <h2 className="text-3xl font-bold text-gray-800 mb-3">
+        No Resume Found
+      </h2>
+      
+      <p className="text-lg text-gray-600 mb-6">
+        We couldn't find a resume for this applicant.
+      </p>
+      
+     
+      
       
     </div>
-  );
+  </div>
+)}
 
-  return (
-    <div className="p-6 min-h-screen flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-4">Resume View</h1>
-      {applicant_uuid && (
-        <p className="text-gray-800 mb-4">
-          Applicant UUID: <strong>{applicant_uuid}</strong>
-        </p>
-      )}
+          {/* Resume Content */}
+          {resumeContent && (
+            <div className="row">
+              <div className="col-12">
+                <div className="card shadow-sm">
+                  <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 className="mb-0">
+                      <i className="fas fa-eye me-2"></i>
+                      Resume Preview
+                    </h5>
+                    <div className="btn-group" role="group">
+                      <button 
+                        type="button" 
+                        className="btn btn-outline-primary btn-sm"
+                        onClick={() => window.open(resumeUrl, '_blank')}
+                      >
+                        <i className="fas fa-external-link-alt me-1"></i>
+                        Open in New Tab
+                      </button>
+                      <button 
+                        type="button" 
+                        className="btn btn-outline-success btn-sm"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = resumeUrl;
+                          link.download = `resume_${applicant_uuid}.pdf`;
+                          link.click();
+                        }}
+                      >
+                        <i className="fas fa-download me-1"></i>
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                  <div className="card-body p-0">
+                    {resumeContent}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
-      {loading && <Loader />}
-      {error || (!loading && !resumeContent && !applicant_uuid)
-        ? notFoundContent
-        : resumeContent}
+          {/* Empty State */}
+          {!loading && !error && !resumeUrl && (
+            <div className="card">
+              <div className="card-body text-center py-5">
+                <i className="fas fa-file-alt fa-4x text-muted mb-4"></i>
+                <h2 className="fw-bold text-dark mb-3" style={{ fontSize: '2.5rem' }}>
+                  No Resume
+                </h2>
+                <p className="text-muted fs-5 mb-0">
+                  No resume is available for this applicant.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
