@@ -86,6 +86,7 @@ function AppComponent() {
             {userData.role === "screening_manager" ||
             userData.role === "hr" ||
             userData.role === "interviewer" ? (
+              
               <>
               <Route path="/new" element={<New />} />
               <Route path="/resumeview" element={<Resumeview/>}/>
