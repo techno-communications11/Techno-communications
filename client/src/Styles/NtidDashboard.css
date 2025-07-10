@@ -1,0 +1,145 @@
+
+          .jira-container {
+            background-color: #FFFFFF;
+            border-radius: 3px;
+            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+            border: 1px solid #DFE1E6;
+          }
+          
+          .jira-header {
+            background-color: #FAFBFC;
+            border-bottom: 1px solid #DFE1E6;
+            padding: 16px 24px;
+          }
+          
+          .jira-sidebar {
+            background-color: #FFFFFF;
+            border-right: 1px solid #DFE1E6;
+            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+          }
+          
+          .jira-table {
+            background-color: #FFFFFF;
+          }
+          
+          .jira-table-header {
+            background-color: #F4F5F7;
+            border-bottom: 2px solid #DFE1E6;
+            font-weight: 600;
+            color: #5E6C84;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          
+          .jira-table-row {
+            border-bottom: 1px solid #DFE1E6;
+            transition: background-color 0.2s;
+          }
+          
+          .jira-table-row:hover {
+            background-color: #F4F5F7;
+          }
+          
+          .jira-table-cell {
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #172B4D;
+            vertical-align: middle;
+          }
+          
+          .jira-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+          }
+          
+          .jira-button {
+            background-color: #0052CC;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 3px;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .jira-button:hover {
+            background-color: #0747A6;
+          }
+          
+          .jira-button-secondary {
+            background-color: #FAFBFC;
+            color: #42526E;
+            border: 1px solid #DFE1E6;
+          }
+          
+          .jira-button-secondary:hover {
+            background-color: #EBECF0;
+          }
+          
+          .jira-action-button {
+            background: none;
+            border: none;
+            color: #5E6C84;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 3px;
+            transition: all 0.2s;
+          }
+          
+          .jira-action-button:hover {
+            background-color: #F4F5F7;
+            color: #0052CC;
+          }
+          
+          .jira-modal {
+            background-color: #FFFFFF;
+            border-radius: 3px;
+            box-shadow: 0 10px 50px rgba(9, 30, 66, 0.54);
+          }
+          
+          .jira-modal-header {
+            background-color: #FAFBFC;
+            border-bottom: 1px solid #DFE1E6;
+            padding: 16px 24px;
+            border-radius: 3px 3px 0 0;
+          }
+          
+          .jira-input {
+            border: 2px solid #DFE1E6;
+            border-radius: 3px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            background-color: #FAFBFC;
+            width: 100%;
+            margin-bottom: 8px;
+          }
+          
+          .jira-input:focus {
+            border-color: #4C9AFF;
+            background-color: #FFFFFF;
+            outline: none;
+          }
+          
+          .jira-count-badge {
+            background-color: #0052CC;
+            color: #FFFFFF;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+          }
+      

@@ -1,37 +1,42 @@
-import React, { useState, useEffect, useContext } from "react";
-import { MyContext } from "../pages/MyContext";
+import { useContext, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import { IoMdDownload } from "react-icons/io";
 import { Table } from "react-bootstrap";
 import * as XLSX from "xlsx";
+
+import { MyContext } from "../pages/MyContext";
+import useFetchNtidDashCount from "../Hooks/useFetchNtidDashCount";
 import TableHead from "../utils/TableHead";
 import Button from "../utils/Button";
-import useFetchNtidDashCount from "../Hooks/useFetchNtidDashCount";
 import Loader from "../utils/Loader";
-import { useParams } from "react-router";
- const TableHeaders = [
-    "S.No",
-    "Applicant ID",
-    "Name",
-    "Joining Date",
-    "Market",
-    "Contract Signed",
-    "Status",
-    "NTID",
-  ];
 
+const TableHeaders = [
+  "S.No",
+  "Applicant ID",
+  "Name",
+  "Joining Date",
+  "Market",
+  "Contract Signed",
+  "Status",
+  "NTID",
+];
 
 function NTIDData() {
   const { endDate, startDate, markets } = useContext(MyContext);
-  const [filteredData, setFilteredData] = useState([]);
-   const {data,loading,error}=useFetchNtidDashCount();
-   const {captureStatus}=useParams();
+  const { data, loading, error } = useFetchNtidDashCount();
+  const { captureStatus } = useParams();
 
-  const applyFilters = (dataToFilter) => {
-    let filtered = dataToFilter;
+  const filteredData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+
+    let filtered = [...data];
 
     if (markets.length > 0) {
-      filtered = filtered.filter((item) => markets.includes(item.market));
+      filtered = filtered.filter((item) =>
+        markets.includes((item.location_name || item.market || "").toLowerCase())
+      );
     }
+
     if (captureStatus) {
       if (captureStatus === "contract_signed0") {
         filtered = filtered.filter((item) => item.contract_sined === 0);
@@ -39,77 +44,49 @@ function NTIDData() {
         filtered = filtered.filter((item) => item.contract_sined === 1);
       } else {
         filtered = filtered.filter((item) =>
-          captureStatus.includes(item.status)
+          captureStatus.toLowerCase() === (item.status?.toLowerCase() || "")
         );
       }
     }
+
     if (startDate && endDate) {
-      const startDateObj = new Date(startDate);
-      const endDateObj = new Date(endDate);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const startUTC = new Date(Date.UTC(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0));
+      const endUTC = new Date(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59));
 
-      if (startDateObj && endDateObj) {
-        const adjustedStartDateUTC = new Date(
-          Date.UTC(
-            startDateObj.getUTCFullYear(),
-            startDateObj.getUTCMonth(),
-            startDateObj.getUTCDate(),
-            0,
-            0,
-            0,
-            0
-          )
-        );
-
-        const adjustedEndDateUTC = new Date(
-          Date.UTC(
-            endDateObj.getUTCFullYear(),
-            endDateObj.getUTCMonth(),
-            endDateObj.getUTCDate(),
-            23,
-            59,
-            59,
-            999
-          )
-        );
-
-        filtered = filtered.filter((item) => {
-          const joiningDate = new Date(item.joining_date);
-          return (
-            joiningDate >= adjustedStartDateUTC &&
-            joiningDate <= adjustedEndDateUTC
-          );
-        });
-      }
+      filtered = filtered.filter((item) => {
+        const joining = new Date(item.joining_date);
+        return joining >= startUTC && joining <= endUTC;
+      });
     }
 
-    setFilteredData(filtered);
-  };
-  useEffect(() => {
-    applyFilters(data);
-  }, [markets, startDate, endDate,data]);
-  
+    return filtered;
+  }, [data, markets, captureStatus, startDate, endDate]);
+
   const handleDownloadExcel = () => {
     if (filteredData.length === 0) {
       alert("No data available to download.");
       return;
     }
 
-  
     const excelData = filteredData.map((item) => ({
-      "Applicant ID": item.applicant_id,
-      "Joining Date": new Date(item.joining_date).toLocaleDateString(),
-      Market: item.market,
+      "Applicant ID": item.applicant_id || "N/A",
+      "Joining Date": item.joining_date
+        ? new Date(item.joining_date).toLocaleDateString()
+        : "N/A",
+      Market: (item.location_name || item.market || "Unknown"),
       "Contract Signed": item.contract_sined ? "Yes" : "No",
-      Status: item.status,
-      NTID: item.ntid,
+      Status: item.status || "Unknown",
+      NTID: item.ntid || "N/A",
     }));
+
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "NTID Data");
     XLSX.writeFile(workbook, "NTID_Data.xlsx");
   };
 
-  
   if (loading) {
     return <Loader />;
   }
@@ -132,30 +109,38 @@ function NTIDData() {
           variant="btn-success text-capitalize"
           onClick={handleDownloadExcel}
           icon={<IoMdDownload />}
-          label="Downlooad"
+          label="Download"
         />
-        
       </div>
+
       {filteredData.length > 0 ? (
         <Table className="table table-sm table-bordered table-striped">
-          <TableHead  headData={TableHeaders} />
+          <TableHead headData={TableHeaders} />
           <tbody>
             {filteredData.map((item, index) => (
-              <tr  key={item.applicant_id}>
-                <td className="p-2" >{index + 1}</td>
-                <td className="p-2">{item.applicant_id}</td>
-                <td className="p-2 text-capitalize">{item.name?.toLowerCase()}</td>
-                <td className="p-2">{new Date(item.joining_date).toLocaleDateString()}</td>
-                <td className="p-2 text-capitalize">{item.market?.toLowerCase()}</td>
+              <tr key={item.applicant_id || index}>
+                <td className="p-2">{index + 1}</td>
+                <td className="p-2">{item.applicant_id || "N/A"}</td>
+                <td className="p-2 text-capitalize">{item.name?.toLowerCase() || "N/A"}</td>
+                <td className="p-2">
+                  {item.joining_date
+                    ? new Date(item.joining_date).toLocaleDateString()
+                    : "N/A"}
+                </td>
+                <td className="p-2 text-capitalize">
+                  {(item.location_name || item.market || "Unknown").toLowerCase()}
+                </td>
                 <td className="p-2">{item.contract_sined ? "Yes" : "No"}</td>
-                <td className="p-2">{item.status}</td>
-                <td className="p-2">{item.ntid}</td>
+                <td className="p-2">{item.status || "Unknown"}</td>
+                <td className="p-2">{item.ntid || "N/A"}</td>
               </tr>
             ))}
           </tbody>
         </Table>
       ) : (
-        <div class="spinner-border text-primary"></div>
+        <div className="text-center mt-3">
+          <p>No data available for the selected filters.</p>
+        </div>
       )}
     </div>
   );

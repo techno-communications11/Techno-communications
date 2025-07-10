@@ -12,7 +12,6 @@ const useFetchNtidDashCount = () => {
       try {
         setLoading(true);
         const response = await axios.get(`${API_URL}/applicants/ntidDashboardCount`, { withCredentials: true });
-        console.log('Fetched NTID dashboard count:', response.data.data);
         // Set data to response.data.data, which is the array
         const fetchedData = Array.isArray(response.data.data) ? response.data.data : [];
         setData(fetchedData);

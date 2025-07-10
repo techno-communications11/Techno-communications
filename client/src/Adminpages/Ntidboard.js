@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { MyContext } from "../pages/MyContext";
 import { useNavigate } from "react-router-dom";
 import MarketSelector from "../utils/MarketSelector";
@@ -7,6 +7,8 @@ import useFetchNtidDashCount from "../Hooks/useFetchNtidDashCount";
 import Loader from "../utils/Loader";
 import { Container } from "react-bootstrap";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import "../Styles/NtidDashboard.css";
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function Ntidboard() {
@@ -22,9 +24,9 @@ function Ntidboard() {
     () => new Date().toISOString().split("T")[0]
   );
   const { data, loading, error } = useFetchNtidDashCount();
-
   const navigate = useNavigate();
   const { setStartDateForContext, setEndDateForContext, setMarkets } = useContext(MyContext);
+   console.log(data,'at');
 
   const [counts, setCounts] = useState({
     markAssigned: 0,
@@ -34,24 +36,40 @@ function Ntidboard() {
   });
 
   // Derive unique markets, handling both location_name and market
-  const markets = data
-    ? [...new Set(data.map((item) => item.location_name?.toLowerCase() || item.market?.toLowerCase()))] // Use location_name first, fallback to market
-        .filter((location) => location && typeof location === "string") // Ensure valid strings
-        .map((location, index) => ({ id: index + 1, location_name: location || "Unknown" })) // Standardize to location_name
-    : [];
-
-  console.log("Raw Data:", data); // Debug raw data
-  console.log("Derived Markets:", markets); // Debug derived markets
+  const markets = useMemo(() => {
+    return data
+      ? [...new Set(data.map((item) => (item.location_name || item.market || "").toLowerCase()))]
+          .filter((location) => location && typeof location === "string")
+          .map((location, index) => ({ id: index + 1, location_name: location || "Unknown" }))
+      : [];
+  }, [data]);
 
   const text = "Select Market";
-  const handleStartDateChange = (e) => setStartDate(e.target.value);
-  const handleEndDateChange = (e) => setEndDate(e.target.value);
+
+  const handleStartDateChange = (e) => {
+    const newStartDate = e.target.value;
+    if (endDate && new Date(newStartDate) > new Date(endDate)) {
+      alert("Start date cannot be after end date.");
+      return;
+    }
+    setStartDate(newStartDate);
+  };
+
+  const handleEndDateChange = (e) => {
+    const newEndDate = e.target.value;
+    if (startDate && new Date(newEndDate) < new Date(startDate)) {
+      alert("End date cannot be before start date.");
+      return;
+    }
+    setEndDate(newEndDate);
+  };
 
   const applyFilters = (dataToFilter) => {
     let filtered = dataToFilter || [];
     setMarkets(selectedMarket);
     setStartDateForContext(startDate);
     setEndDateForContext(endDate);
+
     if (!isAllSelected && selectedMarket.length > 0) {
       filtered = filtered.filter((item) =>
         selectedMarket.some((market) =>
@@ -98,6 +116,7 @@ function Ntidboard() {
         });
       }
     }
+
     calculateCounts(filtered);
   };
 
@@ -109,12 +128,20 @@ function Ntidboard() {
       contractSigned1: 0,
     };
 
-    filteredData.forEach((item) => {
-      if (item.status === "mark_assigned") counts.markAssigned += 1;
-      if (item.status === "selected at Hr") counts.selectedAtHr += 1;
-      if (item.contract_sined === 0) counts.contractSigned0 += 1;
-      if (item.contract_sined === 1) counts.contractSigned1 += 1;
-    });
+   filteredData.forEach((item) => {
+  if (item.status?.toLowerCase() === "mark_assigned") counts.markAssigned += 1;
+  if (item.status?.toLowerCase() === "selected at hr") counts.selectedAtHr += 1;
+  if (item.contract_sined === 0) counts.contractSigned0 += 1;
+  if (item.contract_sined === 1) counts.contractSigned1 += 1;
+  if (
+    item.status?.toLowerCase() !== "mark_assigned" &&
+    item.status?.toLowerCase() !== "selected at hr" &&
+    item.contract_sined !== 0 &&
+    item.contract_sined !== 1
+  ) {
+    console.warn("Unexpected item:", item);
+  }
+});
 
     setCounts(counts);
   };
@@ -145,21 +172,19 @@ function Ntidboard() {
   };
 
   const handleClick = (title) => {
-    var captureStatus = "";
+    let captureStatus = "";
     if (title === "NTID Pending") {
-      captureStatus = "selected at Hr";
-    }
-    if (title === "NTID Created") {
+      captureStatus = "selected at hr";
+    } else if (title === "NTID Created") {
       captureStatus = "mark_assigned";
-    }
-    if (title === "Contract Signed") {
+    } else if (title === "Contract Signed") {
       captureStatus = "contract_signed1";
-    }
-    if (title === "Contract Unsigned") {
+    } else if (title === "Contract Unsigned") {
       captureStatus = "contract_signed0";
     }
     navigate(`/ntiddata/${captureStatus}`);
   };
+   console.log(counts,'cccc');
 
   if (loading) {
     return <Loader />;
@@ -175,154 +200,6 @@ function Ntidboard() {
 
   return (
     <Container fluid style={{ backgroundColor: "#F4F5F7", minHeight: "100vh", padding: "16px" }}>
-      <style>
-        {`
-          .jira-container {
-            background-color: #FFFFFF;
-            border-radius: 3px;
-            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
-            border: 1px solid #DFE1E6;
-          }
-          
-          .jira-header {
-            background-color: #FAFBFC;
-            border-bottom: 1px solid #DFE1E6;
-            padding: 16px 24px;
-          }
-          
-          .jira-sidebar {
-            background-color: #FFFFFF;
-            border-right: 1px solid #DFE1E6;
-            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
-          }
-          
-          .jira-table {
-            background-color: #FFFFFF;
-          }
-          
-          .jira-table-header {
-            background-color: #F4F5F7;
-            border-bottom: 2px solid #DFE1E6;
-            font-weight: 600;
-            color: #5E6C84;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          
-          .jira-table-row {
-            border-bottom: 1px solid #DFE1E6;
-            transition: background-color 0.2s;
-          }
-          
-          .jira-table-row:hover {
-            background-color: #F4F5F7;
-          }
-          
-          .jira-table-cell {
-            padding: 8px 12px;
-            font-size: 14px;
-            color: #172B4D;
-            vertical-align: middle;
-          }
-          
-          .jira-status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-          }
-          
-          .jira-button {
-            background-color: #0052CC;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 3px;
-            padding: 6px 12px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          
-          .jira-button:hover {
-            background-color: #0747A6;
-          }
-          
-          .jira-button-secondary {
-            background-color: #FAFBFC;
-            color: #42526E;
-            border: 1px solid #DFE1E6;
-          }
-          
-          .jira-button-secondary:hover {
-            background-color: #EBECF0;
-          }
-          
-          .jira-action-button {
-            background: none;
-            border: none;
-            color: #5E6C84;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 3px;
-            transition: all 0.2s;
-          }
-          
-          .jira-action-button:hover {
-            background-color: #F4F5F7;
-            color: #0052CC;
-          }
-          
-          .jira-modal {
-            background-color: #FFFFFF;
-            border-radius: 3px;
-            box-shadow: 0 10px 50px rgba(9, 30, 66, 0.54);
-          }
-          
-          .jira-modal-header {
-            background-color: #FAFBFC;
-            border-bottom: 1px solid #DFE1E6;
-            padding: 16px 24px;
-            border-radius: 3px 3px 0 0;
-          }
-          
-          .jira-input {
-            border: 2px solid #DFE1E6;
-            border-radius: 3px;
-            padding: 8px 12px;
-            font-size: 14px;
-            transition: border-color 0.2s;
-            background-color: #FAFBFC;
-            width: 100%;
-            margin-bottom: 8px;
-          }
-          
-          .jira-input:focus {
-            border-color: #4C9AFF;
-            background-color: #FFFFFF;
-            outline: none;
-          }
-          
-          .jira-count-badge {
-            background-color: #0052CC;
-            color: #FFFFFF;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-          }
-        `}
-      </style>
-
       <div style={{ display: "flex", gap: "16px" }}>
         {/* Sidebar */}
         <div className="jira-sidebar jira-container" style={{ width: "280px", height: "fit-content" }}>
@@ -407,7 +284,7 @@ function Ntidboard() {
             <div className="col-12 col-lg-4 mt-5 mt-lg-0">
               <h5 className="text-primary text-center">Status Distribution</h5>
               <div
-                style={{ height: "30rem" }}
+                style={{ height: "50vh" }}
                 className="d-flex justify-content-center align-items-center w-100"
               >
                 <Pie data={pieData} />
