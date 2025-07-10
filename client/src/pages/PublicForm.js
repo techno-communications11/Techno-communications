@@ -32,7 +32,7 @@ function PublicForm() {
   const [file, setFile] = useState(null);
 
   const pathname = window.location.pathname;
-  const EXCLUDED_LOGIN_PATHS = ["/memphis"];
+  const EXCLUDED_LOGIN_PATHS = ["/memphis","/dubai"];
 
   const validateForm = () => {
     const errors = {};
