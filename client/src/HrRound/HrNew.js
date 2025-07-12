@@ -10,8 +10,7 @@ import Loader from '../utils/Loader';
 import useFetchHrs from '../Hooks/useFetchHrs';
 import ConfirmationModal from '../utils/ConfirmationModal'; // Corrected import name
 import { Button as MuiButton } from '@mui/material';
-import API_URL from '../Constants/ApiUrl';
-
+import api from '../api/axios';
 
 function HrNew() {
   const navigate = useNavigate();
@@ -37,10 +36,9 @@ function HrNew() {
 
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${API_URL}/users/${userData.id}/hrinterviewapplicants`,
+        const response = await api.get(
+          `/users/${userData.id}/hrinterviewapplicants`,
           {
-            withCredentials: true,
             timeout: 10000,
           }
         );
@@ -82,17 +80,16 @@ function HrNew() {
     setActionLoading(true);
     try {
       const payload = { applicantId: selectedProfile.applicant_uuid, newUserId: selectedHRId };
-      console.log('Sending POST to backend:', { url: `${API_URL}/newhr`, payload }); // Debug API call
-      const response = await axios.post(`${API_URL}/newhr`, payload, {
-        withCredentials: true,
+      const response = await axios.post("/newhr", payload, {
+        
         timeout: 10000,
       });
       console.log('Backend response:', response.data); // Debug response
       toast.success('Assigned to new HR successfully!');
       // Refetch applicants
       const fetchResponse = await axios.get(
-        `${API_URL}/users/${userData?.id}/hrinterviewapplicants`,
-        { withCredentials: true, timeout: 10000 }
+        `/users/${userData?.id}/hrinterviewapplicants`,
+        {  timeout: 10000 }
       );
       setProfiles(fetchResponse.data || []);
     } catch (error) {

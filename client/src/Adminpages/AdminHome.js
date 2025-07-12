@@ -1,8 +1,17 @@
 import Button from "../utils/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DetailCards from "./DetailCards";
 import menuItems from "../Constants/AdminHomeMenuItems";
+import { useEffect } from "react";
+import { setNavigate } from "../api/axios";
+
 function AdminHome() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
+
   return (
     <div sx={{ mt: 3 }} className="m-4">
       <div container>
@@ -12,7 +21,7 @@ function AdminHome() {
               {menuItems.map((item, index) => (
                 <Link to={item.path} key={index}>
                   <Button
-                    variant=" opacity-75"
+                    variant="opacity-75"
                     code="#E10174"
                     label={item.label}
                   />

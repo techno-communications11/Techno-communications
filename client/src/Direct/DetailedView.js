@@ -1,8 +1,8 @@
 import  { useEffect, useState } from "react";
-import axios from "axios";
 import TableHead from "../utils/TableHead";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
+import  api from '../api/axios'
 
 
  const TableHeaders = [
@@ -42,9 +42,9 @@ function DetailedView() {
         }
         const userId = userData.id;
         // Send request to the server with userId
-        const response = await axios.post(
-          `${process.env.REACT_APP_API}/getdirecthiringdetails`,
-          { assigned_user_id: userId },{withCredentials:true}
+        const response = await api.post(
+          "/getdirecthiringdetails",
+          { assigned_user_id: userId }
         );
 
         // Update state with the fetched data

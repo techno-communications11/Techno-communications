@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import Loader from "../utils/Loader";
 import Button from "../utils/Button";
 import TableHead from "../utils/TableHead";
-import API_URL from "../Constants/ApiUrl";
+import api from "../api/axios";
 const TableHeaders = [
   "S.No",
   "Applicant UUID",
@@ -27,9 +27,7 @@ function AdminHrEdit() {
     const fetchInterviewApplicants = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${API_URL}/formDetailsForAllHRs`, {
-          withCredentials: true,
-        });
+        const response = await api.get('/formDetailsForAllHRs');
         if (response.status === 200) {
           if (Array.isArray(response.data.rows)) {
             const uniqueProfiles = response.data.rows.filter(
@@ -47,7 +45,6 @@ function AdminHrEdit() {
       } catch (err) {
         // Enhanced error logging
         if (axios.isAxiosError(err)) {
-          console.error("Axios error:", err.message);
           if (err.response) {
             console.error("Error response data:", err.response.data);
             console.error("Error response status:", err.response.status);

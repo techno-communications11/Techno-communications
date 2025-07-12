@@ -1,5 +1,4 @@
 import  { useState, useEffect, useContext, useRef } from "react";
-import axios from "axios";
 import { Modal, Dropdown, Form, Container, Row, Col, Table } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -9,9 +8,10 @@ import { Button } from "@mui/material";
 import ConfirmationModal from "../pages/Confirm";
 import Loader from "../utils/Loader";
 import { MyContext } from "../pages/MyContext";
-import API_URL from "../Constants/ApiUrl";
+import api from "../api/axios";
 import TableHead from "../utils/TableHead";
 import { useNavigate } from "react-router";
+
 
  const tableHeaders = [
   "SC.NO",
@@ -70,25 +70,25 @@ function New() {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        const screensPromise = axios.get(`${API_URL}/screening`, { withCredentials: true, })
+        const screensPromise = api.get("/screening")
           .catch(err => {
             console.error("Error fetching /screening:", err);
             return { data: [] };
           });
 
-        const hostsPromise = axios.get(`${API_URL}/interviewer`, { withCredentials: true, })
+        const hostsPromise = api.get("/interviewer")
           .catch(err => {
             console.error("Error fetching /interviewer:", err);
             return { data: [] };
           });
 
-        const hrsPromise = axios.get(`${API_URL}/hrs`, { withCredentials: true, })
+        const hrsPromise = api.get("/hrs")
           .catch(err => {
             console.error("Error fetching /hrs:", err);
             return { data: [] };
           });
             console.log("Fetching profiles for user ID:", userData.id);
-        const profilesPromise = axios.get(`${API_URL}/users/${userData.id}/applicants`, { withCredentials: true, })
+        const profilesPromise = api.get(`/users/${userData.id}/applicants`)
           .catch(err => {
             console.error("Error fetching /users/:id/applicants:", err);
             return { data: [] };
@@ -117,7 +117,7 @@ function New() {
     };
 
     fetchInitialData();
-  }, [API_URL, userData?.id, userDataLoading]);
+  }, [api, userData?.id, userDataLoading]);
 
   useEffect(() => {
     localStorage.setItem("newcount", profiles.length);
@@ -179,10 +179,7 @@ function New() {
     };
 
     try {
-      const response = await axios.post(`${API_URL}/updatestatus`, payload, {
-        withCredentials: true,
-        
-      });
+      const response = await api.post("/updatestatus", payload);
 
       if (response.status === 200) {
         toast.success(response.data.message);
@@ -217,11 +214,12 @@ function New() {
     if (selected) {
       setActionLoading(true);
       try {
-        const response = await axios.post(`${API_URL}/assignapplicanttoUser`, {
+        const response = await api.post("/assignapplicanttoUser", {
           newUserId: selected.id,
           applicantId: selectedProfile.applicant_uuid,
           comment,
-        }, { withCredentials: true, });
+        }
+        );
 
         if (response.status === 200) {
           toast.success(response.data.message);
@@ -255,10 +253,7 @@ function New() {
 
     setActionLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/assign-interviewer`, formData, {
-        withCredentials: true,
-        
-      });
+      const response = await api.post("/assign-interviewer", formData);
 
       if (response.status === 200) {
         toast.success(response.data.message);
@@ -310,10 +305,7 @@ function New() {
     };
 
     try {
-      const response = await axios.post(`${API_URL}/updateemail`, payload, {
-        withCredentials: true,
-        
-      });
+      const response = await api.post("/updateemail", payload);
 
       if (response.status === 200) {
         toast.success(response.data.message);

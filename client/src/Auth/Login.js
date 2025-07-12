@@ -1,13 +1,12 @@
-import { useState, useRef, useContext } from "react";
+import { useState, useRef, useContext, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import { FaEyeSlash, FaEye, FaEnvelope, FaLock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Button from "../utils/Button";
 import Loader from "../utils/Loader";
 import Inputicons from "../utils/Inputicons";
 import { MyContext } from "../pages/MyContext";
-import API_URL from "../Constants/ApiUrl";
+import api, { setSessionExpired, setPreLogin } from "../api/axios";
 
 const routeMap = {
   admin: "/adminhome",
@@ -26,23 +25,34 @@ function Login() {
   const emailRef = useRef();
   const passwordRef = useRef();
   const navigate = useNavigate();
-  const { setIsAuthenticated, setUserData } = useContext(MyContext);
+  const { setIsAuthenticated, setUserData, isAuthenticated, userData } = useContext(MyContext);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && userData?.role) {
+      navigate(routeMap[userData.role] || "/", { replace: true });
+    }
+  }, [isAuthenticated, userData, navigate]);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    
     if (!emailRef.current || !passwordRef.current) {
       setError("Form inputs are not properly initialized.");
       return;
     }
+    
     const email = emailRef.current.value.trim();
     const password = passwordRef.current.value.trim();
+    
     if (!validateEmail(email)) {
       setError("Please enter a valid email address.");
       return;
     }
+    
     if (password.length < 6) {
       setError("Password must be at least 6 characters long.");
       return;
@@ -54,11 +64,14 @@ function Login() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const loginResponse = await axios.post(
-        `${API_URL}/login`,
+      // Clear any previous session flags
+      setSessionExpired(false);
+      setPreLogin(true);
+
+      const loginResponse = await api.post(
+        "/login",
         { email, password },
         {
-          withCredentials: true,
           signal: controller.signal,
         }
       );
@@ -69,8 +82,8 @@ function Login() {
         throw new Error("Login failed. Please try again.");
       }
 
-      const userRes = await axios.get(`${API_URL}/user/me`, {
-        withCredentials: true,
+      // Get user data after successful login
+      const userRes = await api.get("/user/me", {
         signal: controller.signal,
       });
 
@@ -87,15 +100,26 @@ function Login() {
         name,
         ...otherData
       } = userData;
+      
+      // Update context state
       setUserData({ id, role, email: userEmail, market, name, ...otherData });
       setIsAuthenticated(true);
+      setSessionExpired(false);
+      setPreLogin(false);
 
-      navigate(routeMap[role] || "/");
+      // Navigate to appropriate page based on role
+      const targetRoute = routeMap[role] || "/";
+      navigate(targetRoute, { replace: true });
+      
     } catch (error) {
       if (error.name === "AbortError") {
         setError("Request timed out. Please try again.");
       } else if (error.response?.status === 401) {
         setError("Invalid email or password. Please try again.");
+      } else if (error.response?.status === 429) {
+        setError("Too many login attempts. Please wait a few minutes and try again.");
+      } else if (error.response?.status >= 500) {
+        setError("Server error. Please try again later.");
       } else {
         setError(
           error.response?.data?.message ||
@@ -124,6 +148,7 @@ function Login() {
             placeholder="Enter email"
             required
             className="shadow-none border"
+            autoComplete="email"
           />
         </div>
       </Form.Group>
@@ -137,11 +162,14 @@ function Login() {
             placeholder="Password"
             required
             className="shadow-none border"
+            autoComplete="current-password"
           />
           <span
             onClick={() => setShowPassword(!showPassword)}
             role="button"
             className="input-group-text"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && setShowPassword(!showPassword)}
           >
             {showPassword ? (
               <Inputicons icon={FaEye} />

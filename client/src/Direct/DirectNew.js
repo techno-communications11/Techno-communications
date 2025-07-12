@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import TableHead from "../utils/TableHead";
+import api from "../api/axios";
 
 const TabaleHeaders = [
   "SC.NO",
@@ -38,8 +39,8 @@ function DirectNew() {
     const fetchProfiles = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${apiurl}/getApplicantsForDirect/${userData.id}`,
+        const response = await api.get(
+          "/getApplicantsForDirect/${userData.id}",
           {
             withCredentials: true,
           }
@@ -76,9 +77,8 @@ function DirectNew() {
 
   const handleSearch = async () => {
     try {
-      const response = await fetch(
-        `${apiurl}/getstatusnyphone/${mobileNumber}`,
-        { withCredentials: true }
+      const response = await api.get(
+        "/getstatusnyphone/${mobileNumber}",
       );
       const data = await response.json();
       setApplicantDetails(data);
@@ -101,12 +101,10 @@ function DirectNew() {
     };
 
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API}/updatestatus`,
+      const res = await api.post(
+        "/updatestatus",
         payload,
-        { withCredentials: true }
       );
-      console.log(res, "resppppppp");
 
       if (res.status === 200) {
         toast.success(res.data.message);

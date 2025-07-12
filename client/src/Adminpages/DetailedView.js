@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import { Typography } from "@mui/material";
 import * as XLSX from "xlsx";
 import dayjs from "dayjs";
-import axios from "axios";
 import DateFilter from "../utils/DateFilter";
 import Loader from "../utils/Loader";
-import API_URL from "../Constants/ApiUrl";
 import ProfileTable from "./DetailedViewComponents/ProfileTable";
 import Sidebar from "./DetailedViewComponents/Sidebar";
 import {
@@ -16,6 +14,7 @@ import {
 } from "../Constants/DetailedViewConstants";
 import NoProfilesFound from "../utils/NoProfilesFound";
 import ReadyToSearch from "../utils/ReadyToSearch";
+import api from "../api/axios";
 
 const DetailedView = () => {
   const [selectedMarkets, setSelectedMarkets] = useState([]);
@@ -87,7 +86,7 @@ const DetailedView = () => {
   const fetchProfiles = async () => {
     setLoading(true);
     try {
-      const url = `${API_URL}/Detailstatus`;
+      const url = '/Detailstatus';
       const params = {
         market: selectedMarkets.map((m) => m.value),
         category: selectedCategory,
@@ -98,7 +97,7 @@ const DetailedView = () => {
           : null,
         endDate: dateRange[1] ? dayjs(dateRange[1]).format("YYYY-MM-DD") : null,
       };
-      const response = await axios.get(url, { params, withCredentials: true });
+      const response = await api.get(url, { params});
       if (response.status === 200) {
         setSelectedProfiles(response.data.status_counts || []);
         setIsFilterApplied(

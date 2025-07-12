@@ -1,8 +1,8 @@
 import  { useEffect, useState } from "react";
-import axios from "axios";
 import TableHead from "../utils/TableHead";
 import { useContext } from "react";
 import {MyContext} from "../pages/MyContext";
+import api from "../api/axios";
 const TableHeaders = [
   "Applicant UUID",
   "Status",
@@ -34,10 +34,9 @@ function Pending() {
     const fetchUserData = async () => {
       try {
         const userId = userData.id;
-        const response = await axios.post(
-          `${process.env.REACT_APP_API}/getdirecthiringdetails`,
-          { assigned_user_id: userId },
-          { withCredentials: true }
+        const response = await api.post(
+          "/getdirecthiringdetails",
+          { assigned_user_id: userId }
         );
         setApplicants(response.data);
       } catch (error) {

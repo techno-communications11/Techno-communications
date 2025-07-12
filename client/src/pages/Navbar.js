@@ -1,85 +1,82 @@
 import { useState, useEffect, useContext } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api, { setNavigate } from "../api/axios";
 import Avatar from "@mui/material/Avatar";
-import { deepPurple } from "@mui/material/colors";
 import Badge from "@mui/material/Badge";
 import IconButton from "@mui/material/IconButton";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Button from "../utils/Button";
 import { MyContext } from "./MyContext";
-
+import Logout from "../Auth/Logout";
+import getDefaultRoute from "../utils/getDefaultRoute";
 function AppNavbar() {
-  const apiurl = process.env.REACT_APP_API;
   const navigate = useNavigate();
-  const { userData, setIsAuthenticated } = useContext(MyContext);
+  const { userData, isAuthenticated, setUserData, setIsAuthenticated } =
+    useContext(MyContext);
   const [counts, setCounts] = useState(0);
-  const [error, setError] = useState(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const roleRoutes = {
-    interviewer: "/InterviewerDashboard",
-    direct_hiring: "/directHiring",
-    screening_manager: "/screeinghome",
-    admin: "/adminhome",
-    hr: "/hrhome",
-    market_manager: "/markethome",
-    trainer: "/",
-  };
+  useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple logout calls
+
+    setIsLoggingOut(true);
+
     try {
-      await axios.post(
-        `${apiurl}/logout`,
-        {},
-        { withCredentials: true }
-      );
-      setIsAuthenticated(false);
-      navigate("/");
+      // Call logout with context setters
+      await Logout(setUserData, setIsAuthenticated);
+
+      // Navigate to home page
+      navigate("/", { replace: true });
     } catch (error) {
-      console.error("Error logging out:", error);
-      setError("Failed to log out. Please try again.");
+      console.error("Logout error:", error);
+      // Even if logout fails, clear state and navigate
+      setUserData(null);
+      setIsAuthenticated(false);
+      navigate("/", { replace: true });
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
-
   useEffect(() => {
+    if (!isAuthenticated || !userData?.id || !userData?.role) return;
+
     const fetchCounts = async () => {
-      if (!userData?.id || !userData?.role) {
-        console.warn("userData is incomplete:", userData);
-        return;
+      let endpoint = "";
+      switch (userData.role) {
+        case "interviewer":
+          endpoint = `/users/${userData.id}/interviewapplicants`;
+          break;
+        case "hr":
+          endpoint = `/users/${userData.id}/hrinterviewapplicants`;
+          break;
+        case "screening_manager":
+          endpoint = `/users/${userData.id}/applicants`;
+          break;
+        case "direct_hiring":
+          endpoint = `/users/${userData.id}/directapplicants`;
+          break;
+        default:
+          return;
       }
 
       try {
-        let endpoint = "";
-        if (userData.role === "interviewer") {
-          endpoint = `/users/${userData.id}/interviewapplicants`;
-        } else if (userData.role === "hr") {
-          endpoint = `/users/${userData.id}/hrinterviewapplicants`;
-        } else if (userData.role === "screening_manager") {
-          endpoint = `/users/${userData.id}/applicants`;
-        }
-
-        if (endpoint) {
-          const response = await axios.get(`${apiurl}${endpoint}`, {
-            withCredentials: true,
-          });
-          if (response.status === 200 && Array.isArray(response.data)) {
-            setCounts(response.data.length);
-          } else {
-            console.warn("Unexpected response format:", response.data);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching counts:", error);
-        setError("Failed to fetch applicant counts.");
+        const res = await api.get(endpoint);
+        if (Array.isArray(res.data)) setCounts(res.data.length);
+      } catch (err) {
+        console.error("Fetch count error:", err.message);
+        // If it's a 401 error, the axios interceptor will handle logout
       }
     };
 
     fetchCounts();
-  }, [userData, apiurl]);
+  }, [userData, isAuthenticated]);
 
-  // Utility functions for avatar
   const stringToColor = (string) => {
     let hash = 0;
     for (let i = 0; i < string.length; i++) {
@@ -94,7 +91,12 @@ function AppNavbar() {
   };
 
   const stringAvatar = (name) => {
-    if (!name) return { sx: { bgcolor: deepPurple[600] }, children: "N/A" };
+    if (!name || typeof name !== "string") {
+      return {
+        sx: { bgcolor: "#000000", width: 30, height: 30 },
+        children: "U",
+      };
+    }
     const nameParts = name.split(" ");
     return {
       sx: {
@@ -106,166 +108,128 @@ function AppNavbar() {
     };
   };
 
-  // Return null if userData is not available
-  if (!userData || !userData.role || !userData.name) {
-    return null; // Or a fallback UI, e.g., <div>Loading...</div>
+  // Don't render navbar if user is not authenticated or data is missing
+  if (!isAuthenticated || !userData || !userData.name || !userData.role) {
+    return null;
   }
+  const handleClick = () => {
+    if (userData?.role) {
+      navigate(getDefaultRoute(userData.role));
+    } else {
+      navigate("/"); // fallback for public
+    }
+  };
 
   return (
-    <Navbar expand="lg" className="shadow-sm">
+    <Navbar expand="lg" className="shadow-sm bg-white">
       <Container fluid>
-        {/* {userData.role !== "trainer" && userData.role !== "market_manager" && ( */}
-          <Navbar.Brand
-            as={Link}
-            to={roleRoutes[userData.role] || "/"}
-            className="fw-bolder text-capitalize ms-2"
-          >
-            <img
-              src="/logo.png"
-              alt="Logo"
-              width="44"
-              height="34"
-              className="d-inline-block align-top"
-            />
-            &nbsp; techno communications LLC
-          </Navbar.Brand>
-        {/* )} */}
-
-        <Navbar.Toggle aria-controls="navbarSupportedContent" />
-        <Navbar.Collapse id="navbarSupportedContent">
-          <Nav className="ms-auto d-flex align-items-center">
-            <div className="d-flex gap-3 align-items-center">
-              {(userData.role === "screening_manager" || userData.role === "direct_hiring") && (
-                <Nav.Link
-                  as={Link}
-                  to={
-                    userData.role === "screening_manager"
-                      ? "/screening"
-                      : "/directform"
-                  }
-                  className="fw-bolder nav-link-custom"
-                >
-                  List Profile
+        <Navbar.Brand
+          role="button"
+          onClick={handleClick}
+          className="fw-bold text-capitalize ms-2 d-flex align-items-center"
+        >
+          <img src="/logo.png" alt="Logo" width="44" height="34" />
+          Techno Communications LLC
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="navbar-nav" />
+        <Navbar.Collapse id="navbar-nav">
+          <Nav className="ms-auto d-flex align-items-center gap-3 fw-bolder text-dark">
+            {userData.role === "admin" && (
+              <>
+                <Nav.Link as={Link} to="/adminTabs">
+                  HR Profile
                 </Nav.Link>
-              )}
-              {userData.role === "market_manager" && (
-                <>
-                  <Nav.Link
-                    as={Link}
-                    to="/markethome"
-                    className="fw-bolder nav-link-custom"
-                  >
-                    Job Posting
-                  </Nav.Link>
-                  <Nav.Link
-                    as={Link}
-                    to="/selectedathr"
-                    className="fw-bolder nav-link-custom"
-                  >
-                    Hired Applicants
-                  </Nav.Link>
-                </>
-              )}
-              {userData.role === "admin" && (
-                <>
-                  <Nav.Link
-                    as={Link}
-                    to="/adminTabs"
-                    className="fw-bolder nav-link-custom"
-                  >
-                    HR Profile
-                  </Nav.Link>
-                  <Nav.Link
-                    as={Link}
-                    to="/register"
-                    className="fw-bolder nav-link-custom"
-                  >
-                    Register
-                  </Nav.Link>
-                </>
-              )}
-              {userData.role === "direct_hiring" && (
-                <Nav.Link
-                  as={Link}
-                  to="/directtabs"
-                  className="fw-bolder nav-link-custom"
-                >
-                  Applicants
+                <Nav.Link as={Link} to="/register">
+                  Register
                 </Nav.Link>
-              )}
-              {userData.role !== "admin" &&
-                userData.role !== "trainer" &&
-                userData.role !== "market_manager" && (
-                  <Nav.Link
-                    as={Link}
-                    to={
-                      userData.role === "interviewer"
-                        ? "/interviewhome"
-                        : userData.role === "hr"
-                        ? "/hrtabs"
-                        : userData.role === "screening_manager"
-                        ? "/tabs"
-                        : userData.role === "direct_hiring"
-                        ? "/directnew"
-                        : ""
-                    }
-                    className="fw-bolder nav-link-custom"
-                    style={{
-                      position: "relative",
-                      display: "inline-block",
-                      background:
-                        "linear-gradient(90deg, rgba(63,94,251,1) 0%, rgba(180,27,148,1) 81%)",
-                      WebkitBackgroundClip: "text",
-                      backgroundClip: "text",
-                      color: "transparent",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    New
-                    {counts > 0 && (
-                      <Badge
-                        badgeContent={counts}
-                        className="mb-4 ms-2"
-                        color="error"
-                      />
-                    )}
-                  </Nav.Link>
+              </>
+            )}
+            {userData.role === "market_manager" && (
+              <>
+                <Nav.Link as={Link} to="/markethome">
+                  Job Postings
+                </Nav.Link>
+                <Nav.Link as={Link} to="/selectedathr">
+                  Hired Applicants
+                </Nav.Link>
+              </>
+            )}
+            {(userData.role === "screening_manager" ||
+              userData.role === "direct_hiring") && (
+              <Nav.Link
+                as={Link}
+                to={
+                  userData.role === "screening_manager"
+                    ? "/screening"
+                    : "/directform"
+                }
+              >
+                List Profile
+              </Nav.Link>
+            )}
+            {userData.role === "direct_hiring" && (
+              <Nav.Link as={Link} to="/directtabs">
+                Applicants
+              </Nav.Link>
+            )}
+            {[
+              "interviewer",
+              "hr",
+              "screening_manager",
+              "direct_hiring",
+            ].includes(userData.role) && (
+              <Nav.Link
+                as={Link}
+                to={
+                  userData.role === "interviewer"
+                    ? "/interviewhome"
+                    : userData.role === "hr"
+                    ? "/hrtabs"
+                    : userData.role === "screening_manager"
+                    ? "/tabs"
+                    : userData.role === "direct_hiring"
+                    ? "/directnew"
+                    : "/"
+                }
+                className="fw-bold"
+                style={{
+                  position: "relative",
+                  background: "linear-gradient(90deg, #3f5efb, #b41b94)",
+                  WebkitBackgroundClip: "text",
+                  color: "transparent",
+                }}
+              >
+                New
+                {counts > 0 && (
+                  <Badge badgeContent={counts} color="error" className="ms-2" />
                 )}
-              <Nav.Link>
-                <IconButton
-                  color="primary"
-                  onClick={() => navigate("/updatepassword")}
-                >
-                  <SettingsIcon />
-                </IconButton>
               </Nav.Link>
-              <Nav.Link className="d-flex align-items-center">
-                <Avatar
-                  sx={{ bgcolor: deepPurple[600], width: 30, height: 30 }}
-                  {...stringAvatar(userData.name)}
-                />
-                <div className="ms-2 fw-bolder">
-                  <span
-                    className="d-block text-start"
-                    style={{ fontSize: "0.9rem", textTransform: "capitalize" }}
-                  >
-                    {userData.name}
-                  </span>
-                  <span
-                    className="d-block text-start"
-                    style={{ fontSize: "0.9rem", textTransform: "capitalize" }}
-                  >
-                    {userData.role.split("_").join(" ")}
-                  </span>
+            )}
+            <IconButton
+              onClick={() => navigate("/updatepassword")}
+              color="primary"
+            >
+              <SettingsIcon />
+            </IconButton>
+            <Nav.Link className="d-flex align-items-center">
+              <Avatar {...stringAvatar(userData.name)} />
+              <div
+                className="ms-2 text-capitalize"
+                style={{ fontSize: "0.85rem" }}
+              >
+                <div>{userData.name}</div>
+                <div style={{ fontSize: "0.75rem" }}>
+                  {userData.role.replace(/_/g, " ")}
                 </div>
-              </Nav.Link>
-              <Button
-                variant="btn-danger ms-2"
-                onClick={handleLogout}
-                size="md"
-                label="Logout"
-              />
-            </div>
+              </div>
+            </Nav.Link>
+            <Button
+              variant="btn-danger ms-2"
+              label={isLoggingOut ? "Logging out..." : "Logout"}
+              size="md"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+            />
           </Nav>
         </Navbar.Collapse>
       </Container>

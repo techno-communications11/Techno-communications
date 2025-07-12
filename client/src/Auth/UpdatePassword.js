@@ -9,11 +9,10 @@ import {
   IconButton,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import API_URL from "../Constants/ApiUrl";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
+import api from "../api/axios";
 
 const UpdatePassword = () => {
   const { userData } = useContext(MyContext);
@@ -31,13 +30,12 @@ const UpdatePassword = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `${API_URL}/updatePassword`,
+      const response = await api.post(
+        "/updatePassword",
         {
           updatePassword: password,
           userId: userData.id, // Replace with actual user ID if dynamic
         },
-        { withCredentials: true }
       );
       if (response.status === 200) {
         setError("");

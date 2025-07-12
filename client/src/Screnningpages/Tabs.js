@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -7,6 +7,7 @@ import { Container, Row, Form, Col } from "react-bootstrap"; // Imported Form, B
 import New from "./New";
 import Interviewedprofiles from "./InterviewedProfiles";
 import Button from "@mui/material/Button";
+import api from "../api/axios";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -35,7 +36,6 @@ function a11yProps(index) {
 }
 
 export default function CenteredTabs() {
-  const apiurl = process.env.REACT_APP_API;
   const [value, setValue] = useState(0);
   const [mobileNumber, setMobileNumber] = useState(""); // State to hold mobile number
   const [applicantDetails, setApplicantDetails] = useState(null); // State to hold fetched applicant details
@@ -48,16 +48,8 @@ export default function CenteredTabs() {
     // Replace with the actual API call to fetch applicant details by mobile number
     try {
       // console.log("mobileNumber", mobileNumber)
-      const response = await fetch(
-        `${apiurl}/getstatusnyphone/${mobileNumber}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // <-- This allows cookies to be sent with the request
-        }
-      );
+      const response = await api.get(
+        `/getstatusnyphone/${mobileNumber}`);
 
       const data = await response.json();
       setApplicantDetails(data);

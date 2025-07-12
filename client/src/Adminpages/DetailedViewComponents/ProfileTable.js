@@ -1,4 +1,3 @@
-
 import getStatusColor from "../../utils/getStatusColor";
 import {
   Typography,
@@ -8,8 +7,12 @@ import {
   Chip,
   Avatar,
 } from "@mui/material";
-import getInitials  from "../../utils/getInitials";
+import getInitials from "../../utils/getInitials";
+import Button from "../../utils/Button";
+
 import dayjs from "dayjs";
+import { useNavigate } from "react-router";
+
 const TableHeaders = [
   "SI.No",
   "Created At",
@@ -20,11 +23,13 @@ const TableHeaders = [
   "Screening Manager",
   "Interviewer",
   "HR Name",
+  "Resume",
   "Status",
 ];
 
 const ProfileTable = ({ profiles, serialNumberStart }) => {
   let serialNumber = serialNumberStart;
+   const navigate=useNavigate();
 
   return (
     <div
@@ -78,19 +83,43 @@ const ProfileTable = ({ profiles, serialNumberStart }) => {
                   transition: "background-color 0.1s",
                   textWrap: "nowrap",
                 }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#F4F5F7"}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "white"}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#F4F5F7")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = "white")
+                }
               >
-                <td style={{ padding: "12px 16px", textAlign: "center", color: "#5E6C84", fontSize: "14px" }}>
+                <td
+                  style={{
+                    padding: "12px 16px",
+                    textAlign: "center",
+                    color: "#5E6C84",
+                    fontSize: "14px",
+                  }}
+                >
                   {serialNumber++}
                 </td>
-                <td style={{ padding: "12px 16px", textAlign: "center", color: "#172B4D", fontSize: "14px" }}>
+                <td
+                  style={{
+                    padding: "12px 16px",
+                    textAlign: "center",
+                    color: "#172B4D",
+                    fontSize: "14px",
+                  }}
+                >
                   {profile.created_at_date
                     ? dayjs(profile.created_at_date).format("MMM DD, YYYY")
                     : "N/A"}
                 </td>
                 <td style={{ padding: "12px 16px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                    }}
+                  >
                     <Avatar
                       style={{
                         width: "32px",
@@ -127,10 +156,24 @@ const ProfileTable = ({ profiles, serialNumberStart }) => {
                     </div>
                   </div>
                 </td>
-                <td style={{ padding: "12px 16px", textAlign: "center", color: "#172B4D", fontSize: "14px" }}>
+                <td
+                  style={{
+                    padding: "12px 16px",
+                    textAlign: "center",
+                    color: "#172B4D",
+                    fontSize: "14px",
+                  }}
+                >
                   {profile.applicant_referred_by || "N/A"}
                 </td>
-                <td style={{ padding: "12px 16px", textAlign: "center", color: "#172B4D", fontSize: "14px" }}>
+                <td
+                  style={{
+                    padding: "12px 16px",
+                    textAlign: "center",
+                    color: "#172B4D",
+                    fontSize: "14px",
+                  }}
+                >
                   {profile.applicant_reference_id || "N/A"}
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "center" }}>
@@ -147,8 +190,16 @@ const ProfileTable = ({ profiles, serialNumberStart }) => {
                   />
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                  {profile.screening_manager_name && profile.screening_manager_name !== "N/A" ? (
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                  {profile.screening_manager_name &&
+                  profile.screening_manager_name !== "N/A" ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                      }}
+                    >
                       <Avatar
                         style={{
                           width: "24px",
@@ -164,12 +215,22 @@ const ProfileTable = ({ profiles, serialNumberStart }) => {
                       </span>
                     </div>
                   ) : (
-                    <span style={{ color: "#5E6C84", fontSize: "14px" }}>N/A</span>
+                    <span style={{ color: "#5E6C84", fontSize: "14px" }}>
+                      N/A
+                    </span>
                   )}
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                  {profile.interviewer_name && profile.interviewer_name !== "N/A" ? (
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                  {profile.interviewer_name &&
+                  profile.interviewer_name !== "N/A" ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                      }}
+                    >
                       <Avatar
                         style={{
                           width: "24px",
@@ -185,12 +246,21 @@ const ProfileTable = ({ profiles, serialNumberStart }) => {
                       </span>
                     </div>
                   ) : (
-                    <span style={{ color: "#5E6C84", fontSize: "14px" }}>N/A</span>
+                    <span style={{ color: "#5E6C84", fontSize: "14px" }}>
+                      N/A
+                    </span>
                   )}
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "center" }}>
                   {profile.hr_name && profile.hr_name !== "N/A" ? (
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                      }}
+                    >
                       <Avatar
                         style={{
                           width: "24px",
@@ -206,8 +276,20 @@ const ProfileTable = ({ profiles, serialNumberStart }) => {
                       </span>
                     </div>
                   ) : (
-                    <span style={{ color: "#5E6C84", fontSize: "14px" }}>N/A</span>
+                    <span style={{ color: "#5E6C84", fontSize: "14px" }}>
+                      N/A
+                    </span>
                   )}
+                </td>
+                <td>
+                  <Button
+                    label="View Resume"
+                    variant="bg-blue-500 hover:bg-blue-600"
+                    code="#1e3a8a" // overrides bg color
+                    type="submit"
+                    onClick={() => navigate(`/resumeview?applicant_uuid=${profile.applicant_uuid}`)}
+                    loading={false}
+                  />
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "center" }}>
                   {(() => {

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import API_URL from '../Constants/ApiUrl';
+import api from '../api/axios';
 
 // Custom hook to fetch markets from the API
 const useGetMarketJobs = () => {
@@ -12,7 +11,7 @@ const useGetMarketJobs = () => {
     const fetchMarkets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/getmarketjobs`,{withCredentials:true});
+        const response = await api.get('/getmarketjobs');
         setMarketJobs(response.data);
         setError('');
       } catch {
@@ -23,7 +22,7 @@ const useGetMarketJobs = () => {
     };
 
     fetchMarkets();
-  }, [API_URL]);
+  }, [api]);
 
   return { marketJobs, loading, error };
 };

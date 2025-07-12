@@ -27,6 +27,7 @@ import MarketSelector from "../utils/MarketSelector";
 import { FaRegEdit } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import "../Styles/detailview.css";
+import api from "../api/axios";
 
 const statusMap = {
   Total1: [
@@ -119,8 +120,8 @@ function ViewDetais() {
   const fetchProfiles = async () => {
     setLoading(true);
     try {
-      const url = `${process.env.REACT_APP_API}/viewdetails`;
-      const response = await axios.get(url, { withCredentials: true });
+      const url = "/viewdetails";
+      const response = await api.get(url);
 
       if (response.status === 200) {
         const profilesData = response.data.status_counts || [];
@@ -344,14 +345,9 @@ function ViewDetais() {
     };
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API}/update-comment`,
+      const response = await api.put(
+        "/update-comment",
         {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
           body: JSON.stringify(data),
         }
       );

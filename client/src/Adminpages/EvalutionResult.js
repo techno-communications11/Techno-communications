@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { Modal, Table } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -7,7 +6,7 @@ import Loader from "../utils/Loader";
 import Button from "../utils/Button";
 import TableHead from "../utils/TableHead";
 import { MyContext } from "../pages/MyContext";
-import API_URL from "../Constants/ApiUrl";
+import api from "../api/axios";
 
 const TableHeader = [
   "SI.No",
@@ -32,11 +31,9 @@ function EvalutionResult({ setTrainerCount }) {
     const assignedToInterviewer = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${API_URL}/users/get_All_Trainer_Feedback_Applicant_details`,
-          {
-            withCredentials: true,
-          }
+        const response = await api.get(
+          '/users/get_All_Trainer_Feedback_Applicant_details',
+          
         );
 
         if (response.status === 200) {
@@ -54,7 +51,7 @@ function EvalutionResult({ setTrainerCount }) {
     if (userData?.id) {
       assignedToInterviewer();
     }
-  }, [API_URL, userData?.id, setTrainerCount]);
+  }, [api, userData?.id, setTrainerCount]);
 
   const handleActionClick = (profile, action) => {
     setSelectedProfile(profile);
@@ -71,10 +68,9 @@ function EvalutionResult({ setTrainerCount }) {
     };
 
     try {
-      const res = await axios.post(
-        `${API_URL}/updatestatus`,
+      const res = await api.post(
+        '/updatestatus',
         payload,
-        { withCredentials: true }
       );
 
       if (res.status === 200) {

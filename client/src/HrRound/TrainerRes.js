@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
+import  { useEffect, useState, useContext } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Table } from "react-bootstrap";
@@ -8,7 +7,7 @@ import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
 import ConfirmationModal from "../utils/ConfirmationModal";
 import { MyContext } from "../pages/MyContext";
-import API_URL from "../Constants/ApiUrl";
+import api from "../api/axios";
 
 function TrainerRes({ setTrainerCount }) {
  
@@ -21,8 +20,7 @@ function TrainerRes({ setTrainerCount }) {
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
-    console.log("userData:", userData);
-    console.log("userData.id:", userData?.id);
+  
 
     const assignedToInterviewer = async () => {
       if (!userData?.id) {
@@ -34,10 +32,8 @@ function TrainerRes({ setTrainerCount }) {
 
       setLoading(true);
       try {
-        const fullUrl = `${API_URL}/users/${userData.id}/getAllTrainerFeedbackApplicants`;
-        console.log("Fetching from URL:", fullUrl);
-        const response = await axios.get(fullUrl, {
-          withCredentials: true,
+        const fullUrl = `/users/${userData.id}/getAllTrainerFeedbackApplicants`;
+        const response = await api.get(fullUrl, {
           timeout: 5000,
         });
 
@@ -59,7 +55,7 @@ function TrainerRes({ setTrainerCount }) {
     };
 
     assignedToInterviewer();
-  }, [API_URL, userData?.id, setTrainerCount]);
+  }, [api, userData?.id, setTrainerCount]);
 
   const handleActionClick = (profile, action) => {
     console.log("handleActionClick called with:", { profile, action });
@@ -82,8 +78,7 @@ function TrainerRes({ setTrainerCount }) {
     };
 
     try {
-      const res = await axios.post(`${API_URL}/updatestatus`, payload, {
-        withCredentials: true,
+      const res = await api.post("/updatestatus", payload, {
         timeout: 5000,
       });
 

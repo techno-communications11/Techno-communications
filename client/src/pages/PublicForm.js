@@ -1,10 +1,10 @@
 import { useState, useRef } from "react";
 import { Container, Row, Col, Form } from "react-bootstrap";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaUser, FaPhone, FaIdCard, FaSignInAlt } from "react-icons/fa";
+import api from "../api/axios";
 
 import InputField from "../utils/InputField";
 import MarketDropdown from "../utils/MarketDropdown";
@@ -14,7 +14,6 @@ import useFetchMarkets from "../Hooks/useFetchMarkets";
 import SanitizePhoneNumber from "../utils/SanitizePhoneNumber";
 import Loader from "../utils/Loader";
 import Button from "../utils/Button";
-import API_URL from "../Constants/ApiUrl";
 import ResumeUpload from "../utils/ResumeUpload";
 
 function PublicForm() {
@@ -99,8 +98,7 @@ function PublicForm() {
       formData.append("referred_by", referredByRef.current.value);
       formData.append("reference_id", referenceNtidRef.current?.value || "");
 
-      const apiUrl = API_URL || "http://localhost:3000";
-      const response = await axios.post(`${apiUrl}/submit-public-form`, formData);
+      const response = await api.post("/submit-public-form", formData);
 
       if (response.status === 201 && isMounted) {
         Swal.fire({

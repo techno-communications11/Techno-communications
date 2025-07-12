@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Container, Row } from "react-bootstrap";
-import axios from "axios";
 import DetailedView from "./DetailedView";
 import Hired from "./Hired";
 import Pending from "./Pending";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
+ import api from "../api/axios";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
+ 
 
   return (
     <div
@@ -51,12 +52,7 @@ export default function HrTabs() {
   useEffect(() => {
     const assignedToInterviewer = async () => {
       try {
-        const response = await axios.get(
-          `${apiurl}/users/${userData.id}/trainerfeedbackapplicants`,
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await api.get("/users/${userData.id}/trainerfeedbackapplicants");
         if (response.status === 200) {
           // Assuming the response contains a field `count` for trainer feedback applicants
           setTrainerCount(response.data.count || 0);

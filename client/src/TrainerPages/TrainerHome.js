@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Table, Button, Modal, Form, Alert, InputGroup, FormControl, Col } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import '../Styles/Loader.css'; // Import your custom styles
 import { useContext } from 'react';
 import { MyContext } from '../pages/MyContext';
+import api from '../api/axios';
 
 function TrainerHome() {
   const apiurl = process.env.REACT_APP_API;
@@ -21,9 +21,7 @@ function TrainerHome() {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await axios.get(`${apiurl}/users/${userData.id}/trainerapplicants`, {
-          withCredentials:true
-        });
+        const response = await api.get(`/users/${userData.id}/trainerapplicants`);
         const sortedProfiles = response.data.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
@@ -63,9 +61,7 @@ function TrainerHome() {
     };
 
     try {
-      const res = await axios.post(`${apiurl}/updatestatus`, payload, {
-        withCredentials:true
-      });
+      const res = await api.post(`/updatestatus`, payload);
 
       if (res.status === 200) {
         toast.success(res.data.message);

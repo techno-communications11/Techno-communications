@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import API_URL from "../Constants/ApiUrl";
 import Loader from "./Loader";
+import api from "../api/axios";
 
 function ResumeView() {
   const location = useLocation();
@@ -15,10 +16,7 @@ function ResumeView() {
   const getUserResume = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/resume/${applicant_uuid}`, {
-        method: "GET",
-        credentials: "include",
-      });
+      const res = await api.get(`/resume/${applicant_uuid}`);
       console.log("Fetch response:", res);
 
       if (!res.ok) {

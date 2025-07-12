@@ -1,4 +1,3 @@
-import axios from "axios";
 import  { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Form, Row, Col, Button, Container, Modal } from "react-bootstrap";
@@ -10,6 +9,7 @@ import { useContext } from "react";
 import Select from "react-select";
 import options from "../Constants/Days";
 import useFetchMarkets from "../Hooks/useFetchMarkets";
+import api from "../api/axios";
 
 const Hrinterview = () => {
   const { applicant_uuid, userData } = useContext(MyContext);
@@ -118,11 +118,9 @@ const Hrinterview = () => {
   useEffect(() => {
     const getJobId = async () => {
       try {
-        const response = await axios.get(
-          `${apiurl}/get_jobId?location=${encodeURIComponent(formData.market)}`,
-          {
-            withCredentials: true,
-          }
+        const response = await api.get(
+          `/get_jobId?location=${encodeURIComponent(formData.market)}`
+          
         );
 
         if (response.status === 200) {
@@ -220,12 +218,10 @@ const Hrinterview = () => {
     }
 
     try {
-      const response = await axios.post(
-        `${apiurl}/add-hrevaluation`,
-        formData,
-        {
-          withCredentials: true,
-        }
+      const response = await api.post(
+       "/add-hrevaluation",
+        formData
+        
       );
       setFormData({
         applicantId: "",
@@ -280,10 +276,10 @@ const Hrinterview = () => {
         return;
       }
       try {
-        const response = await axios.get(
-          `${apiurl}/first_round_res/${applicant_uuidprops}`,
+        const response = await api.get(
+          "/first_round_res/${applicant_uuidprops}",
           {
-            withCredentials: true,
+           
             timeout: 5000, // 5-second timeout
           }
         );
@@ -309,11 +305,10 @@ const Hrinterview = () => {
       // Include other data if needed, such as a comment
     };
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API}/updatestatus`,
+      const res = await api.post(
+       "/updatestatus",
         payload,
         {
-          withCredentials: true,
           timeout: 5000, // 5-second timeout
         }
       );
@@ -346,9 +341,7 @@ const Hrinterview = () => {
     // Fetch trainers list when component mounts
     const fetchTrainers = async () => {
       try {
-        const response = await axios.get(`${apiurl}/trainers`, {
-          withCredentials: true,
-        });
+        const response = await api.get("/trainers");
         setTrainers(response.data);
       } catch (error) {
         console.error("Error fetching trainers:", error);

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import API_URL from '../Constants/ApiUrl';
+import api from '../api/axios';
 
 // Custom hook to fetch markets from the API
 const useFetchMarkets = () => {
@@ -12,7 +11,7 @@ const useFetchMarkets = () => {
     const fetchMarkets = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`${API_URL}/markets`);
+        const { data } = await api.get('/markets');
         //  console.log(data,'data')
         setMarkets(data);
         setError('');
@@ -24,7 +23,7 @@ const useFetchMarkets = () => {
     };
 
     fetchMarkets();
-  }, [API_URL]);
+  }, [api]);
 
   return { markets, loading, error };
 };

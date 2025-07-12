@@ -26,7 +26,6 @@ function Ntidboard() {
   const { data, loading, error } = useFetchNtidDashCount();
   const navigate = useNavigate();
   const { setStartDateForContext, setEndDateForContext, setMarkets } = useContext(MyContext);
-   console.log(data,'at');
 
   const [counts, setCounts] = useState({
     markAssigned: 0,

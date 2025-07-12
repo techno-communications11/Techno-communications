@@ -10,6 +10,7 @@ import { FaUser, FaPhone, FaIdCard } from "react-icons/fa";
 import InputField from "../utils/InputField";
 import MarketDropdown from "../utils/MarketDropdown";
 import SubmitButton from "../utils/SubmitButton";
+import api from "../api/axios";
 
 function Screening() {
   const [error, setError] = useState("");
@@ -77,9 +78,7 @@ function Screening() {
     };
 
     try {
-      const response = await axios.post(`${apiUrl}/submit-public-form`, formData, {
-        withCredentials: true,
-      });
+      const response = await api.post("/submit-public-form", formData);
 
       if (response.status === 201) {
         Swal.fire({

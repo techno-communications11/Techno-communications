@@ -4,57 +4,63 @@ import { TextField } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
-import axios from "axios";
 import dayjs from "dayjs";
 import { CanvasJSChart } from "canvasjs-react-charts";
 import { MyContext } from "../pages/MyContext";
 import { useNavigate } from "react-router-dom";
 import useFetchMarkets from "../Hooks/useFetchMarkets";
 import Loader from "../utils/Loader";
-import API_URL from "../Constants/ApiUrl";
+import api, { setNavigate, getSessionExpired } from "../api/axios";
 
 const DetailCards = () => {
   const [statusCounts, setStatusCounts] = useState({});
-  const [selectedMarket, setSelectedMarket] = useState([]); // Holds multiple markets
-  const [dateRange, setDateRange] = useState([
-    dayjs().subtract(7, "days"),
-    dayjs(),
-  ]);
+  const [selectedMarket, setSelectedMarket] = useState([]);
+  const [dateRange, setDateRange] = useState([dayjs().subtract(7, "days"), dayjs()]);
   const [loading, setLoading] = useState(false);
-  const [isAllSelected, setIsAllSelected] = useState(false); // State to track Select All
+  const [isAllSelected, setIsAllSelected] = useState(false);
   const { setMarkets, setCaptureDate } = useContext(MyContext);
   const navigate = useNavigate();
   const { markets } = useFetchMarkets();
 
   useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (getSessionExpired()) return;
     fetchStatusCounts();
   }, []);
 
   useEffect(() => {
-    if (selectedMarket.length > 0 || dateRange) {
+    if (getSessionExpired()) return;
+    const timer = setTimeout(() => {
       fetchStatusCounts();
-    }
+    }, 100); // Debounce to prevent rapid calls
+    return () => clearTimeout(timer);
   }, [selectedMarket, dateRange]);
 
   const fetchStatusCounts = async () => {
+    if (getSessionExpired()) return;
     setLoading(true);
     try {
-      const url = `${API_URL}/getStatusCountsByLocation`;
-      const response = await axios.get(url, { withCredentials: true });
+      const response = await api.get("/getStatusCountsByLocation", {
+        withCredentials: true,
+      });
       if (response.status === 200) {
         const details = response.data.status_counts;
         setStatusCounts(deriveProfileStats(details));
       } else {
-        console.error("Error fetching profiles:", response);
+        console.error("Error fetching profiles:", response.status, response.data);
       }
     } catch (error) {
-      console.error("API Error:", error.message);
+      console.error("API Error:", error.message, error.response?.data);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSelectAllChange = (event) => {
+    if (getSessionExpired()) return;
     const { checked } = event.target;
     setIsAllSelected(checked);
     if (checked) {
@@ -62,45 +68,44 @@ const DetailCards = () => {
       setMarkets(allMarkets);
       setSelectedMarket(allMarkets);
     } else {
-      setSelectedMarket([]); // Clear selected markets when "Select All" is unchecked
-      setMarkets([]); // Clear markets
+      setSelectedMarket([]);
+      setMarkets([]);
     }
   };
 
-  // Set all markets as selected by default when markets are fetched
   useEffect(() => {
+    if (getSessionExpired()) return;
     if (markets.length > 0) {
       const allMarkets = markets.map((location) => location.location_name);
-      setSelectedMarket(allMarkets); // Preselect all markets
-      setMarkets(allMarkets); // Update context with all markets
-      setIsAllSelected(true); // Set "Select All" checkbox to checked to reflect UI state
+      setSelectedMarket(allMarkets);
+      setMarkets(allMarkets);
+      setIsAllSelected(true);
     }
   }, [markets, setMarkets]);
 
   const handleLocationChange = (event) => {
+    if (getSessionExpired()) return;
     const { value, checked } = event.target;
     if (checked) {
       setSelectedMarket((prevSelected) => {
         const updatedMarkets = [...prevSelected, value];
-        setMarkets(updatedMarkets); // Update setMarkets here
+        setMarkets(updatedMarkets);
         return updatedMarkets;
       });
     } else {
       setSelectedMarket((prevSelected) => {
-        const updatedMarkets = prevSelected.filter(
-          (market) => market !== value
-        );
-        setMarkets(updatedMarkets); // Update setMarkets here
+        const updatedMarkets = prevSelected.filter((market) => market !== value);
+        setMarkets(updatedMarkets);
         return updatedMarkets;
       });
     }
-    setIsAllSelected(false); // Uncheck "Select All" when individual changes happen
+    setIsAllSelected(false);
   };
 
   const flattenProfiles = (profiles) => {
     return profiles
-      .flatMap((profile) => {
-        return profile.applicant_names.map((name, index) => ({
+      .flatMap((profile) =>
+        profile.applicant_names.map((name, index) => ({
           applicant_name: name,
           applicant_phone: profile.phone[index],
           applicant_email: profile.applicant_emails[index],
@@ -108,10 +113,9 @@ const DetailCards = () => {
           work_location_name: profile.work_location_names[index],
           created_at_date: profile.created_at_dates[index],
           status: profile.status,
-        }));
-      })
+        }))
+      )
       .filter((profile) => {
-        // Filter by market
         const inMarket =
           selectedMarket?.length > 0
             ? selectedMarket.includes(profile.work_location_name)
@@ -122,25 +126,20 @@ const DetailCards = () => {
         const endDateObj = endDate ? new Date(endDate) : null;
         if (startDateObj && endDateObj) {
           if (startDateObj.toDateString() === endDateObj.toDateString()) {
-            startDateObj.setHours(0, 0, 0, 0); // Local start of the day
-            endDateObj.setHours(23, 59, 59, 999); // Local end of the day
+            startDateObj.setHours(0, 0, 0, 0);
+            endDateObj.setHours(23, 59, 59, 999);
           } else {
-            startDateObj.setHours(0, 0, 0, 0); // UTC start of the start day
-            endDateObj.setHours(23, 59, 59, 999); // UTC end of the end day
+            startDateObj.setHours(0, 0, 0, 0);
+            endDateObj.setHours(23, 59, 59, 999);
           }
         }
-
-        // Convert to timestamps for comparison
         const startTimestamp = startDateObj ? startDateObj.getTime() : null;
         const endTimestamp = endDateObj ? endDateObj.getTime() : null;
         const createdTimestamp = createdDate.getTime();
-
-        // Filter by date range (inclusive)
         const inDateRange =
           startTimestamp && endTimestamp
-            ? createdTimestamp >= startTimestamp &&
-              createdTimestamp <= endTimestamp
-            : true; // Default to true if no date range is provided
+            ? createdTimestamp >= startTimestamp && createdTimestamp <= endTimestamp
+            : true;
         return inMarket && inDateRange;
       });
   };
@@ -149,14 +148,12 @@ const DetailCards = () => {
     const flattenedProfiles = flattenProfiles(profiles);
     const uniqueProfiles = flattenedProfiles.filter(
       (profile, index, self) =>
-        index ===
-        self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
+        index === self.findIndex((p) => p.applicant_uuid === profile.applicant_uuid)
     );
     const profileStats = uniqueProfiles.reduce((acc, profile) => {
       acc[profile.status] = (acc[profile.status] || 0) + 1;
       return acc;
     }, {});
-
     return calculateFinalStatusCounts(profileStats);
   };
 
@@ -174,7 +171,6 @@ const DetailCards = () => {
       (profileStats["selected at Hr"] || 0) +
       (profileStats["Spanish Evaluation"] || 0) +
       (profileStats["Store Evaluation"] || 0);
-
     const rejectedTotal =
       (profileStats["rejected at Screening"] || 0) +
       (profileStats["no show at Screening"] || 0) +
@@ -186,11 +182,9 @@ const DetailCards = () => {
       (profileStats["backOut"] || 0) +
       (profileStats["rejected at Hr"] || 0);
     const pendingAtScreening = profileStats["pending at Screening"] || 0;
-
     const firstRoundPendingTotal =
       (profileStats["moved to Interview"] || 0) +
       (profileStats["put on hold at Interview"] || 0);
-
     const hrRoundPendingTotal =
       (profileStats["Recommended For Hiring"] || 0) +
       (profileStats["selected at Interview"] || 0) +
@@ -200,9 +194,7 @@ const DetailCards = () => {
       (profileStats["Moved to HR"] || 0) +
       (profileStats["Spanish Evaluation"] || 0) +
       (profileStats["Store Evaluation"] || 0);
-
     const pendingAtNITDSTotal = profileStats["selected at Hr"] || 0;
-
     const ntidCreatedTotal = profileStats["mark_assigned"] || 0;
 
     return {
@@ -218,6 +210,7 @@ const DetailCards = () => {
   };
 
   const handleDataView = (captureStatus) => {
+    if (getSessionExpired()) return;
     setCaptureDate(dateRange);
     navigate(`/statusticketview/${captureStatus}`);
   };
@@ -243,7 +236,6 @@ const DetailCards = () => {
           </LocalizationProvider>
         </Col>
       </Row>
-
       <Row className="d-flex align-items-start gap-2">
         <Col md={2}>
           <Form.Group controlId="marketSelector">
@@ -256,9 +248,7 @@ const DetailCards = () => {
                 border: "1px solid #ddd",
               }}
             >
-              <Form.Label style={{ fontWeight: "bold" }}>
-                Select Markets
-              </Form.Label>
+              <Form.Label style={{ fontWeight: "bold" }}>Select Markets</Form.Label>
               <Form.Check
                 type="checkbox"
                 label="Select All"
@@ -270,7 +260,7 @@ const DetailCards = () => {
                   key={location.id}
                   type="checkbox"
                   label={location.location_name?.toLowerCase()}
-                  className="text-capitalize "
+                  className="text-capitalize"
                   value={location.location_name}
                   checked={selectedMarket?.includes(location.location_name)}
                   onChange={handleLocationChange}
@@ -279,7 +269,6 @@ const DetailCards = () => {
             </div>
           </Form.Group>
         </Col>
-
         <Col md={6}>
           <Row>
             {Object.keys(statusCounts)?.length > 0 &&
@@ -314,7 +303,6 @@ const DetailCards = () => {
               ))}
           </Row>
         </Col>
-
         <Col md={3}>
           {Object.keys(statusCounts).length > 0 && (
             <CanvasJSChart

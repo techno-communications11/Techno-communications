@@ -1,13 +1,12 @@
 import  { useState} from 'react';
-import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import { Container, Grid, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Box, Alert, Button } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
 import Roles from '../Constants/Roles';
 import EMAIL_REGEX from '../Constants/EmailValidation';
-import API_URL from '../Constants/ApiUrl';
 import useFetchMarkets from '../Hooks/useFetchMarkets'
 import Loader from '../utils/Loader';
+import api from '../api/axios';
 
 // Register component
 const Register = () => {
@@ -54,13 +53,13 @@ const Register = () => {
     if (!validateForm()) return;
     setRegisterLoad(true);
     try {
-      const { data } = await axios.post(`${API_URL}/createuser`,  {
+      const { data } = await api.post("/createuser",  {
         ...formData,
         role: formData.role,
         market: formData.role === 'Screening Manager' ? formData.market : '',
         
         
-      },{withCredentials:true});
+      });
 
       toast.success(`${data.message} (ID: ${data.userId})`);
       setFormData({ name: '', email: '', role: '', market: '', calendlyUsername: '' });

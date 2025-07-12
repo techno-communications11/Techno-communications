@@ -1,15 +1,14 @@
-import axios from "axios";
 import  { useState } from "react";
 import { useLocation } from "react-router";
 import { Form, Row, Col, Button, Container } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useFetchMarkets from "../Hooks/useFetchMarkets";
+import api from "../api/axios";
 
 const Edit = () => {
   const location = useLocation(); // Used to access the profile passed from navigate()
   const { profile } = location.state || {}; // Accessing profile from passed state
-  const apiurl = process.env.REACT_APP_API;
   const { markets } = useFetchMarkets();
 
   const [formData, setFormData] = useState({
@@ -64,12 +63,10 @@ const Edit = () => {
       return;
     }
     try {
-      const response = await axios.put(
-        `${apiurl}/hrevalution/${formData.applicantId}`,
+      const response = await api.put(
+        "/hrevalution/${formData.applicantId}",
         formData,
-        {
-          withCredentials: true,
-        }
+        
       );
 
       if (response.status === 200) {

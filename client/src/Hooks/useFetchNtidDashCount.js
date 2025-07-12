@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import API_URL from '../Constants/ApiUrl';
+import api from '../api/axios';
 
 const useFetchNtidDashCount = () => {
   const [data, setData] = useState([]);
@@ -11,7 +10,7 @@ const useFetchNtidDashCount = () => {
     const fetchMarkets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/applicants/ntidDashboardCount`, { withCredentials: true });
+        const response = await api.get('/applicants/ntidDashboardCount');
         // Set data to response.data.data, which is the array
         const fetchedData = Array.isArray(response.data.data) ? response.data.data : [];
         setData(fetchedData);

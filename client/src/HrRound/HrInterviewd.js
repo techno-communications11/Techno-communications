@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useContext } from "react";
+import  { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { MyContext } from "../pages/MyContext";
 import { Button, Table } from "react-bootstrap"; // Using React Bootstrap for dropdown
 import { toast, ToastContainer } from "react-toastify";
 import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
+import api from "../api/axios";
 const TableHeaders = [
   "S.No",
   "Applicant UUID",
@@ -26,11 +26,9 @@ function HrInterviewd() {
     const fetchInterviewApplicants = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${apiurl}/hrevalution/${userData.id}`,
-          {
-            withCredentials: true,
-          }
+        const response = await api.get(
+          `/hrevalution/${userData.id}`
+          
         );
 
         // Check if response.data is an object or an array

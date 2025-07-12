@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Form, Row, Col, Button, Container, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
-
+import api from "../api/axios";
 const ApplicantForm = ({
   applicant_uuidProps,
   applicantEmail,
@@ -171,12 +170,9 @@ const ApplicantForm = ({
 //  console.log(formData,'fmd')
 
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API}/add-evaluation`,
-        formData,
-        {
-          withCredentials:true
-        }
+      const response = await api.post(
+        "/add-evaluation",
+        formData
       );
 
       if (response.status === 200) {
@@ -206,9 +202,9 @@ const ApplicantForm = ({
     };
     // console.log("status....", applicant_uuid, payload.action);
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API}/updatestatus`,
-        payload, {withCredentials:true}
+      const res = await api.post(
+        "/updatestatus",
+        payload
       );
 
       if (res.status === 200) {

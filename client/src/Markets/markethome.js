@@ -17,11 +17,10 @@ import {
   Grid,
 } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
-import axios from "axios";
 import Loader from "../utils/Loader";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
-import API_URL from "../Constants/ApiUrl";
+import api from "../api/axios";
 
  const userMarket = {
     "Ali Khan": "ARIZONA",
@@ -67,7 +66,7 @@ const Markethome = () => {
 
     try {
       // console.log(jobDetails, "jbs");
-      const response = await axios.post(`${API_URL}/post-job`, jobDetails,{withCredentials:true});
+      const response = await api.post("/post-job", jobDetails);
       if (response.status === 200) {
         toast.success(response.data.message);
         setJobDetails({
@@ -90,7 +89,7 @@ const Markethome = () => {
   useEffect(() => {
     const fetchMarketJobs = async () => {
       try {
-        const response = await axios.get(`${API_URL}/getmarketjobs`,{withCredentials:true});
+        const response = await api.get("/getmarketjobs");
         const data = response.data;
         const filteredData = data.filter((val) => val.name === userMarketLocation);
         setMarkets(filteredData);

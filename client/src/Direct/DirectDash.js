@@ -1,11 +1,11 @@
 import  { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Box, Card, Typography, Grid ,Container} from '@mui/material'; // Use Grid instead of Col
 import dayjs from 'dayjs';
 import { useContext } from 'react';
 import { MyContext } from '../pages/MyContext';
 import Loader from '../utils/Loader';
 import { useNavigate } from 'react-router';
+import api from '../api/axios';
 
 export const DirectDash = () => {
     const {userData}=useContext(MyContext);
@@ -21,8 +21,8 @@ export const DirectDash = () => {
     const fetchProfiles = async () => {
         setLoading(true);
         try {
-            const url = `${process.env.REACT_APP_API}/Detailstatus`;
-            const response = await axios.get(url,{withCredentials:true});
+            const url = "/Detailstatus";
+            const response = await api.get(url);
             if (response.status === 200) {
                 const details = response.data.status_counts;
                 setSelectedProfiles(details || []);

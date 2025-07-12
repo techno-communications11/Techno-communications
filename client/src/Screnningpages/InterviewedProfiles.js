@@ -1,5 +1,4 @@
 import  { useEffect, useState, useContext } from "react";
-import axios from "axios";
 import { Modal, Form, Dropdown } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import { Tooltip } from "@mui/material";
@@ -14,7 +13,7 @@ import TextField from "@mui/material/TextField";
 import { MyContext } from "../pages/MyContext";
 import Loader from "../utils/Loader";
 import formatKey  from "../utils/formatKey"; // Assuming you have a utility function for formatting keys
-
+import api from "../api/axios";
 const deriveCategory = (status) => {
   if (!status) return "Unknown";
   const statusLower = status.toLowerCase();
@@ -151,15 +150,9 @@ export default function InterviewedProfiles() {
       try {
         const [profilesResponse, hrsResponse, interviewersResponse] =
           await Promise.all([
-            axios.get(`${apiurl}/users/${userData.id}/applicantsatalllevel`, {
-              withCredentials: true,
-            }),
-            axios.get(`${apiurl}/hrs`, {
-              withCredentials: true,
-            }),
-            axios.get(`${apiurl}/interviewer`, {
-              withCredentials: true,
-            }),
+            api.get(`/users/${userData.id}/applicantsatalllevel`),
+            api.get("/hrs"),
+            api.get("/interviewer"),
           ]);
 
         const profileData = profilesResponse.data || [];
@@ -187,12 +180,8 @@ export default function InterviewedProfiles() {
   const fetchResponse = async (applicantId) => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `${apiurl}/first_round_res/${applicantId}`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.get(
+        `/first_round_res/${applicantId}`);
 
       if (
         response.status === 200 &&
@@ -346,9 +335,7 @@ export default function InterviewedProfiles() {
             }),
       };
 
-      const response = await axios.post(url, payload, {
-        withCredentials: true,
-      });
+      const response = await api.post(url, payload);
       if (response.status === 200) {
         toast.success(response.data.message || "Assignment successful.");
         setTimeout(() => window.location.reload(), 1500);

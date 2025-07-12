@@ -1,29 +1,27 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { format } from "date-fns";
-import { Dropdown,Table } from "react-bootstrap"; // Using React Bootstrap for dropdown
+import { Dropdown, Table } from "react-bootstrap"; // Using React Bootstrap for dropdown
 import { Assignment } from "@mui/icons-material"; // Material-UI Assignment icon
 import { toast, ToastContainer } from "react-toastify";
 import TableHead from "../utils/TableHead";
 import Loader from "../utils/Loader";
-import { useContext } from 'react';
-import { MyContext } from '.././pages/MyContext';
-import API_URL from "../Constants/ApiUrl";
+import { useContext } from "react";
+import { MyContext } from ".././pages/MyContext";
 import { Button } from "@mui/material";
+import api from "../api/axios";
 
 const InterViewHome = ({
   setApplicant_uuid,
   setApplicantEmail,
   setApplicantPhone,
 }) => {
- 
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState([]);
   const [filteredProfiles, setFilteredProfiles] = useState([]);
   const [filter, setFilter] = useState("");
   const [interviewer, setinterviewer] = useState([]);
-  const [openDropdown, setOpenDropdown] = useState(null); 
+  const [openDropdown, setOpenDropdown] = useState(null);
   const [loading, setLoading] = useState(false); // Loading state
   const { userData } = useContext(MyContext);
 
@@ -31,11 +29,8 @@ const InterViewHome = ({
     const assignedToInterviewer = async () => {
       setLoading(true); // Start loading
       try {
-        const response = await axios.get(
-          `${API_URL}/users/${userData.id}/interviewapplicants`,
-          {
-            withCredentials:true
-          }
+        const response = await api.get(
+          `/users/${userData.id}/interviewapplicants`
         );
 
         if (response.status === 200) {
@@ -48,20 +43,17 @@ const InterViewHome = ({
         }
       } catch (err) {
         console.log(err);
-      }
-      finally {
+      } finally {
         setLoading(false); // Stop loading
       }
     };
     assignedToInterviewer();
-  }, [API_URL, userData.id]);
+  }, [api, userData.id]);
 
   useEffect(() => {
     const fetchinterviewer = async () => {
       try {
-        const response = await axios.get(`${API_URL}/interviewer`, {
-          withCredentials:true
-        });
+        const response = await api.get("/interviewer");
         setinterviewer(response.data);
       } catch (err) {
         console.error(err);
@@ -69,7 +61,7 @@ const InterViewHome = ({
     };
 
     fetchinterviewer();
-  }, [API_URL]);
+  }, [api]);
 
   const handleFilterChange = (e) => {
     const { value } = e.target;
@@ -89,10 +81,9 @@ const InterViewHome = ({
 
   const handleSelect = async (selectedHRId, applicant_uuid) => {
     try {
-      await axios.post(
-        `${API_URL}/newinterviewer`,
-        { applicantId: applicant_uuid, newUserId: selectedHRId },
-        { withCredentials:true }
+      await api.post(
+        "/newinterviewer",
+        { applicantId: applicant_uuid, newUserId: selectedHRId }
       );
       toast.success("Assigned to New Interviewer successfully!");
       setTimeout(() => {
@@ -108,13 +99,21 @@ const InterViewHome = ({
     setOpenDropdown((prev) => (prev === uuid ? null : uuid)); // Toggle dropdown visibility
   };
 
-   if(loading) {
-    return (
-      <Loader/>
-    )
+  if (loading) {
+    return <Loader />;
   }
 
-   const TableHeader = ["SI.No", "Applicant Name", "Applicant UUID", "Applicant Phone", "Applicant email", "Interview Time", "Resume","Action","Assign New Interviewer"];
+  const TableHeader = [
+    "SI.No",
+    "Applicant Name",
+    "Applicant UUID",
+    "Applicant Phone",
+    "Applicant email",
+    "Interview Time",
+    "Resume",
+    "Action",
+    "Assign New Interviewer",
+  ];
 
   return (
     <div className="container-fluid my-3">
@@ -134,7 +133,7 @@ const InterViewHome = ({
       </div>
 
       <Table className="table table-striped table-hover table-sm">
-       <TableHead headData={TableHeader} />
+        <TableHead headData={TableHeader} />
         <tbody>
           {filteredProfiles.map((profile, index) => (
             <tr key={index}>
@@ -149,7 +148,19 @@ const InterViewHome = ({
                   "MM/dd/yyyy hh:mm a"
                 )}
               </td>
-               <td><Button variant="contained" color="success" onClick={() => navigate(`/resumeview?applicant_uuid=${profile.applicant_uuid}`)}>View resume</Button></td>
+              <td>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={() =>
+                    navigate(
+                      `/resumeview?applicant_uuid=${profile.applicant_uuid}`
+                    )
+                  }
+                >
+                  View resume
+                </Button>
+              </td>
 
               <td className="p-2">
                 <button

@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import dayjs from "dayjs";
-import axios from "axios";
 import * as XLSX from "xlsx";
 import { Modal, Form, Container } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
@@ -13,13 +12,11 @@ import {
   TableRow,
   Paper,
   Typography,
-  Box,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
 import Loader from "../utils/Loader";
 import TableHead from "../utils/TableHead";
-import API_URL from "../Constants/ApiUrl";
 import Button from "../utils/Button";
 import { useParams } from "react-router";
 import CustomPagination from "../utils/CustomPagination";
@@ -27,6 +24,7 @@ import { FaEye } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { IoIosEyeOff } from "react-icons/io";
 import NoProfilesFound from "../utils/NoProfilesFound";
+import api from "../api/axios";
 
 const TableHeader = [
   "S.No",
@@ -134,7 +132,7 @@ function StatsTicketView() {
         const parsedCaptureStatus = selectedStatus || "";
         const parsedCaptureDate = [selectedStartDate, selectedEndDate].filter(Boolean);
 
-        const url = `${API_URL}/Detailstatus`;
+        const url ='/Detailstatus';
         const params = {
           market: selectedMarket ? [selectedMarket] : parsedMarkets,
           status: statusMap[parsedCaptureStatus] || [],
@@ -142,12 +140,10 @@ function StatsTicketView() {
           endDate: parsedCaptureDate[1] ? dayjs(parsedCaptureDate[1]).format("YYYY-MM-DD") : null,
         };
 
-        console.log("Fetching with params:", params); // Debug log
-        const response = await axios.get(url, { params, withCredentials: true });
+        const response = await api.get(url, { params});
 
         if (response.status === 200) {
           const profilesData = response.data.status_counts || [];
-          console.log("Fetched data:", profilesData); // Debug log
           setSelectedProfiles(profilesData);
           localStorage.setItem("selectedProfiles", JSON.stringify(profilesData));
         } else {
@@ -316,10 +312,7 @@ function StatsTicketView() {
     };
 
     try {
-      const response = await fetch(`${API_URL}/update-comment`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+      const response = await api.put('/update-comment', {        
         body: JSON.stringify(data),
       });
 

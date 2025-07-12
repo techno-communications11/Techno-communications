@@ -1,10 +1,7 @@
-import axios from "axios";
-
+import api from "../api/axios";
 const getStatusCounts = async () => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API}/status`, {
-      withCredentials: true, // Correct property name
-    });
+    const response = await api.get("/status");
 
     if (response.status === 200) {
       return response.data; // Return the data if the request is successful

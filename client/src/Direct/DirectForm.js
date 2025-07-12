@@ -1,10 +1,11 @@
 import  { useState, useRef } from 'react';
 import { Button } from '@mui/material';
 import Form from 'react-bootstrap/Form';
-import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useContext } from "react";
 import { MyContext } from '../pages/MyContext';
+import api from '../api/axios';
+import EMAIL_REGEX from '../Constants/EmailValidation';
 
 function DirectForm() {
   const { userData } = useContext(MyContext);
@@ -15,15 +16,14 @@ function DirectForm() {
   const phoneRef = useRef();
   const referredByRef = useRef();
   const referenceNtidRef = useRef();
-  const apiUrl = process.env.REACT_APP_API;
-  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   
   const handleSubmit = async (event) => {
     event.preventDefault();
     event.stopPropagation();
 
     const nameValid = nameRef.current?.value.trim() !== '';
-    const emailValid = regexEmail.test(emailRef.current?.value);
+    const emailValid = EMAIL_REGEX.test(emailRef.current?.value);
     const phoneValid = phoneRef.current?.value.trim() !== ''; 
     const referredByValid = referredByRef.current?.value.trim() !== '';
 
@@ -45,7 +45,7 @@ function DirectForm() {
         assign_to: userData.id,
       };
 
-      const response = await axios.post(`${apiUrl}/directform`, formData,{withCredentials:true});
+      const response = await api.post("/directform", formData);
 
       if (response.status === 201) {
         Swal.fire({
@@ -94,7 +94,7 @@ function DirectForm() {
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Control
                 ref={emailRef}
-                className={`shadow-none border ${!regexEmail.test(emailRef.current?.value) && 'is-invalid'}`}
+                className={`shadow-none border ${!EMAIL_REGEX.test(emailRef.current?.value) && 'is-invalid'}`}
                 type="email"
                 placeholder="Email"
                 required

@@ -1,6 +1,5 @@
 import  { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Tabs, Tab, Typography } from "@mui/material";
@@ -32,9 +31,9 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { useContext } from "react";
 import { MyContext } from "../pages/MyContext";
 import Loader from "../utils/Loader";
-import API_URL from "../Constants/ApiUrl";
 import Search from "../utils/Search";
 import NoProfilesFound from "../utils/NoProfilesFound";
+import api from "../api/axios";
 
 // Reusable Hook for Filtering Logic
 const useFilters = (
@@ -690,7 +689,7 @@ const RenderRow = memo(
 
 // Main Component
 function SelectedAtHr({
-  apiEndpoint = `${API_URL}/applicants/selected-at-hr`,
+  apiEndpoint = '/applicants/selected-at-hr',
 }) {
   const [data, setData] = useState(null);
   const [showDateInput, setShowDateInput] = useState({});
@@ -745,9 +744,7 @@ function SelectedAtHr({
     let isMounted = true;
     const debouncedFetch = debounce(async () => {
       try {
-        const response = await axios.get(apiEndpoint, {
-          withCredentials: true,
-        });
+        const response = await api.get(apiEndpoint);
         if (isMounted && response.status === 200) {
           setData(response.data.data || []);
         } else {
@@ -822,14 +819,14 @@ function SelectedAtHr({
 
       try {
         const { ntidCreated, ntidCreatedDate, ntid, addedToSchedule } = rowData;
-        const response = await axios.post(`${API_URL}/ntids`, {
+        const response = await api.post('/ntids', {
           ntidCreated,
           ntidCreatedDate,
           ntid,
           addedToSchedule,
           markAsAssigned: true,
           applicant_uuid,
-        },{withCredentials: true});
+        });
         if (response.status === 201) {
           toast.success("NTID entry created successfully!");
           setTimeout(() => window.location.reload(), 2000);
@@ -858,10 +855,10 @@ function SelectedAtHr({
 
     if (result.isConfirmed) {
       try {
-        const res = await axios.post(`${API_URL}/updatestatus`, {
+        const res = await api.post('/updatestatus', {
           applicant_uuid,
           action,
-        },{withCredentials: true});
+        });
         if (res.status === 200) {
           toast.success(res.data.message || "Status updated successfully");
           setTimeout(() => window.location.reload(), 1800);
@@ -891,9 +888,9 @@ function SelectedAtHr({
 
     if (result.isConfirmed) {
       try {
-        const res = await axios.post(`${API_URL}/contractsign`, {
+        const res = await api.post('/contractsign', {
           applicant_uuid,
-        },{withCredentials: true});
+        });
         if (res.status === 200) {
           toast.success(res.data.message || "Contract signed successfully");
           setTimeout(() => window.location.reload(), 1800);

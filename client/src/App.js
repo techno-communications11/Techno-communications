@@ -1,19 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Navbar from "./pages/Navbar";
 import AdminHome from "./Adminpages/AdminHome";
 import HrHome from "./HrRound/HrHome";
 import TrainerHome from "./TrainerPages/TrainerHome";
 import InterviewHome from "./InterviewRound/Interviewnew";
 import Login from "./Auth/Login";
 import Public from "./pages/PublicForm";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Navbar from "./pages/Navbar";
 import Register from "./Auth/Register";
 import New from "./Screnningpages/New";
 import Listprofile from "./Screnningpages/Screening";
@@ -47,6 +48,9 @@ import NTIDData from "./Adminpages/NTIDData";
 import { MyContext } from "./pages/MyContext";
 import { useContext } from "react";
 import Resumeview from "./utils/Resumeview";
+import getDefaultRoute from "./utils/getDefaultRoute";
+import  { setNavigate, getSessionExpired, setSessionExpired, setPreLogin, getPreLogin } from "./api/axios";
+
 function App() {
   return (
     <Router>
@@ -61,35 +65,52 @@ function AppComponent() {
   const [applicant_uuidProps, setApplicant_uuid] = useState("");
   const [applicantEmail, setApplicantEmail] = useState("");
   const [applicantPhone, setApplicantPhone] = useState("");
-  const { userData } = useContext(MyContext);
+  const { userData, setUserData, isAuthenticated, setIsAuthenticated } = useContext(MyContext);
+  const navigate = useNavigate();
   const location = useLocation();
   const normalizedPath = location.pathname.trim().toLowerCase();
-  const showNavbar =
-    normalizedPath !== "/" &&
-    normalizedPath !== "/memphis" && normalizedPath !== "/dubai" &&
-    normalizedPath !== "/login";
+
+  // Set navigate and initial pre-login state
+  useEffect(() => {
+    setNavigate(navigate);
     
+    // Clear any existing session flags on mount
+    setSessionExpired(false);
+    setPreLogin(true);
+  }, [navigate]);
+
+  const isPublicPath = ["/", "/memphis", "/dubai"].includes(normalizedPath);
+  const showNavbar = !isPublicPath && userData; // Only show Navbar if logged in
 
   return (
     <div className="App">
       {showNavbar && <Navbar />}
       <Routes>
-        {!userData ? (
+        {!userData || !isAuthenticated ? (
           <>
-            <Route path="/" element={<Public />} />
+            <Route
+              path="/"
+              element={
+                (userData && isAuthenticated) ? (
+                  <Navigate to={getDefaultRoute(userData.role)} />
+                ) : (
+                  <Public />
+                )
+              }
+            />
             <Route path="/memphis" element={<Public />} />
-              <Route path="/dubai" element={<Public />} />
+            <Route path="/dubai" element={<Public />} />
             <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </>
         ) : (
           <>
             {userData.role === "screening_manager" ||
             userData.role === "hr" ||
             userData.role === "interviewer" ? (
-              
               <>
-              <Route path="/new" element={<New />} />
-              <Route path="/resumeview" element={<Resumeview/>}/>
+                <Route path="/new" element={<New />} />
+                <Route path="/resumeview" element={<Resumeview />} />
               </>
             ) : null}
 
@@ -109,6 +130,7 @@ function AppComponent() {
                   path="/statusticketview/:captureStatus"
                   element={<StatsTicketView />}
                 />
+                <Route path="/resumeview" element={<Resumeview />} />
               </>
             )}
             {userData.role === "hr" && (
@@ -208,10 +230,19 @@ function AppComponent() {
                 <Route path="/selectedathr" element={<SelectedAtHr />} />
               </>
             )}
-            <Route path="/" element={<Public />} />
+            <Route
+              path="/"
+              element={
+                (userData && isAuthenticated) ? (
+                  <Navigate to={getDefaultRoute(userData.role)} />
+                ) : (
+                  <Public />
+                )
+              }
+            />
           </>
         )}
-        <Route path="*" element={<Navigate to={"/"} />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>
   );
